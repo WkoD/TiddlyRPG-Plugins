@@ -1,0 +1,124 @@
+/*
+ * Translation mechanics: display names (dndtitle, tag pill), the tag hook that stores translated
+ * tag names under the internal name, the search for translated hub names, translated edge labels
+ * and the refresh of date output after a language change or a change of the calendar texts.
+ * Plain expected output in one language belongs to the file of its topic.
+ */
+var test = require("node:test"),
+	assert = require("node:assert/strict"),
+	h = require("../helpers");
+
+var $tw, wiki;
+
+test.before(function() {
+	return h.boot().then(function(tw) {
+		$tw = tw;
+		wiki = tw.wiki;
+	});
+});
+
+function f(text, variables) {
+	return h.filter(wiki, text, variables).join();
+}
+
+// Tags of a tiddler after the save hook, joined with "|" (the array comes from TiddlyWiki's own
+// context, so a deep comparison with a plain array fails on the prototype)
+function saveTags(tags) {
+	return $tw.hooks.invokeHook("th-saving-tiddler", new $tw.Tiddler({title: "New", tags: tags})).fields.tags.join("|");
+}
+
+test.describe("de-DE", function() {
+	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
+	});
+
+	test("dndtitle hub", function() {
+		assert.equal(f("[[Location]dndtitle[]]"), "Ort");
+	});
+
+	test("dndtitle sub-tiddler", function() {
+		assert.equal(f("[[Insel Avalon/BattleMap]dndtitle[]]"), "Insel Avalon/Kampfkarte");
+	});
+
+	test("dndtitle without existing parent", function() {
+		assert.equal(f("[[Foo/Map]dndtitle[]]"), "Foo/Map");
+	});
+
+	test("dndtitle TBC/Campaign", function() {
+		assert.equal(f("[[TBC/Campaign]dndtitle[]]"), "TBC/Kampagne");
+	});
+
+	test("tag pill translated", function() {
+		assert.ok(h.view(wiki, "Insel Avalon").indexOf(">Ort</span>") !== -1);
+	});
+
+	test("tag hook: Ort -> Location", function() {
+		assert.equal(saveTags(["Ort", "Haus Kemri"]), "Location|Haus Kemri");
+	});
+
+	test("translated edge label filter", function() {
+		assert.equal(f("[[$:/config/flibbles/graph/edges/fields/leader]getindex[label]!is[blank]then[leader]addprefix[Field/]dndtranslate[]]"), "Anführer");
+		assert.equal(f("[[$:/config/flibbles/graph/edges/fields/location]getindex[label]!is[blank]then[location]addprefix[Field/]dndtranslate[]]"), "");
+	});
+
+	test.describe("search", function() {
+		var search;
+
+		test.before(function() {
+			search = wiki.getTiddler("$:/core/ui/DefaultSearchResultList").fields["first-search-filter"];
+		});
+
+		test("search: translated hub name finds the hub", function() {
+			assert.ok(h.filter(wiki, search, {userInput: "Ort"}).indexOf("Location") !== -1);
+		});
+
+		test("search: Kampagne finds the campaign hub", function() {
+			assert.ok(h.filter(wiki, search, {userInput: "Kampagne"}).indexOf("Campaign") !== -1);
+		});
+	});
+});
+
+test.describe("en-GB", function() {
+	test.before(function() {
+		h.setLanguage(wiki, "en-GB");
+	});
+
+	test("de tag still mapped while en is active", function() {
+		assert.equal(saveTags(["Ort"]), "Location");
+	});
+});
+
+test.describe("refresh", function() {
+	var widget, container;
+
+	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
+		var text = "\\import [subfilter{$:/core/config/GlobalImportFilter}]\n<<datelong date:\"1351-01-31\">>",
+			parser = wiki.parseText("text/vnd.tiddlywiki", text);
+		widget = wiki.makeWidget(parser, {document: $tw.fakeDocument});
+		container = $tw.fakeDocument.createElement("div");
+		widget.render(container, null);
+	});
+
+	test("datelong refreshes on a language change", function() {
+		var before = container.textContent;
+		h.setLanguage(wiki, "en-GB");
+		widget.refresh({"$:/language": {modified: true}});
+		var after = container.textContent;
+		assert.ok(before.indexOf("Mittwinter") !== -1 && after.indexOf("Midwinter") !== -1, [before, after].join(" / "));
+	});
+
+	test("datelong refreshes on a change of the calendar texts", function() {
+		// Rename a festival in the language keys
+		var title = "$:/dndwiki/language/en-GB/Calendar/Harptos/Festival/Midwinter",
+			changes = {};
+		changes[title] = {modified: true};
+		h.add(wiki, {title: title, text: "Deep Midwinter"});
+		try {
+			widget.refresh(changes);
+			assert.ok(container.textContent.indexOf("Deep Midwinter") !== -1, container.textContent);
+		} finally {
+			wiki.deleteTiddler(title);
+		}
+	});
+});

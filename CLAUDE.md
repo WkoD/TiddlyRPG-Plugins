@@ -23,24 +23,37 @@ step - the folder *is* the plugin, edit the tiddlers there directly).
 ```bash
 npm install
 npm run smoke       # boot/load check with all plugins and de-DE (no wiki checkout needed)
-npm test            # functional test: calendar engine, rendering in de-DE/en-GB, refresh
-npm run check-lang  # language packs complete against en-GB
+npm test            # all tests in test/
+npm run test-lang   # only test/lang/: language packs and translation mechanics
 ```
 
 - `npm run smoke` boots the minimal edition `editions/smoke` (only `tiddlywiki.info` with the
   plugin list and `"languages": ["de-DE"]`, **no content**) and aborts on module/load errors.
-  JS modules only run when used, so this does not replace the test.
-- `npm test` (`scripts/test.js`) boots the smoke edition in-process, adds fixture tiddlers and
-  checks the calendar engine against the former hard-wired Harptos arithmetic, the rendered
-  view templates in de-DE and en-GB, with and without an active calendar, the refresh of date
-  output after a language change, the tag hook and the search. The graph widget needs a
-  browser; the test renders the relations through the list tab. The timeline renders in Node
-  (cards, bars, beams, order, details); what depends on measured sizes - the placement of the
-  vertical labels, the widening of a selected card, the lines to its points - only shows in a
-  browser. Extend it with every change.
-- The launcher `scripts/tw.js` builds `TIDDLYWIKI_PLUGIN_PATH` from `./plugins` plus the pinned
-  `node_modules/tw5-*/plugins`. A **content preview** deliberately does not exist here - use the
-  IDE loop in a real wiki (below).
+  JS modules only run when used, so this does not replace the tests.
+- `npm test` runs `test/**/*.test.js` with Node's built-in test runner (`node:test`); every file
+  runs in its own process. `test/helpers.js` boots the smoke edition in-process, adds the fixture
+  tiddlers and offers `render`/`view`/`body`/`filter`. One file per topic:
+  - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
+    leap rule
+  - `dates` - `datelong`/`datecalc`/`datediff` in de-DE and en-GB, and without a calendar
+  - `location` - map tabs, map images, event history, player lock, person view
+  - `timeline` - cards, bars, beams, order, details
+  - `hubs` - hub and index tiddlers, event template, type colours, no leaked pragmas or `<<dnd.`
+  - `graph` - the `edges.typed` override
+  - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
+    may be missing)
+  - `lang/i18n` - display names, tag hook, search, edge labels, refresh after a language change
+
+  Language mechanics go to `lang/`; plain expected output in one language stays with its topic.
+  New check -> the file of its topic; new topic -> new file. A test that changes the wiki
+  restores it afterwards (the files do not share state, the tests within a file do). The graph
+  widget needs a browser; the tests render the relations through the list tab. The timeline
+  renders in Node; what depends on measured sizes - the placement of the vertical labels, the
+  widening of a selected card, the lines to its points - only shows in a browser. Extend the
+  tests with every change.
+- The launcher `scripts/tw.js` and the tests take `TIDDLYWIKI_PLUGIN_PATH` from
+  `scripts/plugin-path.js`: `./plugins` plus the pinned `node_modules/tw5-*/plugins`. A
+  **content preview** deliberately does not exist here - use the IDE loop in a real wiki (below).
 
 **Checking in a real wiki (IDE loop instead of WYSIWYG):** The format layer is edited here in
 the IDE (versioned technical layer) and checked together with a real wiki - no saving back from
@@ -83,7 +96,7 @@ from the language packs, never as a literal in a template.
 
 **Language:** everything in this repo is English - code, comments, docs, commit messages, tags
 and release notes (from 2.0.0 on; the history before is German). German appears only as data:
-the `de-DE` language packs and the expected output in `scripts/test.js`.
+the `de-DE` language packs and the expected output in `test/`.
 
 ## Contents (`$:/plugins/dndwiki-core/...`) - inventory
 
@@ -151,7 +164,7 @@ the tiddler title:
 - Keys are tiddlers `$:/dndwiki/language/<code>/<key>`, delivered as `.multids` (one line per
   key) or `.tid` (multi-line texts such as `Calendar/Harptos/Description`). en-GB is the base;
   every other language has the same keys. Keys only in `en-GB/names.multids` are proper names that
-  may fall back on purpose (`check-lang` does not report them).
+  may fall back on purpose (`test/lang/packs.test.js` does not report them).
 - Lookup in `modules/language.js`: active language (`$:/language`) -> en-GB -> null. The
   wikitext functions `dnd.t`, `dnd.title`, `dnd.plural` wrap the filter operators, so the fallback
   rule exists only once. **Functions with parameters take their argument from the operand, not
@@ -313,7 +326,7 @@ its `CLAUDE.md`.)
 3. Run `npm install` -> brings `package-lock.json` to the same version. Do not skip it: otherwise
    the lockfile version drifts permanently.
 4. Pin example in `README.md` ("Using it in TiddlyWiki") to the new version.
-5. `npm run smoke`, `npm test`, `npm run check-lang`.
+5. `npm run smoke`, `npm test`.
 6. Commit, then **tag == version** and create the release:
    ```bash
    git tag 2.0.0 && git push origin master 2.0.0

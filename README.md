@@ -68,7 +68,7 @@ Keys are tiddlers `$:/dndwiki/language/<code>/<key>`. A language can come as
 - a small plugin of its own, or
 - tiddlers directly in a wiki.
 
-Missing keys fall back to en-GB, so a partial translation works. `npm run check-lang` reports
+Missing keys fall back to en-GB, so a partial translation works. `npm run test-lang` reports
 missing and extra keys per language. If TiddlyWiki has no interface pack for the language, set
 only `$:/language`; the TiddlyWiki interface then stays English, the D&D texts follow.
 
