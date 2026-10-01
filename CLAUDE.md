@@ -186,7 +186,8 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
 More cascade entries instead of core overrides:
 
 - `config/type-colour` (`$:/tags/TiddlerColourFilter`, after `color-field`): tiddlers without
-  their own `color` inherit the colour of their type hub.
+  their own `color` inherit the colour of their type hub. `Adventure` counts last: an adventure
+  is always also an `Event` and keeps its colour, whatever the order of the tags.
 - `config/class-pinned` (`$:/tags/ClassFilters/TiddlerTemplate`): class `dnd-pinned` for
   `$:/tags/Pinned`; `styles/pinned` hides the close button there.
 - `config/class-readonly` (`$:/tags/ClassFilters/PageTemplate`): class `dnd-readonly` on the page

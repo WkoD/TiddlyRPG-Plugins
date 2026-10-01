@@ -223,6 +223,12 @@ function testGerman(wiki) {
 	check("history flags", avalon.indexOf("(Start)") !== -1 && avalon.indexOf("(Ende)") !== -1);
 	check("tabs: Karte before Kampfkarte", avalon.indexOf(">Karte<") < avalon.indexOf(">Kampfkarte<"));
 	check("map block before history", avalon.indexOf("Kantine") < avalon.indexOf("Geschichte"));
+	var colour = function(title) {
+		return wiki.filterTiddlers("[[" + title + "]] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]]").join();
+	};
+	check("type colour: Event wins over Adventure whatever the tag order", colour("Der dunkle Turm") === "#48a4ff", colour("Der dunkle Turm"));
+	check("type colour: other types unchanged", colour("Grum") === "#00a600", colour("Grum"));
+	check("Adventure hub: no event list of its own", view(wiki, "Adventure").indexOf("Geschichte") === -1);
 
 	var baile = view(wiki, "Baile");
 	check("location with map only: one tab", baile.indexOf(">Karte<") !== -1 && baile.indexOf("Kampfkarte") === -1);
