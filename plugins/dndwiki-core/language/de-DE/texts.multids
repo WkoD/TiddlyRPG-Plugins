@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261001095424000
+modified: 20261001154438000
 title: $:/dndwiki/language/de-DE/
 
 Adventure/OpenTasks: Offene Aufgaben
@@ -20,9 +20,9 @@ Date/Time: $time$ Uhr
 Event/Event: Ereignis
 Event/End: (Ende)
 Event/Continued: (Fortsetzung)
-Event/History: Geschichte
 Event/Location: Ort:
 Event/Start: (Start)
+Event/Timeline: Zeitstrahl
 Event/Year: Jahr:
 Item/Currency: GP
 Item/Price: Preis:
@@ -36,3 +36,11 @@ Relations/List: Liste
 Snippet/OpenItems: Offene Punkte
 Snippet/PlayerSpoiler: Spoiler Spieler
 TBC/Other: Anderes
+Timeline/Expand: Lücke aufklappen
+Timeline/Gap: $n$ Jahre
+Timeline/Gaps: Lücken stauchen
+Timeline/GapsHint: Lange Zeiträume ohne Ereignisse zusammenziehen
+Timeline/Open: offen
+Timeline/WheelHint: Strg + Mausrad: Zoom
+Timeline/ZoomIn: Vergrößern
+Timeline/ZoomOut: Verkleinern

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261001095424000
+modified: 20261001154438000
 title: $:/dndwiki/language/en-GB/
 
 Adventure/OpenTasks: Open Tasks
@@ -20,9 +20,9 @@ Date/Time: $time$
 Event/Event: Event
 Event/End: (end)
 Event/Continued: (continued)
-Event/History: History
 Event/Location: Location:
 Event/Start: (start)
+Event/Timeline: Timeline
 Event/Year: Year:
 Item/Currency: GP
 Item/Price: Price:
@@ -36,3 +36,11 @@ Relations/List: List
 Snippet/OpenItems: Open Items
 Snippet/PlayerSpoiler: Player Spoiler
 TBC/Other: Other
+Timeline/Expand: Expand gap
+Timeline/Gap: $n$ years
+Timeline/Gaps: Collapse gaps
+Timeline/GapsHint: Collapse long stretches without events
+Timeline/Open: open
+Timeline/WheelHint: Ctrl + mouse wheel: zoom
+Timeline/ZoomIn: Zoom in
+Timeline/ZoomOut: Zoom out

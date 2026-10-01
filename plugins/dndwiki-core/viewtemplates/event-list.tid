@@ -1,6 +1,6 @@
 created: 20200305182729567
 list-after: $:/plugins/dndwiki-core/viewtemplates/item
-modified: 20261001095424000
+modified: 20261001154438000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/dndwiki-core/viewtemplates/event-list
 type: text/vnd.tiddlywiki
@@ -10,10 +10,10 @@ type: text/vnd.tiddlywiki
 <$list filter="[all[current]!is[system]!untagged[]!tag[Event]!tag[Index]!tag[Information]]">
 
 <hr>
-<h3><<dnd.t Event/History>></h3>
-<table><tr><th align="center" colspan="3"><$text text={{{ [[Date/Column]dndtranslate[]] [calendar[era]!is[blank]addprefix[(]addsuffix[)]] +[join[ ]] }}}/></th><th><<dnd.t Event/Event>></th></tr>
-<$list filter="[all[current]backlinks[]tag[Event]][tag{!!title}tag[Event]] +[!eventlist[]]">{{!!title}}</$list>
-</table>
+<$let self=<<currentTiddler>> dnd-events="[<self>backlinks[]tag[Event]] [tag<self>tag[Event]]">
+{{||$:/plugins/dndwiki-core/viewtemplates/event-list/tabs}}
+</$let>
+<hr>
 </$list>
 <%endif%>
 </$reveal>

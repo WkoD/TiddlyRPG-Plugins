@@ -54,9 +54,13 @@ function fixtures(wiki) {
 		{title: "Secret", tags: "Location Frigg", text: "Only for Frigg."},
 		{title: "Der dunkle Turm", tags: "Adventure Event", date: "1351-07-01.1351-07-11", text: "<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-11\"/>\n\nAt [[Insel Avalon]]."},
 		{title: "Hafenfest", tags: "Event", date: "1351-07-05", text: "At [[Insel Avalon]]."},
+		{title: "Sage", tags: "Event", text: "Undated."},
+		{title: "Friggs Traum", tags: "Event Frigg", date: "1351-07-03", text: "At [[Insel Avalon]]."},
 		{title: "PlayerLevel", tags: "Information", text: "100000 EXP"},
 		// The graph widget needs a browser; the relation tests use the list tab
-		{title: "$:/state/dndwiki-core/relations-tab", text: "$:/plugins/dndwiki-core/viewtemplates/relations/list"}
+		{title: "$:/state/dndwiki-core/relations-tab", text: "$:/plugins/dndwiki-core/viewtemplates/relations/list"},
+		// The history checks read the table; the timeline is checked on its own below
+		{title: "$:/state/dndwiki-core/events-tab", text: "$:/plugins/dndwiki-core/viewtemplates/event-list/list"}
 	].forEach(function(fields) {
 		fields.created = T;
 		fields.modified = T;
@@ -222,13 +226,51 @@ function testGerman(wiki) {
 	check("history header with era", avalon.indexOf("Zeitpunkt (DR)") !== -1);
 	check("history flags", avalon.indexOf("(Start)") !== -1 && avalon.indexOf("(Ende)") !== -1);
 	check("tabs: Karte before Kampfkarte", avalon.indexOf(">Karte<") < avalon.indexOf(">Kampfkarte<"));
-	check("map block before history", avalon.indexOf("Kantine") < avalon.indexOf("Geschichte"));
+	check("map block before history", avalon.indexOf("Kantine") < avalon.indexOf(">Zeitstrahl<"));
 	var colour = function(title) {
 		return wiki.filterTiddlers("[[" + title + "]] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]]").join();
 	};
 	check("type colour: Event wins over Adventure whatever the tag order", colour("Der dunkle Turm") === "#48a4ff", colour("Der dunkle Turm"));
 	check("type colour: other types unchanged", colour("Grum") === "#00a600", colour("Grum"));
-	check("Adventure hub: no event list of its own", view(wiki, "Adventure").indexOf("Geschichte") === -1);
+	check("events locked for the player are left out of the event list", avalon.indexOf("Friggs Traum") === -1);
+	wiki.addTiddler(new $tw.Tiddler({title: "$:/state/dndwiki/player", text: "Frigg"}));
+	var avalonFrigg = view(wiki, "Insel Avalon");
+	wiki.deleteTiddler("$:/state/dndwiki/player");
+	check("... but shown to that player", avalonFrigg.indexOf("Friggs Traum") !== -1);
+	var adventure = view(wiki, "Adventure");
+	check("Adventure hub: events shown once (no event list of its own)", (adventure.match(/>Zeitstrahl</g) || []).length === 1, (adventure.match(/>Zeitstrahl</g) || []).length);
+	var timeline = render(wiki, "text/html", "<$dnd-timeline filter=\"[tag[Event]]\"/>");
+	check("timeline: one card per event", (timeline.match(/class="dnd-tl-card/g) || []).length === 4, timeline.substr(0, 600));
+	check("timeline: adventure solid bar, other event dashed point", timeline.indexOf("dnd-tl-bar dnd-tl-adventure") !== -1 && timeline.indexOf("dnd-tl-point dnd-tl-other") !== -1);
+	var cardTop = function(title) {
+		var cards = timeline.split('<div class="dnd-tl-card').slice(1);
+		for(var i = 0; i < cards.length; i++) {
+			if(cards[i].indexOf(">" + title + "<") !== -1) {
+				return parseFloat(/top:\s*([-\d.]+)px/.exec(cards[i])[1]);
+			}
+		}
+		return NaN;
+	};
+	check("timeline: details for the selected card (points in time)", timeline.indexOf("dnd-tl-details") !== -1 && /class="dnd-tl-point-date"[^>]*>1\. Flamerule 1351</.test(timeline));
+	// Seven overlapping spans: more than five lanes merge into one beam
+	var many = [];
+	for(var n = 1; n <= 7; n++) {
+		many.push("[[Beam " + n + "]]");
+		wiki.addTiddler(new $tw.Tiddler({title: "Beam " + n, tags: "Event", date: "1351-0" + n + "-01.1351-12-01"}));
+	}
+	var beams = render(wiki, "text/html", "<$dnd-timeline filter=\"" + many.join(" ") + "\"/>");
+	check("timeline: more than five spans merge into a beam", beams.indexOf("dnd-tl-beam") !== -1 && (beams.match(/class="dnd-tl-thread"/g) || []).length === 7);
+	check("timeline: at most five lanes wide", (function() {
+		var xs = {};
+		(beams.match(/class="dnd-tl-stroke" d="M([\d.]+) /g) || []).forEach(function(m) { xs[m] = true; });
+		return Object.keys(xs).length <= 5;
+	})());
+	for(n = 1; n <= 7; n++) {
+		wiki.deleteTiddler("Beam " + n);
+	}
+	check("timeline: newest at the top", cardTop("Hafenfest") < cardTop("Der dunkle Turm"), [cardTop("Hafenfest"), cardTop("Der dunkle Turm")]);
+	check("timeline: undated at the very bottom as ????", cardTop("Sage") > cardTop("Der dunkle Turm") && timeline.indexOf(">????<") !== -1, cardTop("Sage"));
+	check("timeline: Harptos label", timeline.indexOf("1. Flamerule 1351") !== -1, timeline.match(/dnd-tl-date">[^<]*/g));
 
 	var baile = view(wiki, "Baile");
 	check("location with map only: one tab", baile.indexOf(">Karte<") !== -1 && baile.indexOf("Kampfkarte") === -1);

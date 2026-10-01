@@ -1,0 +1,17 @@
+created: 20261001133844000
+modified: 20261001154438000
+title: $:/plugins/dndwiki-core/viewtemplates/event-list/tabs
+type: text/vnd.tiddlywiki
+
+<!-- Tab list "Timeline"/"List" for events, like "Graph"/"List" for relations. The caller sets
+     the variable dnd-events (filter of the event tiddlers); both tabs use it and leave out events
+     locked for the logged-in player (dnd.visible) - not even title and date are shown. -->
+<$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
+	tabsList="[[$:/plugins/dndwiki-core/viewtemplates/event-list/timeline]] [[$:/plugins/dndwiki-core/viewtemplates/event-list/list]]"
+	default="$:/plugins/dndwiki-core/viewtemplates/event-list/timeline"
+	explicitState="$:/state/dndwiki-core/events-tab"
+	class="">
+<$fill $name=body>
+<$transclude $tiddler=<<currentTab>> $mode=block/>
+</$fill>
+</$transclude>

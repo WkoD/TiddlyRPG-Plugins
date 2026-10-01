@@ -34,7 +34,10 @@ npm run check-lang  # language packs complete against en-GB
   checks the calendar engine against the former hard-wired Harptos arithmetic, the rendered
   view templates in de-DE and en-GB, with and without an active calendar, the refresh of date
   output after a language change, the tag hook and the search. The graph widget needs a
-  browser; the test renders the relations through the list tab. Extend it with every change.
+  browser; the test renders the relations through the list tab. The timeline renders in Node
+  (cards, bars, beams, order, details); what depends on measured sizes - the placement of the
+  vertical labels, the widening of a selected card, the lines to its points - only shows in a
+  browser. Extend it with every change.
 - The launcher `scripts/tw.js` builds `TIDDLYWIKI_PLUGIN_PATH` from `./plugins` plus the pinned
   `node_modules/tw5-*/plugins`. A **content preview** deliberately does not exist here - use the
   IDE loop in a real wiki (below).
@@ -89,17 +92,27 @@ the tiddler title:
   (see "Functions & cascades"), `dnd.t`, `dnd.title`, `dnd.plural` (language system), the
   procedures `datelong`, `datecalc`, `datediff` (calendar).
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
-  `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine").
+  `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `events.js` (splits
+  the `date` field of an event into its points in time - several points, open start/end; shared
+  by `eventlist` and the timeline so both read dates by the same rules).
+- **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attribute `filter`): vertical,
+  interactive timeline of the events, newest at the top, undated ones at the bottom as `????`.
+  Positions from `calendar.dayNumber`, long gaps collapsed; spans as bars in at most 5 lanes,
+  more merge into one beam; tap/click selects (card grows, lines to each point in time), the
+  title in the selected card opens the tiddler. Adventures solid, other events dashed. Details
+  in the module header.
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
   `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`, `library` (calendar
   independent date parser and comparison).
-- **Filters** (`filters/*`): `eventlist` (event table), `multitag` (input with at least one of the
+- **Filters** (`filters/*`): `eventlist` (event table, the "List" tab), `multitag` (input with at least one of the
   tags, grouped in tag order, no duplicates), `translate.js` (`dndtranslate`, `dndtitle`,
   `dndtitlesearch`), `date.js` (`datelong`, `datecalc`, `datediff`, `calendar[...]`).
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`).
-- **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list`, `item`, `link`,
+- **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
+  "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
+  variable `dnd-events`, contents `event-list/timeline` + `event-list/list`), `item`, `link`,
   `location` (map block: one tab per existing sub-tiddler `<location>/Map`, `<location>/BattleMap`,
   tab content `location/sub`), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
@@ -107,7 +120,8 @@ the tiddler title:
   (cascade, see below).
 - **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `player-spoiler`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
-  rules, battle map width), `dead`, `pinned` and `readonly` (static CSS, `type: text/css`).
+  rules, battle map width), `dead`, `pinned`, `readonly` and `timeline` (static CSS,
+  `type: text/css`).
   **Templates** `templates/image`, `templates/body-locked`, `templates/title-translated`.
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
   `title-translated` - see below.
@@ -177,7 +191,7 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
   `<%if [<currentTiddler>dnd.visible[]] %>`; the body is locked by `viewtemplates/body-filter`
   (`$:/tags/ViewTemplateBodyFilter`, empty `list-before` = first entry of the cascade), which
   assigns `templates/body-locked` to locked tiddlers. The map tabs of a location drop
-  sub-tiddlers locked for the player. A change of the lock logic (e.g. login per player) happens
+  sub-tiddlers locked for the player, the event tabs (timeline and list) drop locked events. A change of the lock logic (e.g. login per player) happens
   only in the function.
 - **`dnd.dead`** - deceased/destroyed: a dot in the `date` field, **events excluded** (there the
   dot separates several points in time). Used by `config/class-dead` (class `dnd-dead`,

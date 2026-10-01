@@ -1,0 +1,7 @@
+caption: <<dnd.t Event/Timeline>>
+created: 20261001133844000
+modified: 20261001154438000
+title: $:/plugins/dndwiki-core/viewtemplates/event-list/timeline
+type: text/vnd.tiddlywiki
+
+<$dnd-timeline filter="[subfilter<dnd-events>] :filter[dnd.visible[]]"/>

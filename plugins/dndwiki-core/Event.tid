@@ -1,11 +1,11 @@
 caption: <<dnd.title Event>>
 color: #48a4ff
 created: 20200209100013995
-modified: 20261001095424000
+modified: 20261001154438000
 tags: Index
 title: Event
 type: text/vnd.tiddlywiki
 
-<table><tr><th align="center" colspan="3"><$text text={{{ [[Date/Column]dndtranslate[]] [calendar[era]!is[blank]addprefix[(]addsuffix[)]] +[join[ ]] }}}/></th><th><<dnd.t Event/Event>></th></tr>
-<$list filter="[tag[Event]] +[!eventlist[]]">{{!!title}}</$list>
-</table>
+<$let dnd-events="[tag[Event]]">
+{{||$:/plugins/dndwiki-core/viewtemplates/event-list/tabs}}
+</$let>

@@ -9,7 +9,7 @@ plugins from here.
 
 | Plugin | Folder | Purpose | Origin |
 |---|---|---|---|
-| `$:/plugins/dndwiki-core` | `plugins/dndwiki-core` | **D&D format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar engine, graph schema | own, versioned |
+| `$:/plugins/dndwiki-core` | `plugins/dndwiki-core` | **D&D format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar engine, graph schema, event timeline | own, versioned |
 | `$:/plugins/dndwiki-forgottenrealms` | `plugins/dndwiki-forgottenrealms` | **optional**: Calendar of Harptos (Forgotten Realms) as calendar data with language keys | own, versioned with the core |
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
 
@@ -114,5 +114,9 @@ node <path to TiddlyDnD-Plugins>/scripts/migrate-2.0.js <wiki folder> --write  #
 ```
 
 The release notes of 2.0.0 list every rename.
+
+New in 2.0.0 without migration: the event table (on the `Event` hub and under every tiddler
+with events) becomes a tab list "Timeline"/"List" - an interactive timeline next to the
+unchanged table. Both leave out events locked for the logged-in player.
 
 Editing and release process of this repo: see `CLAUDE.md`.

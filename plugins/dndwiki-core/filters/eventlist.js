@@ -4,8 +4,8 @@ type: application/javascript
 module-type: filteroperator
 
 Filter operator for the event table: one row per point in time from the date field
-(points separated by "."), sorted by date, rows of the same year/month/day/event merged.
-Without "!" prefix the order is reversed.
+(split by modules/events.js, the same rules as the timeline), sorted by date, rows of the same
+year/month/day/event merged. Without "!" prefix the order is reversed.
 
 \*/
 (function(){
@@ -15,6 +15,7 @@ Without "!" prefix the order is reversed.
 "use strict";
 
 var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
+   eventDates = require("$:/plugins/dndwiki-core/modules/events.js"),
    language = require("$:/plugins/dndwiki-core/modules/language.js"),
    library = require("$:/plugins/dndwiki-core/macros/library");
 
@@ -173,35 +174,33 @@ var prepare_results = function (source) {
    var results = [];
    source(function(tiddler,title) {
       if (tiddler) {
-         var hastag = tiddler.hasTag("Adventure");
-         if (tiddler.fields.date) {
-            // Points in time separated by "."; empty parts are skipped (a dot at the end =
-            // open end: the last real point stays "continued")
-            var dates = tiddler.fields.date.split(".");
-            var flag = dates.length > 1 ? "start" : null;
+         var hastag = tiddler.hasTag("Adventure"),
+            parsed = eventDates.parse(tiddler.fields.date);
+         if (parsed.points.length) {
+            // Several parts: the first real point is "start", the last part "end" (unless it is
+            // empty = open end, then the last real point stays "continued")
+            var flag = parsed.count > 1 ? "start" : null;
             var prev = 0;
 
-            for (var i = 0; i < dates.length; ++i) {
-               if (dates[i]) {
-                  var date = dates[i].split("-");
-                  var key = dateKey(date);
+            for (var i = 0; i < parsed.points.length; ++i) {
+               var point = parsed.points[i],
+                  key = dateKey([point.year, point.month, point.day]);
 
-                  if (i === 0) {
-                     prev = key;
-                  }
-
-                  if (flag && (i === (dates.length - 1))) {
-                     flag = "end";
-                  }
-
-                  // Order on the same day: later points (negative, depending on the distance to
-                  // the previous point) before first points (1); several first points keep
-                  // their input order
-                  results.push({title: tiddler.fields.title, year: date[0], month: date[1], day: date[2], order: (key === prev ? 1 : -1 / (key - prev)), flag: flag, tt: hastag});
-
-                  flag = "cont";
+               if (point.index === 0) {
                   prev = key;
                }
+
+               if (flag && point.index === parsed.count - 1) {
+                  flag = "end";
+               }
+
+               // Order on the same day: later points (negative, depending on the distance to
+               // the previous point) before first points (1); several first points keep
+               // their input order
+               results.push({title: tiddler.fields.title, year: point.year, month: point.month, day: point.day, order: (key === prev ? 1 : -1 / (key - prev)), flag: flag, tt: hastag});
+
+               flag = "cont";
+               prev = key;
             }
          } else {
             results.push({title: tiddler.fields.title, year: "????", month: null, day: null, order: 0, flag: null, tt: hastag});
