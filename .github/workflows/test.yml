@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      # Same version as the build of the wikis
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: npm
+    - name: Install dependencies (tiddlywiki + flibbles graph stack, from package-lock.json)
+      run: npm ci
+    - name: Boot check (all plugins, de-DE)
+      run: npm run smoke
+    - name: Tests (test/**/*.test.js, language packs included)
+      run: npm test

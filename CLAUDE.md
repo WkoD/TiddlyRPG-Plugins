@@ -51,6 +51,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   renders in Node; what depends on measured sizes - the placement of the vertical labels, the
   widening of a selected card, the lines to its points - only shows in a browser. Extend the
   tests with every change.
+- CI (`.github/workflows/test.yml`) runs `npm run smoke` and `npm test` on every push and pull
+  request.
 - The launcher `scripts/tw.js` and the tests take `TIDDLYWIKI_PLUGIN_PATH` from
   `scripts/plugin-path.js`: `./plugins` plus the pinned `node_modules/tw5-*/plugins`. A
   **content preview** deliberately does not exist here - use the IDE loop in a real wiki (below).
@@ -327,7 +329,7 @@ its `CLAUDE.md`.)
    the lockfile version drifts permanently.
 4. Pin example in `README.md` ("Using it in TiddlyWiki") to the new version.
 5. `npm run smoke`, `npm test`.
-6. Commit, then **tag == version** and create the release:
+6. Commit and push; once the CI run is green, **tag == version** and create the release:
    ```bash
    git tag 2.0.0 && git push origin master 2.0.0
    gh release create 2.0.0 --generate-notes
