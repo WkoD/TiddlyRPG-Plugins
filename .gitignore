@@ -2,5 +2,5 @@ node_modules/
 *.log
 /output/
 
-# Runtime-Save-State der Editionen
+# Runtime save state of the editions
 editions/*/tiddlers/

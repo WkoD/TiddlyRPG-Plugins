@@ -81,6 +81,11 @@ renames/migrations excepted).
 (`location`, `owner`, ...), macros, functions, files (`kebab-case`). Everything a reader sees comes
 from the language packs, never as a literal in a template.
 
+**Language:** everything in this repo is English - code, comments, docs, commit messages, tags
+and release notes (from 2.0.0 on; the history before is German). German appears only as data:
+the `de-DE` language packs, the expected output in `scripts/test.js` and the name mapping in
+`scripts/migrate-2.0.js`.
+
 ## Contents (`$:/plugins/dndwiki-core/...`) - inventory
 
 So that it is clear what already exists before adding something. All format tiddlers live
