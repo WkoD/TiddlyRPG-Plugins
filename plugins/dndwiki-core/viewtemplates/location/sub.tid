@@ -1,0 +1,11 @@
+created: 20261001095424000
+modified: 20261001095424000
+title: $:/plugins/dndwiki-core/viewtemplates/location/sub
+type: text/vnd.tiddlywiki
+
+<!-- Tab content of the map block (viewtemplates/location): the sub-tiddler <<currentTab>> with
+     its images (folder from its type tag, see macros/image.js) and its text. -->
+<$list filter="[<currentTab>has[image]]" variable=null>
+<div align="center"><$macrocall $name="image" title=<<currentTab>> parent=<<currentTiddler>>/></div>
+</$list>
+<$transclude $tiddler=<<currentTab>> $mode=block/>

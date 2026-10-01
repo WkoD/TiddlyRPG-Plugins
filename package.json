@@ -1,10 +1,13 @@
 {
   "name": "tiddlydnd-plugins",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "private": true,
-  "description": "Plugin-Buendel fuer die DnDWiki-Repo-Familie: dndwiki-core (Formatschicht) + staticfiles (wkod-Eigenplugins). Enthaelt eine Minimal-Edition fuer den Boot-/Smoke-Check (npm run smoke).",
+  "description": "Plugin bundle for the DnDWiki repo family: dndwiki-core (format layer), dndwiki-forgottenrealms (Forgotten Realms calendar data, optional) and staticfiles (dev server assets). Includes a minimal edition for the boot/smoke check (npm run smoke), a functional test (npm test) and a language pack check (npm run check-lang).",
   "scripts": {
-    "smoke": "node scripts/tw.js editions/smoke --verbose --version"
+    "smoke": "node scripts/tw.js editions/smoke --verbose --version",
+    "test": "node scripts/test.js",
+    "check-lang": "node scripts/check-lang.js",
+    "migrate": "node scripts/migrate-2.0.js"
   },
   "devDependencies": {
     "tiddlywiki": "5.4.1",

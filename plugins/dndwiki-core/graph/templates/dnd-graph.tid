@@ -1,6 +1,6 @@
-caption: DnD-Graph (Typfarben, ohne Positionsspeicherung)
+caption: DnD graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20260930204000000
+modified: 20261001095424000
 title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 
 \whitespace trim
@@ -11,10 +11,11 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 </$wikify>
 \end dnd.node
 
-<!-- Wie live-graph: keine $properties.persistent -> es werden keine Positionen gespeichert.
-     Knotenfarbe kommt aus der Farbe des Typ-Tags ({{Person!!color}} usw.); Grau (tot/aufgeloest,
-     dnd.tot) als innerste, hoechste Prioritaet. Kein per-Knoten !!color -> Tag-Farbe
-     regiert einheitlich, Aendern der Tag-Farbe faerbt alle Knoten des Typs um. -->
+<!-- Like live-graph: no $properties.persistent -> no positions are saved.
+     Node colour comes from the colour of the type tag ({{Person!!color}} etc.); grey
+     (dead/dissolved, dnd.dead) as the innermost, highest priority. No per-node !!color -> the tag
+     colour rules uniformly, changing it recolours all nodes of the type.
+     Edge labels are translated (Field/<field>) by the override of $edges.typed in dndwiki-core. -->
 
 <$set name="focusTiddler" filter="[subfilter{!!filter}]">
 <$graph>
@@ -25,17 +26,17 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 
 <$slot $name=ts-raw $depth=5 />
 
-<$properties $filter="[tag[Ereignis]]"      color={{Ereignis!!color}}>
-<$properties $filter="[tag[Gott]]"           color={{Gott!!color}}>
-<$properties $filter="[tag[Ort]]"            color={{Ort!!color}}>
-<$properties $filter="[tag[Artefakt]] [tag[Buch]] [tag[Gegenstand]] [tag[Material]]" color={{Gegenstand!!color}}>
+<$properties $filter="[tag[Event]]"      color={{Event!!color}}>
+<$properties $filter="[tag[Deity]]"           color={{Deity!!color}}>
+<$properties $filter="[tag[Location]]"            color={{Location!!color}}>
+<$properties $filter="[tag[Artifact]] [tag[Book]] [tag[Item]] [tag[Material]]" color={{Item!!color}}>
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
-<$properties $filter="[tag[Spieler]]"        color={{Spieler!!color}}>
+<$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
-<$properties $filter="[tag[Person]dnd.tot[]]"       color="#dddddd" borderColor={{Person!!color}}>
-<$properties $filter="[tag[Spieler]dnd.tot[]]"      color="#dddddd" borderColor={{Spieler!!color}}>
-<$properties $filter="[tag[Organisation]dnd.tot[]]" color="#dddddd" borderColor={{Organisation!!color}}>
-<$properties $filter="[tag[Artefakt]] [tag[Buch]] [tag[Gegenstand]] [tag[Material]] +[dnd.tot[]]" color="#dddddd" borderColor={{Gegenstand!!color}}>
+<$properties $filter="[tag[Person]dnd.dead[]]"       color="#dddddd" borderColor={{Person!!color}}>
+<$properties $filter="[tag[Player]dnd.dead[]]"      color="#dddddd" borderColor={{Player!!color}}>
+<$properties $filter="[tag[Organisation]dnd.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
+<$properties $filter="[tag[Artifact]] [tag[Book]] [tag[Item]] [tag[Material]] +[dnd.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
 
 <$list filter={{!!filter}}>
 <<dnd.node>>

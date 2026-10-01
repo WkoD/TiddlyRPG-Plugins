@@ -1,0 +1,7 @@
+created: 20260930215500000
+modified: 20261001095424000
+tags: $:/tags/ClassFilters/PageTemplate
+title: $:/plugins/dndwiki-core/config/class-readonly
+type: text/vnd.tiddlywiki
+
+[{$:/status/IsReadOnly}match[yes]then[dnd-readonly]]

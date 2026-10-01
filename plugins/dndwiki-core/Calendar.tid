@@ -1,0 +1,37 @@
+caption: <<dnd.title Calendar>>
+created: 20181002134333437
+modified: 20261001095424000
+tags: Information
+title: Calendar
+type: text/vnd.tiddlywiki
+
+<!-- Built from the active calendar ($:/config/dndwiki/calendar, see modules/calendar.js).
+     Description and name come from the language keys Calendar/<id>/Description and .../Name. -->
+<%if [{$:/config/dndwiki/calendar}!is[blank]] %>
+<$let dnd-desc-key={{{ [calendar[id]addprefix[Calendar/]addsuffix[/Description]] }}}
+	dnd-desc={{{ [<dnd-desc-key>dndtranslate[]] -[<dnd-desc-key>] }}}
+	dnd-hint={{{ [[Calendar/InputHint]dndtranslate[]] }}}
+	dnd-table={{{ [calendar[table]] }}}
+	dnd-result={{{ [{$:/temp/dndwiki/calendar!!calc_date}datecalc{$:/temp/dndwiki/calendar!!calc_day}] }}}>
+
+<<dnd-desc>>
+
+!!! <<dnd.t Calendar/Calculator>>
+<<dnd-hint>>
+
+|!<<dnd.t Calendar/Date>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_date" type="text"/> |
+|!<<dnd.t Calendar/ExtraDays>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_day" type="text"/> |
+|!<<dnd.t Calendar/Result>> | <$text text=<<dnd-result>>/> |
+|!<<dnd.t Calendar/WrittenOut>> | <%if [<dnd-result>!is[blank]] %><$transclude $variable="datelong" date=<<dnd-result>>/><%endif%> |
+
+!!! <<dnd.t Calendar/DaysBetween>>
+|!<<dnd.t Calendar/From>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_from" type="text"/> |
+|!<<dnd.t Calendar/To>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_to" type="text"/> |
+|!<<dnd.t Calendar/Days>> | <<datediff from={{$:/temp/dndwiki/calendar!!calc_from}} to={{$:/temp/dndwiki/calendar!!calc_to}}>> |
+
+!!! <$text text={{{ [calendar[title]] }}}/>
+
+<<dnd-table>>
+
+</$let>
+<%endif%>

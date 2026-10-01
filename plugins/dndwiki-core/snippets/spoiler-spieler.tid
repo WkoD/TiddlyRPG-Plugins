@@ -1,9 +1,0 @@
-caption: Spoiler Spieler
-created: 20220319112241716
-modified: 20220319112318433
-tags: $:/tags/TextEditor/Snippet
-title: $:/plugins/dndwiki-core/snippets/spoiler-spieler
-type: text/vnd.tiddlywiki
-
-<$list filter="[{$:/state/Spieler}] +[compare:string:eq[SPIELER]]" variable=null>
-</$list>

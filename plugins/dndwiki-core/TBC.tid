@@ -1,18 +1,18 @@
-caption: Offene Punkte
+caption: <<dnd.plural TBC>>
 created: 20200105183443517
-modified: 20200814100317969
+modified: 20261001095424000
 tags: Index
 title: TBC
 type: text/vnd.tiddlywiki
 
-!!! Abenteuer
+!!! <<dnd.title Adventure>>
 
-{{||TBC/Abenteuer}}
+{{||TBC/Adventure}}
 
-!!! Anderes
+!!! <<dnd.t TBC/Other>>
 
-<$list filter="[!is[system]!tag[Index]!prefix[TBC]!title[Abenteuer]search:text[TBC]sort[title]]">
+<$list filter="[!is[system]!tag[Index]!prefix[TBC]!title[Adventure]search:text[TBC]sort[title]]">
 <div class="tc-menu-list-subitem">
-<$link to={{!!title}}><$view field="title"/></$link>
+<$link to={{!!title}}><$text text={{{ [<currentTiddler>dndtitle[]] }}}/></$link>
 </div>
 </$list>

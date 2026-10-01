@@ -1,23 +1,22 @@
-caption: Liste
+caption: <<dnd.t Relations/List>>
 created: 20260713135021000
-modified: 20260930204000000
+modified: 20261001095424000
 title: $:/plugins/dndwiki-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
-<!-- Iteriert ueber alle Feld-EdgeTypes und zeigt je Beziehung EINE Gruppe (Vorwaerts
-     eigene Felder UNION Rueckwaerts wer-zeigt-hierher) unter dem Edge-Label aus der
-     EdgeType-Config (getindex[label]). Label aendern = Graph + Liste zugleich. `self`
-     kommt von der aufrufenden relations.tid. Rueckwaerts ueber den indizierten Operator
-     `listed` statt einer Suche ueber alle Tiddler; die Treffer stehen einmal in der
-     mehrwertigen Variable `treffer` und werden fuer Ueberschrift und Liste genutzt. -->
+<!-- Iterates over all field edge types and shows ONE group per relation (forward: own fields
+     UNION backward: who points here) under the label Field/<field> from the language packs -
+     the same label the graph templates put on the edges. `self` comes from the calling
+     relations.tid. Backward via the indexed operator `listed` instead of a search over all
+     tiddlers; the hits are held once in the multi-valued variable `hits` and used for heading
+     and list. -->
 
 <$list filter="[all[shadows+tiddlers]prefix[$:/config/flibbles/graph/edges/fields/]removeprefix[$:/config/flibbles/graph/edges/fields/]] -[[tags]] -[[list]] +[sort[]]" variable=field>
-<$let cfg={{{ [[$:/config/flibbles/graph/edges/fields/]addsuffix<field>] }}}
-	treffer={{{ [<self>listed<field>!is[system]] =[<self>get<field>enlist-input[]] +[!match<self>unique[]sort[title]] }}}>
-<%if [(treffer)] %>
-<h3 style="text-transform:capitalize;"><$text text={{{ [<cfg>getindex[label]] :else[<field>] }}}/></h3>
-<$list filter="[(treffer)]">
-<div class="tc-menu-list-subitem"><<totlink title={{!!title}} style="~~">></div>
+<$let hits={{{ [<self>listed<field>!is[system]] =[<self>get<field>enlist-input[]] +[!match<self>unique[]sort[title]] }}}>
+<%if [(hits)] %>
+<h3 style="text-transform:capitalize;"><$text text={{{ [<field>addprefix[Field/]dndtranslate[]] }}}/></h3>
+<$list filter="[(hits)]">
+<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">></div>
 </$list>
 <%endif%>
 </$let>

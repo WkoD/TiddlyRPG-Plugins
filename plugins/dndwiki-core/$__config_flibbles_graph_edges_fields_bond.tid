@@ -1,0 +1,10 @@
+created: 20260715125428000
+modified: 20261001095424000
+title: $:/config/flibbles/graph/edges/fields/bond
+type: application/json
+
+{
+    "label": "Bond",
+    "color": "#48a4ff",
+    "smooth": "no"
+}

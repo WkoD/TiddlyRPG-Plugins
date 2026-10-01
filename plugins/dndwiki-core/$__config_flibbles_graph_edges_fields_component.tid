@@ -1,0 +1,8 @@
+created: 20260713142610000
+modified: 20261001095424000
+title: $:/config/flibbles/graph/edges/fields/component
+type: application/json
+
+{
+    "label": "Component"
+}

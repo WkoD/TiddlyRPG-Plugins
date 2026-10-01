@@ -1,0 +1,7 @@
+created: 20260930204000000
+modified: 20261001095424000
+tags: $:/tags/ClassFilters/TiddlerTemplate
+title: $:/plugins/dndwiki-core/config/class-dead
+type: text/vnd.tiddlywiki
+
+[<storyTiddler>!has[draft.of]dnd.dead[]then[dnd-dead]]

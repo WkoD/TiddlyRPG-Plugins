@@ -1,0 +1,13 @@
+created: 20200814072659528
+modified: 20261001095424000
+tags: Index
+title: TBC/Adventure
+type: text/vnd.tiddlywiki
+
+<ul>
+<$list filter="[!is[system]contains:text[@@.tc-tiddler-frame]sort[title]]">
+<div class="tc-menu-list-subitem">
+<li><$link to={{!!title}}><$text text={{{ [<currentTiddler>dndtitle[]] }}}/></$link></li>
+</div>
+</$list>
+</ul>

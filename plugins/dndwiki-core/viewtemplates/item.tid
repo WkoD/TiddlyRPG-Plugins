@@ -1,0 +1,15 @@
+created: 20200731085719858
+list-after: $:/plugins/dndwiki-core/viewtemplates/location
+modified: 20261001095424000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/dndwiki-core/viewtemplates/item
+type: text/vnd.tiddlywiki
+
+<$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
+<%if [<currentTiddler>dnd.visible[]] %>
+<$list filter="[all[current]has:field[price]]">
+<b><<dnd.t Item/Price>></b> {{!!price}} <<dnd.t Item/Currency>>
+<br>
+</$list>
+<%endif%>
+</$reveal>

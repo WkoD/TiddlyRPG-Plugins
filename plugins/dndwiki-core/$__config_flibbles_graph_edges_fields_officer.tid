@@ -1,0 +1,10 @@
+created: 20260715125428000
+modified: 20261001095424000
+title: $:/config/flibbles/graph/edges/fields/officer
+type: application/json
+
+{
+    "label": "Officer",
+    "color": "#ff8000",
+    "width": "3"
+}

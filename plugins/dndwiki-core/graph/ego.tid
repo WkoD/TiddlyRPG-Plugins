@@ -1,7 +1,7 @@
-caption: Beziehungen
+caption: Relations
 created: 20260710141721000
 filter: [<currentNode>]
-modified: 20260710141721000
+modified: 20261001095424000
 template: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 title: $:/plugins/dndwiki-core/graph/ego
 type: application/json

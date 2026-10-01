@@ -1,0 +1,30 @@
+caption: <<dnd.title Player>>
+color: #005500
+created: 20200209100237010
+modified: 20261001095424000
+tags: Index
+title: Player
+type: text/vnd.tiddlywiki
+
+!!! <<dnd.t Player/Adventurers>>
+<table style="width:50%">
+<$list filter="[tag[Player]sort[caption]]">
+<div class="tc-menu-list-subitem">
+<tr><td style="width:80%">
+<<deadlink title={{!!title}} style="~~">> (<$view field="player"/>)
+</td><td style="width:20%">
+<$reveal type="nomatch" state="$:/state/dndwiki/player" text={{!!title}}>
+<$button set="$:/state/dndwiki/player" setTo={{!!title}}>''<<dnd.t Player/Login>>''</$button>
+</$reveal>
+<$reveal type="match" state="$:/state/dndwiki/player" text={{!!title}}>
+<$button set="$:/state/dndwiki/player" setTo="">''<<dnd.t Player/Logout>>''</$button>
+</$reveal>
+</td></tr>
+</div>
+</$list>
+</table>
+
+!!! <<dnd.title PlayerLevel>>
+<ul>
+<b>{{PlayerLevel}}</b>
+</ul>

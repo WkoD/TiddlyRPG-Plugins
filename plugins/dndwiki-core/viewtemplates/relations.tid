@@ -1,20 +1,17 @@
 created: 20260713135021000
 list-after: $:/core/ui/ViewTemplate/body
-modified: 20260905064427000
+modified: 20261001095424000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/dndwiki-core/viewtemplates/relations
 type: text/vnd.tiddlywiki
 
-<!-- Vereinigter Graph+Liste-Block: eine Tabliste "Graph"/"Liste" (Graph
-     default-aktiv) statt beides gestapelt. Der Typ-Scope (multitag) steht bewusst nur
-     hier, einmalig, statt in den beiden Tab-Inhalts-Tiddlern getrennt -> kann nicht mehr
-     auseinanderlaufen wie zuvor bei ego-graph.tid (Person/Spieler/Organisation/Gott) vs.
-     connections.tid (zusaetzlich Ort). Tab-Umschalter = $:/plugins/flibbles/graph/ui/
-     grouped-tabs (Teil von tw5-graph, bereits Abhaengigkeit) statt eigenem Button/Reveal.
-     explicitState -> ein einziger, globaler Tab-Zustand (kein Pro-Tiddler-Merken; neu
-     geoeffnete Tiddler zeigen immer zuerst Graph). -->
+<!-- Combined graph+list block: one tab list "Graph"/"List" (graph active by default) instead
+     of both stacked. The type scope (multitag) is stated only here, once, instead of separately
+     in the two tab content tiddlers. Tab switcher = $:/plugins/flibbles/graph/ui/grouped-tabs
+     (part of tw5-graph, already a dependency). explicitState -> one global tab state (newly
+     opened tiddlers always show the graph first). -->
 
-<$list filter="[all[current]multitag[Person,Spieler,Organisation,Gott,Ort,Artefakt,Buch,Gegenstand,Material]]" variable=null>
+<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Book,Item,Material]]" variable=null>
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <$let currentNode=<<currentTiddler>> self=<<currentTiddler>>>
 <$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
@@ -23,7 +20,7 @@ type: text/vnd.tiddlywiki
 	explicitState="$:/state/dndwiki-core/relations-tab"
 	class="">
 <$fill $name=body>
-<$transclude $tiddler=<<currentTab>> mode=block/>
+<$transclude $tiddler=<<currentTab>> $mode=block/>
 </$fill>
 </$transclude>
 </$let>

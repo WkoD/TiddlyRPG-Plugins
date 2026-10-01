@@ -16,8 +16,8 @@ Filter operator for checking for the presence of a tag
 Export our filter function
 */
 exports.multitag = function(source,operator,options) {
-	// Eingabe-Tiddler mit mindestens einem der Tags (Komma-getrennt), gruppiert in
-	// Tag-Reihenfolge, jede Gruppe nach der list des Tags sortiert, jeder Tiddler nur einmal
+	// Input tiddlers with at least one of the tags (comma separated), grouped in tag order,
+	// each group sorted by the list of its tag, each tiddler only once
 	var results = [];
 	var seen = Object.create(null);
 	var tags = operator.operand.split(",");

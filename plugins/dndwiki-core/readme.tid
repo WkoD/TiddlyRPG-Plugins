@@ -1,18 +1,23 @@
 created: 20260706180604000
-modified: 20260930204000000
+modified: 20261001095424000
 title: $:/plugins/dndwiki-core/readme
 
 ! DnDWiki Core
 
-Die gemeinsame D&D-Formatschicht fuer die DnDWiki-Repo-Familie:
+The shared D&D format layer of the DnDWiki repo family:
 
-* Makros, Filter, ViewTemplates, Styles, Snippets (`$:/plugins/dndwiki-core/...`)
-* Funktionen `dnd.sichtbar` (Spieler-Sperre) und `dnd.tot` (verstorben/zerstoert) in `$:/plugins/dndwiki-core/functions`, aufrufbar als Filter-Operator
-* Kaskaden-Eintraege: Body-Sperre, Typfarbe fuer Tags, Klassen `dnd-tot`/`dnd-pinned`
-* Index-/Hub-Tiddler (Person, Ort, Organisation, Ereignis, ...)
-* tw5-graph-Schema (Fields-EdgeTypes + Graph-Templates) fuer die Beziehungsgraphen
+* Type hubs (Person, Location, Organisation, Event, Item, Map, BattleMap, ...) with colours,
+  view templates, macros, filters, styles and editor snippets (`$:/plugins/dndwiki-core/...`)
+* Language packs: displayed texts come from `$:/dndwiki/language/<code>/...` and follow
+  `$:/language`; en-GB and de-DE included, missing keys fall back to en-GB
+* Calendar engine: dates are formatted and calculated from the calendar data tiddler named in
+  `$:/config/dndwiki/calendar` (e.g. Harptos from `dndwiki-forgottenrealms`); without it
+  dates are shown as entered
+* Functions `dnd.visible` (player lock), `dnd.dead` (deceased/destroyed), `dnd.t`,
+  `dnd.title`, `dnd.plural` in `$:/plugins/dndwiki-core/functions`
+* tw5-graph schema (field edge types + graph templates) for the relation graphs
 
-Wird von den Kampagnen-Wikis als gepinntes Plugin konsumiert
+Consumed by the campaign wikis as a pinned plugin
 (`git+https://github.com/WkoD/TiddlyDnD-Plugins.git#<version>`).
 
-Bearbeitet wird die Formatschicht ausschliesslich hier im Plugin-Repo.
+The format layer is edited only in the plugin repo.

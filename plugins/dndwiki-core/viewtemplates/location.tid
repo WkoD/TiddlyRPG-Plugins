@@ -1,0 +1,32 @@
+created: 20200308095521995
+list-after: $:/plugins/dndwiki-core/viewtemplates/relations
+modified: 20261001095424000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/dndwiki-core/viewtemplates/location
+type: text/vnd.tiddlywiki
+
+<!-- Maps of a location as tabs: one tab per existing sub-tiddler <location>/<kind> from the
+     list below (overview map, battle map), in this order, without the ones locked for the
+     logged-in player. Default tab = the first one. The tab state is qualified per tiddler
+     (not global like the relations), so every location opens with its own default. -->
+
+<$list filter="[all[current]tag[Location]]" variable=null>
+<%if [<currentTiddler>dnd.visible[]] %>
+<$let dnd-tabs={{{ [enlist[Map BattleMap]addprefix[/]addprefix<currentTiddler>has[title]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [<dnd-tabs>!is[blank]] %>
+<$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
+<$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
+	tabsList=<<dnd-tabs>>
+	default={{{ [enlist<dnd-tabs>first[]] }}}
+	state="$:/state/dndwiki-core/location-tab"
+	class="">
+<$fill $name=button><$text text={{{ [<currentTab>split[/]last[]addprefix[Title/]dndtranslate[]] }}}/></$fill>
+<$fill $name=body>
+<$transclude $tiddler="$:/plugins/dndwiki-core/viewtemplates/location/sub" $mode=block/>
+</$fill>
+</$transclude>
+</$reveal>
+<%endif%>
+</$let>
+<%endif%>
+</$list>

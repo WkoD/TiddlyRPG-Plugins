@@ -3,8 +3,8 @@ title: $:/plugins/staticfiles/route
 type: application/javascript
 module-type: route
 
-GET /images/:filepath und /data/:filepath - nach dem Vorbild der Core-Route get-file (5.4):
-streamt die Datei, beantwortet HTTP-Range-Anfragen (206/416) und setzt Content-Length.
+GET /images/:filepath and /data/:filepath - modelled on the core route get-file (5.4):
+streams the file, answers HTTP range requests (206/416) and sets Content-Length.
 \*/
 "use strict";
 
@@ -24,7 +24,7 @@ exports.handler = function(request,response,state) {
 		filename = path.resolve(baseFilename,$tw.utils.decodeURIComponentSafe(state.params[1])),
 		relative = path.relative(baseFilename,filename),
 		extension = path.extname(filename);
-	// Sicherstellen, dass die Datei innerhalb von images/ bzw. data/ liegt
+	// Make sure the file lies inside images/ or data/ respectively
 	if(relative.indexOf("..") === 0 || path.isAbsolute(relative)) {
 		return state.sendResponse(404,{"Content-Type": "text/plain"},"File '" + suppliedFilename + "' not found");
 	}

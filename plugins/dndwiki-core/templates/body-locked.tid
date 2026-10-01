@@ -1,0 +1,7 @@
+created: 20260930204000000
+modified: 20261001095424000
+title: $:/plugins/dndwiki-core/templates/body-locked
+type: text/vnd.tiddlywiki
+
+<!-- Empty body for tiddlers assigned to another player character.
+     Chosen by viewtemplates/body-filter (cascade $:/tags/ViewTemplateBodyFilter). -->

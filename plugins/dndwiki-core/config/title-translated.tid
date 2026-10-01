@@ -1,0 +1,8 @@
+created: 20261001095424000
+list-before: $:/config/ViewTemplateTitleFilters/default
+modified: 20261001095424000
+tags: $:/tags/ViewTemplateTitleFilter
+title: $:/plugins/dndwiki-core/config/title-translated
+type: text/vnd.tiddlywiki
+
+[<currentTiddler>dndtitle[]] -[<currentTiddler>] +[then[$:/plugins/dndwiki-core/templates/title-translated]]

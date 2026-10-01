@@ -1,15 +1,17 @@
 created: 20200308185530421
-modified: 20200805065442707
+modified: 20261001095424000
 tags: Index
 title: Index
 type: text/vnd.tiddlywiki
 
+\define dnd.index.sort() [addprefix[Plural/]dndtranslate[]]
+
 <ul>
 <div class="tc-menu-list-subitem">
-<$list filter="[all[tiddlers+shadows]tag[Index]!title[Index]!prefix[TBC]has:field[caption]sort[caption]]">
-<li><$link to={{!!title}}><$view field="caption"/></$link></li>
+<$list filter="Item Deity Information Organisation Location Person +[sortsub:string<dnd.index.sort>]">
+<li><$link to={{!!title}}><$text text={{{ [<currentTiddler>addprefix[Plural/]dndtranslate[]] }}}/></$link></li>
 </$list>
 <br>
-<li><$link to="TBC">{{TBC!!caption}}</$link></li>
+<li><$link to="TBC"><$text text={{{ [[Plural/TBC]dndtranslate[]] }}}/></$link></li>
 </div>
 </ul>

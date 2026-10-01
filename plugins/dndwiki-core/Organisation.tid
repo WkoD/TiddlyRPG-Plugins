@@ -1,13 +1,13 @@
-caption: Organisationen
+caption: <<dnd.title Organisation>>
 color: #ff8000
 created: 20200209100141327
-modified: 20260930204000000
+modified: 20261001095424000
 tags: Index
 title: Organisation
 type: text/vnd.tiddlywiki
 
 <$list filter="[tag[Organisation]sort[title]]">
 <div class="tc-menu-list-subitem">
-<<totlink title={{!!title}} style="~~">>
+<<deadlink title={{!!title}} style="~~">>
 </div>
 </$list>

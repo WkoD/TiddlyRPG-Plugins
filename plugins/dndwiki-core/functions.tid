@@ -1,18 +1,38 @@
 created: 20260930204000000
-modified: 20260930204000000
+modified: 20261001095424000
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
 
-<!-- Gemeinsame Pruefungen der Formatschicht. Beide arbeiten auf ihrer Eingabe und werden
-     als Filter-Operator aufgerufen, z. B. [<currentTiddler>dnd.tot[]] - so verhalten sie
-     sich gleich in ViewTemplates, Kaskaden, ClassFilters und Graph-Templates. -->
+<!-- Shared checks of the format layer. They work on their input and are called as filter
+     operators, e.g. [<currentTiddler>dnd.dead[]] - so they behave the same in ViewTemplates,
+     cascades, ClassFilters and graph templates. -->
 
-<!-- Spieler-Sperre: liefert ein Ergebnis, wenn der Tiddler fuer den eingeloggten Spieler
-     ($:/state/Spieler) sichtbar ist. Gesperrt ist ein Tiddler, der mit einer anderen
-     Spielfigur (einem Tiddler mit Tag "Spieler") getaggt ist. -->
-\function dnd.sichtbar() [tags[]tag[Spieler]] ~[{$:/state/Spieler}] +[compare:string:eq{$:/state/Spieler}]
+<!-- Player lock: yields a result if the tiddler is visible for the logged-in player
+     ($:/state/dndwiki/player). A tiddler is locked if it is tagged with another player
+     character (a tiddler tagged "Player"). -->
+\function dnd.visible() [tags[]tag[Player]] ~[{$:/state/dndwiki/player}] +[compare:string:eq{$:/state/dndwiki/player}]
 
-<!-- Verstorben/zerstoert: ein Punkt im datum-Feld. Ereignisse sind ausgenommen - dort
-     trennt der Punkt mehrere Zeitpunkte. -->
-\function dnd.tot() [!is[system]!tag[Ereignis]search:datum[.]]
+<!-- Deceased/destroyed: a dot in the date field. Events are excluded - there the dot
+     separates several points in time. -->
+\function dnd.dead() [!is[system]!tag[Event]search:date[.]]
+
+<!-- Language system (modules/language.js): translation of a key, display name of a title,
+     plural of a type. Missing keys fall back to en-GB, then to the key/title itself. -->
+\function dnd.t(key) [<key>dndtranslate[]]
+\function dnd.title(title) [<title>dndtitle[]]
+\function dnd.plural(type) [<type>addprefix[Plural/]dndtranslate[]]
+
+<!-- Date output through the calendar engine (filters/date.js). Procedures with filtered
+     attributes, so that they recompute when the language or the calendar data changes. -->
+\procedure datelong(date,yearonly)
+<$let dnd-text={{{ [<date>datelong<yearonly>] }}}><<dnd-text>></$let>
+\end
+
+\procedure datecalc(date,days)
+<$text text={{{ [<date>datecalc<days>] }}}/>
+\end
+
+\procedure datediff(from,to)
+<$text text={{{ [<from>datediff<to>] }}}/>
+\end

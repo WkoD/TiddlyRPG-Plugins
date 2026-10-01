@@ -1,0 +1,13 @@
+caption: <<dnd.title Deity>>
+color: #99ff99
+created: 20200210140958635
+modified: 20261001095424000
+tags: Index
+title: Deity
+type: text/vnd.tiddlywiki
+
+<$list filter="[tag[Deity]sort[title]]">
+<div class="tc-menu-list-subitem">
+<<deadlink title={{!!title}} style="~~">>
+</div>
+</$list>

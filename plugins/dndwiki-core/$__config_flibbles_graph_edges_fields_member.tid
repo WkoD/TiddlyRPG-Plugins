@@ -1,0 +1,9 @@
+created: 20260715103636000
+modified: 20261001095424000
+title: $:/config/flibbles/graph/edges/fields/member
+type: application/json
+
+{
+    "label": "Member",
+    "color": "#ff8000"
+}

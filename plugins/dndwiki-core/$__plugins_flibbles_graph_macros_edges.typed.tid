@@ -1,0 +1,65 @@
+created: 20261001104500000
+modified: 20261001104500000
+tags: $:/tags/Global
+code-body: yes
+title: $:/plugins/flibbles/graph/macros/edges.typed
+
+\widget $edges.typed($editable:no)
+\whitespace trim
+<$parameters
+	$$functions={{{ [<functionsFilter>!is[blank]] ~"[all[]]" }}}
+	$$fields={{{ [<fieldsFilter>!is[blank]] ~"[all[]]" }}}
+	$$tiddler=<<currentTiddler>> >
+
+<!-- First create edges for field types -->
+
+<$list variable=fieldName filter="+[subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.fields}subfilter<$fields>]">
+
+<$let
+	dataTiddler=`$:/config/flibbles/graph/edges/fields/$(fieldName)$` >
+
+<$properties $for=edges
+	$tiddler=<<dataTiddler>>
+	delete={{{ [<$editable>!match[no]then[<$action-removetyped $tiddler=<<fromTiddler>> $field=<<fieldName>> $value=<<toTiddler>> />]] }}} >
+
+<!-- dndwiki-core: translated edge label from the language key Field/<field>, only for edge
+     types whose config has a label; nested inside the config so that it wins -->
+<$properties $for=edges
+	label={{{ [<dataTiddler>getindex[label]!is[blank]then<fieldName>addprefix[Field/]dndtranslate[]] }}} >
+
+
+<$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[gettyped<fieldName>] +[!is[blank]]">
+
+<$vars id=`$:/edge/fields/$($tiddler)$
+$(fieldName)$-$(index)$`>
+
+<$slot $name=ts-raw>
+
+<$edge $from=<<$tiddler>> $id=<<id>> />
+
+</$slot></$vars></$list></$properties></$properties></$let></$list>
+
+<!-- Now create edges for function types -->
+
+<$list variable=functionName filter="[subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.functions}subfilter<$functions>]">
+
+<$let
+	dataTiddler=`$:/config/flibbles/graph/edges/functions/$(functionName)$`
+	function={{{ [<dataTiddler>get[filter]] }}} >
+
+<$properties $for=edges
+	$tiddler=<<dataTiddler>> >
+
+<$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[subfilter<function>] +[!is[blank]]">
+
+<$vars id=`$:/edge/functions/$($tiddler)$
+$(functionName)$-$(index)$`>
+
+<$slot $name=ts-raw>
+
+<$edge $from=<<$tiddler>> $id=<<id>> />
+
+</$slot></$vars></$list></$properties></$let></$list>
+\end
+
+\relink $edges.typed $functions:filter $fields:filter $tiddler:title

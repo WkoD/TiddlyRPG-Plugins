@@ -1,0 +1,13 @@
+caption: <<dnd.title BattleMap>>
+color: #ff2b2b
+created: 20261001095424000
+modified: 20261001095424000
+tags: Index
+title: BattleMap
+type: text/vnd.tiddlywiki
+
+<$list filter="[tag[BattleMap]sort[title]]">
+<div class="tc-menu-list-subitem">
+<$link to={{!!title}}><$text text={{{ [<currentTiddler>dndtitle[]] }}}/></$link>
+</div>
+</$list>

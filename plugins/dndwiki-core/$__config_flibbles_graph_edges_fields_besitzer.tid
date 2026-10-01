@@ -1,9 +1,0 @@
-created: 20260715103636000
-modified: 20260715103636000
-title: $:/config/flibbles/graph/edges/fields/besitzer
-type: application/json
-
-{
-    "label": "Besitzer",
-    "color": "#ff80ff"
-}

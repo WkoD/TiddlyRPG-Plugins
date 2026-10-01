@@ -2,246 +2,306 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Projektüberblick
+## Project overview
 
-Plugin-Bündel für die `DnDWiki`-Repo-Familie. Details zu Inhalt und Einbindung:
-siehe `README.md`.
+Plugin bundle for the `DnDWiki` repo family. Contents and how wikis use it: see `README.md`.
 
-## Dokumentation - Zuständigkeiten
+## Documentation - who covers what
 
-- **CLAUDE.md** (hier): Entwicklungsunterstützung - Regeln, Konventionen,
-  Bearbeitungs- und Release-Workflow.
-- **README.md**: was das Projekt ist und wie es in `DnDWiki` bzw. andere Wikis
-  eingebunden wird.
+- **CLAUDE.md** (here): development support - rules, conventions, editing and release workflow.
+- **README.md**: what the project is and how it is used in `DnDWiki` and other wikis, including
+  languages and calendar.
 
-Neue Inhalte entsprechend einsortieren statt duplizieren. (Analoge Aufteilung in
-den Wiki-Repos, kanonisch gepflegt in `DnDWiki`.)
+Sort new content accordingly instead of duplicating it. (Same split in the wiki repos,
+maintained canonically in `DnDWiki`.)
 
-## Formatschicht bearbeiten
+## Editing the format layer
 
-`dndwiki-core` ist ein **Ordner-Plugin** unter `plugins/dndwiki-core/` (kein
-Build-Schritt - der Ordner *ist* das Plugin, Format-Tiddler dort direkt bearbeiten).
+`dndwiki-core` and `dndwiki-forgottenrealms` are **folder plugins** under `plugins/` (no build
+step - the folder *is* the plugin, edit the tiddlers there directly).
 
 ```bash
 npm install
-npm run smoke      # abhängigkeitsarmer Boot-/Ladecheck (kein Wiki-Checkout nötig)
+npm run smoke       # boot/load check with all plugins and de-DE (no wiki checkout needed)
+npm test            # functional test: calendar engine, rendering in de-DE/en-GB, refresh
+npm run check-lang  # language packs complete against en-GB
 ```
 
-`npm run smoke` bootet die Minimal-Edition `editions/smoke` (nur `tiddlywiki.info` mit der
-Plugin-Liste, **kein Inhalt**) mit dem Graph-Stack und bricht bei Modul-/Ladefehlern ab -
-z. B. nach einem Rename, um zu prüfen, dass alle Tiddler/Module noch laden. Der plattformneutrale
-Launcher `scripts/tw.js` baut dafür `TIDDLYWIKI_PLUGIN_PATH` aus `./plugins` + den gepinnten
-`node_modules/tw5-*/plugins`. Eine **inhaltliche Vorschau** gibt es hier bewusst nicht - dafür
-der IDE-Loop im echten Wiki (s. u.).
+- `npm run smoke` boots the minimal edition `editions/smoke` (only `tiddlywiki.info` with the
+  plugin list and `"languages": ["de-DE"]`, **no content**) and aborts on module/load errors.
+  JS modules only run when used, so this does not replace the test.
+- `npm test` (`scripts/test.js`) boots the smoke edition in-process, adds fixture tiddlers and
+  checks the calendar engine against the former hard-wired Harptos arithmetic, the rendered
+  view templates in de-DE and en-GB, with and without an active calendar, the refresh of date
+  output after a language change, the tag hook and the search. The graph widget needs a
+  browser; the test renders the relations through the list tab. Extend it with every change.
+- The launcher `scripts/tw.js` builds `TIDDLYWIKI_PLUGIN_PATH` from `./plugins` plus the pinned
+  `node_modules/tw5-*/plugins`. A **content preview** deliberately does not exist here - use the
+  IDE loop in a real wiki (below).
 
-**Im echten Wiki prüfen (IDE-Loop statt WYSIWYG):** Die Formatschicht wird bewusst hier
-im IDE bearbeitet (versionierte technische Schicht) und im Zusammenspiel mit einem echten
-Wiki geprüft - kein Browser-WYSIWYG-Rückspeichern. Dafür im Wiki-Repo (`DnDWiki` oder einer
-Kampagne) den Plugin-Dependency **lokal** auf diese Checkout zeigen lassen statt auf den
-Release-Pin - per `npm link`:
+**Checking in a real wiki (IDE loop instead of WYSIWYG):** The format layer is edited here in
+the IDE (versioned technical layer) and checked together with a real wiki - no saving back from
+the browser. Point the plugin dependency of the wiki repo (`DnDWiki` or a campaign) **locally**
+to this checkout instead of the release pin - with `npm link`:
 
 ```bash
-# einmalig in TiddlyDnD-Plugins:
+# once in TiddlyDnD-Plugins:
 npm link
-# im Wiki-Repo (DnDWiki oder einer Kampagne):
+# in the wiki repo (DnDWiki or a campaign):
 npm link tiddlydnd-plugins
 ```
 
-Das legt `node_modules/tiddlydnd-plugins` als Symlink/Junction auf diese Checkout an; der
-Wiki-Launcher lädt dann `plugins/dndwiki-core` **live**. Ablauf: Tiddler im IDE ändern ->
-`npm start` im Wiki neu starten -> Änderung sichtbar (Ordner-Plugins reloaden nicht hot, daher
-Neustart). Der Link selbst lebt in `node_modules` (gitignored), und `package.json` bleibt
-unverändert - solange man den Link nur anlegt, gibt es nichts zu committen.
+This creates `node_modules/tiddlydnd-plugins` as a symlink/junction to this checkout; the wiki
+launcher then loads `plugins/*` **live**. Loop: change a tiddler in the IDE -> restart
+`npm start` in the wiki -> change visible (folder plugins do not hot-reload). The link lives in
+`node_modules` (gitignored) and `package.json` stays unchanged - as long as you only create the
+link, there is nothing to commit.
 
-**Zwei Fallstricke beim Zurückschalten auf den Release-Pin:**
+**Two pitfalls when switching back to the release pin:**
 
-- `npm unlink tiddlydnd-plugins` ist ein Alias für `npm uninstall` und **entfernt die
-  Dependency aus `package.json`**. Danach muss der Pin-Eintrag von Hand wieder rein (oder
-  gleich `npm install "git+https://github.com/WkoD/TiddlyDnD-Plugins.git#<version>"`).
-  Nach dem Zurückschalten `git diff package.json` prüfen.
-- Bei aktivem Link schreibt `npm install` `file:../TiddlyDnD-Plugins` in die
-  `package-lock.json` statt des Release-Pins. In den Wiki-Repos ist das Lockfile gitignored,
-  bleibt also lokal - in Repos, die ihr Lockfile einchecken, darf dieser Zustand nicht
-  mitcommittet werden.
+- `npm unlink tiddlydnd-plugins` is an alias for `npm uninstall` and **removes the dependency
+  from `package.json`**. Put the pin back by hand afterwards (or run
+  `npm install "git+https://github.com/WkoD/TiddlyDnD-Plugins.git#<version>"`). Check
+  `git diff package.json` after switching back.
+- With an active link, `npm install` writes `file:../TiddlyDnD-Plugins` into
+  `package-lock.json` instead of the release pin. In the wiki repos the lockfile is gitignored
+  and stays local - in repos that check in their lockfile, this state must not be committed.
 
-**Zeitstempel (`created`/`modified`):** Jedes Plugin-Tiddler (`.tid`, oder das
-`.meta`-Sidecar bei JS-Modulen wie Makros/Filtern) trägt diese Felder im
-TiddlyWiki-Format (UTC, `JJJJMMTTHHMMSSmmm`). Beim direkten Bearbeiten im IDE
-gilt dieselbe Pflege wie in den Wiki-Repos - siehe dort `CLAUDE.md` ->
-"Zeitstempel bei Tiddler-Bearbeitung" (neue Datei: `created`=`modified`=jetzt;
-inhaltliche Änderung: nur `modified`; mechanische Massenumbenennungen/
--migrationen ausgenommen).
+**Timestamps (`created`/`modified`):** Every plugin tiddler (`.tid`, `.multids` header, the
+`.meta` sidecar of JS modules, or the `/*\ ... \*/` header of JS modules without sidecar) carries
+these fields in TiddlyWiki format (UTC, `YYYYMMDDHHMMSSmmm`). When editing directly in the IDE
+the same care applies as in the wiki repos - see their `CLAUDE.md` -> "Timestamps when editing
+tiddlers" (new file: `created`=`modified`=now; content change: only `modified`; mechanical mass
+renames/migrations excepted).
 
-## Erweiterungen (`$:/plugins/dndwiki-core/...`) - Inventar
+**Naming:** internal names are English - tags/hubs (`Location`, `Item`, ...), fields
+(`location`, `owner`, ...), macros, functions, files (`kebab-case`). Everything a reader sees comes
+from the language packs, never as a literal in a template.
 
-Inhalt von `dndwiki-core`, damit vor neuen Ergänzungen klar ist, was schon existiert.
-Alle Format-Tiddler liegen plugin-scoped unter `$:/plugins/dndwiki-core/<kategorie>/<name>`
-(Dateien in gleichnamigen Unterordnern, `kebab-case`). Makros werden weiterhin über ihren
-`exports.name` (klein, z. B. `<<bild>>`) aufgerufen - unabhängig vom Tiddler-Titel:
+## Contents (`$:/plugins/dndwiki-core/...`) - inventory
 
-- **Funktionen** (`functions`, Tag `$:/tags/Global`): `dnd.sichtbar`, `dnd.tot` - siehe
-  "Funktionen & Kaskaden" unten.
-- **Makros** (`macros/*`): `bild` (löst `bild`-Feld gegen `images/<Tag>/` auf, mehrere Bilder komma-getrennt), `datum-lang`/`datum-rechner`/`datum-diff` (In-World-Kalender: Langform, Datum ± n Tage, Tage zwischen zwei Daten), `library` (gemeinsame Kalenderlogik: Monatslängen, laufende Tagesnummer, Parser), `sub-tiddler` (rendert `<Titel>/<Sub>`-Subtiddler), `tot-link`.
-- **Filter** (`filters/*`): `ereignis-liste`, `multitag` (Eingabe mit mindestens einem der Tags, gruppiert in Tag-Reihenfolge, ohne Duplikate).
-- **ViewTemplates** (`viewtemplates/*`): `aktivitaet`, `bild`, `ereignis`, `ereignisliste`, `gegenstand` (nur noch Jahr/Preis, kein manueller Beziehungsblock mehr - Zutaten laufen über `komponente` in `relations`), `link`, `ort` (nur noch Karte), `relations` (Tabliste "Graph"/"Liste" via `$:/plugins/flibbles/graph/ui/grouped-tabs`, Graph default-aktiv; Tab-Inhalte `relations/graph`+`relations/list`; ein einziger Typ-Scope-Filter für beide Tabs, Person/Spieler/Organisation/Gott/Ort/Artefakt/Buch/Gegenstand/Material), `spieler`. Reihenfolge über `list-after`; reine Render-Infrastruktur. Dazu `body-filter` (Kaskade, siehe unten).
-- **Snippets** (`snippets/*`, Tag `$:/tags/TextEditor/Snippet`): `offene-punkte`, `spoiler-spieler`.
-- **Styles** (`styles/*`): `border` (Rahmen je Typ, erzeugt aus den Hubs), `gegenstand` (nur `Buch`-Sonderregeln), `tot`, `angeheftet` und `readonly` (statisches CSS, `type: text/css`). **Templates** `templates/bild`, `templates/body-gesperrt`.
-- **Konfiguration** (`config/*`): `typfarbe` (Tag-Farbe aus dem Typ), `klasse-tot`, `klasse-angeheftet`, `klasse-readonly` - siehe unten.
-- **Index-/Hub-Tiddler** (Person, Ort, Organisation, Ereignis, ..., Spieler, TBC/Abenteuer; Titel ohne Präfix, Tag `Index`): Typ-Tags tragen das `color`-Feld, aus dem Graph-Knoten, Tiddler-Rahmen und Tag-Pillen ihre Farbe ziehen.
-- **tw5-graph-Schema + Graph-Templates**: Fields-EdgeTypes (`$:/config/flibbles/graph/edges/fields/*`) + Relink-Feldtypen; die Graph-Templates `$:/plugins/dndwiki-core/graph/templates/dnd-graph` (Typfarben aus Tag-`color`, `shape=box`, keine Positionsspeicherung) und `.../dnd-ego`; der Ego-View `$:/plugins/dndwiki-core/graph/ego`. Die dünnen View-Definitionen (`$:/graph/Default`/`Kosmogramm`/`Weltkarte`/`Gegenstände`) liegen bewusst je Wiki, nicht hier.
+So that it is clear what already exists before adding something. All format tiddlers live
+plugin-scoped under `$:/plugins/dndwiki-core/<category>/<name>` (files in subfolders of the same
+name, `kebab-case`). Macros are called by their `exports.name` (e.g. `<<image>>`), independent of
+the tiddler title:
 
-## Funktionen & Kaskaden
+- **Functions and procedures** (`functions`, tag `$:/tags/Global`): `dnd.visible`, `dnd.dead`
+  (see "Functions & cascades"), `dnd.t`, `dnd.title`, `dnd.plural` (language system), the
+  procedures `datelong`, `datecalc`, `datediff` (calendar).
+- **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
+  `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine").
+- **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
+  from the type tag, several images comma separated; battle maps as a link to the file),
+  `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`, `library` (calendar
+  independent date parser and comparison).
+- **Filters** (`filters/*`): `eventlist` (event table), `multitag` (input with at least one of the
+  tags, grouped in tag order, no duplicates), `translate.js` (`dndtranslate`, `dndtitle`,
+  `dndtitlesearch`), `date.js` (`datelong`, `datecalc`, `datediff`, `calendar[...]`).
+- **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
+  ("Ort") under the internal name (`Location`).
+- **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list`, `item`, `link`,
+  `location` (map block: one tab per existing sub-tiddler `<location>/Map`, `<location>/BattleMap`,
+  tab content `location/sub`), `relations` (tab list "Graph"/"List" via
+  `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
+  one type scope filter for both tabs), `player`. Order via `list-after`. Plus `body-filter`
+  (cascade, see below).
+- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `player-spoiler`.
+- **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
+  rules, battle map width), `dead`, `pinned` and `readonly` (static CSS, `type: text/css`).
+  **Templates** `templates/image`, `templates/body-locked`, `templates/title-translated`.
+- **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
+  `title-translated` - see below.
+- **Search** (override of `$:/core/ui/DefaultSearchResultList` plus `search/item`): core search
+  plus hubs whose translated name matches, hits shown with translated names.
+- **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
+  (`Plural/<hub>`), `fields` (`Field/<field>`, relation fields), `texts` (template texts).
+- **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Book, Item,
+  Material, Map, BattleMap, Event, Adventure, Calendar, Information, Index, TBC, TBC/Adventure;
+  titles without prefix, tag `Index`): type tags carry the `color` field from which graph nodes,
+  tiddler borders and tag pills take their colour; `caption` is `<<dnd.title ...>>`.
+- **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
+  + relink field types; the graph templates `$:/plugins/dndwiki-core/graph/templates/dnd-graph`
+  (type colours from the tag `color`, `shape=box`, no saved positions) and `.../dnd-ego`; the ego
+  view `$:/plugins/dndwiki-core/graph/ego`. The thin view definitions (`$:/graph/Default`/
+  `Cosmogram`/`WorldMap`/`Items`) live in each wiki on purpose, not here.
 
-Gemeinsame Prüfungen stehen **einmal** in `functions.tid` und werden als Filter-Operator
-auf ihrer Eingabe aufgerufen (`[<currentTiddler>dnd.tot[]]`). So verhalten sie sich gleich
-in ViewTemplates, Kaskaden, ClassFilters und Graph-Templates - dort ist `currentTiddler`
-jeweils etwas anderes (in ClassFilters z. B. der Filter-Tiddler; der Story-Tiddler heißt
-dort `storyTiddler`).
+`dndwiki-forgottenrealms` contains no code: `$:/dndwiki/calendar/Harptos` (data),
+`$:/config/dndwiki/calendar` (activates it) and `language/<code>/` with `Calendar/Harptos/...`.
 
-- **`dnd.sichtbar`** - Spieler-Sperre: liefert ein Ergebnis, wenn der Tiddler für den
-  eingeloggten Spieler (`$:/state/Spieler`) sichtbar ist. Alle ViewTemplates prüfen per
-  `<%if [<currentTiddler>dnd.sichtbar[]] %>`; den Body sperrt `viewtemplates/body-filter`
-  (`$:/tags/ViewTemplateBodyFilter`, leeres `list-before` = erster Eintrag der Kaskade), der
-  gesperrten Tiddlern `templates/body-gesperrt` zuweist. Eine Änderung der Sperrlogik
-  (z. B. Login pro Spieler) passiert nur in der Funktion.
-- **`dnd.tot`** - verstorben/zerstört: Punkt im `datum`-Feld, **Ereignisse ausgenommen**
-  (dort trennt der Punkt mehrere Zeitpunkte). Genutzt von `config/klasse-tot` (Klasse
-  `dnd-tot`, Stylesheet `styles/tot`) und den Graph-Templates; `tot-link.js` prüft dasselbe
-  in JS.
+## Language system
 
-Weitere Kaskaden-Einträge statt Core-Overrides:
+- Keys are tiddlers `$:/dndwiki/language/<code>/<key>`, delivered as `.multids` (one line per
+  key) or `.tid` (multi-line texts such as `Calendar/Harptos/Description`). en-GB is the base;
+  every other language has the same keys. Keys only in `en-GB/names.multids` are proper names that
+  may fall back on purpose (`check-lang` does not report them).
+- Lookup in `modules/language.js`: active language (`$:/language`) -> en-GB -> null. The
+  wikitext functions `dnd.t`, `dnd.title`, `dnd.plural` wrap the filter operators, so the fallback
+  rule exists only once. **Functions with parameters take their argument from the operand, not
+  from the input:** in filters use the operators directly (`[<title>dndtitle[]]`,
+  `[<type>addprefix[Plural/]dndtranslate[]]`), in wikitext the functions as macros
+  (`<<dnd.t Event/Year>>` - plain text, wrapped in `<p>` in block mode).
+- Display names of titles: `Title/<title>`; a sub-tiddler `<parent>/<leaf>` whose parent exists
+  shows the translated leaf (`Insel Avalon/Map` -> "Insel Avalon/Karte"). Used by the title
+  cascade (`config/title-translated`), the tag pill override, the search and the hub lists.
+- **Texts that need refreshing go through filtered attributes, not JS macros.** A JS macro call
+  only re-renders when its parameters change; a filtered attribute is recomputed on every
+  refresh. That is why the date output is filter operators plus procedures
+  (`<$let t={{{ [<date>datelong[]] }}}><<t>></$let>`).
+- Places that show `caption` only as plain text (`$view`) cannot be translated: the graph
+  settings of tw5-graph (template and view captions). Graph view captions belong to the wiki.
+- Known limits: the tag dropdown does not suggest "Ort" (filter hard-wired in
+  `$:/core/macros/tag-picker`); sidebar "Open" and link texts without alias show the English
+  title; field names in edit mode stay English.
 
-- `config/typfarbe` (`$:/tags/TiddlerColourFilter`, nach `color-field`): Tiddler ohne
-  eigenes `color` erben die Farbe ihres Typ-Hubs - Tag-Pillen neuer Organisationen/Orte
-  sind damit ohne Handarbeit richtig gefärbt. Ein eigenes `color` gewinnt weiterhin.
-- `config/klasse-angeheftet` (`$:/tags/ClassFilters/TiddlerTemplate`): Klasse `dnd-pinned`
-  für `$:/tags/Pinned`; `styles/angeheftet` blendet dort den Schließen-Knopf aus.
-- `config/klasse-readonly` (`$:/tags/ClassFilters/PageTemplate`): Klasse `dnd-readonly` am
-  Seitencontainer, sobald `$:/status/IsReadOnly` = `yes` ist - das setzt die CI der Wikis
-  nur in der veröffentlichten Kopie. `styles/readonly` blendet dann Bearbeiten/Klonen/
-  Löschen/Neu-*/Import/Manager und den Speichern-Knopf aus: dieselbe Liste wie
-  `$:/plugins/tiddlywiki/tiddlyweb/readonly`, das im Offline-Build fehlt (`save-offline.tid`
-  schließt `tiddlyweb` aus). Beim Anheben der Engine die Liste gegen dieses Original prüfen.
+## Calendar engine
 
-Palette-Farben in statischem CSS über die Core-Variablen `--tpc-<Palette-Eintrag>` (seit
-5.4.0, erzeugt von `$:/core/stylesheets/custom-properties`; die Release-Note nennt
-fälschlich `--tp-color-*`). Solche Stylesheets als `type: text/css` anlegen - in Wikitext
-würde `--` zum Gedankenstrich.
+`modules/calendar.js` knows no particular calendar. `active(wiki)` reads the data tiddler named
+in `$:/config/dndwiki/calendar` (cached per tiddler via `getCacheForTiddler`), or returns null.
+Data model and leap rule: see the module header and `README.md`. Day numbers are summed from the
+data with a closed form for the leap years before a year (`floor((year-1-start)/every) -
+floor((-1-start)/every)`); for Harptos this equals the former `year*365 + ceil(year/4)`, which
+`npm test` checks over several leap cycles in both directions.
 
-## Graph-Konfiguration - wo was liegt
+Without a calendar, `datelong` shows the date as entered, `eventlist` the raw month/day numbers,
+`datecalc`/`datediff` return nothing and the `Calendar` hub is hidden from `Information`.
 
-tw5-graph trennt Konfiguration nach Scope; dndwiki-core folgt dieser Trennung konsequent
-und ergänzt einen eigenen Namensraum, wo tw5-graph keinen vorgibt:
+## Functions & cascades
 
-- **Pro Kantentyp** (Label, Farbe, Strichart, Pfeile, Kurvenverhalten, ...): ein JSON-Tiddler
-  pro Feld/Funktion unter `$:/config/flibbles/graph/edges/fields/<feldname>` bzw.
-  `.../functions/<name>` - Namensraum von tw5-graph vorgegeben, Werte kommen von uns.
-  Wird von `<$edges.typed>` automatisch per Namens-Match aufgelöst. Werte sind reine
-  Hex-/Literalwerte, kein Live-Binding an z. B. Tag-`color`-Felder möglich (JSON wird per
-  `JSON.parse` gelesen, kein Wikitext-Kontext) - bei Änderung der Quelle (z. B. Typ-Tag-Farbe)
-  manuell nachziehen. Das gilt nur für diese Kanten-JSONs; Tiddler-Rahmen (`styles/border`),
-  Tag-Pillen (`config/typfarbe`) und Graph-Knoten folgen dem Hub-`color` automatisch.
-  Die Typ-Tag-Hub-Tiddler selbst (Person/Ort/Organisation/Gegenstand/
-  Gott/...) liegen als Shadow-Defaults in `dndwiki-core` (Dateien ohne Präfix im Plugin-Root,
-  z. B. `Organisation.tid`), nicht im Kampagnen-Repo.
-- **Global pro Objekttyp** (Node/Edge/Graph-weite Defaults wie Physik): eigener Namensraum
-  `$:/config/dndwiki/graph/<kategorie>`. Anders als bei Feldtypen **kein** automatischer
-  Namens-Match - jeder neue Default muss explizit per `<$properties $for=<typ>
-  $tiddler="..." />` in beiden Graph-Templates (`graph/templates/dnd-graph.tid`,
-  `.../dnd-ego.tid`) eingebunden werden.
-- **Pro View** (Kosmogramm/Weltkarte/Gegenstände/Live/...): Override direkt als JSON-Feld auf
-  dem View-Tiddler (`edges.fields`, `edges.functions`, `graph.nodes`, `graph.edges`,
-  `graph.graph`) - reservierte Namen von tw5-graph, ausgewertet von dessen
-  `$properties.settings`-Baustein (den `dnd-graph.tid` einbindet). Nur für Views über
-  `dnd-graph.tid`; `dnd-ego` hat keine per-View-Override-Schicht.
-- **Override-Reichweite unterscheidet sich nach Objekttyp**: `$for=nodes`/`$for=edges`
-  kaskadieren über die Widget-Ahnenkette (näher am Objekt gewinnt - setzen Kantentyp-Config
-  *und* View-Override dieselbe Eigenschaft, gewinnt die Kantentyp-Config als nähere). `$for=graph`
-  (nur ein Graph-Objekt pro `<$graph>`) durchsucht stattdessen den gesamten `<$graph>`-Teilbaum
-  unabhängig von Verschachtelung - bei Kollision gewinnt, was später im Baum steht. Eigene
-  `$for=graph`-Defaults daher früh im Template platzieren, damit spätere per-View-Overrides
-  sie überschreiben können.
-- **Gotcha:** JSON-Werte in diesen Config-Tiddlern müssen **Strings** sein, auch für Zahlen
-  (`"width": "3.5"`, nicht `3.5`) - die Extraktion prüft `typeof datum === "string"` und verwirft
-  alles andere kommentarlos. Ein leerer String (`""`) zählt dabei ebenfalls als "nicht gesetzt"
-  und wird ignoriert (nicht als Override zum gezielten Löschen/Zurücksetzen nutzbar) - Ursache
-  war u. a. ein wirkungsloses `"arrows": ""` in den symmetrischen Kantentypen.
+Shared checks live **once** in `functions.tid` and are called as filter operators on their
+input (`[<currentTiddler>dnd.dead[]]`). So they behave the same in ViewTemplates, cascades,
+ClassFilters and graph templates - `currentTiddler` is something different in each (in
+ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there).
 
-## `staticfiles` - Implementierung
+- **`dnd.visible`** - player lock: yields a result if the tiddler is visible for the logged-in
+  player (`$:/state/dndwiki/player`). All ViewTemplates check
+  `<%if [<currentTiddler>dnd.visible[]] %>`; the body is locked by `viewtemplates/body-filter`
+  (`$:/tags/ViewTemplateBodyFilter`, empty `list-before` = first entry of the cascade), which
+  assigns `templates/body-locked` to locked tiddlers. The map tabs of a location drop
+  sub-tiddlers locked for the player. A change of the lock logic (e.g. login per player) happens
+  only in the function.
+- **`dnd.dead`** - deceased/destroyed: a dot in the `date` field, **events excluded** (there the
+  dot separates several points in time). Used by `config/class-dead` (class `dnd-dead`,
+  stylesheet `styles/dead`) and the graph templates; `deadlink.js` checks the same in JS.
 
-`module-type: route`-Modul (Feld `platform: server`), das im `--listen`-Node-Server
-die Ordner `images/` und `data/` unter `/images/...` bzw. `/data/...` ausliefert - der
-Standard-Server bedient sonst nur `/files/`. Der Handler folgt der Core-Route `get-file`
-(5.4): gestreamt, mit HTTP-Range (206/416) und `Content-Length`; der Traversal-Schutz
-prüft gegen den jeweiligen Unterordner, nicht nur gegen den Wiki-Ordner. Den Core-Handler
-direkt wiederzuverwenden geht nicht, weil er den Ordner `files/` fest eingebaut hat -
-bei Änderungen an `get-file.js` im Core also hier nachziehen. Durch
-`platform: server` schließt TiddlyWikis Offline-Save-Filter das Plugin **aus dem
-Build aus**: die gebaute/deployte Seite bleibt unverändert (dort liegt `images/`
-ohnehin neben `index.html`). Reines Dev-Hilfsmittel.
+More cascade entries instead of core overrides:
 
-## Core-Overrides - Liste & Update-Prozedur
+- `config/type-colour` (`$:/tags/TiddlerColourFilter`, after `color-field`): tiddlers without
+  their own `color` inherit the colour of their type hub.
+- `config/class-pinned` (`$:/tags/ClassFilters/TiddlerTemplate`): class `dnd-pinned` for
+  `$:/tags/Pinned`; `styles/pinned` hides the close button there.
+- `config/class-readonly` (`$:/tags/ClassFilters/PageTemplate`): class `dnd-readonly` on the page
+  container as soon as `$:/status/IsReadOnly` is `yes` - the CI of the wikis sets that only in the
+  published copy. `styles/readonly` then hides edit/clone/delete/new-*/import/manager and the save
+  button: the same list as `$:/plugins/tiddlywiki/tiddlyweb/readonly`, which is missing from the
+  offline build. Check the list against that original when raising the engine version.
+- `config/title-translated` (`$:/tags/ViewTemplateTitleFilter`, before `default`): tiddlers whose
+  display name differs from the title get the heading `templates/title-translated`.
 
-Manche Plugin-Tiddler **überschreiben** einen TiddlyWiki-Core-Shadow (1:1-Kopie des
-Core-Originals + gezielte Änderung), weil es dafür keinen Hook/Extension-Point gibt.
-Das ist bewusst die **letzte Wahl** - vorher immer prüfen, ob ein offizieller
-Erweiterungspunkt ausreicht: Kaskaden (`$:/tags/ViewTemplateBodyFilter`,
-`$:/tags/TiddlerColourFilter`, ...), `$:/tags/ClassFilters/TiddlerTemplate` plus CSS, Tags
-wie `$:/tags/AboveStory`. Das `condition`-Feld für ViewToolbar-Buttons (5.4.0) hilft bei
-**Core**-Buttons nicht: es müsste am Button selbst stehen, also doch wieder ein Override.
+Palette colours in static CSS through the core variables `--tpc-<palette entry>` (since 5.4.0,
+generated by `$:/core/stylesheets/custom-properties`; the release note wrongly says
+`--tp-color-*`). Create such stylesheets as `type: text/css` - in wikitext `--` would become a
+dash.
 
-Aktuelle Liste:
+## Graph configuration - what lives where
 
-| Datei | Überschreibt | Plugin | Warum kein Hook reicht |
+tw5-graph separates configuration by scope; dndwiki-core follows that strictly and adds a
+namespace of its own where tw5-graph has none:
+
+- **Per edge type** (label, colour, stroke, arrows, curves, ...): one JSON tiddler per
+  field/function under `$:/config/flibbles/graph/edges/fields/<field>` or `.../functions/<name>` -
+  namespace given by tw5-graph, values from us. Resolved by `<$edges.typed>` automatically by
+  name. Values are plain hex/literal values, no live binding to e.g. tag `color` fields (the JSON
+  is read with `JSON.parse`, no wikitext context) - update by hand when the source changes. The
+  JSON `label` is English and only used in the tw5-graph settings: **the visible edge label comes
+  from `Field/<field>`**, set by the override of `$edges.typed` (see "Core overrides") - only for
+  field types whose JSON has a label (`location` stays unlabelled). This covers the edges of our
+  graph templates and those `$nodes.neighbors` creates in the ego graph. The
+  type hub tiddlers themselves are shadow defaults in `dndwiki-core` (files without prefix in the
+  plugin root, e.g. `Organisation.tid`), not in the campaign repo.
+- **Global per object type** (node/edge/graph defaults such as physics): own namespace
+  `$:/config/dndwiki/graph/<category>`. **No** automatic name match - every new default must be
+  included explicitly with `<$properties $for=<type> $tiddler="..." />` in both graph templates.
+- **Per view** (Cosmogram/WorldMap/Items/Live/...): override directly as a JSON field on the view
+  tiddler (`edges.fields`, `edges.functions`, `graph.nodes`, `graph.edges`, `graph.graph`) -
+  reserved names of tw5-graph, evaluated by its `$properties.settings` block (included by
+  `dnd-graph.tid`). Only for views through `dnd-graph.tid`; `dnd-ego` has no per-view layer.
+- **Override reach differs by object type**: `$for=nodes`/`$for=edges` cascade through the widget
+  ancestry (closer to the object wins - an attribute on the `$edge` itself beats the edge type
+  config). `$for=graph` (one graph object per `<$graph>`) instead searches the whole `<$graph>`
+  subtree; on a collision whatever comes later wins. Put own `$for=graph` defaults early.
+- **Gotcha:** JSON values in these config tiddlers must be **strings**, also for numbers
+  (`"width": "3.5"`) - the extraction checks `typeof datum === "string"` and silently drops
+  anything else. An empty string (`""`) also counts as "not set" and is ignored.
+
+## `staticfiles` - implementation
+
+`module-type: route` module (field `platform: server`) that serves the folders `images/` and
+`data/` under `/images/...` and `/data/...` in the `--listen` Node server - the standard server
+only serves `/files/`. The handler follows the core route `get-file` (5.4): streamed, with HTTP
+range (206/416) and `Content-Length`; the traversal guard checks against the respective subfolder,
+not only the wiki folder. Reusing the core handler directly is not possible because it has the
+folder `files/` hard-wired - follow changes to `get-file.js` in the core here. Through
+`platform: server`, TiddlyWiki's offline save filter **excludes the plugin from the build**: the
+built/deployed page is unchanged (there `images/` lies next to `index.html` anyway). Dev aid only.
+
+## Core overrides - list & update procedure
+
+Some plugin tiddlers **override** a TiddlyWiki core shadow (1:1 copy of the core original +
+targeted change), because there is no hook/extension point for it. That is deliberately the
+**last resort** - always check first whether an official extension point is enough: cascades
+(`$:/tags/ViewTemplateBodyFilter`, `$:/tags/ViewTemplateTitleFilter`,
+`$:/tags/TiddlerColourFilter`, ...), `$:/tags/ClassFilters/TiddlerTemplate` plus CSS,
+hooks such as `th-saving-tiddler`, tags such as `$:/tags/AboveStory`.
+
+Current list:
+
+| File | Overrides | Plugin | Why no hook is enough |
 |---|---|---|---|
-| `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in Core-JS (`navigator.js`) leert `$:/StoryList` hart, ohne Hook. Einzige Möglichkeit, dass der `Abenteuer`-Hub-Tiddler (Tag `$:/tags/Pinned`) das übersteht: der Story-River-Filter selbst muss ihn unabhängig von `$:/StoryList` mit anzeigen. |
+| `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Adventure` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
+| `dndwiki-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `dndwiki-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Only change: `<$text text={{{ [<__tag__>dndtitle[]] }}}/>` for the translated display name. |
+| `dndwiki-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `dndwiki-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`dndtitlesearch`), hits use `search/item` (translated name). |
+| `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Only change: one inner `$properties $for=edges label=...` with the translation of `Field/<field>` (only for types whose JSON has a label). Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 
-Abgelöst in 1.4.0: `$:/core/ui/ViewTemplate/body` (Spieler-Sperre jetzt über die
-Body-Kaskade, siehe "Funktionen & Kaskaden"; der Override war gegenüber 5.4 veraltet -
-`\import` und `tc-clearfix` fehlten, dazu ein verschachteltes `<p>` um jeden Text) und
-`$:/core/ui/Buttons/close` (jetzt Klasse `dnd-pinned` + CSS).
+**Naming convention:** files that override a core title are named
+`$__core_<path>_<name>.tid` (dots/slashes in the title -> underscores) - signals "this file
+overrides core" at first sight, regardless of the plugin folder.
 
-**Namenskonvention:** Dateien, die einen Core-Titel überschreiben, heißen
-`$__core_ui_<Pfad>_<Name>.tid` (Punkte/Slashes im Titel -> Unterstriche) - signalisiert
-auf den ersten Blick "diese Datei überschreibt Core", unabhängig davon, in welchem
-Plugin-Ordner sie liegt.
+**Procedure on every raise of the `tiddlywiki` engine version** (in `package.json` here, later
+also in the wikis when they raise their own `tiddlywiki` version):
 
-**Prozedur bei jedem Anheben der `tiddlywiki`-Engine-Version** (in `package.json`
-hier, danach mittelbar auch in den Wikis, sobald sie ihrerseits ihre eigene
-`tiddlywiki`-Version anheben):
+1. `npm install` (fetch the new engine).
+2. For every row of the table above: diff the overriding file against the new original in
+   `node_modules/tiddlywiki/core/...` (`ui/PageTemplate/story.tid`, `wiki/macros/tag.tid`,
+   `ui/DefaultSearchResultList.tid`). Also
+   compare the button list in `styles/readonly.tid` with
+   `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid`. The tw5-graph
+   override (`edges.typed`) is checked against `node_modules/tw5-graph/plugins/graph/macros/`
+   whenever the tw5-graph pin is raised.
+3. On differences: check whether the own change still fits (take it over, verify again in a wiki)
+   or whether the core change brings a hook that makes the override unnecessary.
+4. Update this table if needed.
+5. `npm test`.
 
-1. `npm install` (neue Engine ziehen).
-2. Für jede Zeile obiger Tabelle: die überschriebene Datei gegen das neue Original in
-   `node_modules/tiddlywiki/core/ui/<entsprechender Pfad>.tid` diffen. Außerdem die
-   Knopfliste in `styles/readonly.tid` gegen
-   `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid` abgleichen.
-3. Bei Abweichungen: prüfen, ob die eigene Änderung noch sauber draufpasst
-   (übernehmen, dann erneut lokal in einem Wiki verifizieren) oder ob sich durch
-   die Core-Änderung ein Hook/Extension-Point ergeben hat, der den Override jetzt
-   überflüssig macht.
-4. Diese Tabelle bei Bedarf aktualisieren (neue Overrides ergänzen, obsolete
-   entfernen).
+(Same diff procedure as the template update for `DnDWiki`, see "Versioning -> Template update" in
+its `CLAUDE.md`.)
 
-(Analoges Diff-Verfahren wie beim Template-Update für `DnDWiki`, siehe dort
-"Versionierung -> Vorlagen-Update" in `CLAUDE.md`.)
+## Publishing a new version
 
-## Neue Version veröffentlichen
-
-1. Format ändern -> `version` in `plugins/dndwiki-core/plugin.info` erhöhen
-   (semver: patch=Fix, minor=neue Features, major=brechende Änderung).
-2. `version` in `package.json` auf denselben Wert anheben.
-3. `npm install` laufen lassen -> zieht `package-lock.json` auf dieselbe Version
-   nach. Nicht überspringen: sonst läuft die Lockfile-Version dauerhaft aus dem
-   Tritt (stand bis 1.3.0 noch auf 1.0.0).
-4. Pin-Beispiel in `README.md` ("Einbinden in TiddlyWiki") auf die neue Version.
-5. Committen, dann **taggen == Version** und Release setzen:
+1. Change the format -> raise `version` in `plugins/dndwiki-core/plugin.info` **and**
+   `plugins/dndwiki-forgottenrealms/plugin.info` (same version; semver: patch=fix, minor=new
+   features, major=breaking change).
+2. Raise `version` in `package.json` to the same value.
+3. Run `npm install` -> brings `package-lock.json` to the same version. Do not skip it: otherwise
+   the lockfile version drifts permanently.
+4. Pin example in `README.md` ("Using it in TiddlyWiki") to the new version.
+5. `npm run smoke`, `npm test`, `npm run check-lang`.
+6. Commit, then **tag == version** and create the release:
    ```bash
-   git tag 1.3.0 && git push origin master 1.3.0
-   gh release create 1.3.0 --generate-notes
+   git tag 2.0.0 && git push origin master 2.0.0
+   gh release create 2.0.0 --generate-notes
    ```
-   Brechende Formatänderungen (z. B. umbenannte Beziehungsfelder) gehören
-   ausdrücklich in die Release-Notes -- Konsumenten-Wikis verlieren sonst
-   unbemerkt Graph-Kanten.
-6. Konsumenten (DnDWiki-Repo-Familie) heben ihren Pin eigenständig an
-   (`#1.2.0` -> `#1.3.0`), laufen `npm install` und ziehen ihre eigene
-   `package.json`-`version` mit.
+   Breaking format changes (e.g. renamed relation fields) belong in the release notes explicitly -
+   consumer wikis otherwise silently lose graph edges. A new language belongs there too (the wikis
+   list the supported languages in their README).
+7. Consumers (DnDWiki repo family) raise their pin themselves (`#1.4.1` -> `#2.0.0`), run
+   `npm install` and bump their own `package.json` `version`.

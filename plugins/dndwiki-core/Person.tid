@@ -1,13 +1,13 @@
-caption: Personen
+caption: <<dnd.title Person>>
 color: #00a600
 created: 20200209095738040
-modified: 20260930204000000
+modified: 20261001095424000
 tags: Index
 title: Person
 type: text/vnd.tiddlywiki
 
 <$list filter="[tag[Person]sort[title]]">
 <div class="tc-menu-list-subitem">
-<<totlink title={{!!title}} style="~~">>
+<<deadlink title={{!!title}} style="~~">>
 </div>
 </$list>

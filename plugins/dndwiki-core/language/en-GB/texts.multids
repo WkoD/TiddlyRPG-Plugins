@@ -1,0 +1,38 @@
+created: 20261001095424000
+modified: 20261001095424000
+title: $:/dndwiki/language/en-GB/
+
+Adventure/OpenTasks: Open Tasks
+Calendar/Calculator: Calculator
+Calendar/Date: Date:
+Calendar/Days: Days:
+Calendar/DaysBetween: Days Between Two Dates
+Calendar/EveryNYears: (every $n$ years)
+Calendar/ExtraDays: Extra days:
+Calendar/From: From:
+Calendar/InputHint: Dates as `YYYY-MM-DD`. Festival days between two months count as the days after the last day of the preceding month (after a 30-day month: day 31, 32, …).
+Calendar/Result: Result:
+Calendar/To: To:
+Calendar/WrittenOut: Written out:
+Date/Column: Date
+Date/DayMonth: $day$ $month$
+Date/Time: $time$
+Event/Event: Event
+Event/End: (end)
+Event/Continued: (continued)
+Event/History: History
+Event/Location: Location:
+Event/Start: (start)
+Event/Year: Year:
+Item/Currency: GP
+Item/Price: Price:
+Link/SeeAlso: See also
+Player/Adventurers: Adventurers
+Player/Login: Login
+Player/Logout: Logout
+Player/Player: Player:
+Relations/Graph: Graph
+Relations/List: List
+Snippet/OpenItems: Open Items
+Snippet/PlayerSpoiler: Player Spoiler
+TBC/Other: Other

@@ -1,13 +1,13 @@
-caption: Informationen
+caption: <<dnd.title Information>>
 color: #7c7c7c
 created: 20200804121707247
-modified: 20200804123115788
+modified: 20261001095424000
 tags: Index
 title: Information
 type: text/vnd.tiddlywiki
 
-<$list filter="[tag[Information]sort[title]]">
+<$list filter="[all[shadows+tiddlers]tag[Information]sort[title]] -[{$:/config/dndwiki/calendar}is[blank]then[Calendar]]">
 <div class="tc-menu-list-subitem">
-<$link to={{!!title}}><$view field="title"/></$link>
+<$link to={{!!title}}><$text text={{{ [<currentTiddler>dndtitle[]] }}}/></$link>
 </div>
 </$list>

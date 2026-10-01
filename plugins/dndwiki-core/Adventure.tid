@@ -1,0 +1,22 @@
+caption: <<dnd.title Adventure>>
+color: #0069D2
+created: 20171009090415567
+modified: 20261001095424000
+tags: $:/tags/Pinned
+title: Adventure
+type: text/vnd.tiddlywiki
+
+@@float:right;{{||Index}}
+@@
+
+{{||Player}}
+
+@@clear:both;
+---
+!! <<dnd.t Adventure/OpenTasks>>
+
+{{||TBC/Adventure}}
+
+---
+{{||Event}}
+@@

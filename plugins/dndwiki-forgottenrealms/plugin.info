@@ -1,0 +1,11 @@
+{
+  "title": "$:/plugins/dndwiki-forgottenrealms",
+  "name": "dndwiki-forgottenrealms",
+  "description": "Forgotten Realms content for dndwiki-core: the Calendar of Harptos (Dalereckoning) as calendar data with language keys (en-GB, de-DE). Requires dndwiki-core.",
+  "author": "WkoD",
+  "version": "2.0.0",
+  "core-version": ">=5.4.0",
+  "plugin-type": "plugin",
+  "dependents": ["$:/plugins/dndwiki-core"],
+  "list": "readme"
+}

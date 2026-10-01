@@ -1,0 +1,8 @@
+created: 20260930204000000
+list-after: $:/config/TiddlerColourFilters/color-field
+modified: 20261001095424000
+tags: $:/tags/TiddlerColourFilter
+title: $:/plugins/dndwiki-core/config/type-colour
+type: text/vnd.tiddlywiki
+
+[tags[]is[shadow]tag[Index]has[color]first[]get[color]]

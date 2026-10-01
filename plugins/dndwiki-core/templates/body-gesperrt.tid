@@ -1,7 +1,0 @@
-created: 20260930204000000
-modified: 20260930204000000
-title: $:/plugins/dndwiki-core/templates/body-gesperrt
-type: text/vnd.tiddlywiki
-
-<!-- Leerer Body fuer Tiddler, die einer anderen Spielfigur zugeordnet sind.
-     Gewaehlt ueber viewtemplates/body-filter (Kaskade $:/tags/ViewTemplateBodyFilter). -->

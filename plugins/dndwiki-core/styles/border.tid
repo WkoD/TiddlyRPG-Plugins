@@ -1,12 +1,12 @@
 created: 20200814090319235
-modified: 20260930204000000
+modified: 20261001095424000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/border
 type: text/vnd.tiddlywiki
 
-<!-- Rahmen in der Farbe des Typs: je Typ-Hub der Formatschicht (Tag Index, Feld color) eine
-     Regel. all[shadows] beschraenkt auf die Typen aus dem Plugin - Inhalts-Tiddler mit eigenem
-     color (Fraktions-/Ortstags der Kampagnen) bekommen keinen Rahmen. -->
+<!-- Border in the colour of the type: one rule per type hub of the format layer (tag Index,
+     field color). all[shadows] restricts this to the types from the plugin - content tiddlers
+     with their own color (faction/location tags of the campaigns) get no border. -->
 <$list filter="[all[shadows]] :filter[tag[Index]has[color]] +[sort[]]">
 .tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/> {
 border: 2px solid <$text text={{!!color}}/>;

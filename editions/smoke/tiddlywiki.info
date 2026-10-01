@@ -1,10 +1,14 @@
 {
-    "description": "Minimal-Edition nur fuer den Boot-/Smoke-Check (npm run smoke): laedt dndwiki-core + Graph-Stack und bricht bei Modul-/Ladefehlern ab. Bewusst ohne Sync-Plugins (tiddlyweb/filesystem) -> schreibt nichts auf die Platte, kein Inhalt, keine Vorschau. Die Formatschicht wird im IDE bearbeitet und im echten Wiki (DnDWiki via file:-Junction) geprueft.",
+    "description": "Minimal edition for the boot/smoke check only (npm run smoke): loads dndwiki-core, dndwiki-forgottenrealms and the graph stack with the de-DE language and aborts on module/load errors. Deliberately without sync plugins (tiddlyweb/filesystem) -> writes nothing to disk, no content, no preview. The format layer is edited in the IDE and checked in a real wiki (DnDWiki via file: junction).",
     "plugins": [
         "dndwiki-core",
+        "dndwiki-forgottenrealms",
         "staticfiles",
         "graph",
         "vis-network",
         "relink"
+    ],
+    "languages": [
+        "de-DE"
     ]
 }

@@ -1,10 +1,11 @@
 {
   "title": "$:/plugins/dndwiki-core",
   "name": "dndwiki-core",
-  "description": "D&D-Formatschicht fuer DnDWiki: Makros, Filter, ViewTemplates, Style, Index-Hubs und tw5-graph-Schema (Fields-EdgeTypes + Graph-Templates).",
+  "description": "D&D format layer for DnDWiki: type hubs, view templates, macros, filters, styles, language packs (en-GB, de-DE), calendar engine and tw5-graph schema.",
   "author": "WkoD",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "core-version": ">=5.4.0",
   "plugin-type": "plugin",
-  "list": "readme"
+  "list": "readme",
+  "plugin-priority": "2"
 }

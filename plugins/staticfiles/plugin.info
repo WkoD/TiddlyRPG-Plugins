@@ -1,9 +1,9 @@
 {
   "title": "$:/plugins/staticfiles",
   "name": "staticfiles",
-  "description": "Liefert die externen Asset-Ordner (images/, data/) im Node-Dev-Server aus, gestreamt und mit HTTP-Range. Server-only (platform: server) - wird vom Offline-Build ausgeschlossen.",
+  "description": "Serves the external asset folders (images/, data/) in the Node dev server, streamed and with HTTP range support. Server only (platform: server) - excluded from the offline build.",
   "author": "WkoD",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "core-version": ">=5.4.0",
   "plugin-type": "plugin",
   "platform": "server"
