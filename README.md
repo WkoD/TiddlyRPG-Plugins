@@ -103,20 +103,4 @@ Festival days lie between two months and count as day `days + 1`, `days + 2`, ..
 preceding month (Midwinter = `1351-01-31`). A leap festival exists only in leap years, i.e. years
 with `(year - start) mod every == 0`, and comes after the regular festivals of its month.
 
-## Upgrading from 1.x
-
-2.0.0 renames all internal names to English (fields, tags, hubs, macros, image folders). A
-campaign wiki is migrated with
-
-```bash
-node <path to TiddlyDnD-Plugins>/scripts/migrate-2.0.js <wiki folder>          # dry run, report
-node <path to TiddlyDnD-Plugins>/scripts/migrate-2.0.js <wiki folder> --write  # apply
-```
-
-The release notes of 2.0.0 list every rename.
-
-New in 2.0.0 without migration: the event table (on the `Event` hub and under every tiddler
-with events) becomes a tab list "Timeline"/"List" - an interactive timeline next to the
-unchanged table. Both leave out events locked for the logged-in player.
-
 Editing and release process of this repo: see `CLAUDE.md`.

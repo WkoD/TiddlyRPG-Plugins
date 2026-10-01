@@ -6,8 +6,7 @@
   "scripts": {
     "smoke": "node scripts/tw.js editions/smoke --verbose --version",
     "test": "node scripts/test.js",
-    "check-lang": "node scripts/check-lang.js",
-    "migrate": "node scripts/migrate-2.0.js"
+    "check-lang": "node scripts/check-lang.js"
   },
   "devDependencies": {
     "tiddlywiki": "5.4.1",
