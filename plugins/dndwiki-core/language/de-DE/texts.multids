@@ -1,8 +1,7 @@
 created: 20261001095424000
-modified: 20261001154438000
+modified: 20261001160600000
 title: $:/dndwiki/language/de-DE/
 
-Adventure/OpenTasks: Offene Aufgaben
 Calendar/Calculator: Rechner
 Calendar/Date: Datum:
 Calendar/Days: Tage:
@@ -14,6 +13,7 @@ Calendar/InputHint: Datum als `JJJJ-MM-TT`. Festtage zwischen zwei Monaten zähl
 Calendar/Result: Ergebnis:
 Calendar/To: Bis:
 Calendar/WrittenOut: Ausgeschrieben:
+Campaign/OpenTasks: Offene Aufgaben
 Date/Column: Zeitpunkt
 Date/DayMonth: $day$. $month$
 Date/Time: $time$ Uhr

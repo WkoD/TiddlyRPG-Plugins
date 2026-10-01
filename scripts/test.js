@@ -52,7 +52,7 @@ function fixtures(wiki) {
 		{title: "Grum", tags: "Person", location: "Insel Avalon", date: ".1350-07", text: "An orc."},
 		{title: "Frigg", tags: "Player", player: "Anna", text: "A player character."},
 		{title: "Secret", tags: "Location Frigg", text: "Only for Frigg."},
-		{title: "Der dunkle Turm", tags: "Adventure Event", date: "1351-07-01.1351-07-11", text: "<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-11\"/>\n\nAt [[Insel Avalon]]."},
+		{title: "Der dunkle Turm", tags: "Campaign Event", date: "1351-07-01.1351-07-11", text: "<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-11\"/>\n\nAt [[Insel Avalon]]."},
 		{title: "Hafenfest", tags: "Event", date: "1351-07-05", text: "At [[Insel Avalon]]."},
 		{title: "Sage", tags: "Event", text: "Undated."},
 		{title: "Friggs Traum", tags: "Event Frigg", date: "1351-07-03", text: "At [[Insel Avalon]]."},
@@ -212,7 +212,7 @@ function testGerman(wiki) {
 	check("dndtitle hub", filter(wiki, "[[Location]dndtitle[]]").join() === "Ort");
 	check("dndtitle sub-tiddler", filter(wiki, "[[Insel Avalon/BattleMap]dndtitle[]]").join() === "Insel Avalon/Kampfkarte");
 	check("dndtitle without existing parent", filter(wiki, "[[Foo/Map]dndtitle[]]").join() === "Foo/Map");
-	check("dndtitle TBC/Adventure", filter(wiki, "[[TBC/Adventure]dndtitle[]]").join() === "TBC/Abenteuer");
+	check("dndtitle TBC/Campaign", filter(wiki, "[[TBC/Campaign]dndtitle[]]").join() === "TBC/Kampagne");
 
 	var location = view(wiki, "Location");
 	check("hub heading translated", /<h2 class="tc-title">\s*Ort\s*<\/h2>/.test(location), location.substr(0, 600));
@@ -230,18 +230,19 @@ function testGerman(wiki) {
 	var colour = function(title) {
 		return wiki.filterTiddlers("[[" + title + "]] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]]").join();
 	};
-	check("type colour: Event wins over Adventure whatever the tag order", colour("Der dunkle Turm") === "#48a4ff", colour("Der dunkle Turm"));
+	check("type colour: Event wins over Campaign whatever the tag order", colour("Der dunkle Turm") === "#48a4ff", colour("Der dunkle Turm"));
 	check("type colour: other types unchanged", colour("Grum") === "#00a600", colour("Grum"));
 	check("events locked for the player are left out of the event list", avalon.indexOf("Friggs Traum") === -1);
 	wiki.addTiddler(new $tw.Tiddler({title: "$:/state/dndwiki/player", text: "Frigg"}));
 	var avalonFrigg = view(wiki, "Insel Avalon");
 	wiki.deleteTiddler("$:/state/dndwiki/player");
 	check("... but shown to that player", avalonFrigg.indexOf("Friggs Traum") !== -1);
-	var adventure = view(wiki, "Adventure");
-	check("Adventure hub: events shown once (no event list of its own)", (adventure.match(/>Zeitstrahl</g) || []).length === 1, (adventure.match(/>Zeitstrahl</g) || []).length);
+	var campaign = view(wiki, "Campaign");
+	check("Campaign hub heading translated", /<h2 class="tc-title">\s*Kampagne\s*<\/h2>/.test(campaign), campaign.substr(0, 600));
+	check("Campaign hub: events shown once (no event list of its own)", (campaign.match(/>Zeitstrahl</g) || []).length === 1, (campaign.match(/>Zeitstrahl</g) || []).length);
 	var timeline = render(wiki, "text/html", "<$dnd-timeline filter=\"[tag[Event]]\"/>");
 	check("timeline: one card per event", (timeline.match(/class="dnd-tl-card/g) || []).length === 4, timeline.substr(0, 600));
-	check("timeline: adventure solid bar, other event dashed point", timeline.indexOf("dnd-tl-bar dnd-tl-adventure") !== -1 && timeline.indexOf("dnd-tl-point dnd-tl-other") !== -1);
+	check("timeline: campaign solid bar, other event dashed point", timeline.indexOf("dnd-tl-bar dnd-tl-campaign") !== -1 && timeline.indexOf("dnd-tl-point dnd-tl-other") !== -1);
 	var cardTop = function(title) {
 		var cards = timeline.split('<div class="dnd-tl-card').slice(1);
 		for(var i = 0; i < cards.length; i++) {
@@ -290,7 +291,7 @@ function testGerman(wiki) {
 	var order = ["Gegenstände", "Götter", "Informationen", "Organisationen", "Orte", "Personen", "Offene Punkte"].map(function(s) { return index.indexOf(s); });
 	check("index: six types in German order plus open items", order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), index);
 	// Pragmas must not leak as text (a lost backslash turns \define into visible text)
-	["Index", "Information", "Player", "Calendar", "Item", "Event", "TBC", "Adventure", "Location", "Map", "BattleMap"].forEach(function(title) {
+	["Index", "Information", "Player", "Calendar", "Item", "Event", "TBC", "Campaign", "Location", "Map", "BattleMap"].forEach(function(title) {
 		var text = body(wiki, title);
 		check("no pragma text in " + title, !/(^|\n)\s*(define|procedure|function|whitespace|import) /.test(text), text.substr(0, 200));
 	});
@@ -305,8 +306,8 @@ function testGerman(wiki) {
 	check("calendar hub: name, epithet, leap festival", calendarHub.indexOf("Kalender von Harptos") !== -1 &&
 		calendarHub.indexOf("Tiefwinter") !== -1 && calendarHub.indexOf("Schildtreff (alle 4 Jahre)") !== -1, calendarHub);
 
-	var adventure = body(wiki, "Adventure");
-	check("adventure hub: open tasks, no current date", adventure.indexOf("Offene Aufgaben") !== -1 && adventure.indexOf("Aktuelles Datum") === -1);
+	var campaign = body(wiki, "Campaign");
+	check("campaign hub: open tasks, no current date", campaign.indexOf("Offene Aufgaben") !== -1 && campaign.indexOf("Aktuelles Datum") === -1);
 
 	var hooked = $tw.hooks.invokeHook("th-saving-tiddler", new $tw.Tiddler({title: "New", tags: ["Ort", "Haus Kemri"]}));
 	check("tag hook: Ort -> Location", hooked.fields.tags.join("|") === "Location|Haus Kemri", hooked.fields.tags);
@@ -318,6 +319,7 @@ function testGerman(wiki) {
 
 	var search = wiki.getTiddler("$:/core/ui/DefaultSearchResultList").fields["first-search-filter"];
 	check("search: translated hub name finds the hub", filter(wiki, search, {userInput: "Ort"}).indexOf("Location") !== -1);
+	check("search: Kampagne finds the campaign hub", filter(wiki, search, {userInput: "Kampagne"}).indexOf("Campaign") !== -1);
 
 	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "TBC", "Item", "Event"].forEach(function(title) {
 		var html = view(wiki, title);

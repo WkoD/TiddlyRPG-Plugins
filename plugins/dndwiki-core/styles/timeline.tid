@@ -1,11 +1,11 @@
 created: 20261001133844000
-modified: 20261001154438000
+modified: 20261001160600000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/timeline
 type: text/css
 
 /* Event timeline (widgets/timeline.js). Palette colours via --tpc-*.
-   Adventures (with the player characters) solid, other events dashed. */
+   Campaign events (with the player characters) solid, other events dashed. */
 .dnd-tl {
 	position: relative;
 	margin: 0.5em 0;
@@ -149,7 +149,7 @@ type: text/css
 .dnd-tl-stroke {
 	opacity: 0.85;
 }
-.dnd-tl-adventure .dnd-tl-stroke {
+.dnd-tl-campaign .dnd-tl-stroke {
 	stroke-linecap: round;
 }
 .dnd-tl-other .dnd-tl-stroke {
@@ -193,7 +193,7 @@ type: text/css
 	stroke-width: 2.5;
 	paint-order: stroke;
 }
-.dnd-tl-point.dnd-tl-adventure {
+.dnd-tl-point.dnd-tl-campaign {
 	stroke: var(--dnd-tl-bg);
 }
 .dnd-tl-point.dnd-tl-other {

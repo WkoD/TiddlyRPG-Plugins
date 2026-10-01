@@ -40,7 +40,7 @@ var FIELDS = {
 var TAGS = {
 	"Ort": "Location", "Gott": "Deity", "Spieler": "Player", "Artefakt": "Artifact",
 	"Gegenstand": "Item", "Buch": "Book", "Karte": "Map", "Ereignis": "Event",
-	"Abenteuer": "Adventure", "Kalender": "Calendar", "TBC/Abenteuer": "TBC/Adventure"
+	"Abenteuer": "Campaign", "Kalender": "Calendar", "TBC/Abenteuer": "TBC/Campaign"
 };
 
 var GRAPH_VIEWS = {

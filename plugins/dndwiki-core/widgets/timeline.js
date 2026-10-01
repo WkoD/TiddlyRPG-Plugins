@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261001154438000
+modified: 20261001160600000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -33,7 +33,7 @@ months and in-between years are fitted in or left out.
 A selected span draws a line from every point in time on its bar to the card, all leaving the
 card where its own connector ends.
 
-Adventures (events with the player characters) are drawn solid, all other events dashed.
+Campaign events (with the player characters) are drawn solid, all other events dashed.
 
 Interaction: hovering previews an event (highlight); a click or tap selects it - the highlight
 stays and its card grows to show all points in time and the tags. Inside the selected card the
@@ -135,7 +135,7 @@ TimelineWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes(),
 		calTitle = (this.wiki.getTiddlerText(CONFIG,"") || "").trim();
 	if(changedAttributes.filter || changedTiddlers["$:/language"] || changedTiddlers[CONFIG] ||
-		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Adventure) {
+		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Campaign) {
 		this.refreshSelf();
 		return true;
 	}
@@ -236,7 +236,7 @@ TimelineWidget.prototype.collect = function() {
 		events = [],
 		undated = [],
 		eventColour = colourOf(wiki,"Event") || "#48a4ff",
-		adventureColour = colourOf(wiki,"Adventure") || "#0069d2";
+		campaignColour = colourOf(wiki,"Campaign") || "#0069d2";
 	$tw.utils.each(this.list,function(title) {
 		var tiddler = wiki.getTiddler(title);
 		if(!tiddler) {
@@ -244,13 +244,13 @@ TimelineWidget.prototype.collect = function() {
 		}
 		var parsed = eventDates.parse(tiddler.fields.date),
 			points = [],
-			adventure = tiddler.hasTag("Adventure"),
+			campaign = tiddler.hasTag("Campaign"),
 			ev = {
 				title: title,
-				adventure: adventure,
-				colour: adventure ? adventureColour : eventColour,
+				campaign: campaign,
+				colour: campaign ? campaignColour : eventColour,
 				tags: (tiddler.fields.tags || []).filter(function(tag) {
-					return tag !== "Event" && tag !== "Adventure";
+					return tag !== "Event" && tag !== "Campaign";
 				})
 			};
 		$tw.utils.each(parsed.points,function(point) {
@@ -678,7 +678,7 @@ TimelineWidget.prototype.drawCanvas = function() {
 	};
 	var card = function(ev,cy) {
 		var node = doc.createElement("div");
-		node.className = "dnd-tl-card " + (ev.adventure ? "dnd-tl-adventure" : "dnd-tl-other");
+		node.className = "dnd-tl-card " + (ev.campaign ? "dnd-tl-campaign" : "dnd-tl-other");
 		node.style.top = cy - L.cardH / 2 + "px";
 		node.style.left = cardX + "px";
 		node.setAttribute("data-left",cardX);
@@ -710,9 +710,9 @@ TimelineWidget.prototype.drawCanvas = function() {
 	};
 	var point = function(ev,cy) {
 		remember(ev.idx,svg(doc,"circle",{
-			"class": "dnd-tl-point " + (ev.adventure ? "dnd-tl-adventure" : "dnd-tl-other"),
+			"class": "dnd-tl-point " + (ev.campaign ? "dnd-tl-campaign" : "dnd-tl-other"),
 			cx: L.axisX, cy: cy, r: 6,
-			fill: ev.adventure ? ev.colour : "none", stroke: ev.colour
+			fill: ev.campaign ? ev.colour : "none", stroke: ev.colour
 		},gDots));
 	};
 	// Labels are collected and placed at the end (see placeLabels)
@@ -810,7 +810,7 @@ TimelineWidget.prototype.drawCanvas = function() {
 			stop(ev.solid0,1);
 			stop(ev.solid1,1);
 			stop(ev.y1,ev.openEnd ? 0 : (ev.points[ev.points.length - 1].d ? 1 : 0.25));
-			var g = svg(doc,"g",{"class": "dnd-tl-bar " + (ev.adventure ? "dnd-tl-adventure" : "dnd-tl-other")},gBars),
+			var g = svg(doc,"g",{"class": "dnd-tl-bar " + (ev.campaign ? "dnd-tl-campaign" : "dnd-tl-other")},gBars),
 				thick = "",
 				thin = "";
 			// Free pieces thick, pieces in a beam thin; a short curve where the lane changes

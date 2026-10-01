@@ -1,9 +1,9 @@
-caption: <<dnd.title Adventure>>
+caption: <<dnd.title Campaign>>
 color: #0069D2
 created: 20171009090415567
-modified: 20261001152537000
+modified: 20261001160600000
 tags: Index $:/tags/Pinned
-title: Adventure
+title: Campaign
 type: text/vnd.tiddlywiki
 
 @@float:right;{{||Index}}
@@ -13,9 +13,9 @@ type: text/vnd.tiddlywiki
 
 @@clear:both;
 ---
-!! <<dnd.t Adventure/OpenTasks>>
+!! <<dnd.t Campaign/OpenTasks>>
 
-{{||TBC/Adventure}}
+{{||TBC/Campaign}}
 
 ---
 {{||Event}}

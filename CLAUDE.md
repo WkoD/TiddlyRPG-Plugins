@@ -99,7 +99,7 @@ the tiddler title:
   interactive timeline of the events, newest at the top, undated ones at the bottom as `????`.
   Positions from `calendar.dayNumber`, long gaps collapsed; spans as bars in at most 5 lanes,
   more merge into one beam; tap/click selects (card grows, lines to each point in time), the
-  title in the selected card opens the tiddler. Adventures solid, other events dashed. Details
+  title in the selected card opens the tiddler. Campaign events solid, other events dashed. Details
   in the module header.
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
@@ -130,7 +130,7 @@ the tiddler title:
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
   (`Plural/<hub>`), `fields` (`Field/<field>`, relation fields), `texts` (template texts).
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Book, Item,
-  Material, Map, BattleMap, Event, Adventure, Calendar, Information, Index, TBC, TBC/Adventure;
+  Material, Map, BattleMap, Event, Campaign, Calendar, Information, Index, TBC, TBC/Campaign;
   titles without prefix, tag `Index`): type tags carry the `color` field from which graph nodes,
   tiddler borders and tag pills take their colour; `caption` is `<<dnd.title ...>>`.
 - **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
@@ -200,8 +200,8 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
 More cascade entries instead of core overrides:
 
 - `config/type-colour` (`$:/tags/TiddlerColourFilter`, after `color-field`): tiddlers without
-  their own `color` inherit the colour of their type hub. `Adventure` counts last: an adventure
-  is always also an `Event` and keeps its colour, whatever the order of the tags.
+  their own `color` inherit the colour of their type hub. `Campaign` counts last: a campaign
+  event is always also an `Event` and keeps its colour, whatever the order of the tags.
 - `config/class-pinned` (`$:/tags/ClassFilters/TiddlerTemplate`): class `dnd-pinned` for
   `$:/tags/Pinned`; `styles/pinned` hides the close button there.
 - `config/class-readonly` (`$:/tags/ClassFilters/PageTemplate`): class `dnd-readonly` on the page
@@ -272,7 +272,7 @@ Current list:
 
 | File | Overrides | Plugin | Why no hook is enough |
 |---|---|---|---|
-| `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Adventure` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
+| `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
 | `dndwiki-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `dndwiki-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Only change: `<$text text={{{ [<__tag__>dndtitle[]] }}}/>` for the translated display name. |
 | `dndwiki-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `dndwiki-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`dndtitlesearch`), hits use `search/item` (translated name). |
 | `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Only change: one inner `$properties $for=edges label=...` with the translation of `Field/<field>` (only for types whose JSON has a label). Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |

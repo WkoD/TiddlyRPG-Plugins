@@ -1,17 +1,17 @@
 caption: <<dnd.plural TBC>>
 created: 20200105183443517
-modified: 20261001095424000
+modified: 20261001160600000
 tags: Index
 title: TBC
 type: text/vnd.tiddlywiki
 
-!!! <<dnd.title Adventure>>
+!!! <<dnd.title Campaign>>
 
-{{||TBC/Adventure}}
+{{||TBC/Campaign}}
 
 !!! <<dnd.t TBC/Other>>
 
-<$list filter="[!is[system]!tag[Index]!prefix[TBC]!title[Adventure]search:text[TBC]sort[title]]">
+<$list filter="[!is[system]!tag[Index]!prefix[TBC]!title[Campaign]search:text[TBC]sort[title]]">
 <div class="tc-menu-list-subitem">
 <$link to={{!!title}}><$text text={{{ [<currentTiddler>dndtitle[]] }}}/></$link>
 </div>

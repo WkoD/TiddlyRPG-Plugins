@@ -1,8 +1,7 @@
 created: 20261001095424000
-modified: 20261001154438000
+modified: 20261001160600000
 title: $:/dndwiki/language/en-GB/
 
-Adventure/OpenTasks: Open Tasks
 Calendar/Calculator: Calculator
 Calendar/Date: Date:
 Calendar/Days: Days:
@@ -14,6 +13,7 @@ Calendar/InputHint: Dates as `YYYY-MM-DD`. Festival days between two months coun
 Calendar/Result: Result:
 Calendar/To: To:
 Calendar/WrittenOut: Written out:
+Campaign/OpenTasks: Open Tasks
 Date/Column: Date
 Date/DayMonth: $day$ $month$
 Date/Time: $time$

@@ -174,7 +174,7 @@ var prepare_results = function (source) {
    var results = [];
    source(function(tiddler,title) {
       if (tiddler) {
-         var hastag = tiddler.hasTag("Adventure"),
+         var hastag = tiddler.hasTag("Campaign"),
             parsed = eventDates.parse(tiddler.fields.date);
          if (parsed.points.length) {
             // Several parts: the first real point is "start", the last part "end" (unless it is
