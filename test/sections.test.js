@@ -73,14 +73,14 @@ test("locations locked for the player are left out", function() {
 
 test("head: span of the field and the locations before the first placeholder", function() {
 	var view = h.view(wiki, "Vinland");
-	assert.match(view, /<div class="dnd-event-span">15\. Eleasis 1351 DR – offen<\/div>/);
+	assert.match(view, /<div class="dnd-dateline">15\. Eleasis 1351 DR – offen<\/div>/);
 	assert.match(view, /dnd-event-head.*data-tag-title="Nowhere".*<\/div>\s*<hr class="dnd-event-rule">/s);
 });
 
 test("head without the former labels", function() {
 	var view = h.view(wiki, "Schild");
 	assert.ok(view.indexOf("Jahr:") === -1 && view.indexOf("Ort:") === -1);
-	assert.match(view, /<div class="dnd-event-span">5\. – 24\. Flamerule 1351 DR<\/div>/);
+	assert.match(view, /<div class="dnd-dateline">5\. – 24\. Flamerule 1351 DR<\/div>/);
 });
 
 test("hint without a position, explicit number works anywhere", function() {
@@ -162,17 +162,28 @@ test("event table: a span is one row, with caption and flags", function() {
 	assert.ok(table.indexOf("Vinland") < table.indexOf("Schild"));
 });
 
-test("span of the field above the title, only for events", function() {
-	assert.match(h.view(wiki, "Schild"), /<div class="dnd-event-span">[^<]*<\/div><h2 class="tc-title">Schild<\/h2>/);
-	assert.doesNotMatch(h.view(wiki, "Grum"), /dnd-event-span/);
+test("date line below the tags: span of an event, years of the other types", function() {
+	var event = h.view(wiki, "Schild");
+	assert.ok(event.indexOf("tc-tags-wrapper") < event.indexOf("dnd-dateline"));
+	assert.doesNotMatch(event, /dnd-dateline[^>]*>[^<]*<\/div><h2/);
+	assert.match(h.view(wiki, "Grum"), /<div class="dnd-dateline">\?\?\?\? – 1350 DR<\/div>/);
 });
 
-test("no span above the title of an event locked for the player", function() {
+test("<<date>> without any date in the field: ???? with the era", function() {
+	h.add(wiki, {title: "Eiszeit", tags: "Event", text: "<<date>>\n\nKalt."});
+	try {
+		assert.equal(headings(body("Eiszeit")).join(), "???? DR");
+	} finally {
+		wiki.deleteTiddler("Eiszeit");
+	}
+});
+
+test("no date line for an event locked for the player", function() {
 	h.add(wiki, {title: "$:/state/dndwiki/player", text: "Frigg"});
 	h.add(wiki, {title: "Geheim", tags: "Event Ragna", date: "1351"});
 	h.add(wiki, {title: "Ragna", tags: "Player"});
 	try {
-		assert.doesNotMatch(h.view(wiki, "Geheim"), /dnd-event-span/);
+		assert.doesNotMatch(h.view(wiki, "Geheim"), /dnd-dateline/);
 	} finally {
 		["$:/state/dndwiki/player", "Geheim", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
 	}

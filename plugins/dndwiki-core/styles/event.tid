@@ -1,23 +1,19 @@
 created: 20261002082222000
-modified: 20261002093000000
+modified: 20261002100000000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/event
 type: text/css
 
-/* Span above the title of an event (templates/title-event, the style of the date line of a
-   timeline card), head of an event (viewtemplates/event), dated sections in the body (procedure date),
-   location pills (procedure dnd.places), hints on dates that cannot be read (dnd.datecheck)
-   and the years of existence (viewtemplates/activity). Palette colours via --tpc-*. */
-.dnd-event-span {
+/* Date line below the tags (procedure dnd.dateline: span of an event, years of existence of the
+   other types; grey like the date line of a timeline card), head of an event
+   (viewtemplates/event), dated sections in the body (procedure date), location pills (procedure
+   dnd.places) and hints on dates that cannot be read (dnd.datecheck). Palette colours via
+   --tpc-*. */
+.dnd-dateline {
+	text-align: right;
 	color: var(--tpc-muted-foreground, #999);
 	font-size: 0.85em;
 	line-height: 1.3;
-}
-/* In the title bar (font-size 2.35em in the vanilla theme): the size of the subtitle */
-.tc-titlebar .dnd-event-span {
-	font-size: 0.38em;
-	font-weight: normal;
-	margin-bottom: 0.15em;
 }
 .dnd-date-heading {
 	font-weight: bold;
@@ -43,9 +39,4 @@ type: text/css
 .dnd-date-invalid {
 	color: var(--tpc-alert-highlight, #b00);
 	font-size: 0.85em;
-}
-.dnd-activity {
-	text-align: right;
-	font-size: 0.85em;
-	font-style: italic;
 }

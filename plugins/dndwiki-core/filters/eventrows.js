@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261002082222000
+modified: 20261002100000000
 
 Filter operator for the event table: one table row per section of the date field (split by
 modules/dates.js, the same rules as the timeline). A point in time is a row of its own, a span
@@ -51,7 +51,7 @@ exports.eventrows = function(source,operator,options) {
 			var row = {title: title, campaign: campaign, point: anchor, section: i + 1, label: labels[i + 1] || ""};
 			if(section.range) {
 				// Start in the date columns, the rest next to the title
-				row.note = start ? language.format(language.t(wiki,"Event/Until"),{date: end ? dates.formatRange(wiki,cal,end,end) : (section.end === dates.UNKNOWN ? "?" : language.t(wiki,"Date/Open"))}) :
+				row.note = start ? language.format(language.t(wiki,"Event/Until"),{date: end ? dates.formatRange(wiki,cal,end,end) : (section.end === dates.UNKNOWN ? dates.UNKNOWN_TEXT : language.t(wiki,"Date/Open"))}) :
 					dates.formatSection(wiki,cal,section);
 			}
 			if(count > 1) {

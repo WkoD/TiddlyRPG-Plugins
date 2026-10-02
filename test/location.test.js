@@ -88,7 +88,7 @@ test.describe("de-DE", function() {
 	});
 
 	test("activity line year", function() {
-		assert.ok(h.view(wiki, "Grum").indexOf("? – 1350 DR") !== -1);
+		assert.ok(h.view(wiki, "Grum").indexOf("<div class=\"dnd-dateline\">???? – 1350 DR</div>") !== -1);
 	});
 });
 

@@ -21,6 +21,9 @@
  *   the field - nothing is lost, check-dates.js lists those. A "---" line right before a call
  *   that became <<date>> goes (the placeholder draws its own rule). In editor snippets a
  *   datelong call becomes <<date>>.
+ *   Every event starts with <<date>>: an event body without a placeholder gets one at the start
+ *   (after leading pragmas); an event whose first placeholder has text before it is only
+ *   reported (an intro - decided by hand).
  * Graph views and other filters: -[search:date[.]] -> -[dnd.dead[]].
  *
  * Timestamps (created/modified) are left alone: a mechanical migration. Already migrated values
@@ -185,6 +188,7 @@ function rewriteBody(body, sections, snippet) {
 /* ---------- Run ---------- */
 
 var report = {
+	inserted: [],
 	dates: [], failed: [], events: [], intros: [], unmatched: [], snippets: [], filters: [], other: []
 };
 
@@ -240,6 +244,15 @@ files.forEach(function(file) {
 		t.body = r.body;
 		changed = true;
 	}
+	// Every event starts with <<date>>
+	if(event && !/<<date[\s>]/.test(t.body)) {
+		var pragmas = /^(?:[ \t]*(?:\\[^\n]*)?\n)*/.exec(t.body)[0],
+			rest = t.body.slice(pragmas.length).replace(/^\s+/, "");
+		t.body = (/\S/.test(pragmas) ? pragmas.replace(/\s*$/, "\n\n") : "") + "<<date>>" + (rest ? "\n\n" + rest : "\n");
+		t.hasBody = true;
+		report.inserted.push(title);
+		changed = true;
+	}
 	if(changed) {
 		save(t);
 	}
@@ -255,6 +268,7 @@ console.log((write ? "Migrated" : "Dry run (nothing written; --write applies)") 
 printList("Field date converted", report.dates);
 printList("Field date NOT converted (unexpected form, fix by hand)", report.failed);
 printList("Event bodies rewritten", report.events);
+printList("Events: <<date>> inserted at the start", report.inserted);
 printList("Events whose first placeholder is not section 1 or has text before it (intro)", report.intros);
 printList("Body dates that are not a section of the field (now <<dateformat \"...\">>)", report.unmatched);
 printList("Editor snippets -> <<date>>", report.snippets);

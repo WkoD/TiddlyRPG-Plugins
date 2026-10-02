@@ -86,7 +86,7 @@ point   := YYYY[-MM[-DD[-time]]]
 | Side | as start | as end |
 |---|---|---|
 | a point | from this date | until this date |
-| `.` | unknown | ended at an unknown time |
+| `.` | unknown (shown as `????`) | ended at an unknown time (`????`) |
 | `..` | since time immemorial | ongoing |
 | empty | ignored: `1351/` = `/1351` = `1351` | |
 
@@ -112,11 +112,11 @@ where each section begins:
 ```
 
 Each placeholder shows a rule (not at the very start of the body), the date of its section,
-the caption and the locations linked in that section. Above its title the event shows the span
-of the whole field (like the date line of its card in the timeline), below its tags the
-locations linked before the first placeholder; for an event without placeholders that is the
-whole body. An event with more than one section gives each one a placeholder, the first one
-included. Timeline and event table show one entry per section, a
+the caption and the locations linked in that section. Every event starts with `<<date>>`, also
+one with a single date; without any date in the field the heading reads `????` (with the
+era). Below its tags, right-aligned in grey, every tiddler with dates shows a date line: an
+event the span of its whole field, every other type its years of existence. An event also
+lists there the locations linked before its first placeholder. Timeline and event table show one entry per section, a
 span as a bar or one row, with its caption. Links inside DM notes (`@@.tc-tiddler-frame`, the
 "open items" snippet) are not counted as locations. Do not put `<<date>>` into a block that is
 hidden from players: its caption and locations would still reach the timeline and the table.

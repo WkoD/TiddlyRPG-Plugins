@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261002093000000
+modified: 20261002100000000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -96,7 +96,7 @@ var CONFIG = "$:/config/dndwiki/calendar";
 // events keep the colour of their type hub
 var LANE_COLOURS = ["#2a9d8f","#e76f51","#7b61ff","#e9a400","#3a86ff","#d1495b","#43aa8b","#b5179e","#577590","#f3722c"];
 
-var UNKNOWN = "????";
+var UNKNOWN = dates.UNKNOWN_TEXT;
 
 var TimelineWidget = function(parseTreeNode,options) {
 	this.initialise(parseTreeNode,options);
@@ -226,12 +226,12 @@ function daysOf(C,section,number,start,end,range) {
 	return s;
 }
 
-// Text of one side of a range: a point in the short form, "?" or open/ever
+// Text of one side of a range: a point in the short form, "????" or open/ever
 function sideLabel(wiki,cal,side,isStart) {
 	if(typeof side === "object") {
 		return dates.formatRange(wiki,cal,side,side);
 	}
-	return side === UNKNOWN_SIDE ? "?" : language.t(wiki,isStart ? "Date/Ever" : "Date/Open");
+	return side === UNKNOWN_SIDE ? dates.UNKNOWN_TEXT : language.t(wiki,isStart ? "Date/Ever" : "Date/Open");
 }
 
 TimelineWidget.prototype.collect = function() {

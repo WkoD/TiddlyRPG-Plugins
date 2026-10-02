@@ -116,8 +116,9 @@ the tiddler title:
 - **Functions and procedures** (`functions`, tag `$:/tags/Global`): `dnd.visible`, `dnd.dead`
   (see "Functions & cascades"), `dnd.t`, `dnd.title`, `dnd.plural` (language system), the
   procedures `dateformat`, `dateadd`, `datediff` (calendar), `date` (dated section in a body,
-  with `widgets/date.js`), `dnd.places` (location pills of a section) and `dnd.datecheck`
-  (hint on a date that cannot be read, not in the published copy).
+  with `widgets/date.js`), `dnd.places` (location pills of a section), `dnd.dateline` (date
+  line below the tags: span of an event, years of existence of the other types) and
+  `dnd.datecheck` (hint on a date that cannot be read, not in the published copy).
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
@@ -156,9 +157,9 @@ the tiddler title:
   rules, battle map width), `dead`, `pinned`, `readonly`, `timeline` and `event` (event head,
   dated sections, location pills; static CSS, `type: text/css`).
   **Templates** `templates/image`, `templates/body-locked`, `templates/title-translated`,
-  `templates/title-event`, `templates/subtitle`.
+  `templates/subtitle`.
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
-  `title-translated`, `title-event`, `subtitle` - see below.
+  `title-translated`, `subtitle` - see below.
 - **Search** (override of `$:/core/ui/DefaultSearchResultList` plus `search/item`): core search
   plus hubs whose translated name matches, hits shown with translated names.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
@@ -273,10 +274,6 @@ More cascade entries instead of core overrides:
   offline build. Check the list against that original when raising the engine version.
 - `config/title-translated` (`$:/tags/ViewTemplateTitleFilter`, before `default`): tiddlers whose
   display name differs from the title get the heading `templates/title-translated`.
-- `config/title-event` (`$:/tags/ViewTemplateTitleFilter`, before `title-translated`): events get
-  `templates/title-event` - the span of the date field above the title, in the grey style of the
-  date line of a timeline card, then the title as display name. `viewtemplates/event` below the
-  tags holds the rest of the head (locations before the first `<<date>>`, hint, rule).
 - `config/subtitle` (`$:/tags/ViewTemplateSubtitleFilter`, before `default`): every tiddler gets
   `templates/subtitle`, the core default without the modifier (always the same person here; git
   keeps the history). Other entries tagged `$:/tags/ViewTemplate/Subtitle` still show.

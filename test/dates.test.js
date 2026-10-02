@@ -109,7 +109,7 @@ test.describe("de-DE", function() {
 	});
 
 	test("dateformat: unknown and open sides", function() {
-		assert.equal(f("[[./1339]dateformat[]]"), "? – 1339");
+		assert.equal(f("[[./1339]dateformat[]]"), "???? – 1339");
 		assert.equal(f("[[1351-07-11/..]dateformat[]]"), "11. Flamerule 1351 – offen");
 		assert.equal(f("[[../..]dateformat[]]"), "seit jeher – offen");
 	});

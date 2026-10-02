@@ -16,8 +16,9 @@
  *            "---" right before <<date>> (the placeholder draws its own rule); <<date>> inside
  *            a block locked for players ($list, <%if%>, $reveal - caption and locations still
  *            reach timeline and table)
- *   hint     sections of an event with placeholders that have no heading; text before the
- *            first placeholder; several sections or ".." as start of a non-event
+ *   hint     an event without <<date>> (every event starts with one); sections that have no
+ *            heading; text before the first placeholder; an event without date; several
+ *            sections or ".." as start of a non-event
  *
  * Exit code 1 if there is an error.
  */
@@ -106,7 +107,7 @@ $tw.boot.boot(function() {
 			count = dates.parse(fields.date).sections.length,
 			seen = {};
 		$tw.utils.each(info.placeholders, function(p) {
-			if(p.number > count) {
+			if(count > 0 && p.number > count) {
 				add(title, "error", "<<date>> for section " + p.number + ", the field has " + count);
 			}
 			if(seen[p.number]) {
@@ -117,7 +118,9 @@ $tw.boot.boot(function() {
 				add(title, "warning", "\"---\" right before the placeholder of section " + p.number);
 			}
 		});
-		if(info.placeholders.length) {
+		if(!info.placeholders.length) {
+			add(title, "hint", "no <<date>> at the start");
+		} else if(count > 0) {
 			var missing = [];
 			for(var n = 1; n <= count; n++) {
 				if(!seen[n]) {

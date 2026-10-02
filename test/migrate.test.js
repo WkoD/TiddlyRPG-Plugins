@@ -1,6 +1,7 @@
 /*
  * scripts/migrate-dates.js and scripts/check-dates.js against a small wiki folder of fixtures
  * (written to the temp folder): conversion rules per type, bodies, rules, snippets, filters,
+ * <<date>> at the start of every event,
  * idempotence; the checker before and after.
  */
 var test = require("node:test"),
@@ -112,4 +113,9 @@ test.describe("after --write", function() {
 		assert.equal(result.status, 0, result.out);
 		assert.match(result.out, /0 errors, 0 warnings/);
 	});
+});
+
+test("every event starts with <<date>>: inserted where there is no placeholder", function() {
+	assert.match(read("Offen"), /\n\n<<date>>\n$/);
+	assert.match(read("Intro"), /^Zuerst\./m);
 });
