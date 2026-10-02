@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261002082222000
+modified: 20261002113000000
 title: $:/dndwiki/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -28,7 +28,6 @@ Event/End: (end)
 Event/Event: Event
 Event/Start: (start)
 Event/Timeline: Timeline
-Event/Until: until $date$
 Item/Currency: GP
 Item/Price: Price:
 Link/SeeAlso: See also

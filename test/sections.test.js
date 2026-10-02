@@ -153,11 +153,14 @@ test("refresh after a language change", function() {
 	}
 });
 
-test("event table: a span is one row, with caption and flags", function() {
+test("event table: a span is a start and an end row in one title cell, with caption and flags", function() {
 	var table = h.render(wiki, "text/html", "<$let dnd-events=\"[[Schild]] [[Vinland]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
-	assert.match(table, /Schild<\/a><\/u> – Das Ritual <em>bis 24\. Flamerule 1351<\/em> <em>\(Ende\)<\/em>/);
-	assert.match(table, /Vinland<\/a> <em>bis offen<\/em> <em>\(Fortsetzung\)<\/em>/);
+	assert.doesNotMatch(table, /bis /);
+	assert.match(table, /<td rowspan="2"><u><a[^>]*>Schild<\/a><\/u> – Das Ritual <em>\(Ende\)<\/em><\/td>/);
+	assert.match(table, /Schild<\/a><\/u> – Banbanzas Bitte <em>\(Start\)<\/em>/);
 	assert.equal((table.match(/>Schild</g) || []).length, 3);
+	// Points and an open span of one event read as one cell over both rows
+	assert.match(table, /<td rowspan="2"><a[^>]*>Vinland<\/a> <em>\(Start\)<\/em><\/td>/);
 	// Newest first
 	assert.ok(table.indexOf("Vinland") < table.indexOf("Schild"));
 });
@@ -212,5 +215,16 @@ test("event table: consecutive rows of one event share a title cell", function()
 	} finally {
 		wiki.deleteTiddler("Orden");
 		wiki.deleteTiddler("Dazwischen");
+	}
+});
+
+test("event table: a span alone reads across both years without a flag", function() {
+	h.add(wiki, {title: "Spanne", tags: "Event", date: "700/849"});
+	try {
+		var table = h.render(wiki, "text/html", "<$let dnd-events=\"[[Spanne]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		assert.match(table, /<td rowspan="2"><a[^>]*>Spanne<\/a><\/td>/);
+		assert.ok(table.indexOf(">849<") < table.indexOf(">700<"));
+	} finally {
+		wiki.deleteTiddler("Spanne");
 	}
 });

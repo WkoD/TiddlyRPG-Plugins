@@ -38,7 +38,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
     `datecheck` in de-DE and en-GB, and without a calendar
   - `sections` - event head, dated sections `<<date>>` (counting, captions, rule, hints),
-    locations per section, subtitle without modifier, event table with spans
+    locations per section, subtitle without modifier, event table (rows and title cells)
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-dates.js` against fixtures in a
     temp folder
   - `location` - map tabs, map images, event history, player lock, person view
@@ -137,7 +137,7 @@ the tiddler title:
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
   `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`.
-- **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per section), `multitag`
+- **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`dndtranslate`, `dndtitle`, `dndtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
   `dateended`, `datecheck`, `sectionlinks`, `calendar[...]`).

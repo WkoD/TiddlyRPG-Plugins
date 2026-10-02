@@ -3,18 +3,21 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261002110000000
+modified: 20261002113000000
 
-Filter operator for the event table: one table row per section of the date field (split by
-modules/dates.js, the same rules as the timeline). A point in time is a row of its own, a span
-one row: its start in the date columns, "until <end>" next to the title. Sorted by the start
-(by the end if the start is unknown), rows of the same year/month/day share their cells.
+Filter operator for the event table: one table row per point in time of the date field (split
+by modules/dates.js, the same rules as the timeline) - a point is one row, a span two (its start
+and its end), a side that is unknown or open none. Sorted by date, rows of the same
+year/month/day share their cells.
 
   [subfilter<events>eventrows[]]   newest first; with "!" prefix oldest first
 
-Events with several sections are marked start/continued/end; an open last section counts as
-continued. A caption of the section (<<date "Caption">>) follows the title. Consecutive rows of
-the same event (no other event in between, no caption, no span) share one title cell.
+Consecutive rows of the same event (no other event in between) share one title cell, so an
+event reads across all the years it covers - whether its dates are points or a span. Rows of
+different sections only join if neither has a caption; the caption of a section
+(<<date "Caption">>) follows the title. Flags: the first row of an event "start", the last
+"end", the rows in between "continued"; an unknown or open start or end counts as continued. A
+joined cell combines them like its first and last row in time (start...end shows none).
 
 \*/
 
@@ -27,8 +30,6 @@ var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
 // Internal flag values; the text is only translated on output
 var FLAG_KEYS = {start: "Event/Start", end: "Event/End", cont: "Event/Continued"};
 
-var UNDATED = "????";
-
 exports.eventrows = function(source,operator,options) {
 	var wiki = options.wiki,
 		cal = calendar.active(wiki),
@@ -40,30 +41,41 @@ exports.eventrows = function(source,operator,options) {
 		var parsed = dates.parse(tiddler.fields.date),
 			labels = dates.sections(wiki,title).labels,
 			campaign = tiddler.hasTag("Campaign"),
-			count = parsed.sections.length,
-			added = false;
-		$tw.utils.each(parsed.sections,function(section,i) {
-			var start = typeof section.start === "object" ? section.start : null,
-				end = typeof section.end === "object" ? section.end : null,
-				anchor = start || end;
-			if(!anchor) {
-				return;
+			sections = parsed.sections,
+			own = [];
+		$tw.utils.each(sections,function(section,i) {
+			var label = labels[i + 1] || "";
+			if(typeof section.start === "object") {
+				own.push({point: section.start, section: i + 1, label: label});
+				label = "";
 			}
-			var row = {title: title, campaign: campaign, point: anchor, section: i + 1, label: labels[i + 1] || ""};
-			if(section.range) {
-				// Start in the date columns, the rest next to the title
-				row.note = start ? language.format(language.t(wiki,"Event/Until"),{date: end ? dates.formatRange(wiki,cal,end,end) : (section.end === dates.UNKNOWN ? dates.UNKNOWN_TEXT : language.t(wiki,"Date/Open"))}) :
-					dates.formatSection(wiki,cal,section);
+			if(section.range && typeof section.end === "object" && !(typeof section.start === "object" && section.start.text === section.end.text)) {
+				own.push({point: section.end, section: i + 1, label: label});
 			}
-			if(count > 1) {
-				row.flag = i === 0 ? "start" : (i === count - 1 && !(section.range && section.end === dates.FOREVER) ? "end" : "cont");
-			}
-			rows.push(row);
-			added = true;
 		});
-		if(!added) {
+		if(own.length === 0) {
 			rows.push({title: title, campaign: campaign, point: null, section: 0, label: ""});
+			return;
 		}
+		var first = sections[0],
+			last = sections[sections.length - 1],
+			openStart = first.range && typeof first.start !== "object",
+			openEnd = last.range && typeof last.end !== "object";
+		$tw.utils.each(own,function(row,k) {
+			row.title = title;
+			row.campaign = campaign;
+			if(own.length === 1) {
+				row.flag = openStart ? (openEnd ? "cont" : "end") : (openEnd ? "start" : null);
+			} else if(k === 0) {
+				row.flag = openStart ? "cont" : "start";
+			} else if(k === own.length - 1) {
+				row.flag = openEnd ? "cont" : "end";
+			} else {
+				row.flag = "cont";
+			}
+			row.order = k;
+			rows.push(row);
+		});
 	});
 	if(rows.length === 0) {
 		return [];
@@ -72,15 +84,16 @@ exports.eventrows = function(source,operator,options) {
 		if(!a.point || !b.point) {
 			return (a.point ? 1 : 0) - (b.point ? 1 : 0) || (a.title < b.title ? -1 : a.title > b.title ? 1 : 0);
 		}
-		return dates.comparePoints(a.point,b.point) || (a.title < b.title ? -1 : a.title > b.title ? 1 : 0) || (a.section - b.section);
+		return dates.comparePoints(a.point,b.point) || (a.title < b.title ? -1 : a.title > b.title ? 1 : 0) || (a.order - b.order);
 	});
-	if(operator.prefix !== "!") {
+	var newestFirst = operator.prefix !== "!";
+	if(newestFirst) {
 		rows.reverse();
 	}
 	// Cells: year, month and day through the calendar, or as entered without one
 	$tw.utils.each(rows,function(row) {
 		var p = row.point;
-		row.year = p ? p.year.toString() : UNDATED;
+		row.year = p ? p.year.toString() : dates.UNKNOWN_TEXT;
 		row.month = "";
 		row.day = "";
 		if(p && p.month) {
@@ -106,36 +119,27 @@ exports.eventrows = function(source,operator,options) {
 		}
 		return n;
 	};
-	/*
-	Title cells: consecutive rows of the same event (no other event in between) share one cell,
-	as long as none of them has a caption or a span of its own. The flags of such a group
-	combine like the first and last row in time: start...end shows none, start...continued
-	"start", continued...end "end", continued...continued "continued".
-	*/
-	var plain = function(row) {
-		return row.point && !row.label && !row.note;
+	// Two neighbouring rows share the title cell: same event, both dated, same section or no
+	// caption on either
+	var joins = function(a,b) {
+		return a.title === b.title && a.point && b.point && (a.section === b.section || (!a.label && !b.label));
 	};
 	var titleSpan = function(i) {
-		if(!plain(rows[i]) || (i > 0 && rows[i - 1].title === rows[i].title && plain(rows[i - 1]))) {
-			return plain(rows[i]) ? 0 : 1;
+		if(i > 0 && joins(rows[i - 1],rows[i])) {
+			return 0;
 		}
 		var n = 1;
-		while(i + n < rows.length && rows[i + n].title === rows[i].title && plain(rows[i + n])) {
+		while(i + n < rows.length && joins(rows[i + n - 1],rows[i + n])) {
 			n++;
 		}
 		return n;
 	};
-	var groupFlag = function(i,n) {
-		if(n === 1) {
-			return rows[i].flag;
-		}
-		var group = rows.slice(i,i + n),
-			first = group[0],
-			last = group[n - 1];
-		// rows are newest first unless the "!" prefix is given
-		if(operator.prefix !== "!") {
-			first = group[n - 1];
-			last = group[0];
+	// Flag of a joined cell from its first and last row in time
+	var groupFlag = function(group) {
+		var first = newestFirst ? group[group.length - 1] : group[0],
+			last = newestFirst ? group[0] : group[group.length - 1];
+		if(group.length === 1) {
+			return first.flag;
 		}
 		if(first.flag === "start") {
 			return last.flag === "end" ? null : "start";
@@ -156,13 +160,12 @@ exports.eventrows = function(source,operator,options) {
 			line += "<td rowspan=\"" + n + "\">" + row.day + "</td>";
 		}
 		if((n = titleSpan(i))) {
-			var flag = groupFlag(i,n);
+			var group = rows.slice(i,i + n),
+				flag = groupFlag(group),
+				label = group.map(function(r) { return r.label; }).filter(function(text) { return !!text; })[0];
 			line += "<td rowspan=\"" + n + "\">" + (row.campaign ? "__[[" + row.title + "]]__" : "[[" + row.title + "]]");
-			if(row.label) {
-				line += " – " + row.label;
-			}
-			if(row.note) {
-				line += " //" + row.note + "//";
+			if(label) {
+				line += " – " + label;
 			}
 			if(flag) {
 				line += " //" + language.t(wiki,FLAG_KEYS[flag]) + "//";

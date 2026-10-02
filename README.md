@@ -116,8 +116,10 @@ the caption and the locations linked in that section. Every event starts with `<
 one with a single date; without any date in the field the heading reads `????` (with the
 era). Below its tags, right-aligned, every tiddler with dates shows a date line: an
 event the span of its whole field, every other type its years of existence. An event also
-lists there the locations linked before its first placeholder. Timeline and event table show one entry per section, a
-span as a bar or one row, with its caption. Links inside DM notes (`@@.tc-tiddler-frame`, the
+lists there the locations linked before its first placeholder. The timeline shows each section, a
+span as a bar; the event table one row per point in time (a span: its start and end), with an
+event in one title cell across all its rows as long as no other event lies in between, and the
+caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`, the
 "open items" snippet) are not counted as locations. Do not put `<<date>>` into a block that is
 hidden from players: its caption and locations would still reach the timeline and the table.
 
