@@ -1,21 +1,18 @@
 created: 20200305184142778
 list-after: $:/core/ui/ViewTemplate/tags
-modified: 20261002082222000
+modified: 20261002093000000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/dndwiki-core/viewtemplates/event
 type: text/vnd.tiddlywiki
 
-<!-- Head of an event, the same content as its card in the timeline: after title, modified date
-     and tags (core) the span of the date field (one section as it is, several from the first
-     start to the last end), the locations linked before the first <<date>> (for an event
-     without placeholders: the whole body) and a rule before the body. -->
+<!-- Head of an event below its tags: the locations linked before the first <<date>> (for an
+     event without placeholders: the whole body), a hint on a date that cannot be read, and a
+     rule before the body. The span of the date field stands above the title
+     (templates/title-event). -->
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <%if [<currentTiddler>dnd.visible[]] %>
 <$list filter="[all[current]tag[Event]]">
 <div class="dnd-event-head">
-<$let dnd-text={{{ [<currentTiddler>get[date]dateformat:era[]] }}}>
-<%if [<dnd-text>!is[blank]] %><div class="dnd-event-span"><$text text=<<dnd-text>>/></div><%endif%>
-</$let>
 <<dnd.datecheck>>
 <$transclude $variable="dnd.places" section="0"/>
 </div>

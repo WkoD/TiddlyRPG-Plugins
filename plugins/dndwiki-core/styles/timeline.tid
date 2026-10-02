@@ -1,5 +1,5 @@
 created: 20261001133844000
-modified: 20261002082222000
+modified: 20261002093000000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/timeline
 type: text/css
@@ -291,9 +291,9 @@ type: text/css
 	white-space: normal;
 	cursor: pointer;
 }
-/* The span line gives way to the tags and the sections */
 .dnd-tl-selected .dnd-tl-date {
-	display: none;
+	white-space: normal;
+	flex-wrap: wrap;
 }
 .dnd-tl-details {
 	display: none;
@@ -311,7 +311,7 @@ type: text/css
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px 10px;
-	margin-bottom: 4px;
+	margin: 2px 0 4px;
 }
 .dnd-tl-caption {
 	margin-left: 0.6em;

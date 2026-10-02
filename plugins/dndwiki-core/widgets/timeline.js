@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261002090000000
+modified: 20261002093000000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -44,9 +44,9 @@ where its own connector ends.
 
 Campaign events (with the player characters) are drawn solid, all other events dashed.
 
-Card: title, below it the span of the event and its tags as dots. Interaction: hovering previews
-an event (highlight); a click or tap selects it - the highlight stays and its card grows: the
-span line gives way to the tags (links) and one line per section with its caption
+Card: the span of the event with its tags as dots, below it the title. Interaction: hovering
+previews an event (highlight); a click or tap selects it - the highlight stays and its card
+grows: below the title the tags (links) and one line per section with its caption
 (<<date "Caption">> in the body). Inside the selected card the title and the tags are links;
 Ctrl/Cmd+click opens an event directly. A click on an empty spot or on the selected card again
 clears the selection.
@@ -771,12 +771,6 @@ TimelineWidget.prototype.drawCanvas = function() {
 		node.setAttribute("data-left",cardX);
 		node.style.minHeight = L.cardH + "px";
 		node.style.borderLeftColor = ev.colour;
-		var link = doc.createElement("a");
-		link.className = "dnd-tl-title tc-tiddlylink tc-tiddlylink-resolves";
-		link.setAttribute("href","#" + encodeURIComponent(ev.title));
-		link.setAttribute("data-title",ev.title);
-		link.appendChild(doc.createTextNode(language.title(wiki,ev.title) || ev.title));
-		node.appendChild(link);
 		var meta = doc.createElement("div");
 		meta.className = "dnd-tl-date";
 		meta.appendChild(doc.createTextNode(ev.label));
@@ -791,6 +785,12 @@ TimelineWidget.prototype.drawCanvas = function() {
 			meta.appendChild(dot);
 		});
 		node.appendChild(meta);
+		var link = doc.createElement("a");
+		link.className = "dnd-tl-title tc-tiddlylink tc-tiddlylink-resolves";
+		link.setAttribute("href","#" + encodeURIComponent(ev.title));
+		link.setAttribute("data-title",ev.title);
+		link.appendChild(doc.createTextNode(language.title(wiki,ev.title) || ev.title));
+		node.appendChild(link);
 		node.appendChild(self.details(ev));
 		remember(ev.idx,node);
 		canvas.appendChild(node);

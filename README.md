@@ -112,9 +112,11 @@ where each section begins:
 ```
 
 Each placeholder shows a rule (not at the very start of the body), the date of its section,
-the caption and the locations linked in that section. The head of the event shows the span of
-the whole field and the locations linked before the first placeholder; for an event without
-placeholders that is the whole body. Timeline and event table show one entry per section, a
+the caption and the locations linked in that section. Above its title the event shows the span
+of the whole field (like the date line of its card in the timeline), below its tags the
+locations linked before the first placeholder; for an event without placeholders that is the
+whole body. An event with more than one section gives each one a placeholder, the first one
+included. Timeline and event table show one entry per section, a
 span as a bar or one row, with its caption. Links inside DM notes (`@@.tc-tiddler-frame`, the
 "open items" snippet) are not counted as locations. Do not put `<<date>>` into a block that is
 hidden from players: its caption and locations would still reach the timeline and the table.

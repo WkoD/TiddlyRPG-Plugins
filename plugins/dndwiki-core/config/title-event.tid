@@ -1,0 +1,8 @@
+created: 20261002093000000
+list-before: $:/plugins/dndwiki-core/config/title-translated
+modified: 20261002093000000
+tags: $:/tags/ViewTemplateTitleFilter
+title: $:/plugins/dndwiki-core/config/title-event
+type: text/vnd.tiddlywiki
+
+[<currentTiddler>tag[Event]then[$:/plugins/dndwiki-core/templates/title-event]]

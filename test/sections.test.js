@@ -161,3 +161,19 @@ test("event table: a span is one row, with caption and flags", function() {
 	// Newest first
 	assert.ok(table.indexOf("Vinland") < table.indexOf("Schild"));
 });
+
+test("span of the field above the title, only for events", function() {
+	assert.match(h.view(wiki, "Schild"), /<div class="dnd-event-span">[^<]*<\/div><h2 class="tc-title">Schild<\/h2>/);
+	assert.doesNotMatch(h.view(wiki, "Grum"), /dnd-event-span/);
+});
+
+test("no span above the title of an event locked for the player", function() {
+	h.add(wiki, {title: "$:/state/dndwiki/player", text: "Frigg"});
+	h.add(wiki, {title: "Geheim", tags: "Event Ragna", date: "1351"});
+	h.add(wiki, {title: "Ragna", tags: "Player"});
+	try {
+		assert.doesNotMatch(h.view(wiki, "Geheim"), /dnd-event-span/);
+	} finally {
+		["$:/state/dndwiki/player", "Geheim", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
+	}
+});

@@ -119,15 +119,16 @@ test.describe("sections", function() {
 		assert.doesNotMatch(draw("[[Span]]"), /class="dnd-tl-arrow"/);
 	});
 
-	test("card: title first, then the span", function() {
+	test("card: the span with the tag dots above the title", function() {
 		var html = draw("[[Mixed]]");
-		assert.ok(html.indexOf("dnd-tl-title") < html.indexOf("dnd-tl-date"));
+		assert.ok(html.indexOf("dnd-tl-date") < html.indexOf("dnd-tl-title"));
 		assert.match(html, /class="dnd-tl-date">1351 – 1356</);
 	});
 
-	test("selected card: tags, then one line per section with its caption", function() {
+	test("selected card: below the title the tags, then one line per section with its caption", function() {
 		var html = draw("[[Mixed]]"),
 			details = html.slice(html.indexOf("dnd-tl-details"));
+		assert.ok(html.indexOf("dnd-tl-title") < html.indexOf("dnd-tl-details"));
 		assert.ok(details.indexOf("dnd-tl-tags") < details.indexOf("dnd-tl-point-date"));
 		assert.match(details, /dnd-tl-point-date"[^>]*>1351 – 1352<span class="dnd-tl-caption">Krieg</);
 		assert.match(details, /dnd-tl-point-date"[^>]*>1356<span class="dnd-tl-caption">Nachspiel</);
