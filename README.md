@@ -90,11 +90,17 @@ point   := YYYY[-MM[-DD[-time]]]
 | `..` | since time immemorial | ongoing |
 | empty | ignored: `1351/` = `/1351` = `1351` | |
 
+`.` or `..` as a section of its own, first or last, belongs to the whole field: the event began
+before its first section or goes on after its last one, without turning that section into a
+span. Elsewhere in the list it cannot be read.
+
 | Example | Meaning |
 |---|---|
 | `1351-07-01, 1351-07-11` | event on two days |
 | `1351/1371, 1381` | event from 1351 to 1371, once more in 1381 |
 | `1351-07-11/..` | event that is still going on |
+| `1351, 1352, ..` | event that goes on after 1352 (1352 itself stays a point) |
+| `.., 1351` | event that began before 1351 |
 | `1322` | person born 1322, alive (a single point of a non-event is the start) |
 | `1300/1351`, `./1339`, `./.` | dead: dates known, birth unknown, both unknown |
 | `../..` | a deity since time immemorial |

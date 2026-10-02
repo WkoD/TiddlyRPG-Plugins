@@ -212,3 +212,35 @@ test.describe("without calendar", function() {
 		assert.equal(f("[[1351-07-41]datecheck[]]"), "");
 	});
 });
+
+test.describe("before and after as a section of its own", function() {
+	test("goes on after the last section, which stays a point", function() {
+		var parsed = dates.parse("1350-12-19, 1351-08-09, 1351-11-26, ..");
+		assert.equal(parsed.sections.length, 3);
+		assert.equal(parsed.after, dates.FOREVER);
+		assert.ok(!parsed.sections[2].range && parsed.valid && !parsed.ended);
+	});
+
+	test("began before the first section", function() {
+		var parsed = dates.parse(".., 1351");
+		assert.equal(parsed.before, dates.FOREVER);
+		assert.equal(parsed.sections.length, 1);
+		assert.equal(dates.parse("., 1351").before, dates.UNKNOWN);
+	});
+
+	test("an unknown end after the sections has ended", function() {
+		assert.ok(dates.parse("1300, .").ended);
+	});
+
+	test("only first or last; alone it cannot be read", function() {
+		assert.ok(!dates.parse("1351, .., 1352").valid);
+		assert.ok(!dates.parse("..").valid);
+	});
+
+	test("short form of the field", function() {
+		h.setLanguage(wiki, "de-DE");
+		assert.equal(f("[[1351-08-09, 1351-11-26, ..]dateformat[]]"), "9. Eleasis 1351 – offen");
+		assert.equal(f("[[.., 1351]dateformat:year[]]"), "seit jeher – 1351");
+		assert.equal(f("[[1351-08-09, 1351-11-26, ..]dateformat[2]]"), "26. Uktar 1351");
+	});
+});

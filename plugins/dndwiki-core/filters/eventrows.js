@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261002113000000
+modified: 20261002120000000
 
 Filter operator for the event table: one table row per point in time of the date field (split
 by modules/dates.js, the same rules as the timeline) - a point is one row, a span two (its start
@@ -16,8 +16,9 @@ Consecutive rows of the same event (no other event in between) share one title c
 event reads across all the years it covers - whether its dates are points or a span. Rows of
 different sections only join if neither has a caption; the caption of a section
 (<<date "Caption">>) follows the title. Flags: the first row of an event "start", the last
-"end", the rows in between "continued"; an unknown or open start or end counts as continued. A
-joined cell combines them like its first and last row in time (start...end shows none).
+"end", the rows in between "continued"; an unknown or open start or end (also "."/".." as a
+section of its own, "1351, 1352, ..") counts as continued. A joined cell combines them like its
+first and last row in time (start...end shows none).
 
 \*/
 
@@ -59,8 +60,8 @@ exports.eventrows = function(source,operator,options) {
 		}
 		var first = sections[0],
 			last = sections[sections.length - 1],
-			openStart = first.range && typeof first.start !== "object",
-			openEnd = last.range && typeof last.end !== "object";
+			openStart = !!parsed.before || (first.range && typeof first.start !== "object"),
+			openEnd = !!parsed.after || (last.range && typeof last.end !== "object");
 		$tw.utils.each(own,function(row,k) {
 			row.title = title;
 			row.campaign = campaign;

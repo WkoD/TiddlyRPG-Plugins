@@ -228,3 +228,13 @@ test("event table: a span alone reads across both years without a flag", functio
 		wiki.deleteTiddler("Spanne");
 	}
 });
+
+test("event table: an event that goes on ends in continued", function() {
+	h.add(wiki, {title: "Weiter", tags: "Event", date: "1351-07-01, 1351-07-11, .."});
+	try {
+		var table = h.render(wiki, "text/html", "<$let dnd-events=\"[[Weiter]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		assert.match(table, /<td rowspan="2"><a[^>]*>Weiter<\/a> <em>\(Start\)<\/em><\/td>/);
+	} finally {
+		wiki.deleteTiddler("Weiter");
+	}
+});

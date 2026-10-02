@@ -11,7 +11,8 @@
  * and captions are decided by hand afterwards; scripts/check-dates.js then checks the result.
  *
  * Field date (only under tiddlers/):
- *   events      a.b.c -> a, b, c     a. -> a/..     a.b. -> a, b/..     .a -> ./a
+ *   events      a.b.c -> a, b, c     a. -> a/..     a.b. -> a, b, ..    .a -> ./a
+ *               (a.b.: the event goes on after b, b itself stays a point)
  *   all others  a.b -> a/b           .a -> ./a      a. -> a/.          . -> ./.
  *   (for persons, organisations, items ... the dot always meant start.end)
  * Bodies:
@@ -73,8 +74,10 @@ function convert(value, event) {
 	if(openStart) {
 		points[0] = "./" + points[0];
 	}
-	if(openEnd) {
-		points[points.length - 1] += "/..";
+	if(openEnd && points.length === 1) {
+		points[0] += "/..";
+	} else if(openEnd) {
+		points.push("..");
 	}
 	return points.join(", ");
 }

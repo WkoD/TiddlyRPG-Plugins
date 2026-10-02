@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261002100000000
+modified: 20261002120000000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -19,6 +19,10 @@ Syntax of the date field (whitespace is ignored everywhere, "1351,1352" = "1351,
   "."   unknown: a start that is not known, or ended at an unknown time
   ".."  forever: since the beginning of time, or ongoing
   an empty side is ignored ("1351/" = "/1351" = "1351") and reported as a warning
+
+"." or ".." as a section of its own, first or last, belongs to the whole field and not to a
+section: "1351, 1352, .." goes on after 1352 (1352 itself stays a point), "..,1351" began
+before; "." the same with an unknown end/start. Elsewhere it cannot be read.
 
 A single point is a point in time for events. For every other type it is the start and the end
 stays open ("1322" = born 1322, alive). A non-event whose last section is a range with an end
@@ -121,7 +125,10 @@ Parses a date field. The result is shared between callers (cached) and must not 
   valid     false if any part could not be read
   invalid   the parts that could not be read
   warnings  readable, but probably not meant that way (empty side, empty section)
-  ended     the last section is a range whose end is not FOREVER
+  before    UNKNOWN or FOREVER if the field starts with "." or ".." (began earlier), else null
+  after     UNKNOWN or FOREVER if the field ends with "." or ".." (goes on), else null
+  ended     after is UNKNOWN, or (without after) the last section is a range whose end is not
+            FOREVER
 */
 exports.parse = function(text) {
 	text = text || "";
@@ -129,11 +136,17 @@ exports.parse = function(text) {
 		return cache[text];
 	}
 	var compact = text.replace(/\s+/g,""),
-		result = {text: text, sections: [], valid: true, invalid: [], warnings: [], ended: false};
+		result = {text: text, sections: [], valid: true, invalid: [], warnings: [], before: null, after: null, ended: false};
 	if(compact) {
-		$tw.utils.each(compact.split(","),function(part) {
+		var parts = compact.split(",");
+		$tw.utils.each(parts,function(part,i) {
 			if(!part) {
 				result.warnings.push("empty section");
+				return;
+			}
+			// "." or ".." on its own: the whole field began earlier / goes on
+			if((part === "." || part === "..") && parts.length > 1 && (i === 0 || i === parts.length - 1)) {
+				result[i === 0 ? "before" : "after"] = part === "." ? UNKNOWN : FOREVER;
 				return;
 			}
 			var section = parseSection(part,result.warnings);
@@ -146,7 +159,7 @@ exports.parse = function(text) {
 		});
 	}
 	var last = result.sections[result.sections.length - 1];
-	result.ended = !!last && last.range && last.end !== FOREVER;
+	result.ended = result.after ? result.after === UNKNOWN : (!!last && last.range && last.end !== FOREVER);
 	if(cacheSize > 5000) {
 		cache = Object.create(null);
 		cacheSize = 0;
@@ -353,17 +366,18 @@ var formatSection = exports.formatSection = function(wiki,cal,section,opts) {
 
 /*
 Short form of a whole field: one section as it is, several as the span from the start of the
-first to the end of the last. "" without sections.
+first to the end of the last ("."/".." before or after taken as the start/end). "" without
+sections.
 */
 exports.formatField = function(wiki,cal,parsed,opts) {
 	var sections = parsed.sections;
 	if(sections.length === 0) {
 		return "";
 	}
-	if(sections.length === 1) {
+	if(sections.length === 1 && !parsed.before && !parsed.after) {
 		return formatSection(wiki,cal,sections[0],opts);
 	}
-	return formatRange(wiki,cal,sections[0].start,sections[sections.length - 1].end,opts);
+	return formatRange(wiki,cal,parsed.before || sections[0].start,parsed.after || sections[sections.length - 1].end,opts);
 };
 
 /*

@@ -167,3 +167,21 @@ test.describe("band of the tiddler itself", function() {
 		assert.doesNotMatch(draw("[[Hafenfest]]"), /class="dnd-tl-band[" ]/);
 	});
 });
+
+test.describe("goes on after its last section", function() {
+	test.before(function() {
+		h.add(wiki, {title: "Weiter", tags: "Event", date: "1351-07-01, 1351-07-11, .."});
+	});
+
+	test.after(function() {
+		wiki.deleteTiddler("Weiter");
+	});
+
+	test("dashed continuation with an arrow, the points stay points", function() {
+		var html = draw("[[Weiter]]");
+		assert.match(html, /class="dnd-tl-continue"/);
+		assert.match(html, /class="dnd-tl-arrow"/);
+		assert.equal((html.match(/class="dnd-tl-mid"/g) || []).length, 2);
+		assert.match(html, /dnd-tl-point-date">offen</);
+	});
+});

@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261002100000000
+modified: 20261002120000000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -274,11 +274,15 @@ TimelineWidget.prototype.collect = function() {
 			undated.push(ev);
 			return;
 		}
-		ev.span = secs.length > 1 || secs[0].range;
+		// "."/".." as a section of its own: the event began before its first / goes on after its
+		// last section
+		ev.before = parsed.before;
+		ev.after = parsed.after;
+		ev.span = secs.length > 1 || secs[0].range || !!ev.before || !!ev.after;
 		ev.start = Math.min.apply(null,secs.map(function(s) { return s.lo; }));
 		ev.end = Math.max.apply(null,secs.map(function(s) { return s.hi; }));
 		ev.first = typeof secs[0].start === "object" ? secs[0].start : secs[0].end;
-		ev.openStart = typeof secs[0].start !== "object";
+		ev.openStart = typeof secs[0].start !== "object" || !!ev.before;
 		ev.label = dates.formatField(wiki,C.cal,parsed);
 		events.push(ev);
 	});
@@ -454,6 +458,25 @@ TimelineWidget.prototype.layout = function() {
 				bottom = Math.max(bottom,s.y1);
 			}
 		});
+		// Continuation before the first / after the last section: to the edge of the axis ("..")
+		// or fading out over L.fade (".")
+		var known = function(key,pick) {
+			return pick.apply(null,ev.secs.map(function(s) { return s[key]; }).filter(function(y) { return y !== null; }));
+		};
+		ev.conts = [];
+		if(ev.after) {
+			var from = known("y1",Math.max);
+			ev.conts.push({y0: from, y1: ev.after === FOREVER ? null : from + L.fade, side: ev.after, after: true});
+			if(ev.after === FOREVER) {
+				anyForeverEnd = true;
+			} else {
+				bottom = Math.max(bottom,from + L.fade);
+			}
+		}
+		if(ev.before) {
+			var to = known("y0",Math.min);
+			ev.conts.push({y0: ev.before === FOREVER ? null : to - L.fade, y1: to, side: ev.before, after: false});
+		}
 	});
 	if(band) {
 		$tw.utils.each(band.secs,function(s) {
@@ -485,8 +508,13 @@ TimelineWidget.prototype.layout = function() {
 			return;
 		}
 		$tw.utils.each(ev.secs,fill);
-		ev.y0 = Math.min.apply(null,[ev.yStart].concat(ev.secs.map(function(s) { return s.y0; })));
-		ev.y1 = Math.max.apply(null,ev.secs.map(function(s) { return s.y1; }));
+		$tw.utils.each(ev.conts,function(c) {
+			c.y0 = c.y0 === null ? axisStart : c.y0;
+			c.y1 = c.y1 === null ? axisEnd : c.y1;
+		});
+		var all = ev.secs.concat(ev.conts);
+		ev.y0 = Math.min.apply(null,[ev.yStart].concat(all.map(function(s) { return s.y0; })));
+		ev.y1 = Math.max.apply(null,all.map(function(s) { return s.y1; }));
 		ev.y1 = Math.max(ev.y1,ev.y0 + L.minSpan);
 	});
 	if(band) {
@@ -971,6 +999,28 @@ TimelineWidget.prototype.drawCanvas = function() {
 			if(thin) {
 				svg(doc,"path",{"class": "dnd-tl-thread", d: thin, fill: "none", stroke: "url(#" + gid + ")", "stroke-width": L.thread},g);
 			}
+			// Continuation ("."/".." as a section of its own): thin and dashed, always visible
+			if(ev.conts.length) {
+				var cid = "dnd-tl-c-" + self.uid() + "-" + ev.idx,
+					cgrad = svg(doc,"linearGradient",{id: cid, gradientUnits: "userSpaceOnUse", x1: 0, y1: Y(ev.y0), x2: 0, y2: Y(ev.y1)},defs),
+					cstop = function(y,opacity) {
+						svg(doc,"stop",{offset: Math.min(1,Math.max(0,(y - ev.y0) / h)), "stop-color": ev.colour, "stop-opacity": opacity},cgrad);
+					};
+				cstop(ev.y0,0);
+				$tw.utils.each(ev.conts.slice().sort(function(a,b) { return a.y0 - b.y0; }),function(c) {
+					var fades = c.side !== FOREVER;
+					cstop(c.y0,0);
+					cstop(c.y0,fades && !c.after ? 0 : 1);
+					cstop(c.y1,fades && c.after ? 0 : 1);
+					cstop(c.y1,0);
+					if(!fades) {
+						var ay = c.after ? c.y1 : c.y0;
+						arrow(g,spanX(ev,ay),Y(ay),c.after ? -1 : 1,ev.colour);
+					}
+				});
+				cstop(ev.y1,0);
+				svg(doc,"path",{"class": "dnd-tl-continue", d: thick + thin, fill: "none", stroke: "url(#" + cid + ")"},g);
+			}
 			// Wider invisible hit area along the whole track
 			svg(doc,"path",{"class": "dnd-tl-hit", d: thick + thin, fill: "none"},g);
 			$tw.utils.each(ev.secs,function(s) {
@@ -1128,6 +1178,15 @@ TimelineWidget.prototype.details = function(ev) {
 		});
 		box.appendChild(tags);
 	}
+	var continuation = function(side,isStart) {
+		var div = doc.createElement("div");
+		div.className = "dnd-tl-point-date";
+		div.appendChild(doc.createTextNode(sideLabel(wiki,null,side,isStart)));
+		box.appendChild(div);
+	};
+	if(ev.before) {
+		continuation(ev.before,true);
+	}
 	$tw.utils.each(ev.secs,function(s) {
 		var div = doc.createElement("div");
 		div.className = "dnd-tl-point-date";
@@ -1144,6 +1203,9 @@ TimelineWidget.prototype.details = function(ev) {
 		}
 		box.appendChild(div);
 	});
+	if(ev.after) {
+		continuation(ev.after,false);
+	}
 	return box;
 };
 

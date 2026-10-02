@@ -64,7 +64,7 @@ test.describe("after --write", function() {
 	});
 
 	test("events: points separated by commas, open end", function() {
-		assert.match(read("Turm"), /^date: 1351-07-01, 1351-07-11, 1351-11-10\/\.\.$/m);
+		assert.match(read("Turm"), /^date: 1351-07-01, 1351-07-11, 1351-11-10, \.\.$/m);
 		assert.match(read("Offen"), /^date: 1351-07-11\/\.\.$/m);
 	});
 
