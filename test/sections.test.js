@@ -198,3 +198,19 @@ test("date line of an event without date: ???? with the era", function() {
 		wiki.deleteTiddler("Ohne Datum");
 	}
 });
+
+test("event table: consecutive rows of one event share a title cell", function() {
+	h.add(wiki, {title: "Orden", tags: "Event", date: "700, 849"});
+	h.add(wiki, {title: "Dazwischen", tags: "Event", date: "800"});
+	try {
+		var alone = h.render(wiki, "text/html", "<$let dnd-events=\"[[Orden]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		assert.match(alone, /<td rowspan="2"><a[^>]*>Orden<\/a><\/td>/);
+		assert.equal((alone.match(/>Orden</g) || []).length, 1);
+		var split = h.render(wiki, "text/html", "<$let dnd-events=\"[[Orden]] [[Dazwischen]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		assert.match(split, /Orden<\/a> <em>\(Ende\)<\/em>/);
+		assert.match(split, /Orden<\/a> <em>\(Start\)<\/em>/);
+	} finally {
+		wiki.deleteTiddler("Orden");
+		wiki.deleteTiddler("Dazwischen");
+	}
+});

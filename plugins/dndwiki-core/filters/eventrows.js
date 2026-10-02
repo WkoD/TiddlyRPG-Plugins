@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261002100000000
+modified: 20261002110000000
 
 Filter operator for the event table: one table row per section of the date field (split by
 modules/dates.js, the same rules as the timeline). A point in time is a row of its own, a span
@@ -13,7 +13,8 @@ one row: its start in the date columns, "until <end>" next to the title. Sorted 
   [subfilter<events>eventrows[]]   newest first; with "!" prefix oldest first
 
 Events with several sections are marked start/continued/end; an open last section counts as
-continued. A caption of the section (<<date "Caption">>) follows the title.
+continued. A caption of the section (<<date "Caption">>) follows the title. Consecutive rows of
+the same event (no other event in between, no caption, no span) share one title cell.
 
 \*/
 
@@ -105,6 +106,42 @@ exports.eventrows = function(source,operator,options) {
 		}
 		return n;
 	};
+	/*
+	Title cells: consecutive rows of the same event (no other event in between) share one cell,
+	as long as none of them has a caption or a span of its own. The flags of such a group
+	combine like the first and last row in time: start...end shows none, start...continued
+	"start", continued...end "end", continued...continued "continued".
+	*/
+	var plain = function(row) {
+		return row.point && !row.label && !row.note;
+	};
+	var titleSpan = function(i) {
+		if(!plain(rows[i]) || (i > 0 && rows[i - 1].title === rows[i].title && plain(rows[i - 1]))) {
+			return plain(rows[i]) ? 0 : 1;
+		}
+		var n = 1;
+		while(i + n < rows.length && rows[i + n].title === rows[i].title && plain(rows[i + n])) {
+			n++;
+		}
+		return n;
+	};
+	var groupFlag = function(i,n) {
+		if(n === 1) {
+			return rows[i].flag;
+		}
+		var group = rows.slice(i,i + n),
+			first = group[0],
+			last = group[n - 1];
+		// rows are newest first unless the "!" prefix is given
+		if(operator.prefix !== "!") {
+			first = group[n - 1];
+			last = group[0];
+		}
+		if(first.flag === "start") {
+			return last.flag === "end" ? null : "start";
+		}
+		return last.flag === "end" ? "end" : first.flag;
+	};
 	var out = [];
 	$tw.utils.each(rows,function(row,i) {
 		var line = "<tr style=\"height: 1em\">",
@@ -118,17 +155,21 @@ exports.eventrows = function(source,operator,options) {
 		if((n = span(i,2))) {
 			line += "<td rowspan=\"" + n + "\">" + row.day + "</td>";
 		}
-		line += "<td>" + (row.campaign ? "__[[" + row.title + "]]__" : "[[" + row.title + "]]");
-		if(row.label) {
-			line += " – " + row.label;
+		if((n = titleSpan(i))) {
+			var flag = groupFlag(i,n);
+			line += "<td rowspan=\"" + n + "\">" + (row.campaign ? "__[[" + row.title + "]]__" : "[[" + row.title + "]]");
+			if(row.label) {
+				line += " – " + row.label;
+			}
+			if(row.note) {
+				line += " //" + row.note + "//";
+			}
+			if(flag) {
+				line += " //" + language.t(wiki,FLAG_KEYS[flag]) + "//";
+			}
+			line += "</td>";
 		}
-		if(row.note) {
-			line += " //" + row.note + "//";
-		}
-		if(row.flag) {
-			line += " //" + language.t(wiki,FLAG_KEYS[row.flag]) + "//";
-		}
-		out.push(line + "</td></tr>");
+		out.push(line + "</tr>");
 	});
 	return out;
 };
