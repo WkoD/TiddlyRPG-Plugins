@@ -188,3 +188,13 @@ test("no date line for an event locked for the player", function() {
 		["$:/state/dndwiki/player", "Geheim", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
 	}
 });
+
+test("date line of an event without date: ???? with the era", function() {
+	h.add(wiki, {title: "Ohne Datum", tags: "Event", text: "<<date>>"});
+	try {
+		assert.match(h.view(wiki, "Ohne Datum"), /<div class="dnd-dateline">\?\?\?\? DR<\/div>/);
+		assert.doesNotMatch(h.view(wiki, "Frigg"), /dnd-dateline/);
+	} finally {
+		wiki.deleteTiddler("Ohne Datum");
+	}
+});

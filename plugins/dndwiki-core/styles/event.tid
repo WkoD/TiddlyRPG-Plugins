@@ -1,17 +1,16 @@
 created: 20261002082222000
-modified: 20261002100000000
+modified: 20261002103000000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/event
 type: text/css
 
 /* Date line below the tags (procedure dnd.dateline: span of an event, years of existence of the
-   other types; grey like the date line of a timeline card), head of an event
+   other types), head of an event
    (viewtemplates/event), dated sections in the body (procedure date), location pills (procedure
    dnd.places) and hints on dates that cannot be read (dnd.datecheck). Palette colours via
    --tpc-*. */
 .dnd-dateline {
 	text-align: right;
-	color: var(--tpc-muted-foreground, #999);
 	font-size: 0.85em;
 	line-height: 1.3;
 }

@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261002100000000
+modified: 20261002103000000
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -52,14 +52,18 @@ type: text/vnd.tiddlywiki
 <%endif%>
 \end
 
-<!-- Date line below the tags of every tiddler with dates, right-aligned in grey (the style of
-     the date line of a timeline card): an event shows the span of its date field, every other
-     type its years of existence (mode "year"). With the hint on a date that cannot be read. -->
+<!-- Date line below the tags of every tiddler with dates, right-aligned: an event shows the span
+     of its date field ("????" with the era if it has none), every other type its years of
+     existence (mode "year", nothing without dates). With the hint on a date that cannot be read. -->
 \procedure dnd.dateline(mode)
 \whitespace trim
-<$let dnd-text={{{ [<mode>match[year]] :then[<currentTiddler>get[date]dateformat:year,era[]] :else[<currentTiddler>get[date]dateformat:era[]] }}}>
+<%if [<mode>match[year]] %>
+<$let dnd-text={{{ [<currentTiddler>get[date]dateformat:year,era[]] }}}>
 <%if [<dnd-text>!is[blank]] %><div class="dnd-dateline"><$text text=<<dnd-text>>/></div><%endif%>
 </$let>
+<%else%>
+<div class="dnd-dateline"><$text text={{{ [<currentTiddler>get[date]dateformat:era[]!is[blank]] ~[calendar[era]!is[blank]addprefix[???? ]] ~[[????]] }}}/></div>
+<%endif%>
 <<dnd.datecheck>>
 \end
 

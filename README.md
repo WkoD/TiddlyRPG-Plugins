@@ -114,7 +114,7 @@ where each section begins:
 Each placeholder shows a rule (not at the very start of the body), the date of its section,
 the caption and the locations linked in that section. Every event starts with `<<date>>`, also
 one with a single date; without any date in the field the heading reads `????` (with the
-era). Below its tags, right-aligned in grey, every tiddler with dates shows a date line: an
+era). Below its tags, right-aligned, every tiddler with dates shows a date line: an
 event the span of its whole field, every other type its years of existence. An event also
 lists there the locations linked before its first placeholder. Timeline and event table show one entry per section, a
 span as a bar or one row, with its caption. Links inside DM notes (`@@.tc-tiddler-frame`, the
