@@ -35,10 +35,16 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   tiddlers and offers `render`/`view`/`body`/`filter`. One file per topic:
   - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
     leap rule
-  - `dates` - `datelong`/`datecalc`/`datediff` in de-DE and en-GB, and without a calendar
+  - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
+    `datecheck` in de-DE and en-GB, and without a calendar
+  - `sections` - event head, dated sections `<<date>>` (counting, captions, rule, hints),
+    locations per section, subtitle without modifier, event table with spans
+  - `migrate` - `scripts/migrate-dates.js` and `scripts/check-dates.js` against fixtures in a
+    temp folder
   - `location` - map tabs, map images, event history, player lock, person view
-  - `timeline` - cards, bars, beams, order, details
-  - `hubs` - hub and index tiddlers, event template, type colours, no leaked pragmas or `<<dnd.`
+  - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
+    the band of the tiddler itself
+  - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<dnd.`
   - `graph` - the `edges.typed` override
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
     may be missing)
@@ -109,24 +115,31 @@ the tiddler title:
 
 - **Functions and procedures** (`functions`, tag `$:/tags/Global`): `dnd.visible`, `dnd.dead`
   (see "Functions & cascades"), `dnd.t`, `dnd.title`, `dnd.plural` (language system), the
-  procedures `datelong`, `datecalc`, `datediff` (calendar).
+  procedures `dateformat`, `dateadd`, `datediff` (calendar), `date` (dated section in a body,
+  with `widgets/date.js`), `dnd.places` (location pills of a section) and `dnd.datecheck`
+  (hint on a date that cannot be read, not in the published copy).
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
-  `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `events.js` (splits
-  the `date` field of an event into its points in time - several points, open start/end; shared
-  by `eventlist` and the timeline so both read dates by the same rules).
-- **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attribute `filter`): vertical,
-  interactive timeline of the events, newest at the top, undated ones at the bottom as `????`.
-  Positions from `calendar.dayNumber`, long gaps collapsed; spans as bars in at most 5 lanes,
-  more merge into one beam; tap/click selects (card grows, lines to each point in time), the
-  title in the selected card opens the tiddler. Campaign events solid, other events dashed. Details
-  in the module header.
+  `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
+  "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
+  from its parse tree - the one place of these rules, used by the date filters, `eventrows`, the
+  timeline, `dnd-date` and `deadlink`).
+- **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attributes `filter`, `self`):
+  vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
+  `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
+  point gets a lane (at most 5, more merge into one beam), in it only spans are bars, points are
+  dots, the dashed track shows while highlighted; `..` ends in an arrow. Card: title, then span
+  and tag dots; tap/click selects (the card shows the tags and one line per section with its
+  caption, lines to each section). `self`: the own dates of that tiddler as a band behind the
+  lanes. Campaign events solid, other events dashed. Details in the module header.
+  `dnd-date` (`date.js`): finds which section a `<<date>>` placeholder stands for, by the
+  position of the call in the parse tree.
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
-  `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`, `library` (calendar
-  independent date parser and comparison).
-- **Filters** (`filters/*`): `eventlist` (event table, the "List" tab), `multitag` (input with at least one of the
-  tags, grouped in tag order, no duplicates), `translate.js` (`dndtranslate`, `dndtitle`,
-  `dndtitlesearch`), `date.js` (`datelong`, `datecalc`, `datediff`, `calendar[...]`).
+  `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`.
+- **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per section), `multitag`
+  (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
+  (`dndtranslate`, `dndtitle`, `dndtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
+  `dateended`, `datecheck`, `sectionlinks`, `calendar[...]`).
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`).
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
@@ -137,13 +150,15 @@ the tiddler title:
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs), `player`. Order via `list-after`. Plus `body-filter`
   (cascade, see below).
-- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `player-spoiler`.
+- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `player-spoiler`,
+  `date-section`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
-  rules, battle map width), `dead`, `pinned`, `readonly` and `timeline` (static CSS,
-  `type: text/css`).
-  **Templates** `templates/image`, `templates/body-locked`, `templates/title-translated`.
+  rules, battle map width), `dead`, `pinned`, `readonly`, `timeline` and `event` (event head,
+  dated sections, location pills; static CSS, `type: text/css`).
+  **Templates** `templates/image`, `templates/body-locked`, `templates/title-translated`,
+  `templates/subtitle`.
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
-  `title-translated` - see below.
+  `title-translated`, `subtitle` - see below.
 - **Search** (override of `$:/core/ui/DefaultSearchResultList` plus `search/item`): core search
   plus hubs whose translated name matches, hits shown with translated names.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
@@ -179,7 +194,7 @@ the tiddler title:
 - **Texts that need refreshing go through filtered attributes, not JS macros.** A JS macro call
   only re-renders when its parameters change; a filtered attribute is recomputed on every
   refresh. That is why the date output is filter operators plus procedures
-  (`<$let t={{{ [<date>datelong[]] }}}><<t>></$let>`).
+  (`<$text text={{{ [<date>dateformat:era[]] }}}/>`).
 - Places that show `caption` only as plain text (`$view`) cannot be translated: the graph
   settings of tw5-graph (template and view captions). Graph view captions belong to the wiki.
 - Known limits: the tag dropdown does not suggest "Ort" (filter hard-wired in
@@ -195,8 +210,35 @@ data with a closed form for the leap years before a year (`floor((year-1-start)/
 floor((-1-start)/every)`); for Harptos this equals the former `year*365 + ceil(year/4)`, which
 `npm test` checks over several leap cycles in both directions.
 
-Without a calendar, `datelong` shows the date as entered, `eventlist` the raw month/day numbers,
-`datecalc`/`datediff` return nothing and the `Calendar` hub is hidden from `Information`.
+Without a calendar, `dateformat` shows the date as entered, `eventrows` the raw month/day
+numbers, `dateadd`/`datediff` return nothing, `datecheck` only checks the syntax and the
+`Calendar` hub is hidden from `Information`.
+
+## Dates
+
+`modules/dates.js` holds the rules of the `date` field and of the dated sections - nothing else
+splits a date. Syntax and meaning: module header and `README.md` ("Dates"). Points to keep in
+mind when changing it:
+
+- `parse()` results are cached per string and shared; callers must not change them. `dnd.dead`
+  runs through ClassFilters and graph templates for every visible tiddler on every refresh.
+- A single point means a point in time for events and a start with an open end for every other
+  type; the timeline band and `dnd.dead` rely on that.
+- `sections()` reads the placeholders and links from the **parse tree** (cached per tiddler),
+  not with a regex: a `<<date>>` in code is not parsed and so not counted. Links are assigned to
+  sections by their `start` offset; subtrees with the class `tc-tiddler-frame` (DM notes) are
+  skipped. TW 5.4 sets `start`/`end` on block and inline nodes (`wikiparser.js`); check that when
+  raising the engine version.
+- `widgets/date.js` matches its own call by `start` and `end` of the transclude node of
+  `<<date>>`. Called from another text (a transcluded snippet) there is no match: then only an
+  explicit number works, otherwise a visible hint. The edit preview works because the draft has
+  the same text and date.
+- Known limit: a `<<date>>` inside a block hidden from players still gives its caption and
+  locations to timeline and table - the walk does not evaluate `$list`/`<%if%>`/`$reveal`.
+  `check-dates.js` warns; the real fix belongs to the login per player.
+- `scripts/migrate-dates.js` converts the 1.x notation (dots), `scripts/check-dates.js` checks a
+  wiki (boots it with the plugins of this repo, so its calendar applies). Both are tested in
+  `test/migrate.test.js`.
 
 ## Functions & cascades
 
@@ -212,9 +254,10 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
   assigns `templates/body-locked` to locked tiddlers. The map tabs of a location drop
   sub-tiddlers locked for the player, the event tabs (timeline and list) drop locked events. A change of the lock logic (e.g. login per player) happens
   only in the function.
-- **`dnd.dead`** - deceased/destroyed: a dot in the `date` field, **events excluded** (there the
-  dot separates several points in time). Used by `config/class-dead` (class `dnd-dead`,
-  stylesheet `styles/dead`) and the graph templates; `deadlink.js` checks the same in JS.
+- **`dnd.dead`** - deceased/destroyed: the `date` field ends (last section a span whose end is
+  not `..`, operator `dateended`), **events excluded**. Used by `config/class-dead` (class
+  `dnd-dead`, stylesheet `styles/dead`), the graph templates and the world map views of the
+  wikis; `deadlink.js` reads the same rule from `modules/dates.js`.
 
 More cascade entries instead of core overrides:
 
@@ -230,6 +273,9 @@ More cascade entries instead of core overrides:
   offline build. Check the list against that original when raising the engine version.
 - `config/title-translated` (`$:/tags/ViewTemplateTitleFilter`, before `default`): tiddlers whose
   display name differs from the title get the heading `templates/title-translated`.
+- `config/subtitle` (`$:/tags/ViewTemplateSubtitleFilter`, before `default`): every tiddler gets
+  `templates/subtitle`, the core default without the modifier (always the same person here; git
+  keeps the history). Other entries tagged `$:/tags/ViewTemplate/Subtitle` still show.
 
 Palette colours in static CSS through the core variables `--tpc-<palette entry>` (since 5.4.0,
 generated by `$:/core/stylesheets/custom-properties`; the release note wrongly says

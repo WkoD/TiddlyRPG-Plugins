@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261001095424000
+modified: 20261002082222000
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -13,9 +13,9 @@ type: text/vnd.tiddlywiki
      character (a tiddler tagged "Player"). -->
 \function dnd.visible() [tags[]tag[Player]] ~[{$:/state/dndwiki/player}] +[compare:string:eq{$:/state/dndwiki/player}]
 
-<!-- Deceased/destroyed: a dot in the date field. Events are excluded - there the dot
-     separates several points in time. -->
-\function dnd.dead() [!is[system]!tag[Event]search:date[.]]
+<!-- Deceased/destroyed: the date field ends (last section a range with an end other than
+     "..", modules/dates.js). Events excluded - their sections are points and spans in time. -->
+\function dnd.dead() [!is[system]!tag[Event]] :filter[get[date]dateended[]]
 
 <!-- Language system (modules/language.js): translation of a key, display name of a title,
      plural of a type. Missing keys fall back to en-GB, then to the key/title itself. -->
@@ -25,14 +25,65 @@ type: text/vnd.tiddlywiki
 
 <!-- Date output through the calendar engine (filters/date.js). Procedures with filtered
      attributes, so that they recompute when the language or the calendar data changes. -->
-\procedure datelong(date,yearonly)
-<$let dnd-text={{{ [<date>datelong<yearonly>] }}}><<dnd-text>></$let>
+
+<!-- Short form of a date field or of one of its sections, with the era -->
+\procedure dateformat(date,section)
+<$text text={{{ [<date>dateformat:era<section>] }}}/>
 \end
 
-\procedure datecalc(date,days)
-<$text text={{{ [<date>datecalc<days>] }}}/>
+\procedure dateadd(date,days)
+<$text text={{{ [<date>dateadd<days>] }}}/>
 \end
 
 \procedure datediff(from,to)
 <$text text={{{ [<from>datediff<to>] }}}/>
+\end
+
+<!-- Locations linked in a section of the body of the current tiddler (0 = before the first
+     <<date>>), without those locked for the logged-in player; as pills, nothing if none -->
+\procedure dnd.places(section)
+\whitespace trim
+<%if [<currentTiddler>sectionlinks<section>tag[Location]] :filter[dnd.visible[]] %>
+<div class="dnd-places">
+<$list filter="[<currentTiddler>sectionlinks<section>tag[Location]] :filter[dnd.visible[]] +[sort[]]" variable="dnd-place">
+<$link to=<<dnd-place>>><$transclude $variable="tag-pill" tag=<<dnd-place>>/></$link>
+</$list>
+</div>
+<%endif%>
+\end
+
+<!-- Hint for the editor if the date field of the current tiddler cannot be read or names a
+     day the calendar does not have; not in the published (read-only) copy -->
+\procedure dnd.datecheck()
+\whitespace trim
+<$list filter="[<currentTiddler>get[date]datecheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="dnd-raw">
+<div class="dnd-date-invalid"><$text text={{{ [[Date/Invalid]dndtranslate[]] }}}/> <code><$text text=<<dnd-raw>>/></code></div>
+</$list>
+\end
+
+<!-- A dated section in the body: <<date>> is the next section of the date field (the first
+     is 1), <<date 3>> section 3, <<date "Caption">> / <<date 3 "Caption">> with a caption.
+     Draws the rule before it (not at the very start of the body), the date, the caption and
+     the locations of the section. widgets/date.js finds out which section it is. -->
+\procedure date(n,label)
+\whitespace trim
+<$dnd-date n=<<n>> label=<<label>>>
+
+<%if [<dnd-section>is[blank]] %>
+<div class="dnd-date-invalid"><$text text={{{ [[Date/SectionHint]dndtranslate[]] }}}/></div>
+<%else%>
+<$let dnd-text={{{ [<currentTiddler>get[date]dateformat:era<dnd-section>] }}}>
+
+<%if [<dnd-first>!match[yes]] %><hr class="dnd-date-rule"/><%endif%>
+<%if [<dnd-text>is[blank]] %>
+<div class="dnd-date-invalid"><$text text={{{ [[Date/SectionMissing]dndtranslate[]search-replace[$n$],<dnd-section>] }}}/></div>
+<%else%>
+<div class="dnd-date-heading"><$text text=<<dnd-text>>/><%if [<dnd-label>!is[blank]] %><span class="dnd-date-label"><$text text={{{ [<dnd-label>addprefix[ – ]] }}}/></span><%endif%></div>
+<%endif%>
+<$transclude $variable="dnd.places" section=<<dnd-section>>/>
+
+</$let>
+<%endif%>
+
+</$dnd-date>
 \end

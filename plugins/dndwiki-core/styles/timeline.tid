@@ -1,5 +1,5 @@
 created: 20261001133844000
-modified: 20261001160600000
+modified: 20261002082222000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/timeline
 type: text/css
@@ -161,6 +161,22 @@ type: text/css
 .dnd-tl-axis-unknown {
 	stroke-dasharray: 4 4;
 }
+/* Track of an event in a lane: only spans are bars; the rest shows dashed while highlighted */
+.dnd-tl-track {
+	stroke-width: 1.5;
+	stroke-dasharray: 3 4;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.dnd-tl-bar.dnd-tl-active .dnd-tl-track {
+	opacity: 0.7;
+}
+.dnd-tl-arrow {
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
 .dnd-tl-hit {
 	stroke: transparent;
 	stroke-width: 10;
@@ -275,9 +291,9 @@ type: text/css
 	white-space: normal;
 	cursor: pointer;
 }
+/* The span line gives way to the tags and the sections */
 .dnd-tl-selected .dnd-tl-date {
-	white-space: normal;
-	flex-wrap: wrap;
+	display: none;
 }
 .dnd-tl-details {
 	display: none;
@@ -295,11 +311,27 @@ type: text/css
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px 10px;
-	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.dnd-tl-caption {
+	margin-left: 0.6em;
+	color: var(--dnd-tl-muted);
 }
 .dnd-tl-tag {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 	cursor: pointer;
+}
+
+/* Band of the tiddler itself: its own dates behind the lanes */
+.dnd-tl-band-area {
+	opacity: 0.14;
+}
+.dnd-tl-band-unknown .dnd-tl-band-area {
+	opacity: 0.08;
+}
+.dnd-tl-band-label {
+	fill: var(--dnd-tl-muted);
+	font-size: 10px;
 }

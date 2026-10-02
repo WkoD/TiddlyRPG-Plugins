@@ -1,6 +1,6 @@
 /*
  * Hub and index tiddlers (Location, Campaign, Index, Information, Player, Calendar, ...), the
- * event template, the type colour cascade and the wikitext hygiene of all hubs.
+ * type colour cascade and the wikitext hygiene of all hubs. The event head: sections.test.js.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -39,13 +39,13 @@ test.describe("de-DE", function() {
 		assert.equal(colour("Grum"), "#00a600");
 	});
 
-	test("event template labels", function() {
-		var event = h.view(wiki, "Der dunkle Turm");
-		assert.ok(event.indexOf("Jahr:") !== -1 && event.indexOf("Ort:") !== -1);
-	});
-
-	test("macrocall of datelong in content", function() {
-		assert.ok(h.view(wiki, "Der dunkle Turm").indexOf("11. Flamerule (07)") !== -1);
+	test("calendar hub: calculator written out", function() {
+		h.add(wiki, {title: "$:/temp/dndwiki/calendar", calc_date: "1351-07-30", calc_day: "1"});
+		try {
+			assert.ok(h.body(wiki, "Calendar").indexOf("Mittsommer (07/08)") !== -1);
+		} finally {
+			wiki.deleteTiddler("$:/temp/dndwiki/calendar");
+		}
 	});
 
 	test("index: six types in German order plus open items", function() {

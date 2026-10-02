@@ -3,16 +3,25 @@ title: $:/plugins/dndwiki-core/filters/date.js
 type: application/javascript
 module-type: filteroperator
 created: 20261001095424000
-modified: 20261001095424000
+modified: 20261002082222000
 
-Date filter operators on top of the calendar engine (modules/calendar.js). They are filter
-operators rather than JS macros so that a filtered attribute recomputes them on every refresh:
-a change of $:/language or of the calendar data shows immediately. The procedures datelong,
-datecalc and datediff in functions.tid wrap them for use in wikitext.
+Date filter operators on top of modules/dates.js and the calendar engine (modules/calendar.js).
+They are filter operators rather than JS macros so that a filtered attribute recomputes them on
+every refresh: a change of $:/language or of the calendar data shows immediately. The
+procedures dateformat, dateadd, datediff and date in functions.tid wrap them for wikitext.
 
-[<date>datelong<yearonly>]   long form as wikitext ("1351 DR" plus day/month line)
-[<date>datecalc<days>]       date plus/minus days, "" if invalid or no calendar
-[<from>datediff<to>]         days from <from> to <to>, "" if invalid or no calendar
+[<date>dateformat[]]          short form of a date field: one section as it is, several as the
+                              span from the first start to the last end
+[<date>dateformat[2]]         short form of section 2
+  suffix flags, comma separated: era (append the era), year (years only), long (long form of
+  a single point as wikitext, for the calculator of the Calendar hub)
+[<date>dateadd<days>]         date plus/minus days, "" if invalid or no calendar
+[<from>datediff<to>]          days from <from> to <to>, "" if invalid or no calendar
+[<date>dateended[]]           the input if the field ends (last section a range with an end)
+[<date>datecheck[]]           the input if it cannot be read or a date does not exist in the
+                              calendar
+[<title>sectionlinks[n]]      link targets in section n of the body (0 = before the first
+                              <<date>>), see dates.sections()
 [calendar[id|title|era|table]]  data of the active calendar ("" without calendar)
 
 Without an active calendar dates are shown as entered.
@@ -22,86 +31,48 @@ Without an active calendar dates are shown as entered.
 "use strict";
 
 var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
-	language = require("$:/plugins/dndwiki-core/modules/language.js"),
-	library = require("$:/plugins/dndwiki-core/macros/library");
+	dates = require("$:/plugins/dndwiki-core/modules/dates.js");
 
 function pad2(n) {
 	return n > 9 ? n.toString() : "0" + n.toString();
 }
 
-function eraSuffix(wiki,cal) {
-	var era = cal ? calendar.era(wiki,cal) : "";
-	return era ? " " + era : "";
+// A full date "YYYY-MM-DD[-time]" for the calculator, or null
+function fullDate(text) {
+	var point = dates.parsePoint((text || "").trim());
+	return point && point.month && point.day ? point : null;
 }
 
-// Port of the former datum-lang macro: periods separated by ".", parts by "-"
-function longForm(wiki,cal,text,yearonly) {
-	var dates = (text || "").split("."),
-		dateStart = dates[0].split("-"),
-		dateEnd = dates[dates.length - 1].split("-"),
-		ret = "//" + (dateStart[0] || "????");
-	if(dates.length > 1) {
-		if(!dateEnd[0]) {
-			ret += " - ????";
-		} else if(dateStart[0] != dateEnd[0]) {
-			ret += " - " + dateEnd[0];
-		}
-	}
-	if(!cal) {
-		// No calendar: everything after the year as entered
-		if(yearonly) {
-			return ret + "//";
-		}
-		var raw = dates.map(function(date) {
-			return date || "????";
-		});
-		return "//" + raw.join(" - ") + "//";
-	}
-	ret += eraSuffix(wiki,cal) + "//<br>";
-	if(!yearonly && dateStart.length > 1) {
-		var dayMonth = language.t(wiki,"Date/DayMonth"),
-			time = language.t(wiki,"Date/Time"),
-			resultStart = calendar.monthDay(wiki,cal,dateStart[1],dateStart[2]);
-		ret += "//";
-		ret += resultStart[1] ? language.format(dayMonth,{day: resultStart[1], month: resultStart[0]}) : resultStart[0];
-		if(dateStart[3]) {
-			ret += " " + language.format(time,{time: dateStart[3]});
-		}
-		if(dates.length > 1) {
-			var retEnd = "",
-				resultEnd = calendar.monthDay(wiki,cal,dateEnd[1],dateEnd[2]);
-			if(resultEnd[1] && (resultEnd[0] !== resultStart[0] || resultEnd[1] !== resultStart[1])) {
-				retEnd = language.format(dayMonth,{day: resultEnd[1], month: resultEnd[0]});
-			} else if(resultEnd[0] !== resultStart[0]) {
-				retEnd = resultEnd[0];
-			}
-			if(dateEnd[3] && (retEnd || dateEnd[3] !== dateStart[3])) {
-				retEnd += (retEnd ? " " : "") + language.format(time,{time: dateEnd[3]});
-			}
-			if(retEnd) {
-				ret += " - " + retEnd;
-			}
-		}
-		ret += "//";
-	}
-	return ret;
-}
-
-exports.datelong = function(source,operator,options) {
-	var cal = calendar.active(options.wiki),
-		yearonly = !!operator.operand && operator.operand !== "no" && operator.operand !== "false",
+exports.dateformat = function(source,operator,options) {
+	var wiki = options.wiki,
+		cal = calendar.active(wiki),
+		flags = (operator.suffix || "").split(","),
+		opts = {era: flags.indexOf("era") !== -1, year: flags.indexOf("year") !== -1},
+		long = flags.indexOf("long") !== -1,
+		n = parseInt(operator.operand,10),
 		results = [];
 	source(function(tiddler,title) {
-		results.push(longForm(options.wiki,cal,title,yearonly));
+		if(long) {
+			var point = dates.parsePoint((title || "").trim());
+			results.push(point ? dates.formatLong(wiki,cal,point) : "");
+			return;
+		}
+		var parsed = dates.parse(title);
+		if(n > 0) {
+			var section = parsed.sections[n - 1];
+			results.push(section ? dates.formatSection(wiki,cal,section,opts) : "");
+		} else {
+			results.push(dates.formatField(wiki,cal,parsed,opts));
+		}
 	});
 	return results;
 };
 
-exports.datecalc = function(source,operator,options) {
+exports.dateadd = function(source,operator,options) {
 	var cal = calendar.active(options.wiki),
 		results = [];
 	source(function(tiddler,title) {
-		var date = library.parseDate(title);
+		var date = fullDate(title);
 		// Invalid date or no calendar -> empty (the calculator then shows nothing instead of "0")
 		if(!cal || !date) {
 			results.push("");
@@ -111,8 +82,8 @@ exports.datecalc = function(source,operator,options) {
 		var result = calendar.dateFromNumber(cal,calendar.dayNumber(cal,date.year,date.month,date.day) + (parseInt(operator.operand,10) || 0)),
 			text = result.year.toString() + "-" + pad2(result.month) + "-" + pad2(result.day);
 		// Keep a time or similar unchanged
-		if(date.rest) {
-			text += "-" + date.rest;
+		if(date.time) {
+			text += "-" + date.time;
 		}
 		results.push(text);
 	});
@@ -121,15 +92,50 @@ exports.datecalc = function(source,operator,options) {
 
 exports.datediff = function(source,operator,options) {
 	var cal = calendar.active(options.wiki),
-		to = library.parseDate(operator.operand),
+		to = fullDate(operator.operand),
 		results = [];
 	source(function(tiddler,title) {
-		var from = library.parseDate(title);
+		var from = fullDate(title);
 		if(!cal || !from || !to) {
 			results.push("");
 			return;
 		}
 		results.push((calendar.dayNumber(cal,to.year,to.month,to.day) - calendar.dayNumber(cal,from.year,from.month,from.day)).toString());
+	});
+	return results;
+};
+
+exports.dateended = function(source,operator,options) {
+	var results = [];
+	source(function(tiddler,title) {
+		if(dates.parse(title).ended) {
+			results.push(title);
+		}
+	});
+	return results;
+};
+
+exports.datecheck = function(source,operator,options) {
+	var cal = calendar.active(options.wiki),
+		results = [];
+	source(function(tiddler,title) {
+		if(dates.check(cal,dates.parse(title)).length) {
+			results.push(title);
+		}
+	});
+	return results;
+};
+
+exports.sectionlinks = function(source,operator,options) {
+	var n = parseInt(operator.operand,10) || 0,
+		results = [];
+	source(function(tiddler,title) {
+		var links = dates.sections(options.wiki,title).links[n];
+		$tw.utils.each(links,function(link) {
+			if(results.indexOf(link) === -1) {
+				results.push(link);
+			}
+		});
 	});
 	return results;
 };

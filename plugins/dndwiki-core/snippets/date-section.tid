@@ -1,0 +1,8 @@
+caption: <<dnd.t Snippet/DateSection>>
+created: 20261002082222000
+modified: 20261002082222000
+tags: $:/tags/TextEditor/Snippet
+title: $:/plugins/dndwiki-core/snippets/date-section
+type: text/vnd.tiddlywiki
+
+<<date>>

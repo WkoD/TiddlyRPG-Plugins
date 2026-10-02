@@ -1,0 +1,41 @@
+created: 20261002082222000
+modified: 20261002082222000
+tags: $:/tags/Stylesheet
+title: $:/plugins/dndwiki-core/styles/event
+type: text/css
+
+/* Head of an event (viewtemplates/event), dated sections in the body (procedure date),
+   location pills (procedure dnd.places), hints on dates that cannot be read (dnd.datecheck)
+   and the years of existence (viewtemplates/activity). Palette colours via --tpc-*. */
+.dnd-event-span,
+.dnd-date-heading {
+	font-weight: bold;
+}
+.dnd-date-label {
+	font-weight: normal;
+}
+.dnd-date-rule {
+	margin: 1.2em 0 0.8em;
+}
+.dnd-event-head .dnd-places,
+.dnd-date-heading + .dnd-places {
+	margin-top: 0.2em;
+}
+.dnd-places {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 0;
+	margin-bottom: 0.6em;
+}
+.dnd-places a.tc-tiddlylink {
+	text-decoration: none;
+}
+.dnd-date-invalid {
+	color: var(--tpc-alert-highlight, #b00);
+	font-size: 0.85em;
+}
+.dnd-activity {
+	text-align: right;
+	font-size: 0.85em;
+	font-style: italic;
+}

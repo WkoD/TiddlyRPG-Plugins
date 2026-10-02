@@ -1,6 +1,6 @@
 caption: <<dnd.title Calendar>>
 created: 20181002134333437
-modified: 20261001095424000
+modified: 20261002082222000
 tags: Information
 title: Calendar
 type: text/vnd.tiddlywiki
@@ -12,7 +12,7 @@ type: text/vnd.tiddlywiki
 	dnd-desc={{{ [<dnd-desc-key>dndtranslate[]] -[<dnd-desc-key>] }}}
 	dnd-hint={{{ [[Calendar/InputHint]dndtranslate[]] }}}
 	dnd-table={{{ [calendar[table]] }}}
-	dnd-result={{{ [{$:/temp/dndwiki/calendar!!calc_date}datecalc{$:/temp/dndwiki/calendar!!calc_day}] }}}>
+	dnd-result={{{ [{$:/temp/dndwiki/calendar!!calc_date}dateadd{$:/temp/dndwiki/calendar!!calc_day}] }}}>
 
 <<dnd-desc>>
 
@@ -22,7 +22,7 @@ type: text/vnd.tiddlywiki
 |!<<dnd.t Calendar/Date>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_date" type="text"/> |
 |!<<dnd.t Calendar/ExtraDays>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_day" type="text"/> |
 |!<<dnd.t Calendar/Result>> | <$text text=<<dnd-result>>/> |
-|!<<dnd.t Calendar/WrittenOut>> | <%if [<dnd-result>!is[blank]] %><$transclude $variable="datelong" date=<<dnd-result>>/><%endif%> |
+|!<<dnd.t Calendar/WrittenOut>> | <$let dnd-long={{{ [<dnd-result>!is[blank]dateformat:long[]] }}}><<dnd-long>></$let> |
 
 !!! <<dnd.t Calendar/DaysBetween>>
 |!<<dnd.t Calendar/From>> | <$edit-text tiddler="$:/temp/dndwiki/calendar" field="calc_from" type="text"/> |

@@ -1,9 +1,9 @@
 caption: <<dnd.t Relations/List>>
 created: 20261001133844000
-modified: 20261001154438000
+modified: 20261002082222000
 title: $:/plugins/dndwiki-core/viewtemplates/event-list/list
 type: text/vnd.tiddlywiki
 
 <table><tr><th align="center" colspan="3"><$text text={{{ [[Date/Column]dndtranslate[]] [calendar[era]!is[blank]addprefix[(]addsuffix[)]] +[join[ ]] }}}/></th><th><<dnd.t Event/Event>></th></tr>
-<$list filter="[subfilter<dnd-events>] :filter[dnd.visible[]] +[!eventlist[]]">{{!!title}}</$list>
+<$list filter="[subfilter<dnd-events>] :filter[dnd.visible[]] +[eventrows[]]">{{!!title}}</$list>
 </table>

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261001160600000
+modified: 20261002082222000
 title: $:/dndwiki/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -15,15 +15,20 @@ Calendar/To: To:
 Calendar/WrittenOut: Written out:
 Campaign/OpenTasks: Open Tasks
 Date/Column: Date
+Date/Day: $day$
 Date/DayMonth: $day$ $month$
+Date/Ever: time immemorial
+Date/Invalid: Check the date:
+Date/Open: open
+Date/SectionHint: Section unknown - give its number, e.g. <<date 3>>
+Date/SectionMissing: Section $n$ is missing in the date field
 Date/Time: $time$
-Event/Event: Event
-Event/End: (end)
 Event/Continued: (continued)
-Event/Location: Location:
+Event/End: (end)
+Event/Event: Event
 Event/Start: (start)
 Event/Timeline: Timeline
-Event/Year: Year:
+Event/Until: until $date$
 Item/Currency: GP
 Item/Price: Price:
 Link/SeeAlso: See also
@@ -33,6 +38,7 @@ Player/Logout: Logout
 Player/Player: Player:
 Relations/Graph: Graph
 Relations/List: List
+Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
 Snippet/PlayerSpoiler: Player Spoiler
 TBC/Other: Other
@@ -40,7 +46,7 @@ Timeline/Expand: Expand gap
 Timeline/Gap: $n$ years
 Timeline/Gaps: Collapse gaps
 Timeline/GapsHint: Collapse long stretches without events
-Timeline/Open: open
+Timeline/Unknown: dates unknown
 Timeline/WheelHint: Ctrl + mouse wheel: zoom
 Timeline/ZoomIn: Zoom in
 Timeline/ZoomOut: Zoom out

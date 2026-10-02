@@ -9,6 +9,8 @@ module-type: macro
 /*global $tw: false */
 "use strict";
 
+var dates = require("$:/plugins/dndwiki-core/modules/dates.js");
+
 exports.name = "deadlink";
 
 exports.params = [
@@ -21,8 +23,8 @@ Run the macro
 */
 exports.run = function(title, style) {
    var tiddler = this.wiki.getTiddler(title);
-   // Deceased/destroyed: a dot in the date field (cf. dnd.dead in functions.tid)
-   var dead = !!(tiddler && tiddler.fields.date && tiddler.fields.date.indexOf(".") !== -1);
+   // Deceased/destroyed: the date field ends, events excluded (cf. dnd.dead in functions.tid)
+   var dead = !!(tiddler && !tiddler.hasTag("Event") && dates.parse(tiddler.fields.date).ended);
 
    if (dead === true) {
 	  if (style) {

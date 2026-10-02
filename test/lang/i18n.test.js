@@ -93,14 +93,14 @@ test.describe("refresh", function() {
 
 	test.before(function() {
 		h.setLanguage(wiki, "de-DE");
-		var text = "\\import [subfilter{$:/core/config/GlobalImportFilter}]\n<<datelong date:\"1351-01-31\">>",
+		var text = "\\import [subfilter{$:/core/config/GlobalImportFilter}]\n<<dateformat date:\"1351-01-31\">>",
 			parser = wiki.parseText("text/vnd.tiddlywiki", text);
 		widget = wiki.makeWidget(parser, {document: $tw.fakeDocument});
 		container = $tw.fakeDocument.createElement("div");
 		widget.render(container, null);
 	});
 
-	test("datelong refreshes on a language change", function() {
+	test("dateformat refreshes on a language change", function() {
 		var before = container.textContent;
 		h.setLanguage(wiki, "en-GB");
 		widget.refresh({"$:/language": {modified: true}});
@@ -108,7 +108,7 @@ test.describe("refresh", function() {
 		assert.ok(before.indexOf("Mittwinter") !== -1 && after.indexOf("Midwinter") !== -1, [before, after].join(" / "));
 	});
 
-	test("datelong refreshes on a change of the calendar texts", function() {
+	test("dateformat refreshes on a change of the calendar texts", function() {
 		// Rename a festival in the language keys
 		var title = "$:/dndwiki/language/en-GB/Calendar/Harptos/Festival/Midwinter",
 			changes = {};

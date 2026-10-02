@@ -3,23 +3,32 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261001160600000
+modified: 20261002082222000
 
 Vertical, interactive timeline of event tiddlers.
 
-<$dnd-timeline filter="[tag[Event]]"/>
+<$dnd-timeline filter="[tag[Event]]" self="Theren"/>
 
 Reads from bottom (old) to top (new) like the event table; events without a date follow at the
-very bottom as "????".
+very bottom as "????". Dates are read by modules/dates.js, the same rules as the event table.
 
 Layout is computed with time running downwards and mirrored when drawing. One anchor per
 distinct start day (plus the start of every year that has an event). Between anchors the axis
 is proportional to the zoom (px per year), but an anchor never moves into the cards of the
 previous one - dense stretches stretch the axis, sparse ones keep their scale. Gaps of several
-years collapse into a break that can be opened by click. Spans (several points in time or an
-open end) are bars in lanes next to the axis; lanes are assigned greedily and reused.
-Positions come from the calendar engine (dayNumber), labels from monthDay, so festivals and
-leap days count correctly.
+years collapse into a break that can be opened by click. Positions come from the calendar engine
+(dayNumber), labels from monthDay, so festivals and leap days count correctly.
+
+An event with a single point in time is a point on the axis. Any other event (several sections
+or a span) gets a lane next to the axis, reserved from its first to its last day; lanes are
+assigned greedily and reused. In its lane only explicit spans are bars, points in time are
+dots; the track between them shows dashed only while the event is highlighted. Ends: ".." runs
+to the edge of the axis with an arrow, "." fades out, a start or end known only to the month or
+year fades in/out over that time.
+
+self: a tiddler whose own dates (born - died, founded - dissolved, ...) are drawn as a pale band
+behind the lanes; its dates also set anchors. Without dates the band covers the whole axis
+("dates unknown"). A single point of a non-event is a start with an open end.
 
 At most L.maxLanes lanes: where more spans run side by side, they merge into one beam of that
 width and continue inside it as thin threads, spread over the full width by the number of
@@ -30,15 +39,17 @@ Year and month labels are vertical (read bottom to top like the time). A tick ma
 place; a label may slide along the axis as long as its tick stays within the text. Years win,
 months and in-between years are fitted in or left out.
 
-A selected span draws a line from every point in time on its bar to the card, all leaving the
-card where its own connector ends.
+A selected event draws a line from every section in its lane to the card, all leaving the card
+where its own connector ends.
 
 Campaign events (with the player characters) are drawn solid, all other events dashed.
 
-Interaction: hovering previews an event (highlight); a click or tap selects it - the highlight
-stays and its card grows to show all points in time and the tags. Inside the selected card the
-title and the tags are links; Ctrl/Cmd+click opens an event directly. A click on an empty spot
-or on the selected card again clears the selection.
+Card: title, below it the span of the event and its tags as dots. Interaction: hovering previews
+an event (highlight); a click or tap selects it - the highlight stays and its card grows: the
+span line gives way to the tags (links) and one line per section with its caption
+(<<date "Caption">> in the body). Inside the selected card the title and the tags are links;
+Ctrl/Cmd+click opens an event directly. A click on an empty spot or on the selected card again
+clears the selection.
 
 \*/
 
@@ -46,8 +57,11 @@ or on the selected card again clears the selection.
 
 var Widget = require("$:/core/modules/widgets/widget.js").widget,
 	calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
-	eventDates = require("$:/plugins/dndwiki-core/modules/events.js"),
+	dates = require("$:/plugins/dndwiki-core/modules/dates.js"),
 	language = require("$:/plugins/dndwiki-core/modules/language.js");
+
+var UNKNOWN_SIDE = dates.UNKNOWN,
+	FOREVER = dates.FOREVER;
 
 var SVGNS = "http://www.w3.org/2000/svg";
 
@@ -128,14 +142,16 @@ TimelineWidget.prototype.render = function(parent,nextSibling) {
 
 TimelineWidget.prototype.execute = function() {
 	this.filter = this.getAttribute("filter","[tag[Event]]");
+	this.self = this.getAttribute("self","");
 	this.list = this.wiki.filterTiddlers(this.filter,this);
 };
 
 TimelineWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes(),
 		calTitle = (this.wiki.getTiddlerText(CONFIG,"") || "").trim();
-	if(changedAttributes.filter || changedTiddlers["$:/language"] || changedTiddlers[CONFIG] ||
-		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Campaign) {
+	if(changedAttributes.filter || changedAttributes.self || changedTiddlers["$:/language"] || changedTiddlers[CONFIG] ||
+		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Campaign ||
+		(this.self && changedTiddlers[this.self])) {
 		this.refreshSelf();
 		return true;
 	}
@@ -149,62 +165,8 @@ TimelineWidget.prototype.refresh = function(changedTiddlers) {
 
 /* ---------- Data ---------- */
 
-function makeCal(wiki) {
-	var cal = calendar.active(wiki);
-	if(cal) {
-		return {
-			cal: cal,
-			months: cal.months.length,
-			perYear: cal.yearBase + (cal.every > 0 ? cal.leapExtra / cal.every : 0),
-			dn: function(y,m,d) { return calendar.dayNumber(cal,y,m,d); },
-			monthLength: function(y,m) { return calendar.monthLength(cal,y,m); }
-		};
-	}
-	// Without a calendar: 12 months of 30 days, only for the positions
-	return {
-		cal: null,
-		months: 12,
-		perYear: 360,
-		dn: function(y,m,d) { return y * 360 + (m - 1) * 30 + d; },
-		monthLength: function() { return 30; }
-	};
-}
-
-// A point from modules/events.js as numbers plus the range of days it can mean; null if no year
-function toPoint(point,C) {
-	var y = parseInt(point.year,10),
-		m = parseInt(point.month,10),
-		d = parseInt(point.day,10),
-		text = point.text;
-	if(isNaN(y)) {
-		return null;
-	}
-	m = isNaN(m) || m < 1 ? 0 : Math.min(m,C.months);
-	d = !m || isNaN(d) || d < 1 ? 0 : d;
-	var p = {y: y, m: m, d: d, text: text};
-	// Earliest and latest day the point can mean (a year without month = the whole year)
-	p.lo = C.dn(y,m || 1,d || 1);
-	p.hi = d ? p.lo : (m ? C.dn(y,m,C.monthLength(y,m)) : C.dn(y,C.months,C.monthLength(y,C.months)));
-	return p;
-}
-
 function monthName(wiki,C,m) {
 	return calendar.monthDay(wiki,C.cal,m.toString(),"")[0].replace(/\s*\(\d+(\/\d+)?\)$/,"");
-}
-
-function pointLabel(wiki,C,p) {
-	if(!p.m) {
-		return p.y.toString();
-	}
-	if(!C.cal) {
-		return p.text;
-	}
-	var md = calendar.monthDay(wiki,C.cal,p.m.toString(),p.d ? p.d.toString() : ""),
-		month = md[0].replace(/\s*\(\d+(\/\d+)?\)$/,"");
-	if(md[1]) {
-		return language.format(language.t(wiki,"Date/DayMonth"),{day: md[1], month: month}) + " " + p.y;
-	}
-	return month + " " + p.y;
 }
 
 // Colour of a tiddler: own color field, else that of its first tag with one (type hub)
@@ -230,9 +192,38 @@ function byTitle(a,b) {
 	return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
 }
 
+/*
+A section of a date field with the days of its known points:
+  {number, range, start, end, startDays, endDays, lo, hi}
+startDays/endDays: {lo, hi} of a start/end that is a point; lo/hi: first and last known day of
+the section. Without any known day (".", ".." on both sides) lo is undefined.
+*/
+function daysOf(C,section,number,start,end,range) {
+	var s = {number: number, range: range, start: start, end: end};
+	if(typeof start === "object") {
+		s.startDays = dates.dayRange(C,start);
+	}
+	if(typeof end === "object") {
+		s.endDays = dates.dayRange(C,end);
+	}
+	if(s.startDays || s.endDays) {
+		s.lo = (s.startDays || s.endDays).lo;
+		s.hi = (s.endDays || s.startDays).hi;
+	}
+	return s;
+}
+
+// Text of one side of a range: a point in the short form, "?" or open/ever
+function sideLabel(wiki,cal,side,isStart) {
+	if(typeof side === "object") {
+		return dates.formatRange(wiki,cal,side,side);
+	}
+	return side === UNKNOWN_SIDE ? "?" : language.t(wiki,isStart ? "Date/Ever" : "Date/Open");
+}
+
 TimelineWidget.prototype.collect = function() {
 	var wiki = this.wiki,
-		C = makeCal(wiki),
+		C = dates.scale(wiki),
 		events = [],
 		undated = [],
 		eventColour = colourOf(wiki,"Event") || "#48a4ff",
@@ -242,9 +233,10 @@ TimelineWidget.prototype.collect = function() {
 		if(!tiddler) {
 			return;
 		}
-		var parsed = eventDates.parse(tiddler.fields.date),
-			points = [],
+		var parsed = dates.parse(tiddler.fields.date),
+			labels = dates.sections(wiki,title).labels,
 			campaign = tiddler.hasTag("Campaign"),
+			secs = [],
 			ev = {
 				title: title,
 				campaign: campaign,
@@ -253,36 +245,28 @@ TimelineWidget.prototype.collect = function() {
 					return tag !== "Event" && tag !== "Campaign";
 				})
 			};
-		$tw.utils.each(parsed.points,function(point) {
-			var p = toPoint(point,C);
-			if(p) {
-				points.push(p);
+		$tw.utils.each(parsed.sections,function(section,i) {
+			var s = daysOf(C,section,i + 1,section.start,section.end,section.range);
+			if(s.lo === undefined) {
+				return;
 			}
+			s.text = dates.formatSection(wiki,C.cal,section);
+			s.label = labels[i + 1] || "";
+			secs.push(s);
 		});
-		if(points.length === 0) {
+		ev.secs = secs;
+		if(secs.length === 0) {
 			ev.undated = true;
-			ev.points = [];
 			ev.label = UNKNOWN;
 			undated.push(ev);
 			return;
 		}
-		ev.points = points;
-		ev.openStart = parsed.openStart;
-		ev.openEnd = parsed.openEnd;
-		ev.span = points.length > 1 || ev.openStart || ev.openEnd;
-		ev.start = points[0].lo;
-		ev.end = points[points.length - 1].hi;
-		var first = points[0],
-			last = points[points.length - 1],
-			sameYear = points.length > 1 && !ev.openEnd && first.y === last.y && first.m;
-		if(!ev.span) {
-			ev.label = pointLabel(wiki,C,first);
-		} else if(ev.openStart && points.length === 1) {
-			ev.label = "? – " + pointLabel(wiki,C,first);
-		} else {
-			ev.label = (ev.openStart ? "?" : (sameYear ? pointLabel(wiki,C,first).replace(/ -?\d+$/,"") : pointLabel(wiki,C,first))) + " – " +
-				(ev.openEnd ? language.t(wiki,"Timeline/Open") : pointLabel(wiki,C,last));
-		}
+		ev.span = secs.length > 1 || secs[0].range;
+		ev.start = Math.min.apply(null,secs.map(function(s) { return s.lo; }));
+		ev.end = Math.max.apply(null,secs.map(function(s) { return s.hi; }));
+		ev.first = typeof secs[0].start === "object" ? secs[0].start : secs[0].end;
+		ev.openStart = typeof secs[0].start !== "object";
+		ev.label = dates.formatField(wiki,C.cal,parsed);
 		events.push(ev);
 	});
 	events.sort(function(a,b) {
@@ -293,7 +277,38 @@ TimelineWidget.prototype.collect = function() {
 	$tw.utils.each(all,function(ev,i) {
 		ev.idx = i;
 	});
-	return {C: C, events: events, undated: undated, all: all};
+	return {C: C, events: events, undated: undated, all: all, band: this.collectBand(C)};
+};
+
+/*
+Band of the tiddler named in "self": its own sections; a point of a non-event is a start with
+an open end. {title, colour, secs, unknown}; unknown: no section with a known day or "..".
+*/
+TimelineWidget.prototype.collectBand = function(C) {
+	var wiki = this.wiki,
+		tiddler = this.self ? wiki.getTiddler(this.self) : null;
+	if(!tiddler) {
+		return null;
+	}
+	var parsed = dates.parse(tiddler.fields.date),
+		event = tiddler.hasTag("Event"),
+		secs = [];
+	$tw.utils.each(parsed.sections,function(section,i) {
+		var end = section.range || event ? section.end : FOREVER,
+			s = daysOf(C,section,i + 1,section.start,end,true);
+		if(s.lo === undefined && !(s.start === FOREVER && s.end === FOREVER)) {
+			return;
+		}
+		s.startText = sideLabel(wiki,C.cal,s.start,true);
+		s.endText = sideLabel(wiki,C.cal,s.end,false);
+		secs.push(s);
+	});
+	return {
+		title: this.self,
+		colour: colourOf(wiki,this.self) || "#888888",
+		secs: secs,
+		unknown: secs.length === 0
+	};
 };
 
 /* ---------- Layout (time runs downwards here; drawing mirrors it) ---------- */
@@ -302,6 +317,7 @@ TimelineWidget.prototype.layout = function() {
 	var self = this,
 		C = this.data.C,
 		events = this.data.events,
+		band = this.data.band,
 		perDay = ZOOM[this.zoom] / C.perYear,
 		// Before the first / after the last anchor at least a little scale, also when compact
 		edgePerDay = Math.max(perDay,30 / C.perYear),
@@ -318,13 +334,27 @@ TimelineWidget.prototype.layout = function() {
 		}
 		return byDay[day];
 	}
+	function yearAnchor(point) {
+		anchor(C.dn(point.year,1,1)).year = point.year;
+	}
 	$tw.utils.each(events,function(ev) {
 		anchor(ev.start).events.push(ev);
-		var year = ev.points[0].y;
-		anchor(C.dn(year,1,1)).year = year;
+		yearAnchor(ev.first);
 	});
+	// The dates of the band set anchors as well (no cards)
+	if(band) {
+		$tw.utils.each(band.secs,function(s) {
+			$tw.utils.each([s.start,s.end],function(side,k) {
+				if(typeof side === "object") {
+					anchor(k ? s.endDays.lo : s.startDays.lo);
+					yearAnchor(side);
+				}
+			});
+		});
+	}
 	anchors.sort(function(a,b) { return a.day - b.day; });
-	var anyOpenStart = events.some(function(ev) { return ev.openStart; }),
+	var anyOpenStart = events.some(function(ev) { return ev.openStart || ev.secs.some(function(s) { return s.range && typeof s.start !== "object"; }); }) ||
+			!!(band && band.secs.some(function(s) { return typeof s.start !== "object"; })),
 		half = L.cardH / 2,
 		step = L.cardH + L.cardSpace,
 		prev = null;
@@ -374,42 +404,84 @@ TimelineWidget.prototype.layout = function() {
 	$tw.utils.each(anchors,function(a) {
 		$tw.utils.each(a.events,function(ev,k) {
 			ev.cardY = a.y + k * step;
-			ev.y0 = a.y;
+			ev.yStart = a.y;
 		});
 	});
-	// Bars; the end of open spans is the end of the axis
-	$tw.utils.each(events,function(ev) {
-		if(ev.span) {
-			ev.y1 = Math.max(yOf(ev.end),ev.y0 + L.minSpan);
-			if(!ev.openEnd) {
-				bottom = Math.max(bottom,ev.y1);
-			}
+	/*
+	Pixel extent of a section: y0/y1 (null where it runs to an end of the axis, filled in below),
+	solid0/solid1 where it is fully opaque (a start known only to the month fades in over that
+	month, an unknown start over L.fade), yAt where its line to the card starts.
+	*/
+	var place = function(s) {
+		if(!s.range) {
+			s.y0 = s.y1 = s.solid0 = s.solid1 = s.yAt = yOf(s.lo);
+			return;
 		}
-	});
-	var axisEnd = bottom + (events.some(function(ev) { return ev.openEnd; }) ? L.fade : 0) + 8,
-		axisStart = L.pad;
+		var a = s.startDays ? yOf(s.startDays.lo) : (s.start === UNKNOWN_SIDE && s.endDays ? yOf(s.endDays.lo) - L.fade : null),
+			b = s.endDays ? yOf(s.endDays.hi) : (s.end === UNKNOWN_SIDE && s.startDays ? yOf(s.startDays.hi) + L.fade : null);
+		if(a !== null && b !== null) {
+			b = Math.max(b,a + L.minSpan);
+		}
+		s.y0 = a;
+		s.y1 = b;
+		s.solid0 = s.startDays ? yOf(s.startDays.hi) : (s.start === UNKNOWN_SIDE && s.endDays ? yOf(s.endDays.lo) : a);
+		s.solid1 = s.endDays ? yOf(s.endDays.lo) : (s.end === UNKNOWN_SIDE && s.startDays ? yOf(s.startDays.hi) : b);
+		s.yAt = s.startDays ? a : (s.endDays ? yOf(s.endDays.lo) : a);
+	};
+	var anyForeverEnd = false;
 	$tw.utils.each(events,function(ev) {
 		if(!ev.span) {
 			return;
 		}
-		if(ev.openEnd) {
-			ev.y1 = Math.max(axisEnd,ev.y1);
-		}
-		if(ev.openStart) {
-			// The known point is the end; the bar comes from the oldest end of the axis
-			ev.y1 = ev.points.length === 1 ? ev.y0 : ev.y1;
-			ev.y0 = axisStart;
-		}
-		ev.ticks = ev.points.slice(1,ev.openEnd ? undefined : -1).map(function(p) {
-			return yOf(p.lo);
+		$tw.utils.each(ev.secs,function(s) {
+			place(s);
+			if(s.y1 === null) {
+				anyForeverEnd = true;
+			} else {
+				bottom = Math.max(bottom,s.y1);
+			}
 		});
-		if(ev.openStart && ev.points.length > 1) {
-			ev.ticks.unshift(yOf(ev.points[0].lo));
-		}
-		// Uncertain ends (only year or month known) fade in/out over their range
-		ev.solid0 = ev.openStart ? ev.y0 + L.fade : Math.max(ev.y0,Math.min(yOf(ev.points[0].hi),ev.y1));
-		ev.solid1 = ev.openEnd ? ev.y1 - L.fade : Math.min(ev.y1,Math.max(yOf(ev.points[ev.points.length - 1].lo),ev.y0));
 	});
+	if(band) {
+		$tw.utils.each(band.secs,function(s) {
+			place(s);
+			if(s.y1 === null) {
+				anyForeverEnd = true;
+			} else {
+				bottom = Math.max(bottom,s.y1);
+			}
+		});
+	}
+	var axisEnd = bottom + (anyForeverEnd ? L.fade : 0) + 8,
+		axisStart = L.pad;
+	// Sections at an end of the axis ("..") and the extent of each event
+	var fill = function(s) {
+		$tw.utils.each(["y0","solid0","yAt"],function(key) {
+			if(s[key] === null) {
+				s[key] = axisStart;
+			}
+		});
+		$tw.utils.each(["y1","solid1"],function(key) {
+			if(s[key] === null) {
+				s[key] = axisEnd;
+			}
+		});
+	};
+	$tw.utils.each(events,function(ev) {
+		if(!ev.span) {
+			return;
+		}
+		$tw.utils.each(ev.secs,fill);
+		ev.y0 = Math.min.apply(null,[ev.yStart].concat(ev.secs.map(function(s) { return s.y0; })));
+		ev.y1 = Math.max.apply(null,ev.secs.map(function(s) { return s.y1; }));
+		ev.y1 = Math.max(ev.y1,ev.y0 + L.minSpan);
+	});
+	if(band) {
+		$tw.utils.each(band.secs,fill);
+		if(band.unknown) {
+			band.secs = [{range: true, start: UNKNOWN_SIDE, end: UNKNOWN_SIDE, y0: axisStart, y1: axisEnd, solid0: axisStart, solid1: axisEnd}];
+		}
+	}
 	// Lanes: greedy, by pixels
 	var lanes = [];
 	$tw.utils.each(events.filter(function(ev) { return ev.span; }).sort(function(a,b) {
@@ -538,6 +610,7 @@ TimelineWidget.prototype.layout = function() {
 		bundles: bundles,
 		yOf: yOf,
 		lanes: bundles.length ? L.maxLanes : lanes.length,
+		firstYear: Math.min.apply(null,anchors.filter(function(a) { return a.year !== null; }).map(function(a) { return a.year; })),
 		height: axisEnd + L.pad,
 		axisStart: axisStart,
 		axisEnd: axisEnd
@@ -659,6 +732,7 @@ TimelineWidget.prototype.drawCanvas = function() {
 	var root = svg(doc,"svg",{"class": "dnd-tl-svg", width: cardX, height: total});
 	canvas.appendChild(root);
 	var defs = svg(doc,"defs",{},root),
+		gBand = svg(doc,"g",{"class": "dnd-tl-bands"},root),
 		gLines = svg(doc,"g",{"class": "dnd-tl-connectors"},root),
 		gAxis = svg(doc,"g",{"class": "dnd-tl-axis"},root),
 		gBars = svg(doc,"g",{"class": "dnd-tl-bars"},root),
@@ -684,6 +758,12 @@ TimelineWidget.prototype.drawCanvas = function() {
 		node.setAttribute("data-left",cardX);
 		node.style.minHeight = L.cardH + "px";
 		node.style.borderLeftColor = ev.colour;
+		var link = doc.createElement("a");
+		link.className = "dnd-tl-title tc-tiddlylink tc-tiddlylink-resolves";
+		link.setAttribute("href","#" + encodeURIComponent(ev.title));
+		link.setAttribute("data-title",ev.title);
+		link.appendChild(doc.createTextNode(language.title(wiki,ev.title) || ev.title));
+		node.appendChild(link);
 		var meta = doc.createElement("div");
 		meta.className = "dnd-tl-date";
 		meta.appendChild(doc.createTextNode(ev.label));
@@ -698,15 +778,13 @@ TimelineWidget.prototype.drawCanvas = function() {
 			meta.appendChild(dot);
 		});
 		node.appendChild(meta);
-		var link = doc.createElement("a");
-		link.className = "dnd-tl-title tc-tiddlylink tc-tiddlylink-resolves";
-		link.setAttribute("href","#" + encodeURIComponent(ev.title));
-		link.setAttribute("data-title",ev.title);
-		link.appendChild(doc.createTextNode(language.title(wiki,ev.title) || ev.title));
-		node.appendChild(link);
 		node.appendChild(self.details(ev));
 		remember(ev.idx,node);
 		canvas.appendChild(node);
+	};
+	// Arrow head at x/y, pointing up (dir -1, newer) or down (dir 1, older)
+	var arrow = function(parent,x,y,dir,colour) {
+		svg(doc,"path",{"class": "dnd-tl-arrow", d: "M" + (x - 4) + " " + (y - 5 * dir) + " L" + x + " " + (y + 2 * dir) + " L" + (x + 4) + " " + (y - 5 * dir), stroke: colour},parent);
 	};
 	var point = function(ev,cy) {
 		remember(ev.idx,svg(doc,"circle",{
@@ -756,18 +834,18 @@ TimelineWidget.prototype.drawCanvas = function() {
 		});
 		var lastMonth = null;
 		$tw.utils.each(lay.anchors,function(a) {
-			var p = a.events.length ? a.events[0].points[0] : null;
-			if(!p || !p.m || !C.cal || a.events[0].openStart) {
+			var p = a.events.length ? a.events[0].first : null;
+			if(!p || !p.month || !C.cal || a.events[0].openStart) {
 				return;
 			}
-			var key = p.y + "-" + p.m;
+			var key = p.year + "-" + p.month;
 			if(key !== lastMonth) {
 				lastMonth = key;
-				label(monthName(wiki,C,p.m),Y(a.y),false,2);
+				label(monthName(wiki,C,p.month),Y(a.y),false,2);
 			}
 		});
 		if(ZOOM[this.zoom] > 0) {
-			var firstYear = events[0].points[0].y,
+			var firstYear = lay.firstYear,
 				lastYear = Math.floor(lay.anchors[lay.anchors.length - 1].day / C.perYear) + 1;
 			for(var year = firstYear; year <= lastYear; year++) {
 				var day = C.dn(year,1,1),
@@ -788,28 +866,68 @@ TimelineWidget.prototype.drawCanvas = function() {
 	$tw.utils.each(lay.bundles,function(b) {
 		svg(doc,"rect",{"class": "dnd-tl-beam", x: beamLeft - 3, y: Y(b.y1), width: beamW + 6, height: b.y1 - b.y0, rx: 7},gBars);
 	});
+	// Band of the tiddler itself (self) behind everything in the lanes
+	if(this.data.band) {
+		var band = this.data.band,
+			bandX = L.axisX + 4,
+			bandW = Math.max(cardX - bandX - 6,12);
+		$tw.utils.each(band.secs,function(s) {
+			var g = svg(doc,"g",{"class": "dnd-tl-band" + (band.unknown ? " dnd-tl-band-unknown" : "")},gBand),
+				top = Y(s.y1),
+				height = Math.max(s.y1 - s.y0,2),
+				gid = "dnd-tl-b-" + self.uid() + "-" + s.number,
+				grad = svg(doc,"linearGradient",{id: gid, gradientUnits: "userSpaceOnUse", x1: 0, y1: Y(s.y0), x2: 0, y2: Y(s.y1)},defs),
+				stop = function(y,opacity) {
+					svg(doc,"stop",{offset: Math.min(1,Math.max(0,(y - s.y0) / height)), "stop-color": band.colour, "stop-opacity": opacity},grad);
+				};
+			stop(s.y0,band.unknown || s.start === UNKNOWN_SIDE ? 0 : 1);
+			stop(s.solid0,1);
+			stop(s.solid1,1);
+			stop(s.y1,band.unknown || s.end === UNKNOWN_SIDE ? 0 : 1);
+			svg(doc,"rect",{"class": "dnd-tl-band-area", x: bandX, y: top, width: bandW, height: height, rx: 6, fill: "url(#" + gid + ")"},g);
+			var text = function(content,y,cls) {
+				var node = svg(doc,"text",{"class": cls, x: bandX + bandW - 6, y: y, "text-anchor": "end"},g);
+				node.appendChild(doc.createTextNode(content));
+			};
+			if(band.unknown) {
+				text(self.t("Timeline/Unknown"),top + 14,"dnd-tl-band-label");
+			} else {
+				text(s.endText,top + 14,"dnd-tl-band-label");
+				text(s.startText,top + height - 6,"dnd-tl-band-label");
+			}
+		});
+	}
 	// Dated events
 	$tw.utils.each(events,function(ev) {
 		var cy = Y(ev.cardY),
-			x0 = ev.span ? spanX(ev,ev.openStart ? ev.cardY : ev.y0) : L.axisX,
-			y0 = Y(ev.y0);
-		if(ev.span && ev.openStart) {
-			connector(ev,x0,cy,cy);
-		} else {
-			connector(ev,x0,y0,cy);
-		}
+			x0 = ev.span ? spanX(ev,ev.yStart) : L.axisX,
+			y0 = Y(ev.yStart);
+		connector(ev,x0,y0,cy);
 		if(ev.span) {
-			var w = L.barW,
-				gid = "dnd-tl-g-" + self.uid() + "-" + ev.idx,
-				h = ev.y1 - ev.y0,
+			var gid = "dnd-tl-g-" + self.uid() + "-" + ev.idx,
+				h = Math.max(ev.y1 - ev.y0,1),
 				grad = svg(doc,"linearGradient",{id: gid, gradientUnits: "userSpaceOnUse", x1: 0, y1: Y(ev.y0), x2: 0, y2: Y(ev.y1)},defs),
 				stop = function(y,opacity) {
 					svg(doc,"stop",{offset: Math.min(1,Math.max(0,(y - ev.y0) / h)), "stop-color": ev.colour, "stop-opacity": opacity},grad);
 				};
-			stop(ev.y0,ev.openStart ? 0 : (ev.points[0].d ? 1 : 0.25));
-			stop(ev.solid0,1);
-			stop(ev.solid1,1);
-			stop(ev.y1,ev.openEnd ? 0 : (ev.points[ev.points.length - 1].d ? 1 : 0.25));
+			// Opaque only within the spans; uncertain or unknown ends fade in/out
+			stop(ev.y0,0);
+			$tw.utils.each(ev.secs,function(s) {
+				if(!s.range) {
+					return;
+				}
+				var inOpacity = s.startDays ? (s.start.day ? 1 : 0.25) : (s.start === FOREVER ? 1 : 0),
+					outOpacity = s.endDays ? (s.end.day ? 1 : 0.25) : (s.end === FOREVER ? 1 : 0),
+					solid0 = Math.min(Math.max(s.solid0,s.y0),s.y1),
+					solid1 = Math.min(Math.max(s.solid1,solid0),s.y1);
+				stop(s.y0,0);
+				stop(s.y0,inOpacity);
+				stop(solid0,1);
+				stop(solid1,1);
+				stop(s.y1,outOpacity);
+				stop(s.y1,0);
+			});
+			stop(ev.y1,0);
 			var g = svg(doc,"g",{"class": "dnd-tl-bar " + (ev.campaign ? "dnd-tl-campaign" : "dnd-tl-other")},gBars),
 				thick = "",
 				thin = "";
@@ -832,19 +950,34 @@ TimelineWidget.prototype.drawCanvas = function() {
 					thin += "M" + x + " " + Y(piece.y1 - turnOut) + " C" + x + " " + Y(piece.y1) + " " + nx + " " + Y(piece.y1) + " " + nx + " " + Y(piece.y1 + nTurn);
 				}
 			});
+			// The whole track, dashed, only while the event is highlighted: it goes on
+			svg(doc,"path",{"class": "dnd-tl-track", d: thick + thin, fill: "none", stroke: ev.colour},g);
 			if(thick) {
-				svg(doc,"path",{"class": "dnd-tl-stroke", d: thick, fill: "none", stroke: "url(#" + gid + ")", "stroke-width": w},g);
+				svg(doc,"path",{"class": "dnd-tl-stroke", d: thick, fill: "none", stroke: "url(#" + gid + ")", "stroke-width": L.barW},g);
 			}
 			if(thin) {
 				svg(doc,"path",{"class": "dnd-tl-thread", d: thin, fill: "none", stroke: "url(#" + gid + ")", "stroke-width": L.thread},g);
 			}
-			// Wider invisible hit area along the whole span
+			// Wider invisible hit area along the whole track
 			svg(doc,"path",{"class": "dnd-tl-hit", d: thick + thin, fill: "none"},g);
-			if(!ev.openStart) {
-				svg(doc,"circle",{"class": "dnd-tl-start", cx: x0, cy: y0, r: inBeam(ev,ev.y0) ? 2.5 : w / 2 + 1.5, fill: ev.colour},g);
-			}
-			$tw.utils.each(ev.ticks,function(ty) {
-				svg(doc,"circle",{"class": "dnd-tl-mid", cx: spanX(ev,ty), cy: Y(ty), r: inBeam(ev,ty) ? 1.8 : 2.5, stroke: ev.colour},g);
+			$tw.utils.each(ev.secs,function(s) {
+				var tip = s.text + (s.label ? " – " + s.label : ""),
+					dot = null;
+				if(!s.range) {
+					dot = svg(doc,"circle",{"class": "dnd-tl-mid", cx: spanX(ev,s.y0), cy: Y(s.y0), r: inBeam(ev,s.y0) ? 2 : 3, stroke: ev.colour},g);
+				} else if(s.startDays) {
+					dot = svg(doc,"circle",{"class": "dnd-tl-start", cx: spanX(ev,s.y0), cy: Y(s.y0), r: inBeam(ev,s.y0) ? 2.5 : L.barW / 2 + 1.5, fill: ev.colour},g);
+				}
+				if(dot) {
+					svg(doc,"title",{},dot).appendChild(doc.createTextNode(tip));
+				}
+				// ".." runs to the edge of the axis: an arrow there
+				if(s.range && s.end === FOREVER) {
+					arrow(g,spanX(ev,s.y1),Y(s.y1),-1,ev.colour);
+				}
+				if(s.range && s.start === FOREVER) {
+					arrow(g,spanX(ev,s.y0),Y(s.y0),1,ev.colour);
+				}
 			});
 			remember(ev.idx,g);
 		} else {
@@ -915,7 +1048,7 @@ TimelineWidget.prototype.placeLabels = function(labels,height,parent) {
 	});
 };
 
-// Selected span: a line from every point in time on its bar, all leaving the card at one spot
+// Selected event in a lane: a line from every section to the card, all leaving it at one spot
 TimelineWidget.prototype.drawExtras = function() {
 	var self = this,
 		doc = this.document;
@@ -955,38 +1088,13 @@ TimelineWidget.prototype.drawExtras = function() {
 	});
 };
 
-// Extra lines of a selected card: all points in time, then the tags as links
+// Extra lines of a selected card: the tags as links, then one line per section with its
+// caption, oldest first (a span is one line)
 TimelineWidget.prototype.details = function(ev) {
-	var self = this,
-		doc = this.document,
+	var doc = this.document,
 		wiki = this.wiki,
-		C = this.data.C,
 		box = doc.createElement("div");
 	box.className = "dnd-tl-details";
-	// One date per line, oldest first; "?" and "open" stand in for an open start/end
-	var line = function(text,y) {
-		var div = doc.createElement("div");
-		div.className = "dnd-tl-point-date";
-		if(y !== undefined) {
-			div.setAttribute("data-y",y);
-		}
-		div.appendChild(doc.createTextNode(text));
-		box.appendChild(div);
-	};
-	if(ev.span) {
-		if(ev.openStart) {
-			line("?");
-		}
-		$tw.utils.each(ev.points,function(p,i) {
-			var first = i === 0 && !ev.openStart,
-				last = i === ev.points.length - 1 && !ev.openEnd,
-				y = first ? ev.y0 : (last ? ev.y1 : self.lay.yOf(p.lo));
-			line(pointLabel(wiki,C,p),y);
-		});
-		if(ev.openEnd) {
-			line(this.t("Timeline/Open"));
-		}
-	}
 	if(ev.tags.length) {
 		var tags = doc.createElement("div");
 		tags.className = "dnd-tl-tags";
@@ -1007,6 +1115,22 @@ TimelineWidget.prototype.details = function(ev) {
 		});
 		box.appendChild(tags);
 	}
+	$tw.utils.each(ev.secs,function(s) {
+		var div = doc.createElement("div");
+		div.className = "dnd-tl-point-date";
+		// Start of the line to the bar (only events in a lane have one)
+		if(ev.span) {
+			div.setAttribute("data-y",s.yAt);
+		}
+		div.appendChild(doc.createTextNode(s.text));
+		if(s.label) {
+			var caption = doc.createElement("span");
+			caption.className = "dnd-tl-caption";
+			caption.appendChild(doc.createTextNode(s.label));
+			div.appendChild(caption);
+		}
+		box.appendChild(div);
+	});
 	return box;
 };
 

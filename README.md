@@ -72,6 +72,57 @@ Missing keys fall back to en-GB, so a partial translation works. `npm run test-l
 missing and extra keys per language. If TiddlyWiki has no interface pack for the language, set
 only `$:/language`; the TiddlyWiki interface then stays English, the D&D texts follow.
 
+## Dates
+
+The field `date` holds the in-world dates of a tiddler, in one syntax for all types:
+
+```
+date    := section ( "," section )*      whitespace is ignored: "1351,1352" = "1351, 1352"
+section := point | side "/" side
+side    := point | "." | ".." | (empty)
+point   := YYYY[-MM[-DD[-time]]]
+```
+
+| Side | as start | as end |
+|---|---|---|
+| a point | from this date | until this date |
+| `.` | unknown | ended at an unknown time |
+| `..` | since time immemorial | ongoing |
+| empty | ignored: `1351/` = `/1351` = `1351` | |
+
+| Example | Meaning |
+|---|---|
+| `1351-07-01, 1351-07-11` | event on two days |
+| `1351/1371, 1381` | event from 1351 to 1371, once more in 1381 |
+| `1351-07-11/..` | event that is still going on |
+| `1322` | person born 1322, alive (a single point of a non-event is the start) |
+| `1300/1351`, `./1339`, `./.` | dead: dates known, birth unknown, both unknown |
+| `../..` | a deity since time immemorial |
+
+A non-event whose last section is a span with an end other than `..` counts as dead or
+destroyed (function `dnd.dead`: struck-through links, the class `dnd-dead`, the world map).
+
+**Dated sections in the body of an event.** The dates stay in the field; the body only marks
+where each section begins:
+
+```
+<<date>>                  the next section (the first is section 1)
+<<date 3>>                section 3; the following ones count on from there
+<<date "The ritual">>     with a caption (also <<date 3 "The ritual">>, <<date label:"1351">>)
+```
+
+Each placeholder shows a rule (not at the very start of the body), the date of its section,
+the caption and the locations linked in that section. The head of the event shows the span of
+the whole field and the locations linked before the first placeholder; for an event without
+placeholders that is the whole body. Timeline and event table show one entry per section, a
+span as a bar or one row, with its caption. Links inside DM notes (`@@.tc-tiddler-frame`, the
+"open items" snippet) are not counted as locations. Do not put `<<date>>` into a block that is
+hidden from players: its caption and locations would still reach the timeline and the table.
+
+**Upgrading from 1.x.** `node scripts/migrate-dates.js <wiki>` converts the former `.`
+notation mechanically (dry run first, `--write` applies); `node scripts/check-dates.js <wiki>`
+then reports what is left to decide or fix by hand. Both have a header with the details.
+
 ## Calendar
 
 `dndwiki-core` contains a calendar engine but no calendar. The active calendar is a JSON data

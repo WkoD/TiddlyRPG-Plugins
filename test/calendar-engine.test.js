@@ -128,7 +128,7 @@ test.describe("own calendar with leap start 2", function() {
 	});
 
 	test("leap festival only in leap years", function() {
-		assert.equal(h.filter(wiki, "[[2-03-10]datecalc[1]]").join(), "3-01-01");
+		assert.equal(h.filter(wiki, "[[2-03-10]dateadd[1]]").join(), "3-01-01");
 		assert.equal(calendar.monthLength(odd, 3, 3), 9);
 	});
 

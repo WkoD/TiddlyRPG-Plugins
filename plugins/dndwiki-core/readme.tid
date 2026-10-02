@@ -1,5 +1,5 @@
 created: 20260706180604000
-modified: 20261001154438000
+modified: 20261002082222000
 title: $:/plugins/dndwiki-core/readme
 
 ! DnDWiki Core
@@ -16,8 +16,12 @@ The shared D&D format layer of the DnDWiki repo family:
 * Functions `dnd.visible` (player lock), `dnd.dead` (deceased/destroyed), `dnd.t`,
   `dnd.title`, `dnd.plural` in `$:/plugins/dndwiki-core/functions`
 * tw5-graph schema (field edge types + graph templates) for the relation graphs
+* Dates: one syntax for all types in the field `date` (sections separated by `,`, spans with
+  `/`, `.` unknown, `..` forever); in the body of an event `<<date>>` marks where each
+  section begins, with the date, an optional caption and the locations of that section
 * Event timeline (widget `dnd-timeline`): the events of a tiddler or of the `Event` hub as an
-  interactive vertical timeline in the calendar of the wiki, next to the event table
+  interactive vertical timeline in the calendar of the wiki, next to the event table; on a
+  tiddler its own dates as a band behind the events
 
 Consumed by the campaign wikis as a pinned plugin
 (`git+https://github.com/WkoD/TiddlyDnD-Plugins.git#<version>`).

@@ -1,0 +1,154 @@
+#!/usr/bin/env node
+/*
+ * Checks the dates of a DnDWiki wiki against the date format of dndwiki-core 2.0
+ * (plugins/dndwiki-core/modules/dates.js). Reports only, changes nothing.
+ *
+ *   node scripts/check-dates.js <wiki folder>      (npm run check-dates -- <wiki folder>)
+ *
+ * Boots the wiki with the plugins of this repo, so the calendar of the wiki applies and bodies
+ * are read from their parse tree, like the format layer does.
+ *
+ *   error    field date: old format, cannot be read, a day the calendar does not have, start
+ *            after end, sections out of order; <<date n>> beyond the sections of the field;
+ *            datelong calls or <<dateformat "...">> left in an event body (dates belong in the
+ *            field); filters on the old dead marker (search:date[.])
+ *   warning  empty side or section in the field; two placeholders for the same section; a
+ *            "---" right before <<date>> (the placeholder draws its own rule); <<date>> inside
+ *            a block locked for players ($list, <%if%>, $reveal - caption and locations still
+ *            reach timeline and table)
+ *   hint     sections of an event with placeholders that have no heading; text before the
+ *            first placeholder; several sections or ".." as start of a non-event
+ *
+ * Exit code 1 if there is an error.
+ */
+var path = require("path"),
+	fs = require("fs");
+
+require("./plugin-path")();
+
+var wikiDir = process.argv[2];
+if(!wikiDir || !fs.existsSync(path.join(wikiDir, "tiddlywiki.info"))) {
+	console.error("Usage: node scripts/check-dates.js <wiki folder>");
+	process.exit(2);
+}
+
+var $tw = require("tiddlywiki").TiddlyWiki();
+$tw.boot.argv = [path.resolve(wikiDir)];
+$tw.boot.boot(function() {
+	var wiki = $tw.wiki,
+		dates = $tw.modules.execute("$:/plugins/dndwiki-core/modules/dates.js"),
+		calendar = $tw.modules.execute("$:/plugins/dndwiki-core/modules/calendar.js"),
+		cal = calendar.active(wiki),
+		findings = {},
+		errors = 0;
+	var add = function(title, level, text) {
+		(findings[title] = findings[title] || []).push(level + "  " + text);
+		if(level === "error") {
+			errors++;
+		}
+	};
+	// <<date>> calls below a widget that can hide its content from players
+	var gated = function(nodes, inside, out) {
+		$tw.utils.each(nodes, function(node) {
+			var hides = node.type === "list" || node.type === "reveal" || node.type === "if";
+			if(node.type === "transclude" && node.attributes && node.attributes["$variable"] && node.attributes["$variable"].value === "date" && inside) {
+				out.push(node);
+			}
+			if(node.children) {
+				gated(node.children, inside || hides, out);
+			}
+		});
+		return out;
+	};
+	wiki.each(function(tiddler, title) {
+		if(wiki.isSystemTiddler(title) && !/^\$:\/graph\//.test(title)) {
+			return;
+		}
+		var fields = tiddler.fields,
+			event = tiddler.hasTag("Event"),
+			text = fields.text || "";
+		if(fields.date !== undefined) {
+			var parsed = dates.parse(fields.date);
+			if(dates.isOld(fields.date)) {
+				add(title, "error", "old format: " + fields.date);
+			} else {
+				$tw.utils.each(dates.check(cal, parsed), function(problem) {
+					add(title, "error", problem);
+				});
+				$tw.utils.each(parsed.warnings, function(warning) {
+					add(title, "warning", warning);
+				});
+			}
+			if(!event && parsed.sections.length > 1) {
+				add(title, "hint", "several sections for a non-event: " + fields.date);
+			}
+			if(!event && parsed.sections.length && parsed.sections[0].start === dates.FOREVER) {
+				add(title, "hint", "\"..\" as start (since time immemorial)");
+			}
+		}
+		if(/search:date\[\.\]/.test(JSON.stringify(fields))) {
+			add(title, "error", "filter on the old dead marker search:date[.] - use dnd.dead[]");
+		}
+		if(!event) {
+			return;
+		}
+		if(fields.date === undefined || fields.date.trim() === "") {
+			add(title, "hint", "event without date");
+		}
+		if(/<\$macrocall\s+\$name=["']datelong|<<datelong[\s>]/.test(text)) {
+			add(title, "error", "datelong call left in the body");
+		}
+		var formats = text.match(/<<dateformat\s[^>]*>>/g);
+		if(formats) {
+			add(title, "error", "date in the body instead of the field: " + formats.join(" "));
+		}
+		var info = dates.sections(wiki, title),
+			count = dates.parse(fields.date).sections.length,
+			seen = {};
+		$tw.utils.each(info.placeholders, function(p) {
+			if(p.number > count) {
+				add(title, "error", "<<date>> for section " + p.number + ", the field has " + count);
+			}
+			if(seen[p.number]) {
+				add(title, "warning", "two placeholders for section " + p.number);
+			}
+			seen[p.number] = true;
+			if(/(^|\n)---[ \t]*\n\s*$/.test(text.slice(0, p.start))) {
+				add(title, "warning", "\"---\" right before the placeholder of section " + p.number);
+			}
+		});
+		if(info.placeholders.length) {
+			var missing = [];
+			for(var n = 1; n <= count; n++) {
+				if(!seen[n]) {
+					missing.push(n);
+				}
+			}
+			if(missing.length) {
+				add(title, "hint", "sections without heading: " + missing.join(", "));
+			}
+			if(!info.placeholders[0].first) {
+				add(title, "hint", "text before the first placeholder (head)");
+			}
+		}
+		var parser = wiki.parseTiddler(title);
+		if(parser && gated(parser.tree, false, []).length) {
+			add(title, "warning", "<<date>> inside a block that can be hidden from players");
+		}
+	});
+	var titles = Object.keys(findings).sort();
+	console.log("Dates checked: " + path.resolve(wikiDir) + (cal ? " (calendar " + cal.id + ")" : " (no calendar)"));
+	titles.forEach(function(title) {
+		console.log("\n" + title);
+		findings[title].forEach(function(line) {
+			console.log("  " + line);
+		});
+	});
+	var count = function(level) {
+		return titles.reduce(function(n, title) {
+			return n + findings[title].filter(function(line) { return line.indexOf(level) === 0; }).length;
+		}, 0);
+	};
+	console.log("\n" + count("error") + " errors, " + count("warning") + " warnings, " + count("hint") + " hints in " + titles.length + " tiddlers");
+	process.exit(errors ? 1 : 0);
+});
