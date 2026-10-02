@@ -1,5 +1,5 @@
 created: 20261002082222000
-modified: 20261002082222000
+modified: 20261002090000000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/event
 type: text/css
@@ -24,7 +24,7 @@ type: text/css
 .dnd-places {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 2px 0;
+	gap: 3px 4px;
 	margin-bottom: 0.6em;
 }
 .dnd-places a.tc-tiddlylink {

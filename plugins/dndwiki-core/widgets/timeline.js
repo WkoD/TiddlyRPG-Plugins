@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261002082222000
+modified: 20261002090000000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -188,6 +188,19 @@ function colourOf(wiki,title) {
 	return null;
 }
 
+// Colour of the type of a tiddler: its first tag that is a type hub (tagged Index) with a colour
+function typeColourOf(wiki,title) {
+	var tiddler = wiki.getTiddler(title),
+		tags = (tiddler && tiddler.fields.tags) || [];
+	for(var i = 0; i < tags.length; i++) {
+		var tag = wiki.getTiddler(tags[i]);
+		if(tag && tag.fields.color && tag.hasTag("Index")) {
+			return tag.fields.color;
+		}
+	}
+	return null;
+}
+
 function byTitle(a,b) {
 	return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
 }
@@ -305,7 +318,7 @@ TimelineWidget.prototype.collectBand = function(C) {
 	});
 	return {
 		title: this.self,
-		colour: colourOf(wiki,this.self) || "#888888",
+		colour: typeColourOf(wiki,this.self) || colourOf(wiki,this.self) || "#888888",
 		secs: secs,
 		unknown: secs.length === 0
 	};
