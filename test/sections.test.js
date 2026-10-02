@@ -73,7 +73,7 @@ test("locations locked for the player are left out", function() {
 
 test("head: span of the field and the locations before the first placeholder", function() {
 	var view = h.view(wiki, "Vinland");
-	assert.match(view, /<div class="dnd-dateline">15\. Eleasis 1351 DR – offen<\/div>/);
+	assert.match(view, /<div class="dnd-dateline">15\. Eleasis 1351 DR – \?\?\?\?<\/div>/);
 	assert.match(view, /dnd-event-head.*data-tag-title="Nowhere".*<\/div>\s*<hr class="dnd-event-rule">/s);
 });
 

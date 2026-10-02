@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261002120000000
+modified: 20261002130000000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -307,14 +307,15 @@ function sideText(wiki,side,isStart) {
 	if(side === UNKNOWN) {
 		return UNKNOWN_TEXT;
 	}
-	return language.t(wiki,isStart ? "Date/Ever" : "Date/Open");
+	// An open end ("..") reads like an unknown one; an open start "since time immemorial"
+	return isStart ? language.t(wiki,"Date/Ever") : UNKNOWN_TEXT;
 }
 
 /*
 Short form of a point or a range, shared by the event head, the dated sections, the timeline
 card and the table:
   "5. Flamerule 1351", "5. – 24. Flamerule 1351", "5. Flamerule – 24. Uktar 1351",
-  "1200 – 1351", "???? – 1339", "1351 – open", "time immemorial – open"
+  "1200 – 1351", "???? – 1339", "1351 – ????" (also for an open end), "time immemorial – ????"
 opts: era (append the era after the last year), year (years only)
 */
 var formatRange = exports.formatRange = function(wiki,cal,start,end,opts) {

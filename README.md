@@ -87,7 +87,7 @@ point   := YYYY[-MM[-DD[-time]]]
 |---|---|---|
 | a point | from this date | until this date |
 | `.` | unknown (shown as `????`) | ended at an unknown time (`????`) |
-| `..` | since time immemorial | ongoing |
+| `..` | since time immemorial | ongoing (shown as `????`) |
 | empty | ignored: `1351/` = `/1351` = `1351` | |
 
 `.` or `..` as a section of its own, first or last, belongs to the whole field: the event began

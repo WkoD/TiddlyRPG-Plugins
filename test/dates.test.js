@@ -110,8 +110,8 @@ test.describe("de-DE", function() {
 
 	test("dateformat: unknown and open sides", function() {
 		assert.equal(f("[[./1339]dateformat[]]"), "???? – 1339");
-		assert.equal(f("[[1351-07-11/..]dateformat[]]"), "11. Flamerule 1351 – offen");
-		assert.equal(f("[[../..]dateformat[]]"), "seit jeher – offen");
+		assert.equal(f("[[1351-07-11/..]dateformat[]]"), "11. Flamerule 1351 – ????");
+		assert.equal(f("[[../..]dateformat[]]"), "seit jeher – ????");
 	});
 
 	test("dateformat: whole field = span of all sections", function() {
@@ -129,7 +129,7 @@ test.describe("de-DE", function() {
 		assert.equal(f("[[1351-07-22/1351-07-24]dateformat:era[]]"), "22. – 24. Flamerule 1351 DR");
 		assert.equal(f("[[1200/1351-04-14]dateformat:year,era[]]"), "1200 – 1351 DR");
 		assert.equal(f("[[1322]dateformat:year,era[]]"), "1322 DR");
-		assert.equal(f("[[1351/..]dateformat:year,era[]]"), "1351 DR – offen");
+		assert.equal(f("[[1351/..]dateformat:year,era[]]"), "1351 DR – ????");
 	});
 
 	test("dateformat: long form for the calculator", function() {
@@ -172,7 +172,7 @@ test.describe("en-GB", function() {
 		assert.equal(f("[[1351-07-05]dateformat[]]"), "5 Flamerule 1351");
 		assert.equal(f("[[1351-07-22/1351-07-24]dateformat[]]"), "22 – 24 Flamerule 1351");
 		assert.equal(f("[[1351-01-31]dateformat[]]"), "Midwinter 1351");
-		assert.equal(f("[[../..]dateformat[]]"), "time immemorial – open");
+		assert.equal(f("[[../..]dateformat[]]"), "time immemorial – ????");
 	});
 
 	test("en long form", function() {
@@ -239,7 +239,7 @@ test.describe("before and after as a section of its own", function() {
 
 	test("short form of the field", function() {
 		h.setLanguage(wiki, "de-DE");
-		assert.equal(f("[[1351-08-09, 1351-11-26, ..]dateformat[]]"), "9. Eleasis 1351 – offen");
+		assert.equal(f("[[1351-08-09, 1351-11-26, ..]dateformat[]]"), "9. Eleasis 1351 – ????");
 		assert.equal(f("[[.., 1351]dateformat:year[]]"), "seit jeher – 1351");
 		assert.equal(f("[[1351-08-09, 1351-11-26, ..]dateformat[2]]"), "26. Uktar 1351");
 	});

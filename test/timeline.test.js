@@ -1,7 +1,8 @@
 /*
  * Event timeline (widgets/timeline.js) as rendered in Node: cards, bars, beams, order, details,
- * date labels, sections (only spans are bars), arrows, the band of the tiddler itself. What depends on measured sizes - the placement of the vertical labels, the
- * widening of a selected card, the lines to its points - only shows in a browser.
+ * date labels, sections (only spans are bars), arrows, the band of the tiddler itself. What
+ * depends on measured sizes - the placement of the vertical labels, the widening of a selected
+ * card, the lines to its points - only shows in a browser.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -154,7 +155,7 @@ test.describe("band of the tiddler itself", function() {
 	});
 
 	test("a single point of a non-event: start with an open end", function() {
-		assert.match(draw("[[Hafenfest]]", "Alive"), /class="dnd-tl-band-label"[^>]*>offen</);
+		assert.match(draw("[[Hafenfest]]", "Alive"), /class="dnd-tl-band-label"[^>]*>\?\?\?\?</);
 	});
 
 	test("without a date: band over the whole axis, dates unknown", function() {
@@ -182,6 +183,6 @@ test.describe("goes on after its last section", function() {
 		assert.match(html, /class="dnd-tl-continue"/);
 		assert.match(html, /class="dnd-tl-arrow"/);
 		assert.equal((html.match(/class="dnd-tl-mid"/g) || []).length, 2);
-		assert.match(html, /dnd-tl-point-date">offen</);
+		assert.match(html, /dnd-tl-point-date">\?\?\?\?</);
 	});
 });

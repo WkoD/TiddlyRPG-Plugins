@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261002120000000
+modified: 20261002130000000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -226,12 +226,12 @@ function daysOf(C,section,number,start,end,range) {
 	return s;
 }
 
-// Text of one side of a range: a point in the short form, "????" or open/ever
+// Text of one side of a range: a point in the short form, "????" or "since time immemorial"
 function sideLabel(wiki,cal,side,isStart) {
 	if(typeof side === "object") {
 		return dates.formatRange(wiki,cal,side,side);
 	}
-	return side === UNKNOWN_SIDE ? dates.UNKNOWN_TEXT : language.t(wiki,isStart ? "Date/Ever" : "Date/Open");
+	return side === UNKNOWN_SIDE || !isStart ? dates.UNKNOWN_TEXT : language.t(wiki,"Date/Ever");
 }
 
 TimelineWidget.prototype.collect = function() {

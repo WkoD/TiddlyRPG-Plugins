@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261002113000000
+modified: 20261002130000000
 title: $:/dndwiki/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -19,7 +19,6 @@ Date/Day: $day$
 Date/DayMonth: $day$ $month$
 Date/Ever: time immemorial
 Date/Invalid: Check the date:
-Date/Open: open
 Date/SectionHint: Section unknown - give its number, e.g. <<date 3>>
 Date/SectionMissing: Section $n$ is missing in the date field
 Date/Time: $time$
