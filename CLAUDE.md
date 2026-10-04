@@ -29,7 +29,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
 
 - `npm run smoke` boots the minimal edition `editions/smoke` (only `tiddlywiki.info` with the
   plugin list and `"languages": ["de-DE"]`, **no content**) and aborts on module/load errors.
-  JS modules only run when used, so this does not replace the tests.
+  A plugin from the list that is not found is only a warning (`Cannot find plugin`) and the
+  boot exits 0 - locally read the output; the CI step fails on it. JS modules only run when
+  used, so this does not replace the tests.
 - `npm test` runs `test/**/*.test.js` with Node's built-in test runner (`node:test`); every file
   runs in its own process. `test/helpers.js` boots the smoke edition in-process, adds the fixture
   tiddlers and offers `render`/`view`/`body`/`filter`. One file per topic:

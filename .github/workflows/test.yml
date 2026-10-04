@@ -20,6 +20,15 @@ jobs:
     - name: Install dependencies (tiddlywiki + flibbles graph stack, from package-lock.json)
       run: npm ci
     - name: Boot check (all plugins, de-DE)
-      run: npm run smoke
+      # A plugin of the smoke edition that is not found (e.g. the graph stack) is only a warning
+      # for TiddlyWiki and the boot exits 0 - so the step fails on it.
+      # bash = -eo pipefail: a failing boot still fails the step despite the tee.
+      shell: bash
+      run: |
+        npm run smoke 2>&1 | tee smoke.log
+        if grep -q "Cannot find plugin" smoke.log; then
+          echo "::error::A plugin of the smoke edition was not found"
+          exit 1
+        fi
     - name: Tests (test/**/*.test.js, language packs included)
       run: npm test
