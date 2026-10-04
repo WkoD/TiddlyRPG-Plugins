@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261002130000000
+modified: 20261004170125000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -253,6 +253,30 @@ exports.dayRange = function(scale,point) {
 		lo = scale.dn(point.year,m || 1,d || 1),
 		hi = d ? lo : (m ? scale.dn(point.year,m,scale.monthLength(point.year,m)) : scale.dn(point.year,scale.months,scale.monthLength(point.year,scale.months)));
 	return {lo: lo, hi: hi};
+};
+
+/*
+The section of a parsed field that a point in time falls into: its number (the first is 1), or
+0. A section runs from the first day of its start to the last day of its end; an unknown or
+open side ("." or "..") is open. "." and ".." of the whole field (before/after) belong to no
+section. Of several sections the narrowest wins, on a tie the first - "1351" matches a section
+on 1351-07-01, but a section that only is 1351 loses against it.
+*/
+exports.sectionAt = function(wiki,parsed,point) {
+	var scale = exports.scale(wiki),
+		at = exports.dayRange(scale,point),
+		best = 0,
+		bestWidth = Infinity;
+	$tw.utils.each(parsed.sections,function(section,i) {
+		var lo = typeof section.start === "object" ? exports.dayRange(scale,section.start).lo : -Infinity,
+			hi = typeof section.end === "object" ? exports.dayRange(scale,section.end).hi : Infinity,
+			width = hi - lo;
+		if(at.lo <= hi && at.hi >= lo && (!best || width < bestWidth)) {
+			best = i + 1;
+			bestWidth = width;
+		}
+	});
+	return best;
 };
 
 /* ---------- Text ---------- */

@@ -2,7 +2,8 @@
  * Event head and dated sections of a body: the head (span of the date field, locations before
  * the first <<date>>), the placeholder <<date>> (counting, explicit number, caption, rule, hint
  * without a position, not counted in code), locations per section (DM notes skipped, player
- * lock), the hint on dates that cannot be read, and the subtitle without the modifier.
+ * lock), the hint on dates that cannot be read, the subtitle without the modifier, the event
+ * table, and the jump marks of the sections with the wrapper dnd-jump.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -29,7 +30,7 @@ function body(title) {
 }
 
 function headings(html) {
-	return (html.match(/<div class="dnd-date-heading">.*?<\/div>/g) || []).map(function(s) { return s.replace(/<[^>]+>/g, ""); });
+	return (html.match(/<div class="dnd-date-heading"[^>]*>.*?<\/div>/g) || []).map(function(s) { return s.replace(/<[^>]+>/g, ""); });
 }
 
 test("sections from the parse tree: counting, captions, code not counted", function() {
@@ -56,7 +57,7 @@ test("rule before every section but one at the very start", function() {
 test("no paragraph around a section heading", function() {
 	// The outer <p> comes from rendering the transclusion inline in the test
 	var html = body("Schild").replace(/^<p>/, "");
-	assert.doesNotMatch(html, /<p>(<hr class="dnd-date-rule">)?<div class="dnd-date-heading">/);
+	assert.doesNotMatch(html, /<p>(<hr class="dnd-date-rule">)?<div class="dnd-date-heading"/);
 });
 
 test("locations per section; DM notes skipped", function() {
@@ -237,4 +238,62 @@ test("event table: an event that goes on ends in continued", function() {
 	} finally {
 		wiki.deleteTiddler("Weiter");
 	}
+});
+
+test("jump marks: every section heading and the missing-section hint, not at the very start", function() {
+	// Schild begins with section 1: the plain navigation shows it, a jump would hide the title
+	assert.equal(body("Schild").match(/data-dnd-anchor="[^"]+"/g).join(), 'data-dnd-anchor="date-2",data-dnd-anchor="date-3"');
+	assert.match(body("Vinland"), /<div class="dnd-date-heading" data-dnd-anchor="date-2">/);
+	h.add(wiki, {title: "Kurz", tags: "Event", date: "1351", text: "Vorher.\n\n<<date 2>>"});
+	try {
+		assert.match(body("Kurz"), /<div class="dnd-date-invalid" data-dnd-anchor="date-2">Abschnitt 2 fehlt/);
+	} finally {
+		wiki.deleteTiddler("Kurz");
+	}
+});
+
+test("event table: the title jumps to the earliest section of its cell", function() {
+	var rows = h.filter(wiki, "[[Schild]] [[Vinland]] [[Sage]] +[eventrows[]]");
+	function cell(title) {
+		return rows.filter(function(row) { return row.indexOf("[[" + title + "]]") !== -1; }).map(function(row) {
+			return /.*<td rowspan="\d+">(.*?)<\/td><\/tr>$/.exec(row)[1];
+		}).join(" | ");
+	}
+	// One cell per caption, the span of section 3 over two rows
+	assert.equal(cell("Schild"), [
+		"<$dnd-jump anchor=\"date-3\">__[[Schild]]__</$dnd-jump> – Das Ritual //(Ende)//",
+		"<$dnd-jump anchor=\"date-2\">__[[Schild]]__</$dnd-jump> //(Fortsetzung)//",
+		"<$dnd-jump anchor=\"date-1\">__[[Schild]]__</$dnd-jump> – Banbanzas Bitte //(Start)//"
+	].join(" | "));
+	// Two sections without caption in one cell: the earliest one, also oldest first
+	assert.equal(cell("Vinland"), "<$dnd-jump anchor=\"date-1\">[[Vinland]]</$dnd-jump> //(Start)//");
+	assert.match(h.filter(wiki, "[[Vinland]] +[!eventrows[]]").join(""), /anchor="date-1">\[\[Vinland\]\]/);
+	// Undated: the event as a whole
+	assert.equal(cell("Sage"), "[[Sage]]");
+});
+
+test("dnd-jump: draws nothing of its own and passes the navigation on", function() {
+	assert.equal(h.render(wiki, "text/html", "<$dnd-jump anchor=\"date-2\">[[Baile]]</$dnd-jump>"), h.render(wiki, "text/html", "[[Baile]]"));
+	var parser = wiki.parseText("text/vnd.tiddlywiki", "<$dnd-jump anchor=\"date-2\">[[Baile]]</$dnd-jump>"),
+		root = wiki.makeWidget(parser, {document: $tw.fakeDocument}),
+		seen = [];
+	root.render($tw.fakeDocument.createElement("div"), null);
+	root.addEventListener("tm-navigate", function(event) {
+		seen.push(event.navigateTo);
+		return false;
+	});
+	var link = (function find(widget) {
+		if(widget.parseTreeNode && widget.parseTreeNode.type === "link") {
+			return widget;
+		}
+		for(var i = 0; i < widget.children.length; i++) {
+			var found = find(widget.children[i]);
+			if(found) {
+				return found;
+			}
+		}
+		return null;
+	})(root);
+	link.dispatchEvent({type: "tm-navigate", navigateTo: "Baile"});
+	assert.equal(seen.join(), "Baile");
 });

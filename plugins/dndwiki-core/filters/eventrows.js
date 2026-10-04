@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261002120000000
+modified: 20261004170125000
 
 Filter operator for the event table: one table row per point in time of the date field (split
 by modules/dates.js, the same rules as the timeline) - a point is one row, a span two (its start
@@ -19,6 +19,9 @@ different sections only join if neither has a caption; the caption of a section
 "end", the rows in between "continued"; an unknown or open start or end (also "."/".." as a
 section of its own, "1351, 1352, ..") counts as continued. A joined cell combines them like its
 first and last row in time (start...end shows none).
+
+The title jumps to the earliest section of its cell (<$dnd-jump anchor="date-<n>">,
+widgets/jump.js); an undated row opens the event as a whole.
 
 \*/
 
@@ -163,8 +166,13 @@ exports.eventrows = function(source,operator,options) {
 		if((n = titleSpan(i))) {
 			var group = rows.slice(i,i + n),
 				flag = groupFlag(group),
-				label = group.map(function(r) { return r.label; }).filter(function(text) { return !!text; })[0];
-			line += "<td rowspan=\"" + n + "\">" + (row.campaign ? "__[[" + row.title + "]]__" : "[[" + row.title + "]]");
+				label = group.map(function(r) { return r.label; }).filter(function(text) { return !!text; })[0],
+				earliest = newestFirst ? group[group.length - 1] : group[0],
+				link = row.campaign ? "__[[" + row.title + "]]__" : "[[" + row.title + "]]";
+			if(earliest.section) {
+				link = "<$dnd-jump anchor=\"date-" + earliest.section + "\">" + link + "</$dnd-jump>";
+			}
+			line += "<td rowspan=\"" + n + "\">" + link;
 			if(label) {
 				line += " – " + label;
 			}

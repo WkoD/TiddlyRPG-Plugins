@@ -2,7 +2,8 @@
  * The date field (modules/dates.js) and the date operators (filters/date.js): syntax of
  * sections, spans, "." and "..", the short form of dateformat in de-DE and en-GB with the
  * Harptos calendar, the long form for the calculator, dateadd/datediff, dateended (dnd.dead)
- * and datecheck, and the raw output without a calendar.
+ * and datecheck, datesection (the section a date falls into), and the raw output without a
+ * calendar.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -210,6 +211,57 @@ test.describe("without calendar", function() {
 
 	test("no calendar check of days without calendar", function() {
 		assert.equal(f("[[1351-07-41]datecheck[]]"), "");
+	});
+
+	test("section of a date without calendar", function() {
+		h.add(wiki, {title: "Abschnitte", date: "1351-07-01, 1351-07-11/1351-07-20"});
+		try {
+			assert.equal(f("[[Abschnitte]datesection[1351-07-15]]"), "2");
+		} finally {
+			wiki.deleteTiddler("Abschnitte");
+		}
+	});
+});
+
+test.describe("section of a date (datesection)", function() {
+	test.before(function() {
+		h.add(wiki, {title: "Abschnitte", date: "1351-07-01, 1351-07-11/1351-07-20, 1352, 1360/.."});
+		h.add(wiki, {title: "Gleich", date: "1351-07-01/1351-07-05, 1351-07-03/1351-07-07"});
+	});
+
+	test.after(function() {
+		wiki.deleteTiddler("Abschnitte");
+		wiki.deleteTiddler("Gleich");
+	});
+
+	function at(date, title) {
+		return f("[[" + (title || "Abschnitte") + "]datesection[" + date + "]]");
+	}
+
+	test("point in a point, day in a span, day in a year", function() {
+		assert.equal(at("1351-07-01"), "1");
+		assert.equal(at("1351-07-15"), "2");
+		assert.equal(at("1352-03-04"), "3");
+	});
+
+	test("open end", function() {
+		assert.equal(at("1400"), "4");
+	});
+
+	test("the narrowest section wins, on a tie the first", function() {
+		assert.equal(at("1351"), "1");
+		assert.equal(at("1351-07-04", "Gleich"), "1");
+	});
+
+	test("a given span counts from its start", function() {
+		assert.equal(at("1351-07-12/1351-07-30"), "2");
+	});
+
+	test("nothing without a match, for an unreadable date or without a date field", function() {
+		assert.equal(at("1355"), "");
+		assert.equal(at("abc"), "");
+		assert.equal(at(""), "");
+		assert.equal(at("1351", "Missing"), "");
 	});
 });
 

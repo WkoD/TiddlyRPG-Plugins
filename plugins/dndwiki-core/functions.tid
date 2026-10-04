@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261002103000000
+modified: 20261004170125000
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -80,7 +80,9 @@ type: text/vnd.tiddlywiki
      is 1), <<date 3>> section 3, <<date "Caption">> / <<date 3 "Caption">> with a caption.
      Draws the rule before it (not at the very start of the body), the date, the caption and
      the locations of the section. widgets/date.js finds out which section it is. Without any
-     date in the field the heading is "????" (with the era). -->
+     date in the field the heading is "????" (with the era). The heading is the jump mark
+     "date-<n>" (data-dnd-anchor, modules/anchor-jump.js) - not at the very start of the body:
+     there a jump would only hide the title, the plain navigation already shows the section. -->
 \procedure date(n,label)
 \whitespace trim
 <$dnd-date n=<<n>> label=<<label>>>
@@ -90,13 +92,14 @@ type: text/vnd.tiddlywiki
 <%else%>
 <$let dnd-dated={{{ [<currentTiddler>get[date]trim[]] }}}
 	dnd-text={{{ [<currentTiddler>get[date]dateformat:era<dnd-section>!is[blank]] ~[<dnd-dated>is[blank]then[????]] }}}
-	dnd-era={{{ [<dnd-dated>is[blank]] :then[calendar[era]!is[blank]addprefix[ ]] }}}>
+	dnd-era={{{ [<dnd-dated>is[blank]] :then[calendar[era]!is[blank]addprefix[ ]] }}}
+	dnd-anchor={{{ [<dnd-first>!match[yes]] :then[<dnd-section>addprefix[date-]] }}}>
 
 <%if [<dnd-first>!match[yes]] %><hr class="dnd-date-rule"/><%endif%>
 <%if [<dnd-text>is[blank]] %>
-<div class="dnd-date-invalid"><$text text={{{ [[Date/SectionMissing]dndtranslate[]search-replace[$n$],<dnd-section>] }}}/></div>
+<div class="dnd-date-invalid" data-dnd-anchor=<<dnd-anchor>>><$text text={{{ [[Date/SectionMissing]dndtranslate[]search-replace[$n$],<dnd-section>] }}}/></div>
 <%else%>
-<div class="dnd-date-heading"><$text text=<<dnd-text>>/><$text text=<<dnd-era>>/><%if [<dnd-label>!is[blank]] %><span class="dnd-date-label"><$text text={{{ [<dnd-label>addprefix[ – ]] }}}/></span><%endif%></div>
+<div class="dnd-date-heading" data-dnd-anchor=<<dnd-anchor>>><$text text=<<dnd-text>>/><$text text=<<dnd-era>>/><%if [<dnd-label>!is[blank]] %><span class="dnd-date-label"><$text text={{{ [<dnd-label>addprefix[ – ]] }}}/></span><%endif%></div>
 <%endif%>
 <$transclude $variable="dnd.places" section=<<dnd-section>>/>
 

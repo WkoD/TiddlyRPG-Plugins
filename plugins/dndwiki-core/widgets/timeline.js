@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261002130000000
+modified: 20261004170125000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -47,9 +47,10 @@ Campaign events (with the player characters) are drawn solid, all other events d
 Card: the span of the event with its tags as dots, below it the title. Interaction: hovering
 previews an event (highlight); a click or tap selects it - the highlight stays and its card
 grows: below the title the tags (links) and one line per section with its caption
-(<<date "Caption">> in the body). Inside the selected card the title and the tags are links;
-Ctrl/Cmd+click opens an event directly. A click on an empty spot or on the selected card again
-clears the selection.
+(<<date "Caption">> in the body). Inside the selected card the title, the tags and the lines
+of the sections are links; a section line opens the event at that section (jump mark
+"date-<n>", modules/anchor-jump.js). Ctrl/Cmd+click opens an event directly. A click on an
+empty spot or on the selected card again clears the selection.
 
 \*/
 
@@ -58,7 +59,8 @@ clears the selection.
 var Widget = require("$:/core/modules/widgets/widget.js").widget,
 	calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
 	dates = require("$:/plugins/dndwiki-core/modules/dates.js"),
-	language = require("$:/plugins/dndwiki-core/modules/language.js");
+	language = require("$:/plugins/dndwiki-core/modules/language.js"),
+	anchorJump = require("$:/plugins/dndwiki-core/modules/anchor-jump.js");
 
 var UNKNOWN_SIDE = dates.UNKNOWN,
 	FOREVER = dates.FOREVER;
@@ -1152,7 +1154,7 @@ TimelineWidget.prototype.drawExtras = function() {
 };
 
 // Extra lines of a selected card: the tags as links, then one line per section with its
-// caption, oldest first (a span is one line)
+// caption, oldest first (a span is one line), as a link to that section of the event
 TimelineWidget.prototype.details = function(ev) {
 	var doc = this.document,
 		wiki = this.wiki,
@@ -1190,6 +1192,8 @@ TimelineWidget.prototype.details = function(ev) {
 	$tw.utils.each(ev.secs,function(s) {
 		var div = doc.createElement("div");
 		div.className = "dnd-tl-point-date";
+		div.setAttribute("data-title",ev.title);
+		div.setAttribute("data-anchor","date-" + s.number);
 		// Start of the line to the bar (only events in a lane have one)
 		if(ev.span) {
 			div.setAttribute("data-y",s.yAt);
@@ -1362,7 +1366,7 @@ TimelineWidget.prototype.bindEvents = function() {
 		if(idx !== undefined && (event.ctrlKey || event.metaKey)) {
 			self.navigate(self.data.all[idx].title,event);
 		} else if(link && idx !== undefined && idx === self.selected) {
-			self.navigate(link.getAttribute("data-title"),event);
+			self.navigate(link.getAttribute("data-title"),event,link.getAttribute("data-anchor"));
 		} else {
 			self.select(idx === self.selected ? undefined : idx);
 		}
@@ -1376,21 +1380,26 @@ TimelineWidget.prototype.bindEvents = function() {
 	},{passive: false});
 };
 
-TimelineWidget.prototype.navigate = function(title,event) {
-	var bounds = event.target.getBoundingClientRect ? event.target.getBoundingClientRect() : null;
+// Opens a tiddler like a link; with an anchor it then jumps to that mark in it
+TimelineWidget.prototype.navigate = function(title,event,anchor) {
+	var bounds = event.target.getBoundingClientRect ? event.target.getBoundingClientRect() : null,
+		suppress = event.metaKey || event.ctrlKey || (event.button === 1);
 	this.dispatchEvent({
 		type: "tm-navigate",
 		navigateTo: title,
 		navigateFromTitle: this.getVariable("storyTiddler"),
 		navigateFromNode: this,
 		navigateFromClientRect: bounds && {top: bounds.top, left: bounds.left, width: bounds.width, right: bounds.right, bottom: bounds.bottom, height: bounds.height},
-		navigateSuppressNavigation: event.metaKey || event.ctrlKey || (event.button === 1),
+		navigateSuppressNavigation: suppress,
 		metaKey: event.metaKey,
 		ctrlKey: event.ctrlKey,
 		altKey: event.altKey,
 		shiftKey: event.shiftKey,
 		event: event
 	});
+	if(anchor && !suppress) {
+		anchorJump.jump(this,title,anchor);
+	}
 };
 
 exports["dnd-timeline"] = TimelineWidget;

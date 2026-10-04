@@ -134,6 +134,13 @@ test.describe("sections", function() {
 		assert.match(details, /dnd-tl-point-date"[^>]*>1351 – 1352<span class="dnd-tl-caption">Krieg</);
 		assert.match(details, /dnd-tl-point-date"[^>]*>1356<span class="dnd-tl-caption">Nachspiel</);
 	});
+
+	test("selected card: every section line links to its section of the event", function() {
+		var details = draw("[[Mixed]]");
+		details = details.slice(details.indexOf("dnd-tl-details"));
+		assert.match(details, /class="dnd-tl-point-date"[^>]*data-anchor="date-1"[^>]*data-title="Mixed"[^>]*>1351 – 1352</);
+		assert.match(details, /class="dnd-tl-point-date"[^>]*data-anchor="date-2"[^>]*>1356</);
+	});
 });
 
 test.describe("band of the tiddler itself", function() {
@@ -184,5 +191,7 @@ test.describe("goes on after its last section", function() {
 		assert.match(html, /class="dnd-tl-arrow"/);
 		assert.equal((html.match(/class="dnd-tl-mid"/g) || []).length, 2);
 		assert.match(html, /dnd-tl-point-date">\?\?\?\?</);
+		// The continuation is no section: no link
+		assert.doesNotMatch(html, /data-anchor="[^"]*"[^>]*>\?\?\?\?</);
 	});
 });

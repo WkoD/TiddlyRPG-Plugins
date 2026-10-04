@@ -1,5 +1,5 @@
 created: 20261001133844000
-modified: 20261002120000000
+modified: 20261004170125000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/timeline
 type: text/css
@@ -327,6 +327,13 @@ type: text/css
 	align-items: center;
 	gap: 4px;
 	cursor: pointer;
+}
+/* A section line opens the event at that section */
+.dnd-tl-point-date[data-anchor] {
+	cursor: pointer;
+}
+.dnd-tl-point-date[data-anchor]:hover {
+	text-decoration: underline;
 }
 
 /* Band of the tiddler itself: its own dates behind the lanes */

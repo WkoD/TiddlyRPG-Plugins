@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/date.js
 type: application/javascript
 module-type: filteroperator
 created: 20261001095424000
-modified: 20261002082222000
+modified: 20261004170125000
 
 Date filter operators on top of modules/dates.js and the calendar engine (modules/calendar.js).
 They are filter operators rather than JS macros so that a filtered attribute recomputes them on
@@ -22,6 +22,10 @@ procedures dateformat, dateadd, datediff and date in functions.tid wrap them for
                               calendar
 [<title>sectionlinks[n]]      link targets in section n of the body (0 = before the first
                               <<date>>), see dates.sections()
+[<title>datesection<date>]    number of the section of the date field of <title> that <date>
+                              falls into (the start of its first section if it has several),
+                              see dates.sectionAt(); nothing without a match. For a jump to
+                              that section: <$dnd-jump anchor="date-<n>"> (widgets/jump.js)
 [calendar[id|title|era|table]]  data of the active calendar ("" without calendar)
 
 Without an active calendar dates are shown as entered.
@@ -152,4 +156,20 @@ exports.calendar = function(source,operator,options) {
 		case "table": return [calendar.table(options.wiki,cal)];
 	}
 	return [""];
+};
+
+exports.datesection = function(source,operator,options) {
+	var given = dates.parse(operator.operand).sections[0],
+		point = given && (typeof given.start === "object" ? given.start : (typeof given.end === "object" ? given.end : null)),
+		results = [];
+	if(!point) {
+		return results;
+	}
+	source(function(tiddler,title) {
+		var n = tiddler ? dates.sectionAt(options.wiki,dates.parse(tiddler.fields.date),point) : 0;
+		if(n) {
+			results.push(n.toString());
+		}
+	});
+	return results;
 };

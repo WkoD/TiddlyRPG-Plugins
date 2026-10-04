@@ -38,14 +38,15 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
     leap rule
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
-    `datecheck` in de-DE and en-GB, and without a calendar
+    `datecheck` in de-DE and en-GB, and without a calendar; `datesection`
   - `sections` - event head, dated sections `<<date>>` (counting, captions, rule, hints),
-    locations per section, subtitle without modifier, event table (rows and title cells)
+    locations per section, subtitle without modifier, event table (rows and title cells),
+    jump marks and the wrapper `dnd-jump`
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-dates.js` against fixtures in a
     temp folder
   - `location` - map tabs, map images, event history, player lock, person view
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
-    the band of the tiddler itself
+    the band of the tiddler itself, the section lines as links
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<dnd.`
   - `graph` - the `edges.typed` override
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
@@ -125,24 +126,27 @@ the tiddler title:
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
   from its parse tree - the one place of these rules, used by the date filters, `eventrows`, the
-  timeline, `dnd-date` and `deadlink`).
+  timeline, `dnd-date` and `deadlink`), `anchor-jump.js` (see "Jump marks").
 - **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
   point gets a lane (at most 5, more merge into one beam), in it only spans are bars, points are
   dots, the dashed track shows while highlighted; `..` ends in an arrow. Card: span and tag dots,
   then the title; tap/click selects (below the title the card shows the tags and one line per
-  section with its caption, lines to each section). `self`: the own dates of that tiddler as a band behind the
+  section with its caption, lines to each section; a section line opens the event at that
+  section). `self`: the own dates of that tiddler as a band behind the
   lanes. Campaign events solid, other events dashed. Details in the module header.
   `dnd-date` (`date.js`): finds which section a `<<date>>` placeholder stands for, by the
   position of the call in the parse tree.
+  `dnd-jump` (`jump.js`, attribute `anchor`): wrapper around ordinary links that jumps to a
+  mark in the opened tiddler (see "Jump marks").
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
   `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`.
-- **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows), `multitag`
+- **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`dndtranslate`, `dndtitle`, `dndtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
-  `dateended`, `datecheck`, `sectionlinks`, `calendar[...]`).
+  `dateended`, `datecheck`, `sectionlinks`, `datesection`, `calendar[...]`).
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`).
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
@@ -239,9 +243,36 @@ mind when changing it:
 - Known limit: a `<<date>>` inside a block hidden from players still gives its caption and
   locations to timeline and table - the walk does not evaluate `$list`/`<%if%>`/`$reveal`.
   `check-dates.js` warns; the real fix belongs to the login per player.
+- `sectionAt()` (operator `datesection`) finds the section a date falls into by overlap of
+  their days: of several the narrowest wins, on a tie the first; "."/".." are open sides. It
+  never falls back to "the section before" - a jump to the whole event is better than one to
+  the wrong section.
 - `scripts/migrate-dates.js` converts the 1.x notation (dots), `scripts/check-dates.js` checks a
   wiki (boots it with the plugins of this repo, so its calendar applies). Both are tested in
   `test/migrate.test.js`.
+
+## Jump marks
+
+TiddlyWiki has no anchors inside a tiddler: a link opens the tiddler, and a `tm-scroll` sent
+from wikitext right after `$action-navigate` comes before the refresh that shows it. So:
+
+- A **jump mark** is any element with `data-dnd-anchor="<name>"` inside a tiddler, name in
+  kebab-case. So far only the section headings of the procedure `date` carry one (`date-<n>`) -
+  not a section at the very start of the body, where a jump would only hide the title.
+- `<$dnd-jump anchor="...">` (`widgets/jump.js`) wraps ordinary links. It sees their
+  `tm-navigate` on its way to the navigator, passes it on unchanged and calls
+  `modules/anchor-jump.js`, which waits for the next change event (the main refresh runs before)
+  plus one frame, finds the mark in the frame of the tiddler in the story river and sends
+  `tm-scroll`. No mark: nothing more happens. Ctrl/Cmd or middle click: no jump. The timeline
+  calls the module directly.
+- No link syntax (`[[Title#2]]`): to TiddlyWiki that is a link to a missing tiddler, invisible to
+  backlinks, `sectionlinks` and Relink, and stored numbers shift when a section is inserted.
+  Callers compute the mark when rendering (`eventrows`, the timeline, `datesection`).
+- A new mark: set the attribute in the template that draws the target, test it in the topic of
+  that template. A mark inside a tab of `grouped-tabs` only exists while that tab is active - the
+  jump would first have to switch the tab state.
+- `anchor-jump.js` stays thin on purpose: should the core navigation learn anchors (PR #7744,
+  `[[Title^id]]`, or a successor), only this module is replaced.
 
 ## Functions & cascades
 
@@ -363,7 +394,9 @@ also in the wikis when they raise their own `tiddlywiki` version):
 3. On differences: check whether the own change still fits (take it over, verify again in a wiki)
    or whether the core change brings a hook that makes the override unnecessary.
 4. Update this table if needed.
-5. `npm test`.
+5. Check whether the core navigation knows anchors by now (TiddlyWiki PR #7744 or a
+   successor). If so, switch `modules/anchor-jump.js` to it or remove it (see "Jump marks").
+6. `npm test`.
 
 (Same diff procedure as the template update for `DnDWiki`, see "Versioning -> Template update" in
 its `CLAUDE.md`.)

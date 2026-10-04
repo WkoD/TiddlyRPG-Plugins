@@ -129,6 +129,21 @@ caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`, the
 "open items" snippet) are not counted as locations. Do not put `<<date>>` into a block that is
 hidden from players: its caption and locations would still reach the timeline and the table.
 
+**Jumping to a section.** A click on an event in the table, or on a section line of the
+selected card in the timeline, opens the event at that section. A section at the very start of
+the body has no jump: the event simply opens at its top. Templates do the same with a wrapper
+around an ordinary link, and find the section a date falls into with `datesection` (the
+narrowest matching section, nothing without a match):
+
+```
+<$dnd-jump anchor="date-2">[[Der dunkle Turm]]</$dnd-jump>
+<$dnd-jump anchor={{{ [[Der dunkle Turm]datesection[1351-11-12]addprefix[date-]] }}}>[[Der dunkle Turm]]</$dnd-jump>
+```
+
+A jump target is any element with `data-dnd-anchor` inside the opened tiddler; so far only the
+section headings (`date-<n>`) carry one. Without a target (edit mode, folded, locked for the
+player) the link opens the tiddler as usual.
+
 **Upgrading from 1.x.** `node scripts/migrate-dates.js <wiki>` converts the former `.`
 notation mechanically (dry run first, `--write` applies); `node scripts/check-dates.js <wiki>`
 then reports what is left to decide or fix by hand. Both have a header with the details.
