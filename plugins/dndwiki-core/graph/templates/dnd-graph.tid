@@ -1,6 +1,6 @@
 caption: DnD graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261001095424000
+modified: 20261006154328000
 title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 
 \whitespace trim
@@ -29,14 +29,14 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 <$properties $filter="[tag[Event]]"      color={{Event!!color}}>
 <$properties $filter="[tag[Deity]]"           color={{Deity!!color}}>
 <$properties $filter="[tag[Location]]"            color={{Location!!color}}>
-<$properties $filter="[tag[Artifact]] [tag[Book]] [tag[Item]] [tag[Material]]" color={{Item!!color}}>
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]]" color={{Item!!color}}>
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
 <$properties $filter="[tag[Person]dnd.dead[]]"       color="#dddddd" borderColor={{Person!!color}}>
 <$properties $filter="[tag[Player]dnd.dead[]]"      color="#dddddd" borderColor={{Player!!color}}>
 <$properties $filter="[tag[Organisation]dnd.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
-<$properties $filter="[tag[Artifact]] [tag[Book]] [tag[Item]] [tag[Material]] +[dnd.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[dnd.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
 
 <$list filter={{!!filter}}>
 <<dnd.node>>

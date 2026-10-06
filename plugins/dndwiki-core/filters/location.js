@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261006154328000
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -13,15 +13,17 @@ The location rules - the one place of them. A location lies in another one in tw
 
 A location has one parent: the location that has it as a spot, otherwise its field location.
 Only tiddlers tagged Location count as parents. For persons, players and deities the field
-location is where they are most likely found (one entry); organisations may have several.
+location is where they are most likely found (one entry); organisations may have several. For
+items (filters/item.js) it is where they lie or are found: an artifact is unique and has one
+owner or one location; items and materials may have several of each.
 
 [<title>locationparent[]]       the parent of a location
 [<title>locationpath[]]         the parents of a location from the root down (without itself);
                                 stops at the first repetition of a cycle
 [<title>sublocations[]]         the locations directly in <title>; suffix "all": all below;
                                 operand "spot" or "location": only that way
-[<title>occupants[]]            persons, players, organisations and deities whose location is
-                                <title> or (below, only through spots) a part of it
+[<title>occupants[]]            persons, players, organisations, deities and items whose
+                                location is <title> or (below, only through spots) a part of it
 [<title>locationcheck[]]        language keys of the problems of <title> (Location/Check/...)
 
 \*/
@@ -30,7 +32,7 @@ location is where they are most likely found (one entry); organisations may have
 
 var spots = require("$:/plugins/dndwiki-core/modules/spots.js");
 
-var OCCUPANTS = ["Person","Player","Organisation","Deity"];
+var OCCUPANTS = ["Person","Player","Organisation","Deity","Artifact","Item","Material"];
 
 function isLocation(wiki,title) {
 	var tiddler = wiki.getTiddler(title);
@@ -217,6 +219,17 @@ exports.locationcheck = function(source,operator,options) {
 		} else if(t.hasTag("Person") || t.hasTag("Player")) {
 			if(list.length > 1) {
 				keys.push("Location/Check/PersonTwice");
+			}
+		} else if(t.hasTag("Artifact")) {
+			var owners = $tw.utils.parseStringArray(t.fields.owner || "") || [];
+			if(list.length > 1) {
+				keys.push("Location/Check/ArtifactTwice");
+			}
+			if(owners.length > 1) {
+				keys.push("Location/Check/ArtifactOwners");
+			}
+			if(owners.length && list.length) {
+				keys.push("Location/Check/OwnerAndLocation");
 			}
 		}
 		$tw.utils.each(keys,function(key) {

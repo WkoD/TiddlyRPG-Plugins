@@ -84,14 +84,16 @@ location - tags carry no meaning for places.
 | Location | `location: [[Königreich von Vandalia]]` | lies in ("liegt in"): a place of its own within a larger one |
 | Location | `<<spot "Tavern">>` in the body of Baile | part of ("Teil von"): the tavern is a part of Baile - who is in the tavern is found in Baile |
 | Organisation, person | `leader: Baile` | leads or controls the location ("Controls") |
+| Artifact | `location: [[Leuchtturm von Cair Di]]` | where it lies - instead of an owner: an artifact is unique and has one owner **or** one location; when it passes from a person to a place, the person moves to `former` |
+| Item, material | `location: Briarwood Riganwald` | where it lies or is found (several, all equal); an item may have several owners as well |
 
 A location has one parent: the location that has it as a spot, otherwise its field `location`.
 Below the title every tiddler shows the path of its parents ("Materielle Ebene › Andu Falas ›
 Königreich von Vandalia"); a hint appears for a cycle, a spot of two locations, a person with
-two locations and the like (not in the published copy). The event list of a location also
-contains the events of every place within it. Its graph shows the places within it; one with
-people or a leader starts folded ("▸ Baile") and opens with a click, its list shows them as a
-tree.
+two locations, an artifact with an owner and a location and the like (not in the published
+copy). The event list of a location also contains the events of every place within it. Its
+graph shows the places within it; one with people, items or a leader starts folded ("▸ Baile")
+and opens with a click, its list shows them as a tree (people and items alike).
 
 **Spots** - places of interest, written at the end of the body of a location:
 
@@ -135,6 +137,38 @@ location gives a hint for the editor.
   of a spot come from its parameter `battlemap` (or the field `battlemap` of the tiddler it is
   joined to). Tabs: `[Map] [Baile 1] [Baile 2] [Baile Taverne] [Baile Schloss 1] ...` - a
   number only if there is more than one.
+
+## Items
+
+Every item has **one base type** and any number of **categories**:
+
+| Base type | Meaning | `owner` / `location` |
+|---|---|---|
+| `Artifact` | unique - there is only this one | one owner **or** one location |
+| `Item` | several of it exist (a potion, a bag of holding, two snails) | several of each |
+| `Material` | raw material, ingredient (`component`) | several of each; `location` = where it is found |
+
+| Category | For |
+|---|---|
+| `Book` | books, letters, newspapers; a unique book is `Artifact` + `Book` |
+| `Consumable` | potions, tinctures and everything used up |
+| `Equipment` | everything one can equip: weapons, armour, a bag of holding |
+
+Plenty of items need no category (`tags: Item`). A category never stands alone - a hint below
+the title asks for the base type, as it does for two base types (not in the published copy).
+The hub `Item` lists the base types, each first with the items without a category, then one
+heading per category; a category hub lists only its own items. How many of an item exist is
+told by the text - a list field carries every name once.
+
+**An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/dndwiki/ItemKind`,
+used as a tag next to the base type. Its heading in the hub is its display name.
+
+**The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
+body (PDF), not for tiddlers locked for the player.
+
+**Upgrading from 1.x.** `Book` was a type of its own and is now a category: every book needs
+`Artifact` (unique) or `Item` (several copies) as well. A book whose body ends in
+`<embed ... src="data/book/<file>">` gets the field `data` instead.
 
 ## Dates
 

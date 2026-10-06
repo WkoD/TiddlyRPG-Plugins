@@ -1,12 +1,14 @@
 created: 20261001095424000
-modified: 20261006064449000
+modified: 20261006154328000
 title: $:/dndwiki/language/en-GB/Title/
 
 Artifact: Artifact
 Book: Book
 Calendar: Calendar
 Campaign: Campaign
+Consumable: Consumable
 Deity: Deity
+Equipment: Equipment
 Event: Event
 Index: Index
 Information: Information

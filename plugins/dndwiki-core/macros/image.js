@@ -19,7 +19,7 @@ exports.params = [
 // Image folder per type tag (images/<folder>/); the first matching tag wins
 var FOLDERS = [
    {tags: ["Event"], folder: "event"},
-   {tags: ["Artifact", "Book", "Item", "Material"], folder: "item"},
+   {tags: ["Artifact", "Item", "Material"], folder: "item"},
    {tags: ["Organisation"], folder: "organisation"},
    {tags: ["Location"], folder: "location"},
    {tags: ["Person", "Deity"], folder: "person"},

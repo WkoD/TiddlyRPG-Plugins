@@ -44,10 +44,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     jump marks and the wrapper `dnd-jump`
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-dates.js` against fixtures in a
     temp folder
-  - `location` - parents and places within (`filters/location.js`), occupants, the checks of
-    `locationcheck`, the path below the title, the relation list of a location, the events of
-    the places within, map tabs (map and battle maps, labels and order), map buttons, event
-    history, player lock, person view
+  - `location` - parents and places within (`filters/location.js`), occupants (items too), the
+    checks of `locationcheck` (artifacts too), the path below the title, the relation list of a
+    location, the events of the places within, map tabs (map and battle maps, labels and order),
+    map buttons, event history, player lock, person view
+  - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the hub
+    lists of `Item` and of a category, a category of the campaign, the file of a book (field
+    `data`), colour and image folder through the base type
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, intro in the body, headings and jump marks in the map tab, spots in notes of the
     DM; `<<spotlink>>`: link, pill, missing spot or location, the events referencing a place
@@ -163,7 +166,7 @@ the tiddler title:
   (`dndtranslate`, `dndtitle`, `dndtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
   `dateended`, `datecheck`, `sectionlinks`, `sectionspots`, `datesection`, `calendar[...]`),
   `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
-  `locationcheck`), `spots.js` (`spots`, `spottargets`, `spottext`, `spotintro`, `spotplain`,
+  `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spottext`, `spotintro`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`, `maptabs`).
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`).
@@ -174,7 +177,8 @@ the tiddler title:
   `location` (map block: tab "Map" if there is a map image, a spot or a place within, with
   `location/map` - map graph, buttons, spots -, one tab
   per battle map with `location/battlemap`; tab state per location, see "Locations"),
-  `location-path` (path below the title), `relations` (tab list "Graph"/"List" via
+  `location-path` (path below the title, with the hints of `locationcheck` and `itemcheck`),
+  `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs), `player`. Order via `list-after`. Plus `body-filter`
   and `body-filter-spots` (cascade, see below).
@@ -193,9 +197,10 @@ the tiddler title:
   plus hubs whose translated name matches, hits shown with translated names.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
   (`Plural/<hub>`), `fields` (`Field/<field>`, relation fields), `texts` (template texts).
-- **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Book, Item,
-  Material, Event, Campaign, Calendar, Information, Index, TBC, TBC/Campaign;
-  titles without prefix, tag `Index`): type tags carry the `color` field from which graph nodes,
+- **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
+  Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Information, Index, TBC,
+  TBC/Campaign; titles without prefix, tag `Index`; the item categories also tagged
+  `$:/tags/dndwiki/ItemKind`, see "Items"): type tags carry the `color` field from which graph nodes,
   tiddler borders and tag pills take their colour; `caption` is `<<dnd.title ...>>`.
 - **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
   + relink field types; the function edge types `rules` (leader -> location, "Controls") and
@@ -322,9 +327,11 @@ only call their operators.
   or as a spot of the other one joined to it ("Teil von": `<<spot "Tavern">>` in Baile and a
   tiddler "Tavern" tagged `Location`). The spot wins. Only tiddlers tagged `Location` count as
   parents; a cycle stops the path at the first repetition.
-- Occupants (`occupants`) are persons, players, organisations and deities whose `location`
-  points to the location or, through spots only, to a part of it. Organisations may have
-  several locations; persons one (`locationcheck` reports more).
+- Occupants (`occupants`) are persons, players, organisations, deities and items whose
+  `location` points to the location or, through spots only, to a part of it. Organisations,
+  items and materials may have several locations; persons one, artifacts one owner or one
+  location (`locationcheck` reports more, or both). Items are occupants like everyone else:
+  in the tree of the relation list and for the folding in the ego graph.
 - Spots: `<<spot "Name">>` begins a section that runs to the next spot. The name may hold
   wikitext; its plain text (links replaced by their visible text) is the anchor, the node label
   and the target of `<<spotlink>>`. Joined to a tiddler: the second parameter, or a tiddler
@@ -364,6 +371,23 @@ only call their operators.
   not by the field edge `leader` (its config has `dndwiki-exclude: [tag[Location]]`, applied by
   the override of `$edges.typed`). The relation list shows it as the group "Controls".
 
+## Items
+
+The rules of items live **once** in `filters/item.js` (base type and categories) and
+`filters/location.js` (owner and location of an artifact). Meaning and examples: `README.md`
+("Items").
+
+- Base types `Artifact` (unique), `Item` (several), `Material`; one per item. Everything that
+  tells the item types apart (colour in the graph templates, `multitag` lists of `activity` and
+  `relations`, the image folder in `macros/image.js`) names only these three - a category never
+  stands alone.
+- Categories are hubs tagged `$:/tags/dndwiki/ItemKind` (`Book`, `Consumable`, `Equipment` from
+  here, more from a campaign). They need no code: the hub `Item` reads them from the tag, and
+  a category hub is `{{ || Item }}`, which then lists only its own items. Behaviour of one
+  category hangs on its tag (`viewtemplates/book`, `styles/item`).
+- The hints of `itemcheck` stand below the title (`viewtemplates/location-path`), next to
+  those of `locationcheck`.
+
 ## Functions & cascades
 
 Shared checks live **once** in `functions.tid` and are called as filter operators on their
@@ -373,7 +397,10 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
 
 - **`dnd.visible`** - player lock: yields a result if the tiddler is visible for the logged-in
   player (`$:/state/dndwiki/player`). All ViewTemplates check
-  `<%if [<currentTiddler>dnd.visible[]] %>`; the body is locked by `viewtemplates/body-filter`
+  `<%if [<currentTiddler>dnd.visible[]] %>`. With an empty input it still yields a result
+  while nobody is logged in - after a step that may leave nothing, filter with
+  `:filter[dnd.visible[]]` instead of chaining it
+  (`[<currentTiddler>tag[Book]] :filter[dnd.visible[]]`). The body is locked by `viewtemplates/body-filter`
   (`$:/tags/ViewTemplateBodyFilter`, empty `list-before` = first entry of the cascade), which
   assigns `templates/body-locked` to locked tiddlers. The map tabs of a location drop
   sub-tiddlers locked for the player, the event tabs (timeline and list) drop locked events. A change of the lock logic (e.g. login per player) happens

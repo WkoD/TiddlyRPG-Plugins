@@ -1,10 +1,12 @@
 created: 20261001095424000
-modified: 20261006064449000
+modified: 20261006154328000
 title: $:/dndwiki/language/de-DE/Plural/
 
 Artifact: Artefakte
 Book: Bücher
+Consumable: Verbrauchsgüter
 Deity: Götter
+Equipment: Ausrüstung
 Event: Ereignisse
 Information: Informationen
 Item: Gegenstände

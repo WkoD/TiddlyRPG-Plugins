@@ -1,6 +1,6 @@
 /*
  * Location and person views: the parents of a location (filters/location.js) and the path below
- * the title, who is at a location, the hints of locationcheck, the relation list of a location,
+ * the title, who is at a location (items too), the hints of locationcheck, the relation list of a location,
  * the events of the places within, the map tabs (map and battle maps), the event history under a
  * location (player lock, with and without calendar) and the person view (relations, dead class,
  * activity line). Spots and <<spotlink>> are in spots.test.js.
@@ -104,6 +104,97 @@ test.describe("checks", function() {
 	});
 });
 
+// Items at a location (filters/item.js: Artifact unique, Item and Material several)
+test.describe("items", function() {
+	var ITEMS = [
+		{title: "Lantern", tags: "Artifact", location: "Tavern", text: "Lies in the tavern."},
+		{title: "Herb", tags: "Material", location: "Town Kingdom", text: "Grows in town and land."},
+		{title: "Rope", tags: "Item", owner: "Barkeep Wanderer", location: "Town", text: "Several of it."},
+		{title: "Crown", tags: "Artifact", owner: "Guildmaster", text: "Worn by the guildmaster."},
+		{title: "Cellar", tags: "Location", location: "Town", text: "Below the town."},
+		{title: "Barrel", tags: "Artifact", location: "Cellar", text: "Only an item is here."}
+	];
+
+	function list(self) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
+	}
+
+	function withItem(fields, fn) {
+		h.add(wiki, fields);
+		try {
+			fn();
+		} finally {
+			wiki.deleteTiddler(fields.title);
+		}
+	}
+
+	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
+		ITEMS.forEach(function(fields) { h.add(wiki, fields); });
+	});
+
+	test.after(function() {
+		ITEMS.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+	});
+
+	test("occupants: items too, through spots as well", function() {
+		assert.deepEqual(f("[[Town]occupants[]sort[]]"), ["Barkeep", "Guild", "Guildmaster", "Herb", "Lantern", "Rope", "Wanderer"]);
+		assert.deepEqual(f("[[Kingdom]occupants[]sort[]]"), ["Guild", "Herb", "Wanderer"]);
+	});
+
+	test("no hint: artifact with one location or one owner, item and material with several", function() {
+		assert.deepEqual(f("[[Lantern]] [[Crown]] [[Herb]] [[Rope]] +[locationcheck[]]"), []);
+	});
+
+	test("artifact with two locations", function() {
+		withItem({title: "Twin", tags: "Artifact", location: "Town Kingdom"}, function() {
+			assert.deepEqual(f("[[Twin]locationcheck[]]"), ["Location/Check/ArtifactTwice"]);
+		});
+	});
+
+	test("artifact with two owners", function() {
+		withItem({title: "Shared", tags: "Artifact", owner: "Barkeep Wanderer"}, function() {
+			assert.deepEqual(f("[[Shared]locationcheck[]]"), ["Location/Check/ArtifactOwners"]);
+		});
+	});
+
+	test("artifact with owner and location", function() {
+		withItem({title: "Torn", tags: "Artifact", owner: "Barkeep", location: "Town"}, function() {
+			assert.deepEqual(f("[[Torn]locationcheck[]]"), ["Location/Check/OwnerAndLocation"]);
+		});
+	});
+
+	test("path below the title of an artifact", function() {
+		var lantern = h.view(wiki, "Lantern"),
+			path = lantern.slice(lantern.indexOf("dnd-location-path"));
+		path = path.slice(0, path.indexOf("</div>"));
+		var order = ["Continent", "Kingdom", "Town", "Tavern"].map(function(s) { return path.indexOf(">" + s + "<"); });
+		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), path);
+	});
+
+	test("material: one path line per location", function() {
+		assert.equal((h.view(wiki, "Herb").match(/class="dnd-location-path"/g) || []).length, 2);
+	});
+
+	test("hint below the title", function() {
+		withItem({title: "Torn", tags: "Artifact", owner: "Barkeep", location: "Town"}, function() {
+			assert.ok(h.view(wiki, "Torn").indexOf("Ort prüfen: Ein Artefakt hat einen Besitzer oder einen Ort, nicht beides") !== -1);
+		});
+	});
+
+	test("relation list of a location: items in the tree like everyone else", function() {
+		var ort = list("Kingdom");
+		ort = ort.slice(ort.indexOf(">Ort<"));
+		var herb = ort.indexOf(">Herb<"), town = ort.indexOf(">Town<"), rope = ort.indexOf(">Rope<"),
+			tavern = ort.indexOf(">Tavern<"), lantern = ort.indexOf(">Lantern<");
+		assert.ok(herb !== -1 && herb < town && town < rope && rope < tavern && tavern < lantern, ort);
+	});
+
+	test("relation list of a location: a place with only an item starts folded", function() {
+		assert.match(list("Town"), /<details class="dnd-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Cellar<\/a><\/summary><div class="dnd-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barrel<\/a>/);
+	});
+});
+
 test.describe("de-DE", function() {
 	var avalon;
 
@@ -148,6 +239,15 @@ test.describe("de-DE", function() {
 
 	test("no path for events", function() {
 		assert.ok(h.view(wiki, "Hafenfest").indexOf("dnd-location-path") === -1);
+	});
+
+	test("... not even with a field location, nobody logged in", function() {
+		h.add(wiki, {title: "Placed Event", tags: "Event", location: "Town", text: ""});
+		try {
+			assert.ok(h.view(wiki, "Placed Event").indexOf("dnd-location-path") === -1);
+		} finally {
+			wiki.deleteTiddler("Placed Event");
+		}
 	});
 
 	test("relation list of a location: who is there, a spot as a branch of the tree", function() {

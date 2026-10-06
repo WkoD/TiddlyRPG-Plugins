@@ -1,17 +1,46 @@
 caption: <<dnd.title Item>>
 color: #ff80ff
 created: 20200209095911454
-modified: 20261001095424000
+modified: 20261006154328000
 tags: Index
 title: Item
 type: text/vnd.tiddlywiki
 
-<$list filter="Artifact Book Item Material" variable="type">
+\define dnd.kind.name() [addprefix[Plural/]dndtranslate[]] :filter[!prefix[Plural/]] ~[dndtitle[]]
 
-!!! <$text text={{{ [<type>addprefix[Plural/]dndtranslate[]] }}}/>
-<$list filter="[tag<type>sort[title]]">
+\procedure dnd.items(filter)
+<$list filter=<<filter>>>
 <div class="tc-menu-list-subitem">
 <<deadlink title={{!!title}} style="~~">>
 </div>
 </$list>
+\end
+
+<!-- Items have one base type (Artifact: unique, Item: several, Material) and any number of
+     categories: hubs tagged $:/tags/dndwiki/ItemKind (Book, Consumable, Equipment, or one of
+     the campaign). This hub lists every base type, first the items without a category, then one
+     heading per category (sorted by its displayed name). A category hub transcludes it ({{ || Item }}) and lists only its own
+     items, per base type. -->
+<$let dnd-kinds={{{ [all[shadows+tiddlers]tag[$:/tags/dndwiki/ItemKind]sortsub:string<dnd.kind.name>format:titlelist[]join[ ]] }}}
+	dnd-kind={{{ [<currentTiddler>tag[$:/tags/dndwiki/ItemKind]] }}}>
+<$list filter="Artifact Item Material" variable="type">
+<%if [<dnd-kind>!is[blank]] %>
+<%if [tag<type>tag<dnd-kind>] %>
+
+!!! <$text text={{{ [<type>addprefix[Plural/]dndtranslate[]] }}}/>
+<$transclude $variable="dnd.items" filter="[tag<type>tag<dnd-kind>sort[title]]"/>
+<%endif%>
+<%elseif [tag<type>] %>
+
+!!! <$text text={{{ [<type>addprefix[Plural/]dndtranslate[]] }}}/>
+<$transclude $variable="dnd.items" filter="[tag<type>] -[enlist<dnd-kinds>tagging[]] +[sort[title]]"/>
+<$list filter="[enlist<dnd-kinds>]" variable="kind">
+<%if [tag<type>tag<kind>] %>
+
+!!!! <$text text={{{ [<kind>subfilter<dnd.kind.name>] }}}/>
+<$transclude $variable="dnd.items" filter="[tag<type>tag<kind>sort[title]]"/>
+<%endif%>
 </$list>
+<%endif%>
+</$list>
+</$let>

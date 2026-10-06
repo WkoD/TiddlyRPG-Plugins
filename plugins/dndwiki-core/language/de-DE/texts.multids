@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261006064449000
+modified: 20261006154328000
 title: $:/dndwiki/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -27,13 +27,18 @@ Event/End: (Ende)
 Event/Event: Ereignis
 Event/Start: (Start)
 Event/Timeline: Zeitstrahl
+Item/Check/NoBase: Gegenstand prüfen: Eine Kategorie wie Buch braucht dazu einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
+Item/Check/TwoBases: Gegenstand prüfen: Er hat nur einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
 Item/Currency: GP
 Item/Price: Preis:
 Link/SeeAlso: Siehe auch
+Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat einen Besitzer (Feld owner hat mehrere Einträge)
+Location/Check/ArtifactTwice: Ort prüfen: Ein Artefakt ist einzigartig und liegt an einem Ort (Feld location hat mehrere Einträge)
 Location/Check/Cycle: Ort prüfen: Die Oberorte bilden einen Kreis
 Location/Check/LocationTwice: Ort prüfen: Ein Ort liegt nur in einem Ort (Feld location hat mehrere Einträge)
 Location/Check/LockedParent: Ort prüfen: Der Oberort ist für einen Spieler gesperrt, der diesen Ort sieht
 Location/Check/NotALocation: Ort prüfen: Das Feld location nennt einen Tiddler, der kein Ort ist
+Location/Check/OwnerAndLocation: Ort prüfen: Ein Artefakt hat einen Besitzer oder einen Ort, nicht beides; wer es vorher hatte, steht in former
 Location/Check/PersonTwice: Ort prüfen: Eine Person hat einen Ort; wer pendelt, bekommt das umfassende Gebiet
 Location/Check/SpotAndLocation: Ort prüfen: Er ist Spot eines anderen Orts und hat ein Feld location
 Location/Check/SpotTwice: Ort prüfen: Er ist Spot mehrerer Orte

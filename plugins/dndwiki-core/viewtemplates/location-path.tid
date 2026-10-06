@@ -1,13 +1,18 @@
 created: 20261006064449000
 list-after: $:/core/ui/ViewTemplate/title
-modified: 20261006064449000
+modified: 20261006154328000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/dndwiki-core/viewtemplates/location-path
 type: text/vnd.tiddlywiki
 
 <!-- Path of parent locations below the title (procedure dnd.locationpath in functions.tid):
      for every tiddler with a parent or a location, except events (their sections show their
-     locations as pills) and system tiddlers; not for tiddlers locked for the player. -->
-<%if [<currentTiddler>!is[system]!tag[Event]dnd.visible[]] %>
+     locations as pills) and system tiddlers; not for tiddlers locked for the player. Below it
+     the hints of itemcheck (filters/item.js), like those of locationcheck not in the published
+     copy. -->
+<%if [<currentTiddler>!is[system]!tag[Event]] :filter[dnd.visible[]] %>
 <<dnd.locationpath>>
+<$list filter="[<currentTiddler>itemcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="dnd-key">
+<div class="dnd-date-invalid"><$text text={{{ [<dnd-key>dndtranslate[]] }}}/></div>
+</$list>
 <%endif%>
