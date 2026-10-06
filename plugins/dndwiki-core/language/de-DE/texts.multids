@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261002130000000
+modified: 20261006064449000
 title: $:/dndwiki/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -30,15 +30,31 @@ Event/Timeline: Zeitstrahl
 Item/Currency: GP
 Item/Price: Preis:
 Link/SeeAlso: Siehe auch
+Location/Check/Cycle: Ort prüfen: Die Oberorte bilden einen Kreis
+Location/Check/LocationTwice: Ort prüfen: Ein Ort liegt nur in einem Ort (Feld location hat mehrere Einträge)
+Location/Check/LockedParent: Ort prüfen: Der Oberort ist für einen Spieler gesperrt, der diesen Ort sieht
+Location/Check/NotALocation: Ort prüfen: Das Feld location nennt einen Tiddler, der kein Ort ist
+Location/Check/PersonTwice: Ort prüfen: Eine Person hat einen Ort; wer pendelt, bekommt das umfassende Gebiet
+Location/Check/SpotAndLocation: Ort prüfen: Er ist Spot eines anderen Orts und hat ein Feld location
+Location/Check/SpotTwice: Ort prüfen: Er ist Spot mehrerer Orte
+Map/Edit: Positionen bearbeiten
+Map/EditDone: Bearbeiten beenden
+Map/Fit: Karte einpassen
+Map/HideNodes: Knoten ausblenden
+Map/ShowNodes: Knoten einblenden
 Player/Adventurers: Abenteurer
 Player/Login: Login
 Player/Logout: Logout
 Player/Player: Spieler:
 Relations/Graph: Graph
 Relations/List: Liste
+Relations/Rules: Kontrolliert
+Relations/Spot: Spot
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
 Snippet/PlayerSpoiler: Spoiler Spieler
+Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden
+Spot/PlaceMissing: Ort „$place$“ gibt es nicht
 TBC/Other: Anderes
 Timeline/Expand: Lücke aufklappen
 Timeline/Gap: $n$ Jahre

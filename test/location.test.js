@@ -1,7 +1,9 @@
 /*
- * Location and person views: map tabs from the sub-tiddlers <location>/Map and /BattleMap, map
- * images, the event history under a location (player lock, with and without calendar) and the
- * person view (relations, dead class, activity line).
+ * Location and person views: the parents of a location (filters/location.js) and the path below
+ * the title, who is at a location, the hints of locationcheck, the relation list of a location,
+ * the events of the places within, the map tabs (map and battle maps), the event history under a
+ * location (player lock, with and without calendar) and the person view (relations, dead class,
+ * activity line). Spots and <<spotlink>> are in spots.test.js.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -15,6 +17,93 @@ test.before(function() {
 	});
 });
 
+function f(text) {
+	return Array.from(h.filter(wiki, text));
+}
+
+test.describe("hierarchy", function() {
+	test("parent through the field location", function() {
+		assert.deepEqual(f("[[Kingdom]locationparent[]]"), ["Continent"]);
+	});
+
+	test("parent through a spot (Teil von)", function() {
+		assert.deepEqual(f("[[Tavern]locationparent[]]"), ["Town"]);
+	});
+
+	test("path from the root down, without the location itself", function() {
+		assert.deepEqual(f("[[Tavern]locationpath[]]"), ["Continent", "Kingdom", "Town"]);
+	});
+
+	test("a parent that is no location is ignored", function() {
+		assert.deepEqual(f("[[Stray]locationpath[]]"), []);
+	});
+
+	test("a cycle stops at the first repetition", function() {
+		assert.deepEqual(f("[[Loop A]locationpath[]]"), ["Loop B"]);
+	});
+
+	test("places directly within, both ways", function() {
+		assert.deepEqual(f("[[Kingdom]sublocations[]sort[]]"), ["Neighbour", "Town", "Twice"]);
+	});
+
+	test("places within at any depth", function() {
+		assert.deepEqual(f("[[Kingdom]sublocations:all[]sort[]]"), ["Neighbour", "Tavern", "Town", "Twice"]);
+	});
+
+	test("only the spots", function() {
+		assert.deepEqual(f("[[Town]sublocations[spot]]"), ["Tavern"]);
+	});
+
+	test("occupants: through spots, not through places that lie within", function() {
+		assert.deepEqual(f("[[Town]occupants[]sort[]]"), ["Barkeep", "Guild", "Guildmaster", "Wanderer"]);
+		assert.deepEqual(f("[[Kingdom]occupants[]sort[]]"), ["Guild", "Wanderer"]);
+	});
+});
+
+test.describe("checks", function() {
+	test("person with two locations", function() {
+		assert.deepEqual(f("[[Wanderer]locationcheck[]]"), ["Location/Check/PersonTwice"]);
+	});
+
+	test("an organisation may have several", function() {
+		assert.deepEqual(f("[[Guild]locationcheck[]]"), []);
+	});
+
+	test("spot of two locations", function() {
+		assert.deepEqual(f("[[Twice]locationcheck[]]"), ["Location/Check/SpotTwice"]);
+	});
+
+	test("cycle", function() {
+		assert.ok(f("[[Loop A]locationcheck[]]").indexOf("Location/Check/Cycle") !== -1);
+	});
+
+	test("location in a tiddler that is no location", function() {
+		assert.deepEqual(f("[[Stray]locationcheck[]]"), ["Location/Check/NotALocation"]);
+	});
+
+	test("spot and field location together", function() {
+		h.add(wiki, {title: "Both", tags: "Location", location: "Continent", text: ""});
+		h.add(wiki, {title: "Holder", tags: "Location", text: "<<spot \"Both\">>"});
+		try {
+			assert.deepEqual(f("[[Both]locationcheck[]]"), ["Location/Check/SpotAndLocation"]);
+		} finally {
+			wiki.deleteTiddler("Both");
+			wiki.deleteTiddler("Holder");
+		}
+	});
+
+	test("parent locked for a player who sees the location", function() {
+		h.add(wiki, {title: "Hidden Land", tags: "Location Frigg", text: ""});
+		h.add(wiki, {title: "Open Village", tags: "Location", location: "[[Hidden Land]]", text: ""});
+		try {
+			assert.deepEqual(f("[[Open Village]locationcheck[]]"), ["Location/Check/LockedParent"]);
+		} finally {
+			wiki.deleteTiddler("Hidden Land");
+			wiki.deleteTiddler("Open Village");
+		}
+	});
+});
+
 test.describe("de-DE", function() {
 	var avalon;
 
@@ -23,17 +112,138 @@ test.describe("de-DE", function() {
 		avalon = h.view(wiki, "Insel Avalon");
 	});
 
-	test("map tabs: Karte and Kampfkarte", function() {
-		assert.ok(avalon.indexOf(">Karte<") !== -1 && avalon.indexOf(">Kampfkarte<") !== -1);
+	test("path below the title: location, its parents in order", function() {
+		var barkeep = h.view(wiki, "Barkeep"),
+			path = barkeep.slice(barkeep.indexOf("dnd-location-path"));
+		path = path.slice(0, path.indexOf("</div>"));
+		var order = ["Continent", "Kingdom", "Town", "Tavern"].map(function(s) { return path.indexOf(">" + s + "<"); });
+		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), path);
 	});
 
-	test("map tab: text of the overview map as block wikitext", function() {
-		assert.match(avalon, /<h4[^>]*>Kantine<\/h4>/);
+	test("path of a location ends before itself", function() {
+		var town = h.view(wiki, "Town"),
+			path = town.slice(town.indexOf("dnd-location-path"));
+		path = path.slice(0, path.indexOf("</div>"));
+		assert.ok(path.indexOf(">Kingdom<") !== -1 && path.indexOf(">Town<") === -1, path);
+	});
+
+	test("organisation: one path line per location, and the locations it rules", function() {
+		var guild = h.view(wiki, "Guild");
+		assert.equal((guild.match(/class="dnd-location-path"/g) || []).length, 2);
+		assert.match(guild, /class="dnd-location-path dnd-location-rules">Kontrolliert: /);
+	});
+
+	test("hint for the editor", function() {
+		assert.ok(h.view(wiki, "Wanderer").indexOf("Ort prüfen: Eine Person hat einen Ort") !== -1);
+	});
+
+	test("... not in the published copy", function() {
+		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
+		try {
+			assert.ok(h.view(wiki, "Wanderer").indexOf("Ort prüfen") === -1);
+		} finally {
+			wiki.deleteTiddler("$:/status/IsReadOnly");
+		}
+	});
+
+	test("no path for events", function() {
+		assert.ok(h.view(wiki, "Hafenfest").indexOf("dnd-location-path") === -1);
+	});
+
+	test("relation list of a location: who is there, a spot as a branch of the tree", function() {
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Town", currentTiddler: "Town"});
+		assert.ok(list.indexOf(">Wanderer<") !== -1 && list.indexOf(">Guild<") !== -1);
+		assert.match(list, /<summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a><span class="dnd-via"> \(Spot\)<\/span><\/summary><div class="dnd-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barkeep<\/a>/);
+	});
+
+	test("relation list of a location: the places within as a tree, the parent left out", function() {
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"}),
+			ort = list.slice(list.indexOf(">Ort<"));
+		assert.ok(ort.indexOf(">Continent<") === -1, ort);
+		// Town with its people and the Tavern below it, Barkeep inside the Tavern
+		var town = ort.indexOf(">Town<"), tavern = ort.indexOf(">Tavern<"), barkeep = ort.indexOf(">Barkeep<");
+		assert.ok(town !== -1 && town < tavern && tavern < barkeep, ort);
+		assert.ok(ort.indexOf("Unterorte") === -1);
+	});
+
+	test("relation list of a location: every place with entries starts folded", function() {
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"});
+		assert.match(list, /<details class="dnd-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Town<\/a>/);
+		assert.match(list, /<details class="dnd-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a>/);
+		assert.ok(list.indexOf("open=") === -1, list);
+	});
+
+	test("relation list: Rules and Leader apart", function() {
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Guild", currentTiddler: "Guild"}),
+			leader = list.slice(list.indexOf(">Anführer<"));
+		leader = leader.slice(0, leader.indexOf("<h3"));
+		var rules = list.slice(list.indexOf(">Kontrolliert<"));
+		assert.ok(leader.indexOf(">Guildmaster<") !== -1 && leader.indexOf(">Town<") === -1, leader);
+		assert.ok(rules.indexOf(">Town<") !== -1, rules);
+	});
+
+	test("events of the places within (Tavern -> Town -> Kingdom -> Continent)", function() {
+		h.add(wiki, {title: "Tavern Brawl", tags: "Event", date: "1351-08-01", text: "<<date>>\n\nAt [[Tavern]]."});
+		try {
+			["Town", "Kingdom", "Continent"].forEach(function(title) {
+				assert.ok(h.view(wiki, title).indexOf("Tavern Brawl") !== -1, title);
+			});
+			assert.ok(h.view(wiki, "Neighbour").indexOf("Tavern Brawl") === -1);
+		} finally {
+			wiki.deleteTiddler("Tavern Brawl");
+		}
+	});
+
+	test("map tabs: Karte and the battle map", function() {
+		assert.ok(avalon.indexOf(">Karte<") !== -1 && avalon.indexOf("data-tab-title=\"battlemap\"") !== -1, avalon);
+	});
+
+	test("map tab: a rule parts it from the relations", function() {
+		var start = avalon.indexOf('data-tab-title="map"');
+		assert.ok(start !== -1 && avalon.lastIndexOf("<hr>", start) > avalon.indexOf(">Graph<"), avalon);
+	});
+
+	test("map tab: the spot heading", function() {
+		assert.match(avalon, /<h3 class="dnd-spot" data-dnd-anchor="spot-kantine">Kantine<\/h3>/);
+	});
+
+	test("map tab: buttons in one row, editing only outside the published copy", function() {
+		var row = avalon.split('class="dnd-map-buttons"');
+		assert.equal(row.length, 2, avalon);
+		var fit = row[1].indexOf("Karte einpassen"), hide = row[1].indexOf("Knoten ausblenden"), edit = row[1].indexOf("Positionen bearbeiten");
+		assert.ok(fit !== -1 && fit < hide && hide < edit, row[1]);
+		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
+		try {
+			assert.ok(h.view(wiki, "Insel Avalon").indexOf("Positionen bearbeiten") === -1);
+		} finally {
+			wiki.deleteTiddler("$:/status/IsReadOnly");
+		}
+	});
+
+	test("map tab: nodes hidden, editing switched off", function() {
+		h.add(wiki, {title: "$:/state/dndwiki-core/map-nodes/Insel Avalon", text: "hide"});
+		try {
+			var html = h.view(wiki, "Insel Avalon");
+			assert.ok(html.indexOf("Knoten einblenden") !== -1 && html.indexOf("dnd-map-button-off") !== -1);
+		} finally {
+			wiki.deleteTiddler("$:/state/dndwiki-core/map-nodes/Insel Avalon");
+		}
+	});
+
+	test("map tab for a location with places within only (no image, no spots)", function() {
+		var html = h.view(wiki, "Continent");
+		assert.ok(html.indexOf(">Karte<") !== -1 && html.indexOf('class="dnd-map"') !== -1, html);
 	});
 
 	test("battle map tab links to the file", function() {
-		var battlemap = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/location/sub\" mode=\"block\"/>", {currentTiddler: "Insel Avalon", currentTab: "Insel Avalon/BattleMap"});
+		var battlemap = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/location/battlemap\" mode=\"block\"/>", {currentTiddler: "Insel Avalon", currentTab: "battlemap"});
 		assert.ok(battlemap.indexOf('href="images/battlemap/Insel%20Avalon.jpg"') !== -1, battlemap);
+	});
+
+	test("tabs: Karte before the battle map, labels and numbers", function() {
+		var town = h.view(wiki, "Town"),
+			labels = ["Karte", "Town 1", "Town 2", "Town Tavern", "Town Old Well"].map(function(s) { return town.indexOf("<span>" + s + "</span>"); });
+		assert.ok(labels.every(function(p, i) { return p !== -1 && (i === 0 || p > labels[i - 1]); }), town);
 	});
 
 	test("history header with era", function() {
@@ -42,10 +252,6 @@ test.describe("de-DE", function() {
 
 	test("history flags", function() {
 		assert.ok(avalon.indexOf("(Start)") !== -1 && avalon.indexOf("(Ende)") !== -1);
-	});
-
-	test("tabs: Karte before Kampfkarte", function() {
-		assert.ok(avalon.indexOf(">Karte<") < avalon.indexOf(">Kampfkarte<"));
 	});
 
 	test("map block before history", function() {
@@ -65,16 +271,12 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("location with map only: one tab", function() {
+	test("location with a map only: one tab", function() {
 		var baile = h.view(wiki, "Baile");
-		assert.ok(baile.indexOf(">Karte<") !== -1 && baile.indexOf("Kampfkarte") === -1);
+		assert.ok(baile.indexOf(">Karte<") !== -1 && baile.indexOf("data-tab-title=\"battlemap") === -1);
 	});
 
-	test("map image from images/map", function() {
-		assert.ok(h.view(wiki, "Baile").indexOf('src="images/map/Baile.png"') !== -1);
-	});
-
-	test("location without maps: no map block", function() {
+	test("location without map, spots and places within: no map tab", function() {
 		assert.ok(h.view(wiki, "Nowhere").indexOf(">Karte<") === -1);
 	});
 
@@ -99,15 +301,23 @@ test.describe("en-GB", function() {
 
 	test("en tabs", function() {
 		var avalon = h.view(wiki, "Insel Avalon");
-		assert.ok(avalon.indexOf(">Map<") !== -1 && avalon.indexOf(">Battle Map<") !== -1);
+		assert.ok(avalon.indexOf(">Map<") !== -1 && avalon.indexOf("<span>Insel Avalon</span>") !== -1);
 	});
 
 	test("en history header", function() {
 		assert.ok(h.view(wiki, "Insel Avalon").indexOf("Date (DR)") !== -1);
 	});
 
-	test("en battle map heading", function() {
-		assert.match(h.view(wiki, "Insel Avalon/BattleMap"), /Battle Map/);
+	test("en map buttons", function() {
+		var avalon = h.view(wiki, "Insel Avalon");
+		["Fit map", "Hide nodes", "Edit positions"].forEach(function(label) {
+			assert.ok(avalon.indexOf(label) !== -1, label);
+		});
+	});
+
+	test("en path hint and rules", function() {
+		assert.ok(h.view(wiki, "Wanderer").indexOf("Check the location: a person has one location") !== -1);
+		assert.match(h.view(wiki, "Guild"), /dnd-location-rules">Controls: /);
 	});
 });
 

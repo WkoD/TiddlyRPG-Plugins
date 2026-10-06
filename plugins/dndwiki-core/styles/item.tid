@@ -1,5 +1,5 @@
 created: 20200817115000561
-modified: 20261001095424000
+modified: 20261006064449000
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/item
 type: text/vnd.tiddlywiki
@@ -12,7 +12,7 @@ margin:10px;
 text-align: justify;
 }
 
-/* Battle maps (macros/image.js): scaled to the width, the link opens the original file */
+/* Battle maps (viewtemplates/location/battlemap): scaled to the width, the link opens the original file */
 a.dnd-battlemap img {
 max-width: 100%;
 height: auto;

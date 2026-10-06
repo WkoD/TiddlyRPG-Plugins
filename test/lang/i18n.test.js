@@ -37,7 +37,7 @@ test.describe("de-DE", function() {
 	});
 
 	test("dndtitle sub-tiddler", function() {
-		assert.equal(f("[[Insel Avalon/BattleMap]dndtitle[]]"), "Insel Avalon/Kampfkarte");
+		assert.equal(f("[[Insel Avalon/Map]dndtitle[]]"), "Insel Avalon/Karte");
 	});
 
 	test("dndtitle without existing parent", function() {

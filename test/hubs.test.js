@@ -55,7 +55,7 @@ test.describe("de-DE", function() {
 	});
 
 	// Pragmas must not leak as text (a lost backslash turns \define into visible text)
-	["Index", "Information", "Player", "Calendar", "Item", "Event", "TBC", "Campaign", "Location", "Map", "BattleMap"].forEach(function(title) {
+	["Index", "Information", "Player", "Calendar", "Item", "Event", "TBC", "Campaign", "Location"].forEach(function(title) {
 		test("no pragma text in " + title, function() {
 			assert.doesNotMatch(h.body(wiki, title), /(^|\n)\s*(define|procedure|function|whitespace|import) /);
 		});

@@ -1,0 +1,74 @@
+created: 20261006064449000
+modified: 20261006064449000
+tags: $:/tags/Stylesheet
+title: $:/plugins/dndwiki-core/styles/location
+type: text/css
+
+/* Locations: the path below the title (procedure dnd.locationpath), the pill of a <<spotlink>>
+   in a section (dnd.spotpill), the spots of a location (procedure spot, tab "Map") and the map
+   with its buttons (viewtemplates/location/map). Palette colours via --tpc-*. */
+.dnd-location-path {
+	color: var(--tpc-muted-foreground, #888);
+	font-size: 0.85em;
+	margin: -0.3em 0 0.4em;
+}
+.dnd-location-path a.tc-tiddlylink {
+	font-weight: normal;
+}
+.dnd-location-path-sep {
+	margin: 0 0.35em;
+}
+.dnd-location-path-comma {
+	margin: 0 0.35em 0 0;
+}
+/* Group heading of the relation list: only the first letter, a label of several words keeps
+   its small letters. */
+.dnd-relations-group::first-letter {
+	text-transform: uppercase;
+}
+.dnd-spot-pill {
+	display: inline-block;
+	color: var(--tpc-tag-foreground, #fff);
+	border-radius: 1em;
+	padding: 0 0.5em;
+	font-size: 0.9em;
+	line-height: 1.5;
+	white-space: nowrap;
+}
+.dnd-via {
+	color: var(--tpc-muted-foreground, #888);
+	font-size: 0.9em;
+}
+/* The tree of a location in the relation list (viewtemplates/relations/list, dnd.tree) */
+details.dnd-tree > summary {
+	cursor: pointer;
+}
+.dnd-tree-children {
+	margin-left: 1.2em;
+}
+.dnd-spot {
+	margin: 1em 0 0.3em;
+}
+.dnd-spots > .dnd-spot:first-child {
+	margin-top: 0.5em;
+}
+.dnd-map .graph-canvas {
+	height: 420px;
+}
+.dnd-map-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	margin: 0.3em 0;
+	font-size: 0.9em;
+}
+.dnd-map-button {
+	color: var(--tpc-tiddler-link-foreground, inherit);
+}
+.dnd-map-button-on {
+	font-weight: bold;
+}
+.dnd-map-button-off {
+	color: var(--tpc-muted-foreground, #888);
+	cursor: default;
+}

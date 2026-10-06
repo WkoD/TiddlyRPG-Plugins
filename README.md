@@ -72,6 +72,70 @@ Missing keys fall back to en-GB, so a partial translation works. `npm run test-l
 missing and extra keys per language. If TiddlyWiki has no interface pack for the language, set
 only `$:/language`; the TiddlyWiki interface then stays English, the D&D texts follow.
 
+## Locations
+
+Where something is, and which place lies in which, comes from fields and from the body of a
+location - tags carry no meaning for places.
+
+| Where | Field / syntax | Meaning |
+|---|---|---|
+| Person, player, deity | `location: Baile` | where they are most likely found - the most precise place that is still true; someone who moves around gets the region (one entry) |
+| Organisation | `location: [[Cair Di]] Baile` | the places where it sits or is present (several, all equal) |
+| Location | `location: [[Königreich von Vandalia]]` | lies in ("liegt in"): a place of its own within a larger one |
+| Location | `<<spot "Tavern">>` in the body of Baile | part of ("Teil von"): the tavern is a part of Baile - who is in the tavern is found in Baile |
+| Organisation, person | `leader: Baile` | leads or controls the location ("Controls") |
+
+A location has one parent: the location that has it as a spot, otherwise its field `location`.
+Below the title every tiddler shows the path of its parents ("Materielle Ebene › Andu Falas ›
+Königreich von Vandalia"); a hint appears for a cycle, a spot of two locations, a person with
+two locations and the like (not in the published copy). The event list of a location also
+contains the events of every place within it. Its graph shows the places within it; one with
+people or a leader starts folded ("▸ Baile") and opens with a click, its list shows them as a
+tree.
+
+**Spots** - places of interest, written at the end of the body of a location:
+
+```
+<<spot "Schloss Baile">>
+Text of the spot, up to the next spot.
+
+<<spot "Tempel von [[Chauntea]]">>              links in the name stay links
+<<spot "Anwesen" "Haus Kemri">>                  joined to another tiddler than the name says
+<<spot "Lagerhaus" battlemap:"a.jpg, b.jpg">>    with battle maps
+```
+
+A spot whose plain name (the name without link brackets) is a tiddler is joined to it; if that
+tiddler is a location, it is a part of this location. The body shows only the text before the
+first spot; the spots and their texts appear in the tab "Map".
+
+**Referencing a spot** from an event or any other text:
+
+```
+<<spotlink "Baile" "Schloss Baile">>
+<<spotlink "Miehall" "[[Trunkenen Eulenbären|Zum Trunkenen Eulenbären]]">>   text|spot
+```
+
+The link opens the location at its map tab and scrolls to the spot (a spot joined to a tiddler
+opens that tiddler); in a dated section of an event it is also a pill "Schloss Baile (Baile)",
+and the event appears in the event list of Baile and every place above. A missing spot or
+location gives a hint for the editor.
+
+**Maps** of a location (no sub-tiddlers):
+
+- The tab "Map" (a location with a map image, spots or places within) shows a graph: the
+  spots and the places within at fixed positions, each a dot with its name in a pill below it
+  (filled for a tiddler, white and dashed for a spot without a tiddler of its own); they keep
+  their size on screen when zooming. Hovering shows the text of a spot, a double click scrolls
+  to it. Buttons: "Fit map", "Hide nodes"/"Show nodes", "Edit positions" (drag a node to place
+  it; the position is saved in the field `map-positions` of the location - not in the
+  published copy).
+- `map: Baile.png` - the map image from `images/map/`, drawn behind the graph across the full
+  width; without it the graph stands on an empty canvas.
+- `battlemap: a.jpg, b.jpg` - battle maps from `images/battlemap/`, one tab each; battle maps
+  of a spot come from its parameter `battlemap` (or the field `battlemap` of the tiddler it is
+  joined to). Tabs: `[Map] [Baile 1] [Baile 2] [Baile Taverne] [Baile Schloss 1] ...` - a
+  number only if there is more than one.
+
 ## Dates
 
 The field `date` holds the in-world dates of a tiddler, in one syntax for all types:
@@ -106,7 +170,7 @@ span. Elsewhere in the list it cannot be read.
 | `../..` | a deity since time immemorial |
 
 A non-event whose last section is a span with an end other than `..` counts as dead or
-destroyed (function `dnd.dead`: struck-through links, the class `dnd-dead`, the world map).
+destroyed (function `dnd.dead`: struck-through links, the class `dnd-dead`, the atlas).
 
 **Dated sections in the body of an event.** The dates stay in the field; the body only marks
 where each section begins:

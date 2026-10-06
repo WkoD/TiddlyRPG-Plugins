@@ -1,6 +1,6 @@
 caption: DnD ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261001095424000
+modified: 20261006064449000
 title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 
 \whitespace trim
@@ -14,7 +14,16 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 <!-- Ego network around <<currentNode>>: centre + 1-hop neighbours (entities + items).
      No persistence, physics on. Colours from the type tags, grey (dead/dissolved) as the
      innermost level. Automatic edges tags/list/links/transcludes hidden. Edge labels are
-     translated by the override of $edges.typed. -->
+     translated by the override of $edges.typed.
+     A location as centre (filters/location.js): its spots that are locations ("Teil von") count
+     as the centre too, with their neighbours. All places within it (every depth, both kinds)
+     are nodes too, with their edges among each other. A place that has someone there or a
+     leader starts folded ("▸ Baile"): a single click unfolds it ("▾ Baile") and adds its
+     neighbours, another click folds it again (graph/ego-toggle.js; the unfolded places are in
+     the field list of $:/state/dndwiki-core/ego-open/<centre>, temporary). A double click opens
+     the tiddler as everywhere. Other locations are left out; the parent is in the path below
+     the title. -->
+
 
 <$graph>
 <$properties $for=graph $tiddler="$:/config/dndwiki/graph/physics" />
@@ -33,16 +42,39 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 <$properties $filter="[tag[Organisation]dnd.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
 <$properties $filter="[tag[Artifact]] [tag[Book]] [tag[Item]] [tag[Material]] +[dnd.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
 
-<$tiddler tiddler=<<currentNode>>>
+<$let dnd-centre={{{ [<currentNode>] [<currentNode>tag[Location]sublocations:all[spot]] +[format:titlelist[]join[ ]] }}}
+	dnd-open-state={{{ [<currentNode>addprefix[$:/state/dndwiki-core/ego-open/]] }}}
+	dnd-open={{{ [<currentNode>addprefix[$:/state/dndwiki-core/ego-open/]get[list]enlist-input[]] :intersection[<currentNode>tag[Location]sublocations:all[]] -[enlist<dnd-centre>] +[format:titlelist[]join[ ]] }}}>
+
+<$list filter="[enlist<dnd-centre>]">
 <<dnd.node>>
 <$edges.typed $fields="[all[]] -[[tags]] -[[list]]" $functions="[all[]] -[[links]] -[[transcludes]]" />
-</$tiddler>
+</$list>
 
+<%if [<currentNode>tag[Location]] %>
+<$list filter="[<currentNode>sublocations:all[]] -[enlist<dnd-centre>]">
+<%if [<currentTiddler>occupants[]] [<currentTiddler>listed[leader]] +[first[]] %>
+<$node label={{{ [enlist<dnd-open>match<currentTiddler>then[▾ ]else[▸ ]addsuffix<currentTiddler>] }}} dndToggle=<<dnd-open-state>> />
+<%else%>
+<<dnd.node>>
+<%endif%>
+<$edges.typed $fields="location" $functions="spots" />
+</$list>
+<$nodes.neighbors
+  $filter="[enlist<dnd-centre>] [enlist<dnd-open>]"
+  $fields="[all[]] -[[tags]] -[[list]]"
+  $functions="[all[]] -[[links]] -[[transcludes]]"
+  $whitelist="[!is[system]!is[draft]] -[tag[Location]]"
+  $interedges="yes" />
+<%else%>
 <$nodes.neighbors
   $filter="[<currentNode>]"
   $fields="[all[]] -[[tags]] -[[list]]"
   $functions="[all[]] -[[links]] -[[transcludes]]"
   $interedges="yes" />
+<%endif%>
+
+</$let>
 
 </$properties>
 </$properties>

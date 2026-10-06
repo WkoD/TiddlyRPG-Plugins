@@ -20,8 +20,6 @@ exports.params = [
 var FOLDERS = [
    {tags: ["Event"], folder: "event"},
    {tags: ["Artifact", "Book", "Item", "Material"], folder: "item"},
-   {tags: ["BattleMap"], folder: "battlemap"},
-   {tags: ["Map"], folder: "map"},
    {tags: ["Organisation"], folder: "organisation"},
    {tags: ["Location"], folder: "location"},
    {tags: ["Person", "Deity"], folder: "person"},
@@ -71,14 +69,9 @@ function buildImage(tiddler, ptiddler, name) {
       return ptiddler ? buildImage(ptiddler, null, name) : "";
    }
 
-   var path = "images/" + folder + "/" + name;
-
-   // Battle maps: scaled to the width, a click opens the original file
-   if (folder === "battlemap") {
-      return "<a class=\"dnd-battlemap\" href=\"" + encodeURI(path) + "\" target=\"_blank\" rel=\"noopener noreferrer\">[img[" + path + "]]</a>";
-   }
-
-   return "[img[" + path + "]]";
+   // The map image (field map) and battle maps (field battlemap) of a location have their own
+   // tabs (viewtemplates/location), not this macro
+   return "[img[images/" + folder + "/" + name + "]]";
 };
 
 })();

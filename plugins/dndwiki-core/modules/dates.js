@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261004170125000
+modified: 20261006064449000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -41,7 +41,8 @@ together with the links of each section; text before the first placeholder is se
 "use strict";
 
 var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
-	language = require("$:/plugins/dndwiki-core/modules/language.js");
+	language = require("$:/plugins/dndwiki-core/modules/language.js"),
+	spots = require("$:/plugins/dndwiki-core/modules/spots.js");
 
 var UNKNOWN = exports.UNKNOWN = "unknown",
 	FOREVER = exports.FOREVER = "forever",
@@ -466,6 +467,8 @@ tiddler):
                 resolved (counting on from the previous one, the first is 1); first: only
                 whitespace or pragmas stand before it
   links         {<section number>: [titles]}; section 0 is the text before the first placeholder
+  spotlinks     {<section number>: [{place, spot, text}]} - the <<spotlink>> calls
+                (modules/spots.js), assigned to sections the same way
   labels        {<section number>: caption} of the first placeholder of each section with one
 Placeholders in code are not counted (they are not parsed). Subtrees with the class
 tc-tiddler-frame (notes of the DM, snippet "open items") are skipped.
@@ -511,17 +514,28 @@ exports.sections = function(wiki,title) {
 				labels[number] = p.label;
 			}
 		});
-		$tw.utils.each(found,function(link) {
+		var sectionAt = function(at) {
 			var k = 0;
-			while(k < placeholders.length && placeholders[k].start < link.at) {
+			while(k < placeholders.length && placeholders[k].start < at) {
 				k++;
 			}
-			var section = k ? placeholders[k - 1].number : 0,
+			return k ? placeholders[k - 1].number : 0;
+		};
+		$tw.utils.each(found,function(link) {
+			var section = sectionAt(link.at),
 				list = links[section] = links[section] || [];
 			if(list.indexOf(link.to) === -1) {
 				list.push(link.to);
 			}
 		});
-		return {placeholders: placeholders, links: links, labels: labels};
+		var spotlinks = Object.create(null);
+		$tw.utils.each(spots.read(wiki,title).links,function(link) {
+			var section = sectionAt(link.start),
+				list = spotlinks[section] = spotlinks[section] || [];
+			if(!list.some(function(l) { return l.place === link.place && l.spot === link.spot; })) {
+				list.push({place: link.place, spot: link.spot, text: link.text});
+			}
+		});
+		return {placeholders: placeholders, links: links, spotlinks: spotlinks, labels: labels};
 	});
 };

@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261004170125000
+modified: 20261006064449000
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -40,16 +40,50 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- Locations linked in a section of the body of the current tiddler (0 = before the first
-     <<date>>), without those locked for the logged-in player; as pills, nothing if none -->
+     <<date>>), without those locked for the logged-in player; as pills, nothing if none. A
+     <<spotlink>> in the section gives a pill "Spot (Location)" that jumps to the spot. -->
 \procedure dnd.places(section)
 \whitespace trim
-<%if [<currentTiddler>sectionlinks<section>tag[Location]] :filter[dnd.visible[]] %>
+<$let dnd-places={{{ [<currentTiddler>sectionlinks<section>tag[Location]] :filter[dnd.visible[]] +[sort[]format:titlelist[]join[ ]] }}}
+	dnd-spotrefs={{{ [<currentTiddler>sectionspots<section>] :filter[jsonget[place]dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<dnd-places>] [enlist<dnd-spotrefs>] +[first[]] %>
 <div class="dnd-places">
-<$list filter="[<currentTiddler>sectionlinks<section>tag[Location]] :filter[dnd.visible[]] +[sort[]]" variable="dnd-place">
+<$list filter="[enlist<dnd-places>]" variable="dnd-place">
 <$link to=<<dnd-place>>><$transclude $variable="tag-pill" tag=<<dnd-place>>/></$link>
+</$list>
+<$list filter="[enlist<dnd-spotrefs>]" variable="dnd-ref">
+<$transclude $variable="dnd.spotpill" place={{{ [<dnd-ref>jsonget[place]] }}} spot={{{ [<dnd-ref>jsonget[spot]] }}}/>
 </$list>
 </div>
 <%endif%>
+</$let>
+\end
+
+<!-- Pill of a <<spotlink>> in a section: "Spot (Location)" in the colour of the location;
+     opens the tiddler the spot is joined to, or the location at the spot in its map tab -->
+\procedure dnd.spotpill(place,spot)
+\whitespace trim
+<$let dnd-colour={{{ [<place>] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]] }}}
+	dnd-label={{{ [<place>spots[]match<spot>then<spot>addsuffix[ (]addsuffix<place>addsuffix[)]] ~[<place>] }}}>
+<$transclude $variable="dnd.spotjump" place=<<place>> spot=<<spot>>>
+<span class="tc-tag-label dnd-spot-pill" style.background-color=<<dnd-colour>>><$text text=<<dnd-label>>/></span>
+</$transclude>
+\end
+
+<!-- Link around the slot content to a spot: the tiddler the spot is joined to; else the
+     location, switched to its map tab and scrolled to the spot (widgets/jump.js); else the
+     location alone (missing spot) -->
+\procedure dnd.spotjump(place,spot)
+\whitespace trim
+<$let dnd-joined={{{ [<spot>spottarget[]] }}}>
+<%if [<dnd-joined>!is[blank]] %>
+<$link to=<<dnd-joined>>><$slot $name="ts-raw"/></$link>
+<%elseif [<place>spots[]match<spot>] %>
+<$dnd-jump anchor={{{ [<spot>spotanchor[]] }}} tabstate={{{ [<place>addprefix[$:/state/dndwiki-core/location-tab/]] }}} tab="map"><$link to=<<place>>><$slot $name="ts-raw"/></$link></$dnd-jump>
+<%else%>
+<$link to=<<place>>><$slot $name="ts-raw"/></$link>
+<%endif%>
+</$let>
 \end
 
 <!-- Date line below the tags of every tiddler with dates, right-aligned: an event shows the span
@@ -107,4 +141,76 @@ type: text/vnd.tiddlywiki
 <%endif%>
 
 </$dnd-date>
+\end
+
+<!-- A spot of a location (modules/spots.js): <<spot "Name">>, <<spot "Tempel von [[Chauntea]]">>,
+     <<spot "Name" "Tiddler">>, <<spot "Name" battlemap:"a.jpg">>. Draws the heading of the
+     spot with the jump mark "spot-<name>". Joined to a tiddler (the second parameter, or a
+     tiddler with the plain name), the heading links to it; otherwise the name is rendered as
+     wikitext, links in it stay links. Its text and its place on the map come from the parse
+     tree, not from this procedure. -->
+\procedure spot(name,target,battlemap)
+\whitespace trim
+<$let dnd-target={{{ [<name>spottarget<target>] }}}>
+<h3 class="dnd-spot" data-dnd-anchor={{{ [<name>spotanchor[]] }}}>
+<%if [<dnd-target>!is[blank]] %>
+<$link to=<<dnd-target>>><$text text={{{ [<name>spotplain[]] }}}/></$link>
+<%else%>
+<$transclude $variable="name" $mode="inline"/>
+<%endif%>
+</h3>
+</$let>
+\end
+
+<!-- A reference to a spot: <<spotlink "Baile" "Schloss Baile">> or
+     <<spotlink "Miehall" "[[Trunkenen Eulenbären|Zum Trunkenen Eulenbären]]">> (text before
+     "|", spot after it). A spot joined to a tiddler opens that tiddler, any other spot the
+     location at the spot; a spot or location that does not exist gives a hint for the editor
+     (not in the published copy). The section pills (dnd.places) show it as well. -->
+\procedure spotlink(place,spot)
+\whitespace trim
+<$let dnd-spot={{{ [<spot>spotref:spot[]] }}}
+	dnd-text={{{ [<spot>spotref:text[]] }}}>
+<$transclude $variable="dnd.spotjump" place=<<place>> spot=<<dnd-spot>>><$text text=<<dnd-text>>/></$transclude>
+<$transclude $variable="dnd.spotcheck" place=<<place>> spot=<<dnd-spot>>/>
+</$let>
+\end
+
+<!-- Hint for the editor on a <<spotlink>> whose location or spot does not exist; not in the
+     published (read-only) copy -->
+\procedure dnd.spotcheck(place,spot)
+\whitespace trim
+<%if [{$:/status/IsReadOnly}!match[yes]] %>
+<%if [<place>!is[tiddler]!is[shadow]] %>
+<span class="dnd-date-invalid"> <$text text={{{ [[Spot/PlaceMissing]dndtranslate[]search-replace[$place$],<place>] }}}/></span>
+<%elseif [<spot>spottarget[]] [<place>spots[]match<spot>] +[count[]match[0]] %>
+<span class="dnd-date-invalid"> <$text text={{{ [[Spot/Missing]dndtranslate[]search-replace[$spot$],<spot>search-replace[$place$],<place>] }}}/></span>
+<%endif%>
+<%endif%>
+\end
+
+<!-- The parents of a tiddler as a path below its title: "Materielle Ebene › Andu Falas ›
+     Königreich von Vandalia" for a location, its location(s) at the end for persons and the
+     like (one line per entry), "Kontrolliert: …" for locations it leads; with the hints of
+     locationcheck (not in the published copy). Links locked for the logged-in player are left
+     out. -->
+\procedure dnd.locationpath()
+\whitespace trim
+<$let dnd-lines={{{ [<currentTiddler>tag[Location]then<currentTiddler>] ~[<currentTiddler>get[location]enlist-input[]] +[format:titlelist[]join[ ]] }}}>
+<$list filter="[enlist<dnd-lines>]" variable="dnd-line">
+<$let dnd-path={{{ [<dnd-line>locationpath[]] [<currentTiddler>!tag[Location]then<dnd-line>] +[!is[blank]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<dnd-path>first[]] %>
+<div class="dnd-location-path"><$list filter="[enlist<dnd-path>]" variable="dnd-step" counter="dnd-n"><%if [<dnd-n-first>!match[yes]] %><span class="dnd-location-path-sep">›</span><%endif%><$macrocall $name="deadlink" title=<<dnd-step>> style="~~"/></$list></div>
+<%endif%>
+</$let>
+</$list>
+<$let dnd-rules={{{ [<currentTiddler>get[leader]enlist-input[]tag[Location]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<dnd-rules>first[]] %>
+<div class="dnd-location-path dnd-location-rules"><$text text={{{ [[Relations/Rules]dndtranslate[]addsuffix[: ]] }}}/><$list filter="[enlist<dnd-rules>]" variable="dnd-step" counter="dnd-n"><%if [<dnd-n-first>!match[yes]] %><span class="dnd-location-path-sep dnd-location-path-comma">,</span><%endif%><$macrocall $name="deadlink" title=<<dnd-step>> style="~~"/></$list></div>
+<%endif%>
+</$let>
+<$list filter="[<currentTiddler>locationcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="dnd-key">
+<div class="dnd-date-invalid"><$text text={{{ [<dnd-key>dndtranslate[]] }}}/></div>
+</$list>
+</$let>
 \end

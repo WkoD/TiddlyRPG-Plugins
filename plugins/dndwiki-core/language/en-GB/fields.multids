@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261001095424000
+modified: 20261006064449000
 title: $:/dndwiki/language/en-GB/Field/
 
 alliance: Alliance
@@ -16,4 +16,5 @@ mentor: Mentor
 officer: Officer
 owner: Owner
 patron: Patron
+rules: Controls
 under: Under

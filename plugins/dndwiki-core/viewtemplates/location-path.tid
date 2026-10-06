@@ -1,0 +1,13 @@
+created: 20261006064449000
+list-after: $:/core/ui/ViewTemplate/title
+modified: 20261006064449000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/dndwiki-core/viewtemplates/location-path
+type: text/vnd.tiddlywiki
+
+<!-- Path of parent locations below the title (procedure dnd.locationpath in functions.tid):
+     for every tiddler with a parent or a location, except events (their sections show their
+     locations as pills) and system tiddlers; not for tiddlers locked for the player. -->
+<%if [<currentTiddler>!is[system]!tag[Event]dnd.visible[]] %>
+<<dnd.locationpath>>
+<%endif%>

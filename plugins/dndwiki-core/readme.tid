@@ -1,12 +1,12 @@
 created: 20260706180604000
-modified: 20261002082222000
+modified: 20261006064449000
 title: $:/plugins/dndwiki-core/readme
 
 ! DnDWiki Core
 
 The shared D&D format layer of the DnDWiki repo family:
 
-* Type hubs (Person, Location, Organisation, Event, Item, Map, BattleMap, ...) with colours,
+* Type hubs (Person, Location, Organisation, Event, Item, ...) with colours,
   view templates, macros, filters, styles and editor snippets (`$:/plugins/dndwiki-core/...`)
 * Language packs: displayed texts come from `$:/dndwiki/language/<code>/...` and follow
   `$:/language`; en-GB and de-DE included, missing keys fall back to en-GB
@@ -22,6 +22,11 @@ The shared D&D format layer of the DnDWiki repo family:
 * Event timeline (widget `dnd-timeline`): the events of a tiddler or of the `Event` hub as an
   interactive vertical timeline in the calendar of the wiki, next to the event table; on a
   tiddler its own dates as a band behind the events
+* Locations: a location lies in another one (field `location`) or is a part of it (a spot
+  `<<spot "Name">>` in its body); the path of parents below the title, who is at a location,
+  the events of the places within; references to spots with `<<spotlink>>`
+* Maps of a location: the map image (field `map`) as a graph with the spots placed on it,
+  battle maps (field `battlemap`, or per spot) as tabs
 
 Consumed by the campaign wikis as a pinned plugin
 (`git+https://github.com/WkoD/TiddlyDnD-Plugins.git#<version>`).

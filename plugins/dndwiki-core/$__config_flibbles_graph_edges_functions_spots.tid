@@ -1,0 +1,9 @@
+created: 20261006064449000
+filter: [spottargets[]tag[Location]]
+modified: 20261006064449000
+title: $:/config/flibbles/graph/edges/functions/spots
+type: application/json
+
+{
+    "stroke": "dashed"
+}

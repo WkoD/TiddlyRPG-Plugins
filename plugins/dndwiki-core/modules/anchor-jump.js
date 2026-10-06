@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/modules/anchor-jump.js
 type: application/javascript
 module-type: library
 created: 20261004170125000
-modified: 20261004170125000
+modified: 20261006064449000
 
 Jump to a mark inside a tiddler right after navigating to it. A mark is any element with
 data-dnd-anchor="<name>" inside the tiddler (names in kebab-case; the dated sections of a body
@@ -11,6 +11,7 @@ are "date-<n>", procedure date in functions.tid). Used by the wrapper widget dnd
 (widgets/jump.js) and the timeline.
 
   jump(widget,title,anchor)   call right after dispatching tm-navigate to <title>
+  now(widget,title,anchor)    scroll to the mark if <title> already shows it; true if it did
 
 The navigation only changes $:/StoryList and $:/HistoryList; the tiddler shows after the next
 refresh. So the jump waits for the next change event of the wiki (the main refresh is
@@ -44,6 +45,19 @@ function find(doc,title,anchor) {
 	}
 	return null;
 }
+
+exports.now = function(widget,title,anchor) {
+	var doc = widget.document;
+	if(!$tw.browser || !title || !anchor || !doc || !doc.querySelectorAll) {
+		return false;
+	}
+	var mark = find(doc,title,anchor);
+	if(mark) {
+		$tw.rootWidget.dispatchEvent({type: "tm-scroll", target: mark});
+		return true;
+	}
+	return false;
+};
 
 exports.jump = function(widget,title,anchor) {
 	var doc = widget.document,

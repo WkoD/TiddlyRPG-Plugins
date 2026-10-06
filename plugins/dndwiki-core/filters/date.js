@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/date.js
 type: application/javascript
 module-type: filteroperator
 created: 20261001095424000
-modified: 20261004170125000
+modified: 20261006064449000
 
 Date filter operators on top of modules/dates.js and the calendar engine (modules/calendar.js).
 They are filter operators rather than JS macros so that a filtered attribute recomputes them on
@@ -22,6 +22,8 @@ procedures dateformat, dateadd, datediff and date in functions.tid wrap them for
                               calendar
 [<title>sectionlinks[n]]      link targets in section n of the body (0 = before the first
                               <<date>>), see dates.sections()
+[<title>sectionspots[n]]      the <<spotlink>> calls in section n, as JSON {"place", "spot",
+                              "text"} (modules/spots.js)
 [<title>datesection<date>]    number of the section of the date field of <title> that <date>
                               falls into (the start of its first section if it has several),
                               see dates.sectionAt(); nothing without a match. For a jump to
@@ -138,6 +140,20 @@ exports.sectionlinks = function(source,operator,options) {
 		$tw.utils.each(links,function(link) {
 			if(results.indexOf(link) === -1) {
 				results.push(link);
+			}
+		});
+	});
+	return results;
+};
+
+exports.sectionspots = function(source,operator,options) {
+	var n = parseInt(operator.operand,10) || 0,
+		results = [];
+	source(function(tiddler,title) {
+		$tw.utils.each(dates.sections(options.wiki,title).spotlinks[n],function(link) {
+			var json = JSON.stringify(link);
+			if(results.indexOf(json) === -1) {
+				results.push(json);
 			}
 		});
 	});

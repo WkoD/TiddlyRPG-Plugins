@@ -1,5 +1,5 @@
 created: 20261001104500000
-modified: 20261001104500000
+modified: 20261006064449000
 tags: $:/tags/Global
 code-body: yes
 title: $:/plugins/flibbles/graph/macros/edges.typed
@@ -16,7 +16,8 @@ title: $:/plugins/flibbles/graph/macros/edges.typed
 <$list variable=fieldName filter="+[subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.fields}subfilter<$fields>]">
 
 <$let
-	dataTiddler=`$:/config/flibbles/graph/edges/fields/$(fieldName)$` >
+	dataTiddler=`$:/config/flibbles/graph/edges/fields/$(fieldName)$`
+	dndExclude={{{ [<fieldName>addprefix[$:/config/flibbles/graph/edges/fields/]get[dndwiki-exclude]] }}} >
 
 <$properties $for=edges
 	$tiddler=<<dataTiddler>>
@@ -28,7 +29,10 @@ title: $:/plugins/flibbles/graph/macros/edges.typed
 	label={{{ [<dataTiddler>getindex[label]!is[blank]then<fieldName>addprefix[Field/]dndtranslate[]] }}} >
 
 
-<$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[gettyped<fieldName>] +[!is[blank]]">
+<!-- dndwiki-core: the field config may name targets that this field type does not draw
+     (field dndwiki-exclude, a filter); another edge type draws them, e.g. leader -> location
+     is the function edge "rules" -->
+<$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[gettyped<fieldName>] +[!is[blank]] -[subfilter<dndExclude>]">
 
 <$vars id=`$:/edge/fields/$($tiddler)$
 $(fieldName)$-$(index)$`>
@@ -50,6 +54,10 @@ $(fieldName)$-$(index)$`>
 <$properties $for=edges
 	$tiddler=<<dataTiddler>> >
 
+<!-- dndwiki-core: translated label from Field/<function>, as for the field types -->
+<$properties $for=edges
+	label={{{ [<dataTiddler>getindex[label]!is[blank]then<functionName>addprefix[Field/]dndtranslate[]] }}} >
+
 <$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[subfilter<function>] +[!is[blank]]">
 
 <$vars id=`$:/edge/functions/$($tiddler)$
@@ -59,7 +67,7 @@ $(functionName)$-$(index)$`>
 
 <$edge $from=<<$tiddler>> $id=<<id>> />
 
-</$slot></$vars></$list></$properties></$let></$list>
+</$slot></$vars></$list></$properties></$properties></$let></$list>
 \end
 
 \relink $edges.typed $functions:filter $fields:filter $tiddler:title

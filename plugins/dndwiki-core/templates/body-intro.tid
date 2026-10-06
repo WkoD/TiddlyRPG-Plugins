@@ -1,0 +1,12 @@
+created: 20261006064449000
+modified: 20261006064449000
+title: $:/plugins/dndwiki-core/templates/body-intro
+type: text/vnd.tiddlywiki
+
+<!-- Body of a location with spots: only the text before the first <<spot>>. The spots and
+     their texts show in the map tab (viewtemplates/location). Chosen by
+     viewtemplates/body-filter-spots (cascade $:/tags/ViewTemplateBodyFilter, after the player
+     lock). Pragmas at the start of the body stay with the intro. -->
+<$let dnd-intro={{{ [<currentTiddler>spotintro[]] }}}>
+<$transclude $variable="dnd-intro" $mode="block"/>
+</$let>
