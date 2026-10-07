@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261007163804094
+modified: 20261007170245412
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -45,10 +45,11 @@ function entries(wiki,title) {
 	return tiddler ? $tw.utils.parseStringArray(tiddler.fields.location || "") || [] : [];
 }
 
-// {parent, kind} of a location: "spot" or "location"; parent "" if none
+// {parent, kind} of a location: "spot" or "location"; parent "" if none. A spot the active view
+// does not see makes no parent (modules/spots.js).
 var parentOf = exports.parentOf = function(wiki,title) {
 	var owners = (spots.index(wiki).owners[title] || []).filter(function(owner) {
-		return isLocation(wiki,owner);
+		return isLocation(wiki,owner) && spots.ownsVisibly(wiki,owner,title);
 	});
 	if(owners.length) {
 		return {parent: owners[0], kind: "spot"};
@@ -86,7 +87,7 @@ var path = exports.path = function(wiki,title) {
 // Direct children of a location: [{title, kind}]
 function children(wiki,title) {
 	var result = [];
-	$tw.utils.each(spots.read(wiki,title).spots,function(spot) {
+	$tw.utils.each(spots.visibleSpots(wiki,title),function(spot) {
 		var target = spots.targetOf(wiki,spot);
 		if(target && target !== title && isLocation(wiki,target) && parentOf(wiki,target).parent === title) {
 			result.push({title: target, kind: "spot"});

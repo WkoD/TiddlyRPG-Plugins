@@ -58,8 +58,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     lists of `Item` and of a category, a category of the campaign, the file of a book (field
     `data`), colour and image folder through the base type
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
-    tiddlers, intro in the body, headings and jump marks in the map tab, spots in notes of the
-    DM; `<<spotlink>>`: link, pill, missing spot or location, the events referencing a place
+    tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
+    marks in the map tab, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
+    location, the events referencing a place
+  - `text-sections` - the sections of a body (`modules/sections.js`, `widgets/sections.js`):
+    short and block forms, numbering over both, nesting (with a kind registered in the test),
+    the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
+    timeline, span, pills, `datesection`, spots and map tab, search, backlinks
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
     the band of the tiddler itself, the section lines as links
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<dnd.`
@@ -150,14 +155,17 @@ the tiddler title:
   `<<spotlink>>` via `dnd.spotpill`), `dnd.dateline` (date line below the tags: span of an
   event, years of existence of the other types), `dnd.datecheck` (hint on a date that cannot
   be read, not in the published copy), `spot` (heading of a spot with its jump mark),
-  `spotlink` (reference to a spot, with `dnd.spotjump` and the hint `dnd.spotcheck`) and
-  `dnd.locationpath` (path of parent locations below the title, see "Locations").
+  `spotlink` (reference to a spot, with `dnd.spotjump` and the hint `dnd.spotcheck`),
+  `secret` (a lock, draws nothing itself, see "Sections") and `dnd.locationpath` (path of
+  parent locations below the title, see "Locations").
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
-  from its parse tree - the one place of these rules, used by the date filters, `eventrows`, the
-  timeline, `dnd-date` and `deadlink`), `spots.js` (see "Locations": spots and `<<spotlink>>`
-  from the parse tree, plain names, the index of owners and references), `anchor-jump.js`
+  from the model of `sections.js` - the one place of these rules, used by the date filters,
+  `eventrows`, the timeline, `dnd-date` and `deadlink`), `sections.js` (see "Sections": the
+  sections of a body, their kinds, locks and rendering), `spots.js` (see "Locations": spots and
+  `<<spotlink>>` from the model of `sections.js`, plain names, the index of owners and
+  references), `anchor-jump.js`
   (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
   lock, campaign events).
 - **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attributes `filter`, `self`):
@@ -176,15 +184,20 @@ the tiddler title:
   links that jumps to a mark in the opened tiddler, selecting a tab first if given (see "Jump
   marks"). `action-dnd-jump` (`action-jump.js`): the same as an action, for the spot dots of a
   map; scrolls at once if the tiddler already shows the mark.
+  `sections.js`: `dnd-body` (the transclude widget with the parse tree prepared section by
+  section; `$only`, `$omit`, `$name`, `$marker`), `dnd-section` (one short section, made by
+  `dnd-body`) and the block forms `date`, `spot`, `secret` - see "Sections".
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
   `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`.
 - **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`dndtranslate`, `dndtitle`, `dndtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
-  `dateended`, `datecheck`, `sectionlinks`, `sectionspots`, `datesection`, `calendar[...]`),
+  `dateended`, `datecheck`, `sectionlinks`, `sectionspots`, `datesection`, `visibledate`,
+  `calendar[...]`), `sections.js` (`hassections`, `sectioncheck`, `sectionbacklinks`,
+  `dndsearch`),
   `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
-  `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spottext`, `spotintro`, `spotplain`,
+  `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`, `maptabs`),
   `visibility.js` (`dndvisible`, `dndview`, `dndcharacter`, `dndcharacters`, `dndplayer`,
   `dndplayedby`, see "Views").
@@ -205,15 +218,16 @@ the tiddler title:
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs), `secret` (marker of a secret: whom it is for), `player`
   (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
-  and `body-filter-spots` (cascade, see below).
+  and `body-filter-sections` (cascade, see below).
 - **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `date-section`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
   rules, battle map width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   dated sections, location pills), `location` (path, spot pills, spots, map buttons; static
   CSS, `type: text/css`) and `view` (bar of the view, page control, marker of a secret, cards
   of the `Player` hub; wikitext for the colour of `Player`).
-  **Templates** `templates/image`, `templates/body-locked`, `templates/body-intro` (body of a
-  location with spots: the text before the first spot), `templates/title-translated`,
+  **Templates** `templates/image`, `templates/body-locked`, `templates/body-sections` (body of
+  a tiddler with sections through `dnd-body`; a location without its spots),
+  `templates/title-translated`,
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
@@ -297,19 +311,17 @@ mind when changing it:
   runs through ClassFilters and graph templates for every visible tiddler on every refresh.
 - A single point means a point in time for events and a start with an open end for every other
   type; the timeline band and `dnd.dead` rely on that.
-- `sections()` reads the placeholders, links and `<<spotlink>>` calls (`spotlinks`, through
-  `modules/spots.js`) from the **parse tree** (cached per tiddler),
-  not with a regex: a `<<date>>` in code is not parsed and so not counted. Links are assigned to
-  sections by their `start` offset; subtrees with the class `tc-tiddler-frame` (DM notes) are
-  skipped. TW 5.4 sets `start`/`end` on block and inline nodes (`wikiparser.js`); check that when
-  raising the engine version.
+- `sections()` takes the dated sections, the links and the `<<spotlink>>` calls of each from
+  the model of the body (`modules/sections.js`, see "Sections"; cached per tiddler); a link
+  keeps the id of its innermost section, so `sectionlinks`/`sectionspots` leave out what the
+  view does not see. `hidden()` gives the numbers of the dated sections the view does not see,
+  `visibleField()` the date field without them - the timeline, the table, `datesection` and the
+  date line (`visibledate`) use them.
 - `widgets/date.js` matches its own call by `start` and `end` of the transclude node of
-  `<<date>>`. Called from another text (a transcluded snippet) there is no match: then only an
-  explicit number works, otherwise a visible hint. The edit preview works because the draft has
-  the same text and date.
-- Known limit: a `<<date>>` inside a block hidden from players still gives its caption and
-  locations to timeline and table - the walk does not evaluate `$list`/`<%if%>`/`$reveal`.
-  `check-dates.js` warns; the real fix belongs to the login per player.
+  `<<date>>`; the heading of a block `<$date>` carries the position of the block. Called from
+  another text (a transcluded snippet) there is no match: then only an explicit number works,
+  otherwise a visible hint. The edit preview works because the draft has the same text and
+  date.
 - `sectionAt()` (operator `datesection`) finds the section a date falls into by overlap of
   their days: of several the narrowest wins, on a tie the first; "."/".." are open sides. It
   never falls back to "the section before" - a jump to the whole event is better than one to
@@ -361,17 +373,22 @@ only call their operators.
   items and materials may have several locations; persons one, artifacts one owner or one
   location (`locationcheck` reports more, or both). Items are occupants like everyone else:
   in the tree of the relation list and for the folding in the ego graph.
-- Spots: `<<spot "Name">>` begins a section that runs to the next spot. The name may hold
-  wikitext; its plain text (links replaced by their visible text) is the anchor, the node label
-  and the target of `<<spotlink>>`. Joined to a tiddler: the second parameter, or a tiddler
-  with the plain name. `<<spotlink "Place" "[[Text|Spot]]">>`: here the target of the link
-  counts. Both are read from the parse tree like `<<date>>` (same limit: a spot in a block
-  hidden from players is still found). They are no TiddlyWiki links: no backlinks, not in
-  "Missing"; renaming works through the relink configuration of the macro parameters.
-- `spots.index()` (global cache): which locations have a tiddler as spot (`spotowner`), which
-  tiddlers reference a place with `<<spotlink>>` (`spotlinked`, used by the event list).
-- The body of a location with spots shows only the intro (`body-filter-spots`); the spots show
-  in the tab "Map" below the map graph, each as written (`spots:section`).
+- Spots: `<<spot "Name">>` begins a section that runs to the next marker, `<$spot name="…">`
+  is the block form (see "Sections"). The name may hold wikitext; its plain text (links
+  replaced by their visible text) is the anchor, the node label and the target of
+  `<<spotlink>>`. Joined to a tiddler: the second parameter, or a tiddler with the plain name.
+  `<<spotlink "Place" "[[Text|Spot]]">>`: here the target of the link counts. Both come from
+  the model of the body. They are no TiddlyWiki links: no backlinks, not in "Missing"; renaming
+  works through the relink configuration of the macro parameters.
+- A spot the view does not see (locked, or joined to a tiddler it does not see) is left out by
+  `spots.visibleSpots()`: the operators `spots`, `spottargets`, `maptabs`, the children and the
+  parent of a location (`filters/location.js`), `spotowner` and `spotlinked`.
+- `spots.index()` (global cache, whatever the view): which locations have a tiddler as spot
+  (`spotowner`), which tiddlers reference a place with `<<spotlink>>` (`spotlinked`, used by the
+  event list); the operators filter it by the view.
+- The body of a location shows its text without the spots (`templates/body-sections`,
+  `$omit="spot"`); the spots show in the tab "Map" below the map graph (`dnd-body`
+  `$only="spot"`), the text of one in the tooltip of its dot (`$name`, `$marker="no"`).
 - Map (`graph/templates/dnd-map`): background `images/map/<field map>`, drawn by
   `graph/map-fit.js` always 600 units wide (graph property `dndMapImage`, not the `background`
   of tw5-vis-network, which draws in image pixels and shrinks nodes and labels on a large
@@ -416,6 +433,37 @@ The rules of items live **once** in `filters/item.js` (base type and categories)
   category hangs on its tag (`viewtemplates/book`, `styles/item`).
 - The hints of `itemcheck` stand below the title (`viewtemplates/location-path`), next to
   those of `locationcheck`.
+
+## Sections
+
+The rules of the sections of a body live **once** in `modules/sections.js`; meaning and
+examples: `README.md` ("Sections in the text", "Secrets in the text").
+
+- Kinds: `date`, `spot`, `secret`, each with a short form (`<<kind>>`, a transclude node with a
+  position) and a block form (`<$kind>`, a JS widget of that name in `widgets/sections.js` - no
+  core or plugin widget has these names; a wikitext `\widget` would need a dot). `register()`
+  adds a kind (e.g. a quest): found, locked, nested and rendered without code of its own; the
+  block widget is one `makeBlock()` line.
+- One walk over the parse tree per tiddler (`read()`, cached) gives the records (kind, form,
+  key = start offset of marker or block, parent, locks, text range), the links and `<<spotlink>>`
+  calls with their innermost section, and the problems. `group()` splits one level into
+  sections; the walk and the rendering (`transform()`) use the same function, so a rendered
+  section finds its record by key. Pragma nodes at the start (`set`, `importvariables`,
+  `parameters`) wrap all sections and are kept.
+- Visibility is decided when asked (`visible()`: the locks of a record and its parents, and the
+  `visible` condition of its kind - a spot joined to a tiddler the view does not see), never
+  cached. `lockOf()` gives whom a section's own lock is for (the marker).
+- Rendering: `templates/body-sections` (chosen by `viewtemplates/body-filter-sections` for
+  every tiddler with sections, `hassections`) renders the body through `dnd-body`, a subclass of
+  the core transclude widget that only prepares the parse tree: each short section becomes a
+  `dnd-section` widget, blocks render themselves. Both draw a `div.dnd-section
+  .dnd-section-<kind>` (`.dnd-section-locked`, marker first) or nothing for a view that does
+  not see them, and refresh on the view (`visibility.watched`). The heading of a block is a
+  transclude of the procedure of its kind with the position of the block.
+- Problems (`check()`, operator `sectioncheck`): below the title (`viewtemplates/location-path`)
+  in the editable wiki and in `scripts/check-dates.js`; none for editor snippets.
+- Not seen: markers that only exist when rendering (transclusions, `$list`, macros that write
+  `<<date>>`) - the walk reads the text of the tiddler itself.
 
 ## Views
 
@@ -551,7 +599,7 @@ Current list:
 |---|---|---|---|
 | `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
 | `dndwiki-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `dndwiki-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Only change: `<$text text={{{ [<__tag__>dndtitle[]] }}}/>` for the translated display name. |
-| `dndwiki-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `dndwiki-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`dndtitlesearch`), hits use `search/item` (translated name). |
+| `dndwiki-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `dndwiki-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`dndtitlesearch`) and keeps only what the view sees (`dnd.visible`), the second searches with `dndsearch` (only the text the view sees), hits use `search/item` (translated name). |
 | `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes: an inner `$properties $for=edges label=...` with the translation of `Field/<field>` resp. `Field/<function>` (only for types whose JSON has a label), in the field and in the function branch; in the field branch the targets are cleaned by the filter in the field `dndwiki-exclude` of the field config (leader -> location is drawn by the function edge `rules`); for a field type whose config has `dndwiki-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the field - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 
 **Naming convention:** files that override a core title are named

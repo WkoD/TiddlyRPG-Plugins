@@ -13,9 +13,13 @@
  *            datelong calls or <<dateformat "...">> left in an event body (dates belong in the
  *            field); filters on the old dead marker (search:date[.])
  *   warning  empty side or section in the field; two placeholders for the same section; a
- *            "---" right before <<date>> (the placeholder draws its own rule); <<date>> inside
- *            a block locked for players ($list, <%if%>, $reveal - caption and locations still
- *            reach timeline and table)
+ *            "---" right before <<date>> (the placeholder draws its own rule); the hints on
+ *            sections (modules/sections.js: a short form inside another block, a section in one
+ *            of its kind, <<secret>> in the middle of a section, a lock naming no player
+ *            character, a kind in the wrong tiddler); a tiddler that asks the view itself
+ *            ($:/state/dndwiki/view, dnd.visible - lock with the tag Secret, <<secret>> or
+ *            <$secret> instead); a transclusion of a tiddler tagged Secret (it shows to every
+ *            view that sees the transcluding tiddler)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
  *            heading; text before the first placeholder; an event without date; several
  *            sections or ".." as start of a non-event
@@ -48,15 +52,20 @@ $tw.boot.boot(function() {
 			errors++;
 		}
 	};
-	// <<date>> calls below a widget that can hide its content from players
-	var gated = function(nodes, inside, out) {
+	var sections = $tw.modules.execute("$:/plugins/dndwiki-core/modules/sections.js");
+	// Titles of the tiddlers tagged Secret that a parse tree transcludes
+	var secretTransclusions = function(nodes, out) {
 		$tw.utils.each(nodes, function(node) {
-			var hides = node.type === "list" || node.type === "reveal" || node.type === "if";
-			if(node.type === "transclude" && node.attributes && node.attributes["$variable"] && node.attributes["$variable"].value === "date" && inside) {
-				out.push(node);
+			var attrs = node.attributes || {},
+				target = node.type === "transclude" && (attrs["$tiddler"] || attrs.tiddler);
+			if(target && target.type === "string") {
+				var t = wiki.getTiddler(target.value);
+				if(t && t.hasTag("Secret") && out.indexOf(target.value) === -1) {
+					out.push(target.value);
+				}
 			}
 			if(node.children) {
-				gated(node.children, inside || hides, out);
+				secretTransclusions(node.children, out);
 			}
 		});
 		return out;
@@ -90,6 +99,16 @@ $tw.boot.boot(function() {
 		if(/search:date\[\.\]/.test(JSON.stringify(fields))) {
 			add(title, "error", "filter on the old dead marker search:date[.] - use dnd.dead[]");
 		}
+		if(/\$:\/state\/dndwiki\/view|dnd\.visible|dndvisible/.test(text)) {
+			add(title, "warning", "asks the view itself - lock with the tag Secret, <<secret>> or <$secret>");
+		}
+		$tw.utils.each(sections.check(wiki, title), function(problem) {
+			add(title, "warning", problem);
+		});
+		var parsed = wiki.parseTiddler(title);
+		$tw.utils.each(parsed ? secretTransclusions(parsed.tree, []) : [], function(target) {
+			add(title, "warning", "transcludes the secret tiddler " + target + " - every view that sees " + title + " sees it");
+		});
 		if(!event) {
 			return;
 		}
@@ -134,10 +153,7 @@ $tw.boot.boot(function() {
 				add(title, "hint", "text before the first placeholder (head)");
 			}
 		}
-		var parser = wiki.parseTiddler(title);
-		if(parser && gated(parser.tree, false, []).length) {
-			add(title, "warning", "<<date>> inside a block that can be hidden from players");
-		}
+
 	});
 	var titles = Object.keys(findings).sort();
 	console.log("Dates checked: " + path.resolve(wikiDir) + (cal ? " (calendar " + cal.id + ")" : " (no calendar)"));

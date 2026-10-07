@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261007163804094
+modified: 20261007170245412
 title: $:/dndwiki/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -56,6 +56,14 @@ Relations/Rules: Controls
 Relations/Spot: spot
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
+Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
+Section/Check/Nested: Check the text: $kind$ nested in each other - the inner one does not count
+Section/Check/NoCharacter: Check the text: a lock names "$name$", who is no player character
+Section/Check/SecretMidText: Check the text: <<secret>> in the middle of a section has no effect - put it at the start of the section, or use <$secret>…</$secret>
+Section/Check/WrongType: Check the text: <<$macro$>> counts only in a tiddler tagged $type$
+Section/Kind/date: dated sections
+Section/Kind/secret: locks
+Section/Kind/spot: spots
 Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
 Spot/Missing: Spot "$spot$" not found at $place$

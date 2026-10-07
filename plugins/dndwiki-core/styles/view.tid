@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261007162511000
+modified: 20261007170245412
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/view
 type: text/vnd.tiddlywiki
@@ -77,6 +77,9 @@ a.dnd-player-card {
 a.dnd-player-card:hover {
 	background: <<colour tiddler-editor-background>>;
 	text-decoration: none;
+}
+.dnd-player-portrait img ~ img {
+	display: none;
 }
 .dnd-player-portrait img {
 	width: 5em;

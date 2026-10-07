@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261007163804094
+modified: 20261007170245412
 title: $:/dndwiki/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -56,6 +56,14 @@ Relations/Rules: Kontrolliert
 Relations/Spot: Spot
 Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
+Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
+Section/Check/Nested: Text prüfen: $kind$ ineinander verschachtelt – der innere zählt nicht
+Section/Check/NoCharacter: Text prüfen: Eine Sperre nennt „$name$“, das ist keine Spielerfigur
+Section/Check/SecretMidText: Text prüfen: <<secret>> mitten in einem Abschnitt wirkt nicht – an den Anfang des Abschnitts setzen oder <$secret>…</$secret> verwenden
+Section/Check/WrongType: Text prüfen: <<$macro$>> zählt nur in einem Tiddler mit Tag $type$
+Section/Kind/date: Datumsabschnitte
+Section/Kind/secret: Sperren
+Section/Kind/spot: Spots
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden

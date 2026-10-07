@@ -3,16 +3,17 @@ title: $:/plugins/dndwiki-core/modules/spots.js
 type: application/javascript
 module-type: library
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261007170245412
 
 Spots: the places of interest of a location, written in its body - the one place of these rules.
 Used by the spot filters (filters/spots.js), the location rules (filters/location.js) and the
 dated sections of a body (modules/dates.js, for <<spotlink>>).
 
-  <<spot "Schloss Baile">>                        a spot; its text runs to the next <<spot>>
+  <<spot "Schloss Baile">>                        a spot; its text runs to the next marker
   <<spot "Tempel von [[Chauntea]]">>              the name may hold wikitext (links stay links)
   <<spot "Anzeige" "Tiddler">>                    joined to another tiddler than the name says
   <<spot "Schloss" battlemap:"a.jpg, b.jpg">>     with battle maps (images/battlemap/)
+  <$spot name="Schloss" target="Tiddler" battlemap="a.jpg">...</$spot>   the block form
 
 The plain name of a spot (anchor, node label, target of <<spotlink>>) is its name with every
 link replaced by its visible text. The spot is joined to a tiddler if one has its plain name, or
@@ -26,33 +27,19 @@ The second parameter of <<spotlink>> is the plain name of the spot, or a link in
 syntax: then the text before "|" is shown and the target is the spot. Unlike <<spot>> the
 target counts here, not the visible text.
 
-Both are read from the parse tree of a tiddler (cached per tiddler). Calls in code are not
-parsed, subtrees with the class tc-tiddler-frame (notes of the DM) are skipped. A spot inside a
-block hidden from players is still found - the walk does not evaluate $list/<%if%>/$reveal.
+Both come from the model of the body (modules/sections.js): the rules of sections apply - a spot
+counts only in a location, a locked spot (<<secret>>) and a spot joined to a tiddler the view
+does not see are left out by visibleSpots() and the checks below.
 
 \*/
 
 "use strict";
 
-var LINK = /\[\[([^\]]*?)\]\]/g;
-
-function attribute(node,name) {
-	var attr = node.attributes && node.attributes[name];
-	return attr && attr.type === "string" ? attr.value : undefined;
-}
-
-function hasClass(node,name) {
-	var cls = attribute(node,"class");
-	return !!cls && (" " + cls + " ").indexOf(" " + name + " ") !== -1;
-}
+var sections = require("$:/plugins/dndwiki-core/modules/sections.js"),
+	visibility = require("$:/plugins/dndwiki-core/modules/visibility.js");
 
 // Plain text of a name: every link replaced by its visible text, whitespace collapsed
-var plain = exports.plain = function(name) {
-	return (name || "").replace(LINK,function(match,inner) {
-		var bar = inner.indexOf("|");
-		return bar === -1 ? inner : inner.substring(0,bar);
-	}).replace(/\s+/g," ").trim();
-};
+var plain = exports.plain = sections.plain;
 
 /*
 The second parameter of <<spotlink>>: {text, spot}. A link "[[Text|Spot]]" or "[[Spot]]"
@@ -89,61 +76,28 @@ exports.files = function(text) {
 
 /*
 The spots and spot references of a tiddler (cached per tiddler):
-  intro     text of the body before the first spot (the whole body without spots)
-  spots     [{name, plain, target, battlemap, start, end, textStart, textEnd}] in document
-            order; target is the second parameter as written (or ""), battlemap the parameter
-  links     [{place, spot, text, start}] - the <<spotlink>> calls
+  spots     [{id, name, plain, target, battlemap, start, end}] in document order; target is the
+            second parameter as written (or ""), battlemap the parameter; id: the section
+            (modules/sections.js)
+  links     [{place, spot, text, start, id}] - the <<spotlink>> calls; id: the innermost
+            section they stand in, -1 for none
 */
 var read = exports.read = function(wiki,title) {
 	return wiki.getCacheForTiddler(title,"dndwiki-spots",function() {
-		var tiddler = wiki.getTiddler(title),
-			text = (tiddler && tiddler.fields.text) || "",
-			parser = tiddler ? wiki.parseTiddler(title) : null,
-			spots = [],
+		var model = sections.read(wiki,title),
+			found = [],
 			links = [];
-		var walk = function(nodes) {
-			$tw.utils.each(nodes,function(node) {
-				if(hasClass(node,"tc-tiddler-frame")) {
-					return;
-				}
-				var variable = node.type === "transclude" ? attribute(node,"$variable") : undefined;
-				if(variable === "spot" && node.start !== undefined) {
-					var name = attribute(node,"name");
-					if(name === undefined) {
-						name = attribute(node,"0") || "";
-					}
-					var target = attribute(node,"target");
-					if(target === undefined) {
-						target = attribute(node,"1") || "";
-					}
-					spots.push({name: name, plain: plain(name), target: target.trim(), battlemap: attribute(node,"battlemap") || "", start: node.start, end: node.end});
-				} else if(variable === "spotlink" && node.start !== undefined) {
-					var place = attribute(node,"place");
-					if(place === undefined) {
-						place = attribute(node,"0") || "";
-					}
-					var spec = attribute(node,"spot");
-					if(spec === undefined) {
-						spec = attribute(node,"1") || "";
-					}
-					var ref = exports.reference(spec);
-					links.push({place: place.trim(), spot: ref.spot, text: ref.text, start: node.start});
-				}
-				if(node.children) {
-					walk(node.children);
-				}
-			});
-		};
-		walk(parser && parser.tree ? parser.tree : []);
-		$tw.utils.each(spots,function(spot,i) {
-			spot.textStart = spot.end;
-			spot.textEnd = i + 1 < spots.length ? spots[i + 1].start : text.length;
+		$tw.utils.each(model.records,function(record) {
+			if(record.kind === "spot" && record.counts) {
+				found.push({id: record.id, name: record.params.name, plain: record.params.plain, target: record.params.target,
+					battlemap: record.params.battlemap, start: record.start, end: record.end});
+			}
 		});
-		return {
-			intro: spots.length ? text.substring(0,spots[0].start) : text,
-			spots: spots,
-			links: links
-		};
+		$tw.utils.each(model.spotlinks,function(link) {
+			var ref = exports.reference(link.spec);
+			links.push({place: link.place, spot: ref.spot, text: ref.text, start: link.start, id: link.section});
+		});
+		return {spots: found, links: links};
 	});
 };
 
@@ -153,21 +107,31 @@ var targetOf = exports.targetOf = function(wiki,spot) {
 	return title && wiki.tiddlerExists(title) ? title : (spot.target || "");
 };
 
-// The text of a spot of <title> (by its name or plain name), or undefined
-exports.text = function(wiki,title,name) {
-	var data = read(wiki,title),
-		want = plain(name),
-		text = (wiki.getTiddler(title) || {fields: {}}).fields.text || "";
-	for(var i = 0; i < data.spots.length; i++) {
-		if(data.spots[i].plain === want) {
-			return text.substring(data.spots[i].textStart,data.spots[i].textEnd).replace(/^\s*\n/,"").replace(/\s+$/,"");
-		}
-	}
-	return undefined;
+// The spots of <title> the active view (or <view>) sees
+var visibleSpots = exports.visibleSpots = function(wiki,title,view) {
+	view = view || visibility.current(wiki);
+	return read(wiki,title).spots.filter(function(spot) {
+		return sections.visible(wiki,title,spot.id,view);
+	});
+};
+
+// Whether <owner> has <title> as a joined spot the view sees
+exports.ownsVisibly = function(wiki,owner,title,view) {
+	return visibleSpots(wiki,owner,view).some(function(spot) {
+		return targetOf(wiki,spot) === title;
+	});
+};
+
+// Whether <linker> references a spot of <place> with a <<spotlink>> the view sees
+exports.linksVisibly = function(wiki,linker,place,view) {
+	view = view || visibility.current(wiki);
+	return visibility.visible(wiki,linker,view) && read(wiki,linker).links.some(function(link) {
+		return link.place === place && sections.visible(wiki,linker,link.id,view);
+	});
 };
 
 /*
-Index over all locations (global cache, recomputed after any change):
+Index over all locations (global cache, recomputed after any change), whatever the view:
   owners    {<title>: [locations that have <title> as a joined spot]}
   linkers   {<place>: [tiddlers that reference a spot of <place> with <<spotlink>>]}
 */

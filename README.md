@@ -107,6 +107,52 @@ lists, graphs, maps, event lists, timeline and table. A secret tiddler opened by
 only its title. This is no access control - the repository and the published HTML hold
 everything.
 
+**Secrets in the text.** Part of a body is locked the same way, for one or more characters
+(none: the DM only):
+
+```
+<<secret "Theren">><<date>>             the whole dated section (or spot) that starts here
+<<date>>
+<<secret "Theren" "Actia">>             the same, right after the marker
+<$secret for="Theren Actia">…</$secret> exactly what it encloses, anywhere, also within a line
+```
+
+`<<secret>>` counts only at the start of a section (directly before or after its marker, or at
+the very start of the body for the text before the first marker); in the middle of a section a
+hint asks for the block form. A locked dated section is missing entirely in the views that do
+not see it - heading, text, locations, its row in the table, its part of the timeline and of the
+span in the date line; a locked spot is missing on the map, among the spots and in the paths.
+A spot joined to a secret tiddler is locked as well. The search finds no word of a locked part.
+Lock only with `Secret`, `<<secret>>` and `<$secret>`: a `$list` or `<%if%>` of your own on the
+view hides the text, but not the dates, locations and spots in it, and a transcluded secret
+tiddler shows wherever it is transcluded (`scripts/check-dates.js` warns about both).
+
+## Sections in the text
+
+Dated sections (`<<date>>`), spots (`<<spot>>`) and locks (`<<secret>>`) are kinds of sections
+with the same rules. Each has a short form, which runs to the next marker on the same level, and
+a block form with an end of its own:
+
+```
+<$date n="3" label="The ritual">
+
+Text of the section.
+
+</$date>
+```
+
+- Blocks nest in any order (a date inside a lock, a lock inside a spot); a section inside one of
+  its own kind does not count (no number) and gets a hint.
+- Short forms only split the body and the content of a block. Inside an HTML element, a table or
+  a `$list` they cannot end - a hint asks for the block form there.
+- Dates count on over both forms in document order: `<<date>>`, `<$date>`, `<<date>>` are 1, 2,
+  3.
+- A date counts only in an event, a spot only in a location.
+- A blank line after the opening tag of a block makes its text paragraphs; without it the text
+  stays inline (TiddlyWiki).
+
+The hints stand below the title of the tiddler, not in the published copy.
+
 ## Locations
 
 Where something is, and which place lies in which, comes from fields and from the body of a
@@ -142,8 +188,10 @@ Text of the spot, up to the next spot.
 ```
 
 A spot whose plain name (the name without link brackets) is a tiddler is joined to it; if that
-tiddler is a location, it is a part of this location. The body shows only the text before the
-first spot; the spots and their texts appear in the tab "Map".
+tiddler is a location, it is a part of this location. The body shows the text without the
+spots; the spots and their texts appear in the tab "Map". The block form
+`<$spot name="…" target="…" battlemap="…">…</$spot>` is a spot with an end of its own; see
+"Sections in the text".
 
 **Referencing a spot** from an event or any other text:
 
@@ -259,8 +307,8 @@ lists there the locations linked before its first placeholder. The timeline show
 span as a bar; the event table one row per point in time (a span: its start and end), with an
 event in one title cell across all its rows as long as no other event lies in between, and the
 caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`, the
-"open items" snippet) are not counted as locations. Do not put `<<date>>` into a block that is
-hidden from players: its caption and locations would still reach the timeline and the table.
+"open items" snippet) are not counted as locations. The block form `<$date>…</$date>` (with
+`n` and `label`) is a section with an end of its own; see "Sections in the text".
 
 **Jumping to a section.** A click on an event in the table, or on a section line of the
 selected card in the timeline, opens the event at that section. A section at the very start of
@@ -274,8 +322,8 @@ narrowest matching section, nothing without a match):
 ```
 
 A jump target is any element with `data-dnd-anchor` inside the opened tiddler; so far only the
-section headings (`date-<n>`) carry one. Without a target (edit mode, folded, locked for the
-player) the link opens the tiddler as usual.
+section headings (`date-<n>`) carry one. Without a target (edit mode, folded, a section the
+view does not see) the link opens the tiddler as usual.
 
 **Upgrading from 1.x.** `node scripts/migrate-dates.js <wiki>` converts the former `.`
 notation mechanically (dry run first, `--write` applies); `node scripts/check-dates.js <wiki>`

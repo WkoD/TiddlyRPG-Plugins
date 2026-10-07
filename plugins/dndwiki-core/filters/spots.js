@@ -3,24 +3,23 @@ title: $:/plugins/dndwiki-core/filters/spots.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261007170245412
 
 Filter operators on the spots of a location and the references to them (modules/spots.js).
 
-[<title>spots[]]              plain names of the spots of <title>, in document order
+[<title>spots[]]              plain names of the spots of <title> the active view sees, in
+                              document order (modules/spots.js visibleSpots)
 [<title>spots:raw[]]          the names as written (wikitext)
-[<title>spots:section[]]      each spot as written in the body: its <<spot>> call and its text
-[<title>spottargets[]]        the tiddlers the spots of <title> are joined to (existing only)
-[<title>spottext<name>]       wikitext of the spot <name> (plain or raw name) of <title>
-[<title>spotintro[]]          the body of <title> before its first spot
+[<title>spottargets[]]        the tiddlers these spots are joined to (existing only)
 [<name>spotplain[]]           plain name of a spot name
 [<name>spotanchor[]]          jump mark of a spot name ("spot-schloss-baile")
 [<name>spottarget<target>]    the tiddler a spot is joined to: <target> or the tiddler with
                               the plain name; nothing if neither exists
 [<spec>spotref:text[]]        the text shown by <<spotlink>> for its second parameter
 [<spec>spotref:spot[]]        the spot it points to
-[<title>spotowner[]]          the locations that have <title> as a joined spot
-[<place>spotlinked[]]         the tiddlers that reference a spot of <place> with <<spotlink>>
+[<title>spotowner[]]          the locations that have <title> as a joined spot the view sees
+[<place>spotlinked[]]         the tiddlers that reference a spot of <place> with a <<spotlink>>
+                              the view sees
 [<title>maptabs[]]            the battle map tabs of a location, as JSON
                               {"id", "label", "file", "spot"}: first the battle maps of the
                               field battlemap, then per spot those of its parameter and of the
@@ -46,13 +45,8 @@ exports.spots = function(source,operator,options) {
 	var wiki = options.wiki,
 		mode = operator.suffix || "";
 	return each(source,function(title,results) {
-		var text = mode === "section" ? ((wiki.getTiddler(title) || {fields: {}}).fields.text || "") : "";
-		$tw.utils.each(spots.read(wiki,title).spots,function(spot) {
-			if(mode === "section") {
-				results.push(text.substring(spot.start,spot.textEnd).replace(/\s+$/,""));
-			} else {
-				results.push(mode === "raw" ? spot.name : spot.plain);
-			}
+		$tw.utils.each(spots.visibleSpots(wiki,title),function(spot) {
+			results.push(mode === "raw" ? spot.name : spot.plain);
 		});
 	});
 };
@@ -60,7 +54,7 @@ exports.spots = function(source,operator,options) {
 exports.spottargets = function(source,operator,options) {
 	var wiki = options.wiki;
 	return each(source,function(title,results) {
-		$tw.utils.each(spots.read(wiki,title).spots,function(spot) {
+		$tw.utils.each(spots.visibleSpots(wiki,title),function(spot) {
 			var target = spots.targetOf(wiki,spot);
 			if(target && target !== title && wiki.tiddlerExists(target) && results.indexOf(target) === -1) {
 				results.push(target);
@@ -69,20 +63,6 @@ exports.spottargets = function(source,operator,options) {
 	});
 };
 
-exports.spottext = function(source,operator,options) {
-	return each(source,function(title,results) {
-		var text = spots.text(options.wiki,title,operator.operand);
-		if(text !== undefined) {
-			results.push(text);
-		}
-	});
-};
-
-exports.spotintro = function(source,operator,options) {
-	return each(source,function(title,results) {
-		results.push(spots.read(options.wiki,title).intro);
-	});
-};
 
 exports.spotplain = function(source) {
 	return each(source,function(name,results) {
@@ -114,10 +94,11 @@ exports.spotref = function(source,operator) {
 };
 
 exports.spotowner = function(source,operator,options) {
-	var owners = spots.index(options.wiki).owners;
+	var wiki = options.wiki,
+		owners = spots.index(wiki).owners;
 	return each(source,function(title,results) {
 		$tw.utils.each(owners[title] || [],function(owner) {
-			if(results.indexOf(owner) === -1) {
+			if(results.indexOf(owner) === -1 && spots.ownsVisibly(wiki,owner,title)) {
 				results.push(owner);
 			}
 		});
@@ -125,10 +106,11 @@ exports.spotowner = function(source,operator,options) {
 };
 
 exports.spotlinked = function(source,operator,options) {
-	var linkers = spots.index(options.wiki).linkers;
+	var wiki = options.wiki,
+		linkers = spots.index(wiki).linkers;
 	return each(source,function(place,results) {
 		$tw.utils.each(linkers[place] || [],function(title) {
-			if(results.indexOf(title) === -1) {
+			if(results.indexOf(title) === -1 && spots.linksVisibly(wiki,title,place)) {
 				results.push(title);
 			}
 		});
@@ -144,7 +126,7 @@ exports.maptabs = function(source,operator,options) {
 			return;
 		}
 		groups.push({label: title, spot: "", files: spots.files(tiddler.fields.battlemap), key: "battlemap"});
-		$tw.utils.each(spots.read(wiki,title).spots,function(spot) {
+		$tw.utils.each(spots.visibleSpots(wiki,title),function(spot) {
 			var files = spots.files(spot.battlemap),
 				target = spots.targetOf(wiki,spot),
 				joined = target && target !== title ? wiki.getTiddler(target) : null;

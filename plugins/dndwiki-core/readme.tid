@@ -1,5 +1,5 @@
 created: 20260706180604000
-modified: 20261007163804094
+modified: 20261007170245412
 title: $:/plugins/dndwiki-core/readme
 
 ! DnDWiki Core
@@ -18,7 +18,10 @@ The shared D&D format layer of the DnDWiki repo family:
 * Views: public, a player, or the DM, chosen in the page control "View"; a tiddler tagged
   `Secret` is visible to the DM and to the players of the player characters it is tagged with
   (tag `Player`, or a former one with the field `player`); an event with a player character
-  belongs to the campaign
+  belongs to the campaign; in the text `<<secret "Theren">>` locks a section,
+  `<$secret for="Theren">…</$secret>` a part
+* Sections of a body: dated sections, spots and locks in a short form (`<<date>>`) and a block
+  form (`<$date>…</$date>`), nested in any order, with hints on what does not count
 * tw5-graph schema (field edge types + graph templates) for the relation graphs
 * Dates: one syntax for all types in the field `date` (sections separated by `,`, spans with
   `/`, `.` unknown, `..` forever); in the body of an event `<<date>>` marks where each

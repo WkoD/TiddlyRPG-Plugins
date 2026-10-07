@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/date.js
 type: application/javascript
 module-type: filteroperator
 created: 20261001095424000
-modified: 20261006064449000
+modified: 20261007170245412
 
 Date filter operators on top of modules/dates.js and the calendar engine (modules/calendar.js).
 They are filter operators rather than JS macros so that a filtered attribute recomputes them on
@@ -21,13 +21,16 @@ procedures dateformat, dateadd, datediff and date in functions.tid wrap them for
 [<date>datecheck[]]           the input if it cannot be read or a date does not exist in the
                               calendar
 [<title>sectionlinks[n]]      link targets in section n of the body (0 = before the first
-                              <<date>>), see dates.sections()
-[<title>sectionspots[n]]      the <<spotlink>> calls in section n, as JSON {"place", "spot",
-                              "text"} (modules/spots.js)
+                              <<date>>) that the active view sees, see dates.sections()
+[<title>sectionspots[n]]      the <<spotlink>> calls in section n the view sees, as JSON
+                              {"place", "spot", "text"} (modules/spots.js)
 [<title>datesection<date>]    number of the section of the date field of <title> that <date>
                               falls into (the start of its first section if it has several),
-                              see dates.sectionAt(); nothing without a match. For a jump to
-                              that section: <$dnd-jump anchor="date-<n>"> (widgets/jump.js)
+                              see dates.sectionAt(); sections the view does not see do not
+                              count; nothing without a match. For a jump to that section:
+                              <$dnd-jump anchor="date-<n>"> (widgets/jump.js)
+[<title>visibledate[]]        the date field of <title> without the sections the view does not
+                              see (dates.visibleField)
 [calendar[id|title|era|table]]  data of the active calendar ("" without calendar)
 
 Without an active calendar dates are shown as entered.
@@ -37,7 +40,8 @@ Without an active calendar dates are shown as entered.
 "use strict";
 
 var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
-	dates = require("$:/plugins/dndwiki-core/modules/dates.js");
+	dates = require("$:/plugins/dndwiki-core/modules/dates.js"),
+	sections = require("$:/plugins/dndwiki-core/modules/sections.js");
 
 function pad2(n) {
 	return n > 9 ? n.toString() : "0" + n.toString();
@@ -136,10 +140,9 @@ exports.sectionlinks = function(source,operator,options) {
 	var n = parseInt(operator.operand,10) || 0,
 		results = [];
 	source(function(tiddler,title) {
-		var links = dates.sections(options.wiki,title).links[n];
-		$tw.utils.each(links,function(link) {
-			if(results.indexOf(link) === -1) {
-				results.push(link);
+		$tw.utils.each(dates.sections(options.wiki,title).links[n],function(link) {
+			if(results.indexOf(link.to) === -1 && sections.visible(options.wiki,title,link.id)) {
+				results.push(link.to);
 			}
 		});
 	});
@@ -151,8 +154,8 @@ exports.sectionspots = function(source,operator,options) {
 		results = [];
 	source(function(tiddler,title) {
 		$tw.utils.each(dates.sections(options.wiki,title).spotlinks[n],function(link) {
-			var json = JSON.stringify(link);
-			if(results.indexOf(json) === -1) {
+			var json = JSON.stringify({place: link.place, spot: link.spot, text: link.text});
+			if(results.indexOf(json) === -1 && sections.visible(options.wiki,title,link.id)) {
 				results.push(json);
 			}
 		});
@@ -182,10 +185,18 @@ exports.datesection = function(source,operator,options) {
 		return results;
 	}
 	source(function(tiddler,title) {
-		var n = tiddler ? dates.sectionAt(options.wiki,dates.parse(tiddler.fields.date),point) : 0;
+		var n = tiddler ? dates.sectionAt(options.wiki,dates.parse(tiddler.fields.date),point,dates.hidden(options.wiki,title)) : 0;
 		if(n) {
 			results.push(n.toString());
 		}
+	});
+	return results;
+};
+
+exports.visibledate = function(source,operator,options) {
+	var results = [];
+	source(function(tiddler,title) {
+		results.push(dates.visibleField(options.wiki,title));
 	});
 	return results;
 };

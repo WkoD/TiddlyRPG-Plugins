@@ -1,6 +1,6 @@
 caption: DnD map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261007163804094
+modified: 20261007170245412
 title: $:/plugins/dndwiki-core/graph/templates/dnd-map
 
 \whitespace trim
@@ -60,9 +60,7 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-map
 <$fill $name="tooltip">
 <%if [<nodeTiddler>prefix<dnd-loc>removeprefix<dnd-loc>prefix[#]] %>
 <$let dnd-name={{{ [<nodeTiddler>removeprefix<dnd-loc>removeprefix[#]] }}}>
-<$let dnd-t={{{ [<dnd-loc>spottext<dnd-name>] }}}>
-<$transclude $variable="dnd-t" $mode="block"/>
-</$let>
+<$dnd-body $tiddler=<<dnd-loc>> $mode="block" $only="spot" $name=<<dnd-name>> $marker="no"/>
 </$let>
 <%else%>
 <$transclude $tiddler=<<nodeTiddler>> $mode="block"/>

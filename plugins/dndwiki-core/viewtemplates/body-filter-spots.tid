@@ -1,8 +1,0 @@
-created: 20261006064449000
-list-after: $:/plugins/dndwiki-core/viewtemplates/body-filter
-modified: 20261006064449000
-tags: $:/tags/ViewTemplateBodyFilter
-title: $:/plugins/dndwiki-core/viewtemplates/body-filter-spots
-type: text/vnd.tiddlywiki
-
-[tag[Location]spots[]first[]then[$:/plugins/dndwiki-core/templates/body-intro]]

@@ -113,6 +113,16 @@ test.describe("after --write", function() {
 		assert.equal(result.status, 0, result.out);
 		assert.match(result.out, /0 errors, 0 warnings/);
 	});
+
+	test("checker: locks - asking the view, a transcluded secret, the hints on sections", function() {
+		tid("Geheim", {title: "Geheim", tags: "Event Secret", date: "1351"}, "<<date>>\n\nNur DM.\n");
+		tid("Nutzer", {title: "Nutzer", tags: "Person"}, "{{Geheim}}\n\n<$list filter=\"[{$:/state/dndwiki/view}]\">x</$list>\n");
+		tid("Mitte", {title: "Mitte", tags: "Event", date: "1351"}, "<<date>>\n\nA <<secret>> B.\n");
+		var result = run("check-dates.js", [dir]);
+		assert.match(result.out, /Nutzer\n(.*\n)*\s+warning  asks the view itself/);
+		assert.match(result.out, /Nutzer\n(.*\n)*\s+warning  transcludes the secret tiddler Geheim/);
+		assert.match(result.out, /Mitte\n(.*\n)*\s+warning  .*<<secret>>/);
+	});
 });
 
 test("every event starts with <<date>>: inserted where there is no placeholder", function() {

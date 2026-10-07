@@ -1,7 +1,7 @@
 caption: {{$:/core/images/preview-open}} <<dnd.t View/Caption>>
 created: 20261007162511000
 description: <<dnd.t View/Hint>>
-modified: 20261007162511000
+modified: 20261007170245412
 tags: $:/tags/PageControls
 title: $:/plugins/dndwiki-core/ui/view-switcher
 type: text/vnd.tiddlywiki
@@ -34,7 +34,7 @@ type: text/vnd.tiddlywiki
 <span class="dnd-view-current"><$transclude $variable="dnd.viewname" view={{{ [dndview[]] }}}/></span>
 </$button>
 </span>
-<$reveal state=<<dnd-popup>> type="popup" position="below" animate="yes">
+<$reveal state=<<dnd-popup>> type="popup" position="belowleft" animate="yes">
 <div class="tc-drop-down dnd-view-dropdown">
 <$list filter="[dndview:choices[]]" variable="dnd-choice">
 <$button class="tc-btn-invisible" set="$:/state/dndwiki/view" setTo=<<dnd-choice>>>

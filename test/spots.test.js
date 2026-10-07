@@ -44,12 +44,9 @@ test.describe("reading", function() {
 		assert.deepEqual(f("[[Kantine]spottarget[Grum]]"), ["Grum"]);
 	});
 
-	test("text of a spot", function() {
-		assert.deepEqual(f("[[Town]spottext[Old Well]]"), ["Deep and dark."]);
-	});
-
-	test("intro: the body before the first spot", function() {
-		assert.deepEqual(f("[[Town]spotintro[]]"), ["A town.\n\n"]);
+	test("text of a spot (tooltip on the map): without its heading", function() {
+		var text = h.render(wiki, "text/plain", "<$dnd-body $tiddler=\"Town\" $mode=\"block\" $only=\"spot\" $name=\"Old Well\" $marker=\"no\"/>");
+		assert.equal(text.trim(), "Deep and dark.");
 	});
 
 	test("plain name and anchor of a name with a link", function() {
@@ -83,14 +80,15 @@ test.describe("reading", function() {
 });
 
 test.describe("body and map tab", function() {
-	test("the body shows only the intro", function() {
-		var body = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/templates/body-intro\" mode=\"block\"/>", {currentTiddler: "Town"});
-		assert.ok(body.indexOf("A town.") !== -1 && body.indexOf("Deep and dark") === -1, body);
+	test("the body of a location shows the text without its spots", function() {
+		var body = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/templates/body-sections\" mode=\"block\"/>", {currentTiddler: "Town"});
+		assert.ok(body.indexOf("A town.") !== -1 && body.indexOf("Deep and dark") === -1 && body.indexOf("dnd-spot") === -1, body);
 	});
 
-	test("body filter picks the intro for locations with spots only", function() {
-		assert.deepEqual(f("[[Town]] :cascade[all[shadows+tiddlers]tag[$:/tags/ViewTemplateBodyFilter]!is[draft]get[text]]"), ["$:/plugins/dndwiki-core/templates/body-intro"]);
-		assert.notDeepEqual(f("[[Baile]] :cascade[all[shadows+tiddlers]tag[$:/tags/ViewTemplateBodyFilter]!is[draft]get[text]]"), ["$:/plugins/dndwiki-core/templates/body-intro"]);
+	test("body filter picks the sections template for bodies with sections only", function() {
+		var cascade = " :cascade[all[shadows+tiddlers]tag[$:/tags/ViewTemplateBodyFilter]!is[draft]get[text]]";
+		assert.deepEqual(f("[[Town]]" + cascade), ["$:/plugins/dndwiki-core/templates/body-sections"]);
+		assert.notDeepEqual(f("[[Baile]]" + cascade), ["$:/plugins/dndwiki-core/templates/body-sections"]);
 	});
 
 	test("map tab: heading of a joined spot links to the tiddler", function() {

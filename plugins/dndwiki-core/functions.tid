@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261007163804094
+modified: 20261007170245412
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -96,7 +96,7 @@ type: text/vnd.tiddlywiki
 <%if [<dnd-text>!is[blank]] %><div class="dnd-dateline"><$text text=<<dnd-text>>/></div><%endif%>
 </$let>
 <%else%>
-<div class="dnd-dateline"><$text text={{{ [<currentTiddler>get[date]dateformat:era[]!is[blank]] ~[calendar[era]!is[blank]addprefix[???? ]] ~[[????]] }}}/></div>
+<div class="dnd-dateline"><$text text={{{ [<currentTiddler>visibledate[]dateformat:era[]!is[blank]] ~[calendar[era]!is[blank]addprefix[???? ]] ~[[????]] }}}/></div>
 <%endif%>
 <<dnd.datecheck>>
 \end
@@ -141,6 +141,12 @@ type: text/vnd.tiddlywiki
 <%endif%>
 
 </$dnd-date>
+\end
+
+<!-- A lock: <<secret "Theren" "Actia">> locks the section it stands at (modules/sections.js),
+     <$secret for="...">...</$secret> what it encloses (widgets/sections.js). Draws nothing itself:
+     the section shows the marker for whom it is. -->
+\procedure secret()
 \end
 
 <!-- A spot of a location (modules/spots.js): <<spot "Name">>, <<spot "Tempel von [[Chauntea]]">>,

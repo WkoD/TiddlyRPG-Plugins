@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261007163804094
+modified: 20261007170245412
 
 Filter operator for the event table: one table row per point in time of the date field (split
 by modules/dates.js, the same rules as the timeline) - a point is one row, a span two (its start
@@ -21,7 +21,8 @@ section of its own, "1351, 1352, ..") counts as continued. A joined cell combine
 first and last row in time (start...end shows none).
 
 The title jumps to the earliest section of its cell (<$dnd-jump anchor="date-<n>">,
-widgets/jump.js); an undated row opens the event as a whole.
+widgets/jump.js); an undated row opens the event as a whole. Sections the active view does not
+see (a lock in the body, dates.hidden) are left out.
 
 \*/
 
@@ -46,9 +47,13 @@ exports.eventrows = function(source,operator,options) {
 		var parsed = dates.parse(tiddler.fields.date),
 			labels = dates.sections(wiki,title).labels,
 			campaign = visibility.campaign(wiki,title),
-			sections = parsed.sections,
+			hidden = dates.hidden(wiki,title),
+			sections = parsed.sections.filter(function(section,i) { return !hidden[i + 1]; }),
 			own = [];
-		$tw.utils.each(sections,function(section,i) {
+		$tw.utils.each(parsed.sections,function(section,i) {
+			if(hidden[i + 1]) {
+				return;
+			}
 			var label = labels[i + 1] || "";
 			if(typeof section.start === "object") {
 				own.push({point: section.start, section: i + 1, label: label});

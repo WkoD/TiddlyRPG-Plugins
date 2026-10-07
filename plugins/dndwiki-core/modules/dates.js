@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261006064449000
+modified: 20261007170245412
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -33,8 +33,10 @@ scripts/migrate-dates.js converts it.
 
 Dated sections of a body: <<date>> stands for the next section of the date field, <<date 3>>
 for section 3 (the following ones count on from there), <<date "Caption">> or
-<<date 3 "Caption">> add a caption. sections() reads them from the parse tree of the tiddler,
-together with the links of each section; text before the first placeholder is section 0.
+<<date 3 "Caption">> add a caption; <$date n="3" label="Caption">...</$date> is the block form.
+sections() takes them from the model of the body (modules/sections.js), together with the links
+of each section; text before the first dated section is section 0. hidden() and visibleField()
+leave out what the active view does not see.
 
 \*/
 
@@ -42,7 +44,9 @@ together with the links of each section; text before the first placeholder is se
 
 var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
 	language = require("$:/plugins/dndwiki-core/modules/language.js"),
-	spots = require("$:/plugins/dndwiki-core/modules/spots.js");
+	spots = require("$:/plugins/dndwiki-core/modules/spots.js"),
+	sections = require("$:/plugins/dndwiki-core/modules/sections.js"),
+	visibility = require("$:/plugins/dndwiki-core/modules/visibility.js");
 
 var UNKNOWN = exports.UNKNOWN = "unknown",
 	FOREVER = exports.FOREVER = "forever",
@@ -261,14 +265,18 @@ The section of a parsed field that a point in time falls into: its number (the f
 0. A section runs from the first day of its start to the last day of its end; an unknown or
 open side ("." or "..") is open. "." and ".." of the whole field (before/after) belong to no
 section. Of several sections the narrowest wins, on a tie the first - "1351" matches a section
-on 1351-07-01, but a section that only is 1351 loses against it.
+on 1351-07-01, but a section that only is 1351 loses against it. skip: {<number>: true} of
+sections to leave out (hidden from the view, see hidden()).
 */
-exports.sectionAt = function(wiki,parsed,point) {
+exports.sectionAt = function(wiki,parsed,point,skip) {
 	var scale = exports.scale(wiki),
 		at = exports.dayRange(scale,point),
 		best = 0,
 		bestWidth = Infinity;
 	$tw.utils.each(parsed.sections,function(section,i) {
+		if(skip && skip[i + 1]) {
+			return;
+		}
 		var lo = typeof section.start === "object" ? exports.dayRange(scale,section.start).lo : -Infinity,
 			hi = typeof section.end === "object" ? exports.dayRange(scale,section.end).hi : Infinity,
 			width = hi - lo;
@@ -430,112 +438,95 @@ exports.formatLong = function(wiki,cal,point) {
 
 /* ---------- Dated sections of a body ---------- */
 
-function attribute(node,name) {
-	var attr = node.attributes && node.attributes[name];
-	return attr && attr.type === "string" ? attr.value : undefined;
-}
-
-function hasClass(node,name) {
-	var cls = attribute(node,"class");
-	return !!cls && (" " + cls + " ").indexOf(" " + name + " ") !== -1;
-}
-
-// Number and caption of a placeholder: <<date>>, <<date 3>>, <<date "Caption">>,
-// <<date 3 "Caption">>, <<date n:3 label:"Caption">>
-function placeholderParams(node) {
-	var first = attribute(node,"0"),
-		second = attribute(node,"1"),
-		n = attribute(node,"n"),
-		label = attribute(node,"label");
-	if(first !== undefined) {
-		if(n === undefined && /^\s*\d+\s*$/.test(first)) {
-			n = first;
-		} else if(label === undefined) {
-			label = first;
-		}
-	}
-	if(second !== undefined && label === undefined) {
-		label = second;
-	}
-	return {n: n !== undefined && /^\s*\d+\s*$/.test(n) ? parseInt(n,10) : null, label: (label || "").trim()};
-}
-
 /*
-The <<date>> placeholders and the links of a tiddler body, from its parse tree (cached per
-tiddler):
-  placeholders  [{start, end, number, label, explicit, first}] in document order; number is
-                resolved (counting on from the previous one, the first is 1); first: only
-                whitespace or pragmas stand before it
-  links         {<section number>: [titles]}; section 0 is the text before the first placeholder
-  spotlinks     {<section number>: [{place, spot, text}]} - the <<spotlink>> calls
+The dated sections of a body (<<date>> and <$date>, modules/sections.js), cached per tiddler:
+  placeholders  [{id, start, end, number, label, explicit, first}] in document order; number is
+                resolved (counting on from the previous one over both forms, the first is 1);
+                first: only whitespace or pragmas stand before it
+  links         {<section number>: [{to, id}]}; section 0 is the text before the first dated
+                section; links in notes of the DM are left out
+  spotlinks     {<section number>: [{place, spot, text, id}]} - the <<spotlink>> calls
                 (modules/spots.js), assigned to sections the same way
-  labels        {<section number>: caption} of the first placeholder of each section with one
-Placeholders in code are not counted (they are not parsed). Subtrees with the class
-tc-tiddler-frame (notes of the DM, snippet "open items") are skipped.
+  labels        {<section number>: caption} of the first section of each number with one
+id: the innermost section (modules/sections.js) - whether the active view sees it is decided by
+sections.visible() when asked, see hidden() and visibleField().
 */
 exports.sections = function(wiki,title) {
 	return wiki.getCacheForTiddler(title,"dndwiki-sections",function() {
-		var tiddler = wiki.getTiddler(title),
-			text = (tiddler && tiddler.fields.text) || "",
-			parser = tiddler ? wiki.parseTiddler(title) : null,
+		var model = sections.read(wiki,title),
 			placeholders = [],
-			found = [];
-		var walk = function(nodes,start) {
-			$tw.utils.each(nodes,function(node) {
-				var at = node.start !== undefined ? node.start : start;
-				if(hasClass(node,"tc-tiddler-frame")) {
-					return;
-				}
-				if(node.type === "transclude" && attribute(node,"$variable") === "date" && node.start !== undefined) {
-					var params = placeholderParams(node);
-					placeholders.push({start: node.start, end: node.end, n: params.n, label: params.label});
-				} else if(node.type === "link") {
-					var to = attribute(node,"to");
-					if(to) {
-						found.push({to: to, at: at});
-					}
-				}
-				if(node.children) {
-					walk(node.children,at);
-				}
-			});
-		};
-		walk(parser && parser.tree ? parser.tree : [],0);
-		var number = 0,
 			labels = Object.create(null),
-			links = Object.create(null);
-		$tw.utils.each(placeholders,function(p) {
-			p.explicit = p.n !== null;
-			number = p.explicit ? p.n : number + 1;
-			p.number = number;
-			delete p.n;
-			p.first = text.substring(0,p.start).replace(/^[ \t]*\\.*$/mg,"").trim() === "";
-			if(p.label && !labels[number]) {
-				labels[number] = p.label;
+			links = Object.create(null),
+			spotlinks = Object.create(null);
+		var numberOf = function(id) {
+			for(var up = id; up !== -1; up = model.records[up].parent) {
+				var record = model.records[up];
+				if(record.kind === "date" && record.counts) {
+					return record.number;
+				}
 			}
-		});
-		var sectionAt = function(at) {
-			var k = 0;
-			while(k < placeholders.length && placeholders[k].start < at) {
-				k++;
-			}
-			return k ? placeholders[k - 1].number : 0;
+			return 0;
 		};
-		$tw.utils.each(found,function(link) {
-			var section = sectionAt(link.at),
-				list = links[section] = links[section] || [];
-			if(list.indexOf(link.to) === -1) {
-				list.push(link.to);
+		$tw.utils.each(model.records,function(record) {
+			if(record.kind === "date" && record.counts) {
+				placeholders.push({id: record.id, start: record.start, end: record.end, number: record.number, label: record.label, explicit: record.explicit, first: record.first});
+				if(record.label && !labels[record.number]) {
+					labels[record.number] = record.label;
+				}
 			}
 		});
-		var spotlinks = Object.create(null);
-		$tw.utils.each(spots.read(wiki,title).links,function(link) {
-			var section = sectionAt(link.start),
-				list = spotlinks[section] = spotlinks[section] || [];
-			if(!list.some(function(l) { return l.place === link.place && l.spot === link.spot; })) {
-				list.push({place: link.place, spot: link.spot, text: link.text});
+		$tw.utils.each(model.links,function(link) {
+			if(!link.frame) {
+				var n = numberOf(link.section);
+				(links[n] = links[n] || []).push({to: link.to, id: link.section});
 			}
+		});
+		$tw.utils.each(model.spotlinks,function(link) {
+			var n = numberOf(link.section),
+				ref = spots.reference(link.spec);
+			(spotlinks[n] = spotlinks[n] || []).push({place: link.place, spot: ref.spot, text: ref.text, id: link.section});
 		});
 		return {placeholders: placeholders, links: links, spotlinks: spotlinks, labels: labels};
 	});
+};
+
+// The numbers of the dated sections of <title> the active view (or <view>) does not see:
+// {<number>: true}
+var hidden = exports.hidden = function(wiki,title,view) {
+	var result = Object.create(null);
+	view = view || visibility.current(wiki);
+	$tw.utils.each(exports.sections(wiki,title).placeholders,function(p) {
+		if(!sections.visible(wiki,title,p.id,view)) {
+			result[p.number] = true;
+		}
+	});
+	return result;
+};
+
+/*
+The date field of <title> as the active view sees it: without the sections it does not see,
+"."/".." of the whole field kept; the field unchanged if it sees them all.
+*/
+exports.visibleField = function(wiki,title,view) {
+	var tiddler = wiki.getTiddler(title),
+		field = (tiddler && tiddler.fields.date) || "",
+		skip = hidden(wiki,title,view);
+	if(!Object.keys(skip).length) {
+		return field;
+	}
+	var parsed = exports.parse(field),
+		side = function(value) { return value === FOREVER ? ".." : "."; },
+		parts = [];
+	if(parsed.before) {
+		parts.push(side(parsed.before));
+	}
+	$tw.utils.each(parsed.sections,function(section,i) {
+		if(!skip[i + 1]) {
+			parts.push(section.text);
+		}
+	});
+	if(parsed.after) {
+		parts.push(side(parsed.after));
+	}
+	return parts.length === (parsed.before ? 1 : 0) + (parsed.after ? 1 : 0) ? "" : parts.join(", ");
 };

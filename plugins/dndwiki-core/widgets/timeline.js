@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261007163804094
+modified: 20261007170245412
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -41,6 +41,9 @@ months and in-between years are fitted in or left out.
 
 A selected event draws a line from every section in its lane to the card, all leaving the card
 where its own connector ends.
+
+Sections the active view does not see (a lock in the body, dates.hidden) are left out, also
+from the span on the card.
 
 Campaign events (a player character is tagged on them, modules/visibility.js) are drawn solid,
 all other events dashed; they take the colour of the hub Campaign.
@@ -257,6 +260,7 @@ TimelineWidget.prototype.collect = function() {
 		}
 		var parsed = dates.parse(tiddler.fields.date),
 			labels = dates.sections(wiki,title).labels,
+			hidden = dates.hidden(wiki,title),
 			campaign = visibility.campaign(wiki,title),
 			secs = [],
 			ev = {
@@ -268,6 +272,9 @@ TimelineWidget.prototype.collect = function() {
 				})
 			};
 		$tw.utils.each(parsed.sections,function(section,i) {
+			if(hidden[i + 1]) {
+				return;
+			}
 			var s = daysOf(C,section,i + 1,section.start,section.end,section.range);
 			if(s.lo === undefined) {
 				return;
@@ -292,7 +299,7 @@ TimelineWidget.prototype.collect = function() {
 		ev.end = Math.max.apply(null,secs.map(function(s) { return s.hi; }));
 		ev.first = typeof secs[0].start === "object" ? secs[0].start : secs[0].end;
 		ev.openStart = typeof secs[0].start !== "object" || !!ev.before;
-		ev.label = dates.formatField(wiki,C.cal,parsed);
+		ev.label = dates.formatField(wiki,C.cal,Object.keys(hidden).length ? dates.parse(dates.visibleField(wiki,title)) : parsed);
 		events.push(ev);
 	});
 	events.sort(function(a,b) {
