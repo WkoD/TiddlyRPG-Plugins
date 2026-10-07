@@ -92,14 +92,22 @@ test.describe("checks", function() {
 		}
 	});
 
-	test("parent locked for a player who sees the location", function() {
-		h.add(wiki, {title: "Hidden Land", tags: "Location Frigg", text: ""});
+	test("parent locked for someone who sees the location", function() {
+		h.add(wiki, {title: "Hidden Land", tags: "Location Frigg Secret", text: ""});
 		h.add(wiki, {title: "Open Village", tags: "Location", location: "[[Hidden Land]]", text: ""});
+		h.add(wiki, {title: "Ragna", tags: "Player", player: "Jan"});
 		try {
 			assert.deepEqual(f("[[Open Village]locationcheck[]]"), ["Location/Check/LockedParent"]);
+			// Locked for the same players: fine; for more players: reported
+			h.add(wiki, {title: "Open Village", tags: "Location Frigg Secret", location: "[[Hidden Land]]", text: ""});
+			assert.deepEqual(f("[[Open Village]locationcheck[]]"), []);
+			h.add(wiki, {title: "Open Village", tags: "Location Frigg Ragna Secret", location: "[[Hidden Land]]", text: ""});
+			assert.deepEqual(f("[[Open Village]locationcheck[]]"), ["Location/Check/LockedParent"]);
+			// A player character tagged without Secret is no lock
+			h.add(wiki, {title: "Hidden Land", tags: "Location Frigg", text: ""});
+			assert.deepEqual(f("[[Open Village]locationcheck[]]"), []);
 		} finally {
-			wiki.deleteTiddler("Hidden Land");
-			wiki.deleteTiddler("Open Village");
+			["Hidden Land", "Open Village", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
 		}
 	});
 });
@@ -358,17 +366,13 @@ test.describe("de-DE", function() {
 		assert.ok(avalon.indexOf("Kantine") < avalon.indexOf(">Zeitstrahl<"));
 	});
 
-	test("events locked for the player are left out of the event list", function() {
-		assert.ok(avalon.indexOf("Friggs Traum") === -1);
+	test("locked events are left out of the event list", function() {
+		assert.ok(h.inView(wiki, "public", function() { return h.view(wiki, "Insel Avalon"); }).indexOf("Friggs Traum") === -1);
 	});
 
-	test("... but shown to that player", function() {
-		h.add(wiki, {title: "$:/state/dndwiki/player", text: "Frigg"});
-		try {
-			assert.ok(h.view(wiki, "Insel Avalon").indexOf("Friggs Traum") !== -1);
-		} finally {
-			wiki.deleteTiddler("$:/state/dndwiki/player");
-		}
+	test("... but shown to their player and the DM", function() {
+		assert.ok(h.inView(wiki, "player:Anna", function() { return h.view(wiki, "Insel Avalon"); }).indexOf("Friggs Traum") !== -1);
+		assert.ok(avalon.indexOf("Friggs Traum") !== -1);
 	});
 
 	test("location with a map only: one tab", function() {

@@ -1,6 +1,6 @@
 caption: DnD graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261006154328000
+modified: 20261007163804094
 title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 
 \whitespace trim
@@ -38,7 +38,7 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-graph
 <$properties $filter="[tag[Organisation]dnd.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[dnd.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
 
-<$list filter={{!!filter}}>
+<$list filter="[subfilter{!!filter}] :filter[dnd.visible[]]">
 <<dnd.node>>
 <$edges.typed />
 </$list>

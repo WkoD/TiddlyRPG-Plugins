@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261006154328000
+modified: 20261007163804094
 title: $:/dndwiki/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -36,7 +36,7 @@ Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat
 Location/Check/ArtifactTwice: Ort prüfen: Ein Artefakt ist einzigartig und liegt an einem Ort (Feld location hat mehrere Einträge)
 Location/Check/Cycle: Ort prüfen: Die Oberorte bilden einen Kreis
 Location/Check/LocationTwice: Ort prüfen: Ein Ort liegt nur in einem Ort (Feld location hat mehrere Einträge)
-Location/Check/LockedParent: Ort prüfen: Der Oberort ist für einen Spieler gesperrt, der diesen Ort sieht
+Location/Check/LockedParent: Ort prüfen: Der Oberort ist für jemanden gesperrt, der diesen Ort sieht
 Location/Check/NotALocation: Ort prüfen: Das Feld location nennt einen Tiddler, der kein Ort ist
 Location/Check/OwnerAndLocation: Ort prüfen: Ein Artefakt hat einen Besitzer oder einen Ort, nicht beides; wer es vorher hatte, steht in former
 Location/Check/PersonTwice: Ort prüfen: Eine Person hat einen Ort; wer pendelt, bekommt das umfassende Gebiet
@@ -47,17 +47,17 @@ Map/EditDone: Bearbeiten beenden
 Map/Fit: Karte einpassen
 Map/HideNodes: Knoten ausblenden
 Map/ShowNodes: Knoten einblenden
-Player/Adventurers: Abenteurer
-Player/Login: Login
-Player/Logout: Logout
+Player/Active: Spielerfiguren
+Player/Former: Frühere Figuren
 Player/Player: Spieler:
 Relations/Graph: Graph
 Relations/List: Liste
 Relations/Rules: Kontrolliert
 Relations/Spot: Spot
+Secret/DMOnly: Geheim: nur DM
+Secret/For: Geheim: $names$
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
-Snippet/PlayerSpoiler: Spoiler Spieler
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden
 Spot/PlaceMissing: Ort „$place$“ gibt es nicht
 TBC/Other: Anderes
@@ -69,3 +69,8 @@ Timeline/Unknown: Zeitraum unbekannt
 Timeline/WheelHint: Strg + Mausrad: Zoom
 Timeline/ZoomIn: Vergrößern
 Timeline/ZoomOut: Verkleinern
+View/Caption: Sicht
+View/DM: DM
+View/Hint: Wählen, wessen Sicht das Wiki zeigt
+View/Player: $player$ ($characters$)
+View/Public: Öffentlich

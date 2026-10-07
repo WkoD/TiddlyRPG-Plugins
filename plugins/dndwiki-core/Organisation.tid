@@ -1,12 +1,12 @@
 caption: <<dnd.title Organisation>>
 color: #ff8000
 created: 20200209100141327
-modified: 20261001095424000
+modified: 20261007163804094
 tags: Index
 title: Organisation
 type: text/vnd.tiddlywiki
 
-<$list filter="[tag[Organisation]sort[title]]">
+<$list filter="[tag[Organisation]] :filter[dnd.visible[]] +[sort[title]]">
 <div class="tc-menu-list-subitem">
 <<deadlink title={{!!title}} style="~~">>
 </div>

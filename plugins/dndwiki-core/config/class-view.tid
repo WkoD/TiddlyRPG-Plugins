@@ -1,0 +1,7 @@
+created: 20261007162511000
+modified: 20261007162511000
+tags: $:/tags/ClassFilters/PageTemplate
+title: $:/plugins/dndwiki-core/config/class-view
+type: text/vnd.tiddlywiki
+
+[dndview:mode[]addprefix[dnd-view-]]

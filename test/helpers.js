@@ -46,12 +46,13 @@ function fixtures(wiki) {
 		{title: "Stray", tags: "Location", location: "Grum", text: "Lies in a person."},
 		{title: "Nowhere", tags: "Location", text: "Empty."},
 		{title: "Grum", tags: "Person", location: "[[Insel Avalon]]", date: "./1350-07", text: "An orc."},
+		// Player characters and the lock (modules/visibility.js): Frigg is played by Anna
 		{title: "Frigg", tags: "Player", player: "Anna", text: "A player character."},
-		{title: "Secret", tags: "Location Frigg", text: "Only for Frigg."},
-		{title: "Der dunkle Turm", tags: "Campaign Event", date: "1351-07-01, 1351-07-11", text: "At [[Baile]].\n\n<<date 2 \"Traum von Shinfel\">>\n\nAt [[Insel Avalon]]."},
+		{title: "Hideout", tags: "Location Frigg Secret", text: "Only for Frigg."},
+		{title: "Der dunkle Turm", tags: "Event Frigg", date: "1351-07-01, 1351-07-11", text: "At [[Baile]].\n\n<<date 2 \"Traum von Shinfel\">>\n\nAt [[Insel Avalon]]."},
 		{title: "Hafenfest", tags: "Event", date: "1351-07-05", text: "At [[Insel Avalon]]."},
 		{title: "Sage", tags: "Event", text: "Undated."},
-		{title: "Friggs Traum", tags: "Event Frigg", date: "1351-07-03", text: "At [[Insel Avalon]]."},
+		{title: "Friggs Traum", tags: "Event Frigg Secret", date: "1351-07-03", text: "At [[Insel Avalon]]."},
 		{title: "PlayerLevel", tags: "Information", text: "100000 EXP"},
 		// The graph widget needs a browser; the relation tests use the list tab
 		{title: "$:/state/dndwiki-core/relations-tab", text: "$:/plugins/dndwiki-core/viewtemplates/relations/list"},
@@ -71,6 +72,26 @@ exports.setLanguage = function(wiki, code) {
 // Adds a tiddler from plain fields
 exports.add = function(wiki, fields) {
 	wiki.addTiddler(new $tw.Tiddler(fields));
+};
+
+// Sets the view (modules/visibility.js): "public", "player:<name>", "dm"; null removes it, then
+// the default applies - dm here, as the tests run without $:/status/IsReadOnly
+exports.setView = function(wiki, view) {
+	if(view === null) {
+		wiki.deleteTiddler("$:/state/dndwiki/view");
+	} else {
+		wiki.addTiddler(new $tw.Tiddler({title: "$:/state/dndwiki/view", text: view}));
+	}
+};
+
+// Runs fn in a view and restores the default afterwards
+exports.inView = function(wiki, view, fn) {
+	exports.setView(wiki, view);
+	try {
+		return fn();
+	} finally {
+		exports.setView(wiki, null);
+	}
 };
 
 // Renders wikitext with the global definitions imported, as the page template does in the browser

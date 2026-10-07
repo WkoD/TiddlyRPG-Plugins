@@ -1,0 +1,9 @@
+caption: {{$:/language/SideBar/Recent/Caption}}
+created: 20261007162511000
+modified: 20261007162511000
+title: $:/plugins/dndwiki-core/ui/sidebar-recent
+type: text/vnd.tiddlywiki
+
+<!-- Tab "Recent" of ui/sidebar outside the view of the DM: $:/core/ui/SideBar/Recent, only what
+     the active view sees. -->
+<$transclude $variable="timeline" format={{$:/language/RecentChanges/DateFormat}} limit={{$:/config/RecentLimit}} subfilter="dnd.visible[]"/>

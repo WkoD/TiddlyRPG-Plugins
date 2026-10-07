@@ -17,8 +17,8 @@ test.before(function() {
 		wiki = $tw.wiki;
 		dates = $tw.modules.execute("$:/plugins/dndwiki-core/modules/dates.js");
 		h.setLanguage(wiki, "de-DE");
-		h.add(wiki, {title: "Schild", tags: "Campaign Event", date: "1351-07-05, 1351-07-09, 1351-07-22/1351-07-24",
-			text: "<<date \"Banbanzas Bitte\">>\n\nIn [[Baile]].\n\n<<date>>\n\nAuf [[Insel Avalon]] und [[Secret]].\n\n```\n<<date>>\n```\n\n<<date \"Das Ritual\">>\n\nNach [[Baile]].\n\n@@.tc-tiddler-frame\n[[Nowhere]]\n@@\n"});
+		h.add(wiki, {title: "Schild", tags: "Event Frigg", date: "1351-07-05, 1351-07-09, 1351-07-22/1351-07-24",
+			text: "<<date \"Banbanzas Bitte\">>\n\nIn [[Baile]].\n\n<<date>>\n\nAuf [[Insel Avalon]] und [[Hideout]].\n\n```\n<<date>>\n```\n\n<<date \"Das Ritual\">>\n\nNach [[Baile]].\n\n@@.tc-tiddler-frame\n[[Nowhere]]\n@@\n"});
 		h.add(wiki, {title: "Vinland", tags: "Event", date: "1351-08-15, 1351-11-12/..",
 			text: "Zuerst [[Nowhere]].\n\n<<date 2>>\n\nDann [[Insel Avalon]]."});
 	});
@@ -67,9 +67,14 @@ test("locations per section; DM notes skipped", function() {
 	assert.equal(h.filter(wiki, "[[Vinland]sectionlinks[2]]").join(), "Insel Avalon");
 });
 
-test("locations locked for the player are left out", function() {
-	var html = body("Schild");
-	assert.ok(html.indexOf('data-tag-title="Insel Avalon"') !== -1 && html.indexOf('data-tag-title="Secret"') === -1);
+test("locked locations are left out of the pills", function() {
+	var html = h.inView(wiki, "public", function() { return body("Schild"); });
+	assert.ok(html.indexOf('data-tag-title="Insel Avalon"') !== -1 && html.indexOf('data-tag-title="Hideout"') === -1);
+});
+
+test("... but shown to their player and the DM", function() {
+	assert.ok(h.inView(wiki, "player:Anna", function() { return body("Schild"); }).indexOf('data-tag-title="Hideout"') !== -1);
+	assert.ok(body("Schild").indexOf('data-tag-title="Hideout"') !== -1);
 });
 
 test("head: span of the field and the locations before the first placeholder", function() {
@@ -108,7 +113,7 @@ test("a section missing in the date field", function() {
 });
 
 test("edit preview: the draft finds its placeholders", function() {
-	h.add(wiki, {title: "Draft of 'Schild'", "draft.of": "Schild", "draft.title": "Schild", tags: "Campaign Event",
+	h.add(wiki, {title: "Draft of 'Schild'", "draft.of": "Schild", "draft.title": "Schild", tags: "Event Frigg",
 		date: "1351-07-05, 1351-07-09, 1351-07-22/1351-07-24", text: wiki.getTiddler("Schild").fields.text});
 	try {
 		assert.equal(headings(body("Draft of 'Schild'")).length, 3);
@@ -183,13 +188,13 @@ test("<<date>> without any date in the field: ???? with the era", function() {
 });
 
 test("no date line for an event locked for the player", function() {
-	h.add(wiki, {title: "$:/state/dndwiki/player", text: "Frigg"});
-	h.add(wiki, {title: "Geheim", tags: "Event Ragna", date: "1351"});
-	h.add(wiki, {title: "Ragna", tags: "Player"});
+	h.add(wiki, {title: "Geheim", tags: "Event Ragna Secret", date: "1351"});
+	h.add(wiki, {title: "Ragna", tags: "Player", player: "Jan"});
 	try {
-		assert.doesNotMatch(h.view(wiki, "Geheim"), /dnd-dateline/);
+		assert.doesNotMatch(h.inView(wiki, "player:Anna", function() { return h.view(wiki, "Geheim"); }), /dnd-dateline/);
+		assert.match(h.inView(wiki, "player:Jan", function() { return h.view(wiki, "Geheim"); }), /dnd-dateline/);
 	} finally {
-		["$:/state/dndwiki/player", "Geheim", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
+		["Geheim", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
 	}
 });
 

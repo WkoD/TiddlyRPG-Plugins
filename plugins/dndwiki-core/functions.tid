@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261006064449000
+modified: 20261007163804094
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -8,10 +8,10 @@ type: text/vnd.tiddlywiki
      operators, e.g. [<currentTiddler>dnd.dead[]] - so they behave the same in ViewTemplates,
      cascades, ClassFilters and graph templates. -->
 
-<!-- Player lock: yields a result if the tiddler is visible for the logged-in player
-     ($:/state/dndwiki/player). A tiddler is locked if it is tagged with another player
-     character (a tiddler tagged "Player"). -->
-\function dnd.visible() [tags[]tag[Player]] ~[{$:/state/dndwiki/player}] +[compare:string:eq{$:/state/dndwiki/player}]
+<!-- Lock: the input titles the active view ($:/state/dndwiki/view) sees - every tiddler, except
+     one tagged Secret: that only the DM and the players of the player characters it is tagged
+     with (modules/visibility.js). -->
+\function dnd.visible() [dndvisible[]]
 
 <!-- Deceased/destroyed: the date field ends (last section a range with an end other than
      "..", modules/dates.js). Events excluded - their sections are points and spans in time. -->

@@ -1,9 +1,0 @@
-caption: <<dnd.t Snippet/PlayerSpoiler>>
-created: 20220319112241716
-modified: 20261001095424000
-tags: $:/tags/TextEditor/Snippet
-title: $:/plugins/dndwiki-core/snippets/player-spoiler
-type: text/vnd.tiddlywiki
-
-<$list filter="[{$:/state/dndwiki/player}] +[compare:string:eq[PLAYER]]" variable=null>
-</$list>

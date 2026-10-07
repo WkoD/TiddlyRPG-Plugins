@@ -47,7 +47,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `location` - parents and places within (`filters/location.js`), occupants (items too), the
     checks of `locationcheck` (artifacts too), the path below the title, the relation list of a
     location, the events of the places within, map tabs (map and battle maps, labels and order),
-    map buttons, event history, player lock, person view
+    map buttons, event history, the lock, person view
+  - `views` - the rule of `dnd.visible` in every view (public, a player, the DM; active and
+    former characters), the default view, the choices, campaign events through player
+    characters, the page control, the page class, the marker of a secret, the `Player` hub, and
+    every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs,
+    open items). `h.setView`/`h.inView` set the view; without them the tests run in the view
+    of the DM (no `$:/status/IsReadOnly`)
   - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the hub
     lists of `Item` and of a category, a category of the campaign, the file of a book (field
     `data`), colour and image folder through the base type
@@ -152,7 +158,8 @@ the tiddler title:
   from its parse tree - the one place of these rules, used by the date filters, `eventrows`, the
   timeline, `dnd-date` and `deadlink`), `spots.js` (see "Locations": spots and `<<spotlink>>`
   from the parse tree, plain names, the index of owners and references), `anchor-jump.js`
-  (see "Jump marks").
+  (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
+  lock, campaign events).
 - **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
@@ -161,7 +168,8 @@ the tiddler title:
   then the title; tap/click selects (below the title the card shows the tags and one line per
   section with its caption, lines to each section; a section line opens the event at that
   section). `self`: the own dates of that tiddler as a band behind the
-  lanes. Campaign events solid, other events dashed. Details in the module header.
+  lanes. Campaign events (a player character tagged) solid, other events dashed. Details in
+  the module header.
   `dnd-date` (`date.js`): finds which section a `<<date>>` placeholder stands for, by the
   position of the call in the parse tree.
   `dnd-jump` (`jump.js`, attributes `anchor`, `tabstate`, `tab`): wrapper around ordinary
@@ -177,7 +185,12 @@ the tiddler title:
   `dateended`, `datecheck`, `sectionlinks`, `sectionspots`, `datesection`, `calendar[...]`),
   `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
   `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spottext`, `spotintro`, `spotplain`,
-  `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`, `maptabs`).
+  `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`, `maptabs`),
+  `visibility.js` (`dndvisible`, `dndview`, `dndcharacter`, `dndcharacters`, `dndplayer`,
+  `dndplayedby`, see "Views").
+- **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
+  `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
+  tab "Recent"), see "Views".
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`).
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
@@ -190,19 +203,23 @@ the tiddler title:
   `location-path` (path below the title, with the hints of `locationcheck` and `itemcheck`),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
-  one type scope filter for both tabs), `player`. Order via `list-after`. Plus `body-filter`
+  one type scope filter for both tabs), `secret` (marker of a secret: whom it is for), `player`
+  (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-spots` (cascade, see below).
-- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `player-spoiler`,
-  `date-section`.
+- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `date-section`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
   rules, battle map width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
-  dated sections, location pills) and `location` (path, spot pills, spots, map buttons; static
-  CSS, `type: text/css`).
+  dated sections, location pills), `location` (path, spot pills, spots, map buttons; static
+  CSS, `type: text/css`) and `view` (bar of the view, page control, marker of a secret, cards
+  of the `Player` hub; wikitext for the colour of `Player`).
   **Templates** `templates/image`, `templates/body-locked`, `templates/body-intro` (body of a
   location with spots: the text before the first spot), `templates/title-translated`,
-  `templates/subtitle`.
+  `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
+  "Views").
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
-  `title-translated`, `subtitle` - see below.
+  `class-view`, `title-translated`, `subtitle`, `view-tags` - see below; `dm-published`
+  (`$:/config/dndwiki/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
+  sidebar tabs, see "Views").
 - **Search** (override of `$:/core/ui/DefaultSearchResultList` plus `search/item`): core search
   plus hubs whose translated name matches, hits shown with translated names.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
@@ -211,7 +228,9 @@ the tiddler title:
   Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Information, Index, TBC,
   TBC/Campaign; titles without prefix, tag `Index`; the item categories also tagged
   `$:/tags/dndwiki/ItemKind`, see "Items"): type tags carry the `color` field from which graph nodes,
-  tiddler borders and tag pills take their colour; `caption` is `<<dnd.title ...>>`.
+  tiddler borders and tag pills take their colour; `caption` is `<<dnd.title ...>>`. The hub
+  `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or frame
+  what it locks.
 - **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
   + relink field types; the function edge types `rules` (leader -> location, "Controls") and
   `spots` (a location -> its spots that are locations, dashed); relink of the macro parameters
@@ -398,6 +417,34 @@ The rules of items live **once** in `filters/item.js` (base type and categories)
 - The hints of `itemcheck` stand below the title (`viewtemplates/location-path`), next to
   those of `locationcheck`.
 
+## Views
+
+The rules of who sees what live **once** in `modules/visibility.js`; meaning and examples:
+`README.md` ("Player characters, views and secrets").
+
+- Player characters: tag `Player` (active) or a field `player` (former, any type). The view is
+  `$:/state/dndwiki/view` (`public`, `player:<name>`, `dm`), not saved; empty: `dm` unless
+  `$:/status/IsReadOnly` is `yes`, then `public`; `dm` in the read-only copy only with
+  `$:/config/dndwiki/view/dm-published` = `yes`. The choices (`dndview:choices`) are the
+  players of active characters.
+- Lock: tag `Secret`, visible to the DM and to the players of the player characters tagged on
+  it. A player character tagged without `Secret` means "took part" and makes an event a
+  campaign event (`visibility.campaign`, used by `eventrows` and the timeline).
+- Every place that lists titles filters with `:filter[dnd.visible[]]` (hubs, relation list,
+  ego graph through `$whitelist` of `$nodes.neighbors`, `dnd-graph`, `dnd-map`, open items,
+  search, event lists). A new list does the same. JS widgets that depend on the view refresh on
+  `visibility.watched`.
+- Tag pills and the sidebar without core overrides: the tag area comes from the cascade
+  `$:/tags/ViewTemplateTagsFilter` (`config/view-tags` -> `templates/tags`, pills
+  `templates/tag` = `$:/core/ui/TagTemplate` with `subFilter="dnd.visible[]"` for
+  `list-tagged-draggable`); the core segment `$:/core/ui/SideBarSegments/tabs` is hidden by its
+  visibility config (`config/sidebar-tabs`), `ui/sidebar` shows it in the view of the DM and
+  otherwise only "Open" and `ui/sidebar-recent`. Check both copies against
+  `$:/core/ui/TagTemplate` and `$:/core/ui/SideBarSegments/tabs` when raising the engine
+  version.
+- `filters/location.js` compares the audience of a location and its parent
+  (`visibility.audience`) for the hint `LockedParent`.
+
 ## Functions & cascades
 
 Shared checks live **once** in `functions.tid` and are called as filter operators on their
@@ -405,16 +452,12 @@ input (`[<currentTiddler>dnd.dead[]]`). So they behave the same in ViewTemplates
 ClassFilters and graph templates - `currentTiddler` is something different in each (in
 ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there).
 
-- **`dnd.visible`** - player lock: yields a result if the tiddler is visible for the logged-in
-  player (`$:/state/dndwiki/player`). All ViewTemplates check
-  `<%if [<currentTiddler>dnd.visible[]] %>`. With an empty input it still yields a result
-  while nobody is logged in - after a step that may leave nothing, filter with
-  `:filter[dnd.visible[]]` instead of chaining it
-  (`[<currentTiddler>tag[Book]] :filter[dnd.visible[]]`). The body is locked by `viewtemplates/body-filter`
-  (`$:/tags/ViewTemplateBodyFilter`, empty `list-before` = first entry of the cascade), which
-  assigns `templates/body-locked` to locked tiddlers. The map tabs of a location drop
-  sub-tiddlers locked for the player, the event tabs (timeline and list) drop locked events. A change of the lock logic (e.g. login per player) happens
-  only in the function.
+- **`dnd.visible`** - the lock: the input titles the active view sees (operator `dndvisible`,
+  rule in `modules/visibility.js`, see "Views"). All ViewTemplates check
+  `<%if [<currentTiddler>dnd.visible[]] %>`; lists filter with `:filter[dnd.visible[]]`. The
+  body is locked by `viewtemplates/body-filter` (`$:/tags/ViewTemplateBodyFilter`, empty
+  `list-before` = first entry of the cascade), which assigns `templates/body-locked` to
+  tiddlers the view does not see. A change of the rule happens only in the module.
 - **`dnd.dead`** - deceased/destroyed: the `date` field ends (last section a span whose end is
   not `..`, operator `dateended`), **events excluded**. Used by `config/class-dead` (class
   `dnd-dead`, stylesheet `styles/dead`), the graph templates and the atlas views of the
@@ -423,8 +466,11 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
 More cascade entries instead of core overrides:
 
 - `config/type-colour` (`$:/tags/TiddlerColourFilter`, after `color-field`): tiddlers without
-  their own `color` inherit the colour of their type hub. `Campaign` counts last: a campaign
-  event is always also an `Event` and keeps its colour, whatever the order of the tags.
+  their own `color` inherit the colour of their type hub.
+- `config/class-view` (`$:/tags/ClassFilters/PageTemplate`): class `dnd-view-<mode>` on the
+  page container (`public`, `player`, `dm`); `styles/view` draws the bar of the view from it.
+- `config/view-tags` (`$:/tags/ViewTemplateTagsFilter`, before the core default): the tag area
+  `templates/tags`, see "Views".
 - `config/class-pinned` (`$:/tags/ClassFilters/TiddlerTemplate`): class `dnd-pinned` for
   `$:/tags/Pinned`; `styles/pinned` hides the close button there.
 - `config/class-readonly` (`$:/tags/ClassFilters/PageTemplate`): class `dnd-readonly` on the page
@@ -518,7 +564,9 @@ also in the wikis when they raise their own `tiddlywiki` version):
 1. `npm install` (fetch the new engine).
 2. For every row of the table above: diff the overriding file against the new original in
    `node_modules/tiddlywiki/core/...` (`ui/PageTemplate/story.tid`, `wiki/macros/tag.tid`,
-   `ui/DefaultSearchResultList.tid`). Also
+   `ui/DefaultSearchResultList.tid`). Also compare `templates/tag.tid` with `ui/TagTemplate.tid`,
+   `templates/tags.tid` with `ui/ViewTemplate/tags/default.tid` and `ui/sidebar.tid` with
+   `ui/SideBarSegments/tabs.tid` (copies, no overrides), and
    compare the button list in `styles/readonly.tid` with
    `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid`. The tw5-graph
    override (`edges.typed`) is checked against `node_modules/tw5-graph/plugins/graph/macros/`

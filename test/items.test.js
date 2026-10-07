@@ -132,9 +132,10 @@ test.describe("file of a book", function() {
 		});
 	});
 
-	test("not for tiddlers locked for the player", function() {
-		withTiddlers([{title: "Diary", tags: "Artifact Book Frigg", data: "Diary.pdf"}], function() {
-			assert.ok(h.view(wiki, "Diary").indexOf("<embed") === -1);
+	test("not for tiddlers locked for the view", function() {
+		withTiddlers([{title: "Diary", tags: "Artifact Book Frigg Secret", data: "Diary.pdf"}], function() {
+			assert.ok(h.inView(wiki, "public", function() { return h.view(wiki, "Diary"); }).indexOf("<embed") === -1);
+			assert.ok(h.inView(wiki, "player:Anna", function() { return h.view(wiki, "Diary"); }).indexOf("<embed") !== -1);
 		});
 	});
 

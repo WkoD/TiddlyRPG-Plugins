@@ -72,6 +72,41 @@ Missing keys fall back to en-GB, so a partial translation works. `npm run test-l
 missing and extra keys per language. If TiddlyWiki has no interface pack for the language, set
 only `$:/language`; the TiddlyWiki interface then stays English, the D&D texts follow.
 
+## Player characters, views and secrets
+
+**Player characters.** A tiddler tagged `Player` is an active player character; its field
+`player` names the real player (`player: Tom`). A figure someone played before stays a `Person`
+(or any other type) and keeps the field `player` - a former character. The hub `Player` shows
+both as cards.
+
+**Taking part.** The tag of a player character on an event means: that character was there.
+An event with at least one player character, active or former, belongs to the campaign: the
+event table underlines it, the timeline draws it solid in the colour of the hub `Campaign`.
+
+**Secrets.** A tiddler tagged `Secret` is visible to the DM and to the players of the player
+characters it is tagged with: `Theren` + `Secret` is for Theren's player, `Secret` alone for the
+DM only. Every other tiddler is visible to everyone.
+
+**Views.** The page control "View" (sidebar) chooses whose view the wiki shows:
+
+| View | Sees |
+|---|---|
+| Public | everything not tagged `Secret` |
+| a player, e.g. "Tom (Theren)" | that, plus the secrets of their characters, active and former |
+| DM | everything; a secret tiddler is marked with whom it is for |
+
+Outside the public view a coloured bar at the top of the window shows that the view is not the
+public one. The view is not saved: after a reload the editable wiki (`npm start`) opens in the
+view of the DM, the published read-only copy in the public view. The published copy offers the
+view of the DM only if the wiki ships `$:/config/dndwiki/view/dm-published` with the text
+`yes`.
+
+What a view does not see does not show anywhere: not in hubs, lists, search results, tag pills
+and their dropdowns, the sidebar (outside the view of the DM only "Open" and "Recent"), relation
+lists, graphs, maps, event lists, timeline and table. A secret tiddler opened by its link shows
+only its title. This is no access control - the repository and the published HTML hold
+everything.
+
 ## Locations
 
 Where something is, and which place lies in which, comes from fields and from the body of a
@@ -164,7 +199,7 @@ told by the text - a list field carries every name once.
 used as a tag next to the base type. Its heading in the hub is its display name.
 
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
-body (PDF), not for tiddlers locked for the player.
+body (PDF), not for a secret the active view does not see.
 
 **Upgrading from 1.x.** `Book` was a type of its own and is now a category: every book needs
 `Artifact` (unique) or `Item` (several copies) as well. A book whose body ends in

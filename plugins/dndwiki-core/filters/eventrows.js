@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261004170125000
+modified: 20261007163804094
 
 Filter operator for the event table: one table row per point in time of the date field (split
 by modules/dates.js, the same rules as the timeline) - a point is one row, a span two (its start
@@ -29,7 +29,8 @@ widgets/jump.js); an undated row opens the event as a whole.
 
 var calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
 	dates = require("$:/plugins/dndwiki-core/modules/dates.js"),
-	language = require("$:/plugins/dndwiki-core/modules/language.js");
+	language = require("$:/plugins/dndwiki-core/modules/language.js"),
+	visibility = require("$:/plugins/dndwiki-core/modules/visibility.js");
 
 // Internal flag values; the text is only translated on output
 var FLAG_KEYS = {start: "Event/Start", end: "Event/End", cont: "Event/Continued"};
@@ -44,7 +45,7 @@ exports.eventrows = function(source,operator,options) {
 		}
 		var parsed = dates.parse(tiddler.fields.date),
 			labels = dates.sections(wiki,title).labels,
-			campaign = tiddler.hasTag("Campaign"),
+			campaign = visibility.campaign(wiki,title),
 			sections = parsed.sections,
 			own = [];
 		$tw.utils.each(sections,function(section,i) {

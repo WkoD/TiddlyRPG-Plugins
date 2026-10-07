@@ -31,7 +31,7 @@ test.describe("de-DE", function() {
 		assert.equal((h.view(wiki, "Campaign").match(/>Zeitstrahl</g) || []).length, 1);
 	});
 
-	test("type colour: Event wins over Campaign whatever the tag order", function() {
+	test("type colour: an event with a player character keeps the event colour", function() {
 		assert.equal(colour("Der dunkle Turm"), "#48a4ff");
 	});
 

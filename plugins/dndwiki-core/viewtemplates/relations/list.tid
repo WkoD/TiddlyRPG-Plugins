@@ -1,12 +1,13 @@
 caption: <<dnd.t Relations/List>>
 created: 20260713135021000
-modified: 20261006064449000
+modified: 20261007163804094
 title: $:/plugins/dndwiki-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
-\function dnd.hits.default() [<self>listed<field>!is[system]] =[<self>get<field>enlist-input[]] +[!match<self>unique[]sort[title]]
-\function dnd.here(place) [<place>occupants[]] :filter[get[location]enlist-input[]match<place>] +[!match<self>sort[title]]
-\function dnd.hits.leader() [<self>listed[leader]!is[system]] =[<self>get[leader]enlist-input[]!tag[Location]] +[!match<self>unique[]sort[title]]
+\function dnd.hits.default() [<self>listed<field>!is[system]] =[<self>get<field>enlist-input[]] +[!match<self>unique[]] :filter[dnd.visible[]] +[sort[title]]
+\function dnd.here(place) [<place>occupants[]] :filter[get[location]enlist-input[]match<place>] :filter[dnd.visible[]] +[!match<self>sort[title]]
+\function dnd.hits.leader() [<self>listed[leader]!is[system]] =[<self>get[leader]enlist-input[]!tag[Location]] +[!match<self>unique[]] :filter[dnd.visible[]] +[sort[title]]
+\function dnd.within(place) [<place>sublocations[]] :filter[dnd.visible[]] +[sort[title]]
 
 \procedure dnd.group(label)
 <%if [(hits)] %>
@@ -28,8 +29,8 @@ type: text/vnd.tiddlywiki
 <div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">></div>
 </$list>
 <%if [<depth>compare:number:lt[10]] %>
-<$list filter="[<place>sublocations[]] +[sort[title]]" variable="dnd-sub">
-<$let dnd-n={{{ [dnd.here<dnd-sub>] [<dnd-sub>sublocations[]] +[count[]] }}}
+<$list filter="[dnd.within<place>]" variable="dnd-sub">
+<$let dnd-n={{{ [dnd.here<dnd-sub>] [dnd.within<dnd-sub>] +[count[]] }}}
 	dnd-next={{{ [<depth>add[1]] }}}>
 <%if [<dnd-n>match[0]] %>
 <div class="tc-menu-list-subitem"><$transclude $variable="dnd.tree.entry" place=<<place>> sub=<<dnd-sub>>/></div>
@@ -57,7 +58,7 @@ type: text/vnd.tiddlywiki
 <$list filter="[all[shadows+tiddlers]prefix[$:/config/flibbles/graph/edges/fields/]removeprefix[$:/config/flibbles/graph/edges/fields/]] -[[tags]] -[[list]] +[sort[]]" variable=field>
 <$let dnd-label={{{ [<field>addprefix[Field/]dndtranslate[]] }}}>
 <%if [<field>match[location]] :filter[<self>tag[Location]] %>
-<%if [<self>occupants[]] [<self>sublocations[]] +[first[]] %>
+<%if [<self>occupants[]] [<self>sublocations[]] :filter[dnd.visible[]] +[first[]] %>
 <h3 class="dnd-relations-group"><$text text=<<dnd-label>>/></h3>
 <$transclude $variable="dnd.tree" place=<<self>> depth="0"/>
 <%endif%>
@@ -68,5 +69,5 @@ type: text/vnd.tiddlywiki
 <%endif%>
 </$let>
 </$list>
-<$let hits={{{ [<self>get[leader]enlist-input[]tag[Location]] +[sort[title]] }}}><$transclude $variable="dnd.group" label={{{ [[Relations/Rules]dndtranslate[]] }}}/></$let>
+<$let hits={{{ [<self>get[leader]enlist-input[]tag[Location]] :filter[dnd.visible[]] +[sort[title]] }}}><$transclude $variable="dnd.group" label={{{ [[Relations/Rules]dndtranslate[]] }}}/></$let>
 

@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261006154328000
+modified: 20261007163804094
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -30,7 +30,8 @@ owner or one location; items and materials may have several of each.
 
 "use strict";
 
-var spots = require("$:/plugins/dndwiki-core/modules/spots.js");
+var spots = require("$:/plugins/dndwiki-core/modules/spots.js"),
+	visibility = require("$:/plugins/dndwiki-core/modules/visibility.js");
 
 var OCCUPANTS = ["Person","Player","Organisation","Deity","Artifact","Item","Material"];
 
@@ -171,13 +172,14 @@ exports.occupants = function(source,operator,options) {
 	return results;
 };
 
-// Player tags of a tiddler (the player lock, dnd.visible in functions.tid)
-function playerTags(wiki,title) {
-	var tiddler = wiki.getTiddler(title);
-	return tiddler ? (tiddler.fields.tags || []).filter(function(tag) {
-		var t = wiki.getTiddler(tag);
-		return !!t && t.hasTag("Player");
-	}) : [];
+// Whether someone who sees <child> may not see <parent> (modules/visibility.js)
+function hiddenParent(wiki,child,parent) {
+	var above = visibility.audience(wiki,parent),
+		own = visibility.audience(wiki,child);
+	if(above === null) {
+		return false;
+	}
+	return own === null || own.some(function(player) { return above.indexOf(player) === -1; });
 }
 
 exports.locationcheck = function(source,operator,options) {
@@ -210,11 +212,8 @@ exports.locationcheck = function(source,operator,options) {
 				keys.push("Location/Check/Cycle");
 			}
 			var parent = parentOf(wiki,title).parent;
-			if(parent) {
-				var mine = playerTags(wiki,title);
-				if(playerTags(wiki,parent).some(function(tag) { return mine.indexOf(tag) === -1; })) {
-					keys.push("Location/Check/LockedParent");
-				}
+			if(parent && hiddenParent(wiki,title,parent)) {
+				keys.push("Location/Check/LockedParent");
 			}
 		} else if(t.hasTag("Person") || t.hasTag("Player")) {
 			if(list.length > 1) {

@@ -1,0 +1,51 @@
+caption: {{$:/core/images/preview-open}} <<dnd.t View/Caption>>
+created: 20261007162511000
+description: <<dnd.t View/Hint>>
+modified: 20261007162511000
+tags: $:/tags/PageControls
+title: $:/plugins/dndwiki-core/ui/view-switcher
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- Page control: whose view the wiki shows (modules/visibility.js). The button names the
+     active view, the dropdown offers the views that can be chosen (filter dndview:choices) and
+     sets $:/state/dndwiki/view. Not saved: after a reload the default applies again. -->
+\procedure dnd.viewname(view)
+\whitespace trim
+<%if [<view>match[dm]] %>
+<$text text={{{ [[View/DM]dndtranslate[]] }}}/>
+<%elseif [<view>prefix[player:]] %>
+<$let dnd-player={{{ [<view>removeprefix[player:]] }}}
+	dnd-characters={{{ [<dnd-player>dndplayedby[]] +[join[, ]] }}}>
+<$text text={{{ [[View/Player]dndtranslate[]search-replace[$player$],<dnd-player>search-replace[$characters$],<dnd-characters>] }}}/>
+</$let>
+<%else%>
+<$text text={{{ [[View/Public]dndtranslate[]] }}}/>
+<%endif%>
+\end
+<$let dnd-popup=<<qualify "$:/state/popup/dndwiki/view">>>
+<span class="tc-popup-keep">
+<$button popup=<<dnd-popup>> tooltip={{{ [[View/Hint]dndtranslate[]] }}} aria-label={{{ [[View/Caption]dndtranslate[]] }}} class={{{ [<tv-config-toolbar-class>] [[dnd-view-button]] +[join[ ]] }}} selectedClass="tc-selected">
+<%if [dndview:mode[]match[dm]] %>
+{{$:/core/images/unlocked-padlock}}
+<%else%>
+{{$:/core/images/preview-open}}
+<%endif%>
+<span class="dnd-view-current"><$transclude $variable="dnd.viewname" view={{{ [dndview[]] }}}/></span>
+</$button>
+</span>
+<$reveal state=<<dnd-popup>> type="popup" position="below" animate="yes">
+<div class="tc-drop-down dnd-view-dropdown">
+<$list filter="[dndview:choices[]]" variable="dnd-choice">
+<$button class="tc-btn-invisible" set="$:/state/dndwiki/view" setTo=<<dnd-choice>>>
+<span class="dnd-view-check">
+<%if [dndview[]match<dnd-choice>] %>
+{{$:/core/images/done-button}}
+<%endif%>
+</span>
+<$transclude $variable="dnd.viewname" view=<<dnd-choice>>/>
+</$button>
+</$list>
+</div>
+</$reveal>
+</$let>

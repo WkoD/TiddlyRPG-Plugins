@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261006154328000
+modified: 20261007163804094
 title: $:/dndwiki/language/de-DE/Title/
 
 Artifact: Artefakt
@@ -20,3 +20,4 @@ Organisation: Organisation
 Person: Person
 Player: Spieler
 PlayerLevel: Spielerstufe
+Secret: Geheim

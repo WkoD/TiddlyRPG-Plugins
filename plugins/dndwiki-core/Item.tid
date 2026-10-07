@@ -1,7 +1,7 @@
 caption: <<dnd.title Item>>
 color: #ff80ff
 created: 20200209095911454
-modified: 20261006154328000
+modified: 20261007163804094
 tags: Index
 title: Item
 type: text/vnd.tiddlywiki
@@ -9,7 +9,7 @@ type: text/vnd.tiddlywiki
 \define dnd.kind.name() [addprefix[Plural/]dndtranslate[]] :filter[!prefix[Plural/]] ~[dndtitle[]]
 
 \procedure dnd.items(filter)
-<$list filter=<<filter>>>
+<$list filter="[subfilter<filter>] :filter[dnd.visible[]]">
 <div class="tc-menu-list-subitem">
 <<deadlink title={{!!title}} style="~~">>
 </div>
@@ -25,17 +25,17 @@ type: text/vnd.tiddlywiki
 	dnd-kind={{{ [<currentTiddler>tag[$:/tags/dndwiki/ItemKind]] }}}>
 <$list filter="Artifact Item Material" variable="type">
 <%if [<dnd-kind>!is[blank]] %>
-<%if [tag<type>tag<dnd-kind>] %>
+<%if [tag<type>tag<dnd-kind>] :filter[dnd.visible[]] %>
 
 !!! <$text text={{{ [<type>addprefix[Plural/]dndtranslate[]] }}}/>
 <$transclude $variable="dnd.items" filter="[tag<type>tag<dnd-kind>sort[title]]"/>
 <%endif%>
-<%elseif [tag<type>] %>
+<%elseif [tag<type>] :filter[dnd.visible[]] %>
 
 !!! <$text text={{{ [<type>addprefix[Plural/]dndtranslate[]] }}}/>
 <$transclude $variable="dnd.items" filter="[tag<type>] -[enlist<dnd-kinds>tagging[]] +[sort[title]]"/>
 <$list filter="[enlist<dnd-kinds>]" variable="kind">
-<%if [tag<type>tag<kind>] %>
+<%if [tag<type>tag<kind>] :filter[dnd.visible[]] %>
 
 !!!! <$text text={{{ [<kind>subfilter<dnd.kind.name>] }}}/>
 <$transclude $variable="dnd.items" filter="[tag<type>tag<kind>sort[title]]"/>

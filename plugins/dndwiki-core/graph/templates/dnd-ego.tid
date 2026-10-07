@@ -1,6 +1,6 @@
 caption: DnD ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261006154328000
+modified: 20261007163804094
 title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 
 \whitespace trim
@@ -42,9 +42,9 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 <$properties $filter="[tag[Organisation]dnd.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[dnd.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
 
-<$let dnd-centre={{{ [<currentNode>] [<currentNode>tag[Location]sublocations:all[spot]] +[format:titlelist[]join[ ]] }}}
+<$let dnd-centre={{{ [<currentNode>] [<currentNode>tag[Location]sublocations:all[spot]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}
 	dnd-open-state={{{ [<currentNode>addprefix[$:/state/dndwiki-core/ego-open/]] }}}
-	dnd-open={{{ [<currentNode>addprefix[$:/state/dndwiki-core/ego-open/]get[list]enlist-input[]] :intersection[<currentNode>tag[Location]sublocations:all[]] -[enlist<dnd-centre>] +[format:titlelist[]join[ ]] }}}>
+	dnd-open={{{ [<currentNode>addprefix[$:/state/dndwiki-core/ego-open/]get[list]enlist-input[]] :intersection[<currentNode>tag[Location]sublocations:all[]] -[enlist<dnd-centre>] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
 
 <$list filter="[enlist<dnd-centre>]">
 <<dnd.node>>
@@ -52,8 +52,8 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
 </$list>
 
 <%if [<currentNode>tag[Location]] %>
-<$list filter="[<currentNode>sublocations:all[]] -[enlist<dnd-centre>]">
-<%if [<currentTiddler>occupants[]] [<currentTiddler>listed[leader]] +[first[]] %>
+<$list filter="[<currentNode>sublocations:all[]] -[enlist<dnd-centre>] :filter[dnd.visible[]]">
+<%if [<currentTiddler>occupants[]] [<currentTiddler>listed[leader]] :filter[dnd.visible[]] +[first[]] %>
 <$node label={{{ [enlist<dnd-open>match<currentTiddler>then[▾ ]else[▸ ]addsuffix<currentTiddler>] }}} dndToggle=<<dnd-open-state>> />
 <%else%>
 <<dnd.node>>
@@ -64,13 +64,14 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-ego
   $filter="[enlist<dnd-centre>] [enlist<dnd-open>]"
   $fields="[all[]] -[[tags]] -[[list]]"
   $functions="[all[]] -[[links]] -[[transcludes]]"
-  $whitelist="[!is[system]!is[draft]] -[tag[Location]]"
+  $whitelist="[!is[system]!is[draft]] -[tag[Location]] :filter[dnd.visible[]]"
   $interedges="yes" />
 <%else%>
 <$nodes.neighbors
   $filter="[<currentNode>]"
   $fields="[all[]] -[[tags]] -[[list]]"
   $functions="[all[]] -[[links]] -[[transcludes]]"
+  $whitelist="[!is[system]!is[draft]] :filter[dnd.visible[]]"
   $interedges="yes" />
 <%endif%>
 

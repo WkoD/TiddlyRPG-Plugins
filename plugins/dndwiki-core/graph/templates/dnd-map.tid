@@ -1,6 +1,6 @@
 caption: DnD map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261007163804094
 title: $:/plugins/dndwiki-core/graph/templates/dnd-map
 
 \whitespace trim
@@ -49,7 +49,7 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-map
 <$let dnd-loc=<<currentNode>>
 	dnd-hidden={{{ [<dnd-loc>addprefix[$:/state/dndwiki-core/map-nodes/]get[text]match[hide]] }}}
 	dnd-edit={{{ [<dnd-loc>addprefix[$:/state/dndwiki-core/map-edit/]get[text]match[yes]] :filter[{$:/status/IsReadOnly}!match[yes]] }}}
-	dnd-places={{{ [<dnd-loc>sublocations:all[location]] +[format:titlelist[]join[ ]] }}}>
+	dnd-places={{{ [<dnd-loc>sublocations:all[location]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
 <$graph>
 <$properties $for=graph $tiddler="$:/config/dndwiki/graph/physics" />
 <$properties $for=graph dndMapImage={{{ [<dnd-loc>get[map]encodeuri[]addprefix[images/map/]] }}} dndMapFit={{{ [<dnd-loc>has[map]then[image]else[nodes]] }}} />
@@ -89,7 +89,7 @@ title: $:/plugins/dndwiki-core/graph/templates/dnd-map
 </$list>
 <$list filter="[<dnd-loc>spots:raw[]]" variable="dnd-spot">
 <$let dnd-plain={{{ [<dnd-spot>spotplain[]] }}}
-	dnd-joined={{{ [<dnd-spot>spottarget[]] -[enlist<dnd-places>] }}}>
+	dnd-joined={{{ [<dnd-spot>spottarget[]] -[enlist<dnd-places>] :filter[dnd.visible[]] }}}>
 <%if [<dnd-joined>!is[blank]] %>
 <$tiddler tiddler=<<dnd-joined>>>
 <$transclude $variable="dnd.fixed" id=<<dnd-joined>>><<dnd.node>></$transclude>

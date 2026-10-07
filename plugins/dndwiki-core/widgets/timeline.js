@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261004170125000
+modified: 20261007163804094
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -42,7 +42,8 @@ months and in-between years are fitted in or left out.
 A selected event draws a line from every section in its lane to the card, all leaving the card
 where its own connector ends.
 
-Campaign events (with the player characters) are drawn solid, all other events dashed.
+Campaign events (a player character is tagged on them, modules/visibility.js) are drawn solid,
+all other events dashed; they take the colour of the hub Campaign.
 
 Card: the span of the event with its tags as dots, below it the title. Interaction: hovering
 previews an event (highlight); a click or tap selects it - the highlight stays and its card
@@ -60,7 +61,8 @@ var Widget = require("$:/core/modules/widgets/widget.js").widget,
 	calendar = require("$:/plugins/dndwiki-core/modules/calendar.js"),
 	dates = require("$:/plugins/dndwiki-core/modules/dates.js"),
 	language = require("$:/plugins/dndwiki-core/modules/language.js"),
-	anchorJump = require("$:/plugins/dndwiki-core/modules/anchor-jump.js");
+	anchorJump = require("$:/plugins/dndwiki-core/modules/anchor-jump.js"),
+	visibility = require("$:/plugins/dndwiki-core/modules/visibility.js");
 
 var UNKNOWN_SIDE = dates.UNKNOWN,
 	FOREVER = dates.FOREVER;
@@ -151,9 +153,14 @@ TimelineWidget.prototype.execute = function() {
 TimelineWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes(),
 		calTitle = (this.wiki.getTiddlerText(CONFIG,"") || "").trim();
+	var wiki = this.wiki,
+		viewChanged = visibility.watched.some(function(title) { return changedTiddlers[title]; }),
+		characterChanged = Object.keys(changedTiddlers).some(function(title) {
+			return visibility.isCharacter(wiki,title);
+		});
 	if(changedAttributes.filter || changedAttributes.self || changedTiddlers["$:/language"] || changedTiddlers[CONFIG] ||
-		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Campaign ||
-		(this.self && changedTiddlers[this.self])) {
+		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Campaign || viewChanged ||
+		characterChanged || (this.self && changedTiddlers[this.self])) {
 		this.refreshSelf();
 		return true;
 	}
@@ -250,14 +257,14 @@ TimelineWidget.prototype.collect = function() {
 		}
 		var parsed = dates.parse(tiddler.fields.date),
 			labels = dates.sections(wiki,title).labels,
-			campaign = tiddler.hasTag("Campaign"),
+			campaign = visibility.campaign(wiki,title),
 			secs = [],
 			ev = {
 				title: title,
 				campaign: campaign,
 				colour: campaign ? campaignColour : eventColour,
 				tags: (tiddler.fields.tags || []).filter(function(tag) {
-					return tag !== "Event" && tag !== "Campaign";
+					return tag !== "Event";
 				})
 			};
 		$tw.utils.each(parsed.sections,function(section,i) {

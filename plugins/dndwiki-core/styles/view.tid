@@ -1,0 +1,101 @@
+created: 20261007162511000
+modified: 20261007162511000
+tags: $:/tags/Stylesheet
+title: $:/plugins/dndwiki-core/styles/view
+type: text/vnd.tiddlywiki
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
+/* Views (modules/visibility.js): a coloured bar at the top of the window outside the public view
+   (config/class-view adds dnd-view-<mode> to the page container) - in the colour of the Player
+   hub for a player, in the alert colour for the DM -, the page control ui/view-switcher, the
+   marker of a locked tiddler (viewtemplates/secret) and the cards of the Player hub. */
+.tc-page-container.dnd-view-player::before,
+.tc-page-container.dnd-view-dm::before {
+	content: "";
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	z-index: 1000;
+	pointer-events: none;
+}
+.tc-page-container.dnd-view-player::before {
+	background: {{Player!!color}};
+}
+.tc-page-container.dnd-view-dm::before {
+	background: <<colour alert-highlight>>;
+}
+.dnd-view-button .dnd-view-current {
+	margin-left: 0.3em;
+	font-size: 0.9em;
+	vertical-align: middle;
+}
+.dnd-view-dm .dnd-view-button {
+	fill: <<colour alert-highlight>>;
+	color: <<colour alert-highlight>>;
+}
+.dnd-view-dropdown .dnd-view-check {
+	display: inline-block;
+	width: 1.4em;
+}
+.dnd-view-dropdown .dnd-view-check svg {
+	width: 0.9em;
+	height: 0.9em;
+	vertical-align: middle;
+}
+.dnd-secret-marker {
+	font-size: 0.85em;
+	color: <<colour alert-highlight>>;
+	fill: <<colour alert-highlight>>;
+	margin: 0.2em 0;
+}
+.dnd-secret-marker svg {
+	width: 0.9em;
+	height: 0.9em;
+	vertical-align: middle;
+	margin-right: 0.3em;
+}
+.dnd-players {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.8em;
+	margin: 0.5em 0 1em 0;
+}
+a.dnd-player-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 8em;
+	padding: 0.5em;
+	border: 1px solid {{Player!!color}};
+	border-radius: 6px;
+	text-decoration: none;
+	color: <<colour foreground>>;
+	text-align: center;
+}
+a.dnd-player-card:hover {
+	background: <<colour tiddler-editor-background>>;
+	text-decoration: none;
+}
+.dnd-player-portrait img {
+	width: 5em;
+	height: 5em;
+	object-fit: cover;
+	border-radius: 50%;
+}
+.dnd-player-name {
+	font-weight: bold;
+	margin-top: 0.3em;
+}
+.dnd-player-of {
+	font-size: 0.85em;
+	color: <<colour muted-foreground>>;
+}
+a.dnd-player-card.dnd-dead {
+	border-style: dashed;
+	opacity: 0.7;
+}
+.dnd-player-card.dnd-dead .dnd-player-name {
+	text-decoration: line-through;
+}
