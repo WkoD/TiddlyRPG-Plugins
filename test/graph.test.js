@@ -1,6 +1,8 @@
 /*
- * Integration with tw5-graph. The graph widget itself needs a browser; this checks the override
- * of $:/plugins/flibbles/graph/macros/edges.typed (translated edge labels are in lang/i18n).
+ * Integration with tw5-graph: the override of $:/plugins/flibbles/graph/macros/edges.typed, the
+ * function edges, the ego graph, the map and the view template dnd-graph - through the nodes and
+ * edges they hand to vis-network (h.graph, without a browser). What vis-network draws from them
+ * is not checked here; translated edge labels are in lang/i18n.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -15,23 +17,59 @@ test.before(function() {
 	});
 });
 
-test("edges.typed override wins over tw5-graph (plugin-priority)", function() {
-	assert.ok((wiki.getTiddlerText("$:/plugins/flibbles/graph/macros/edges.typed") || "").indexOf("dndtranslate") !== -1);
-});
-
 function f(text) {
 	return Array.from(h.filter(wiki, text));
+}
+
+var EGO = "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/ego\"/>",
+	MAP = "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/map\"/>";
+
+function ego(node) {
+	return h.graph(wiki, EGO, {currentNode: node});
+}
+
+function map(node) {
+	return h.graph(wiki, MAP, {currentNode: node});
+}
+
+// Edges as "from -> to (label)", sorted
+function edges(graph) {
+	return graph.edges.map(function(edge) {
+		return edge.from + " -> " + edge.to + (edge.props.label ? " (" + edge.props.label + ")" : "");
+	}).sort();
+}
+
+function nodes(graph) {
+	return Object.keys(graph.nodes).sort();
+}
+
+function colour(hub) {
+	return wiki.getTiddler(hub).fields.color;
+}
+
+// Runs fn with the given tiddlers added, then puts back what was there before
+function withTiddlers(list, fn) {
+	var before = list.map(function(fields) { return wiki.getTiddler(fields.title); });
+	list.forEach(function(fields) {
+		var old = wiki.getTiddler(fields.title);
+		wiki.addTiddler(new tw.Tiddler(old || {}, fields));
+	});
+	try {
+		return fn();
+	} finally {
+		list.forEach(function(fields, i) {
+			if(before[i]) {
+				wiki.addTiddler(before[i]);
+			} else {
+				wiki.deleteTiddler(fields.title);
+			}
+		});
+	}
 }
 
 test("leader: the field edge leaves out locations (dndwiki-exclude)", function() {
 	assert.deepEqual(f("[[Guild]get[leader]enlist-input[]] -[subfilter{$:/config/flibbles/graph/edges/fields/leader!!dndwiki-exclude}]"), []);
 	assert.deepEqual(f("[[Guildmaster]get[leader]enlist-input[]] -[subfilter{$:/config/flibbles/graph/edges/fields/leader!!dndwiki-exclude}]"), ["Guild"]);
-});
-
-test("override: field targets cleaned by dndwiki-exclude, function labels translated", function() {
-	var text = wiki.getTiddlerText("$:/plugins/flibbles/graph/macros/edges.typed") || "";
-	assert.ok(text.indexOf("-[subfilter<dndExclude>]") !== -1);
-	assert.ok(text.indexOf("then<functionName>addprefix[Field/]dndtranslate[]") !== -1);
 });
 
 test("function edge rules: leader -> location", function() {
@@ -43,9 +81,139 @@ test("function edge spots: location -> its spots that are locations", function()
 	assert.deepEqual(f("[[Town]subfilter{$:/config/flibbles/graph/edges/functions/spots!!filter}]"), ["Tavern"]);
 });
 
-test("label of rules translated", function() {
-	h.setLanguage(wiki, "de-DE");
-	assert.deepEqual(f("[[Field/rules]dndtranslate[]]"), ["Kontrolliert"]);
+test("override: leader -> location only as the function edge rules, labels from the language keys", function() {
+	// The label "Controls" and the missing leader edge Guild -> Town both come from the
+	// override, so it wins over tw5-graph (plugin-priority)
+	assert.deepEqual(edges(ego("Guildmaster")), [
+		"Guild -> Town",
+		"Guild -> Town (Controls)",
+		"Guildmaster -> Guild (Leader)",
+		"Guildmaster -> Town"
+	]);
+});
+
+test("override: style of an edge type from its config", function() {
+	var leader = ego("Guildmaster").edges.filter(function(edge) { return edge.props.label === "Leader"; })[0];
+	assert.equal(leader.props.color, "#ff8000");
+	assert.equal(leader.props.width, "5.5");
+	var spot = ego("Town").edges.filter(function(edge) { return edge.from === "Town" && edge.to === "Tavern"; });
+	assert.equal(spot.length, 1);
+	assert.equal(spot[0].props.stroke, "dashed", "function edge spots");
+});
+
+test("ego graph of a person: centre and neighbours in the colours of their types", function() {
+	var graph = ego("Guildmaster");
+	assert.deepEqual(nodes(graph), ["Guild", "Guildmaster", "Town"]);
+	assert.equal(graph.nodes.Guildmaster.color, colour("Person"));
+	assert.equal(graph.nodes.Guild.color, colour("Organisation"));
+	assert.equal(graph.nodes.Town.color, colour("Location"));
+	assert.equal(graph.nodes.Guildmaster.shape, "box");
+});
+
+test("ego graph: the dead in grey, bordered in the colour of their type", function() {
+	var grum = ego("Insel Avalon").nodes.Grum;
+	assert.equal(grum.color, "#dddddd");
+	assert.equal(grum.borderColor, colour("Person"));
+});
+
+test("ego graph of a location: its spots count as the centre, other locations stay out", function() {
+	var graph = ego("Town");
+	assert.deepEqual(nodes(graph), ["Barkeep", "Guild", "Guildmaster", "Tavern", "Town", "Wanderer"]);
+	assert.equal(graph.nodes.Tavern.label, "Tavern");
+	assert.equal(graph.nodes.Tavern.dndToggle, undefined);
+	assert.ok(edges(graph).indexOf("Barkeep -> Tavern") !== -1, "who is in a spot");
+	assert.ok(edges(graph).every(function(edge) { return edge.indexOf("Kingdom") === -1; }), "no edge to the parent");
+});
+
+test("ego graph of a location: places with someone in them start folded, a click state unfolds them", function() {
+	var state = "$:/state/dndwiki-core/ego-open/Kingdom",
+		folded = ego("Kingdom");
+	assert.deepEqual(nodes(folded), ["Guild", "Kingdom", "Neighbour", "Tavern", "Town", "Twice", "Wanderer"]);
+	assert.equal(folded.nodes.Town.label, "▸ Town");
+	assert.equal(folded.nodes.Town.dndToggle, state);
+	assert.equal(folded.nodes.Twice.label, "Twice", "nobody there: nothing to fold");
+	withTiddlers([{title: state, list: "Town"}], function() {
+		var open = ego("Kingdom");
+		assert.equal(open.nodes.Town.label, "▾ Town");
+		assert.equal(open.nodes.Tavern.label, "▸ Tavern");
+		assert.ok(open.nodes.Guildmaster, "the neighbours of Town");
+		assert.ok(edges(open).indexOf("Guildmaster -> Guild (Leader)") !== -1);
+	});
+});
+
+test("map: places lying in the location and its spots as pins, no edges", function() {
+	var graph = map("Town");
+	assert.deepEqual(Object.keys(graph.nodes), ["Tavern", "Town#Old Well", "Town#Tempel von Chauntea", "Guild"]);
+	assert.deepEqual(graph.edges, []);
+	assert.equal(graph.nodes.Tavern.dndPin, "tiddler");
+	// a spot joined to a tiddler that is no location: a point of interest, pinned as that tiddler
+	assert.equal(graph.nodes.Guild.dndPin, "tiddler");
+	assert.equal(graph.nodes.Guild.color, colour("Organisation"));
+	var well = graph.nodes["Town#Old Well"];
+	assert.equal(well.dndPin, "spot");
+	assert.equal(well.label, "Old Well");
+	assert.equal(well.color, "#ffffff");
+	assert.equal(well.borderColor, colour("Location"));
+	assert.equal(graph.graph.dndMapImage, "images/map/Town.png");
+	assert.equal(graph.graph.dndMapFit, "image");
+});
+
+test("map: places lying in it at every depth, the parts of a place only on its own map", function() {
+	var graph = map("Kingdom");
+	assert.deepEqual(nodes(graph), ["Neighbour", "Town", "Twice"]);
+	assert.equal(graph.graph.dndMapImage, undefined);
+	assert.equal(graph.graph.dndMapFit, "nodes");
+});
+
+test("map: saved positions, a slot in the grid for the rest", function() {
+	withTiddlers([{title: "Town", "map-positions": "{\"Tavern\":\"10,-20\"}"}], function() {
+		var graph = map("Town");
+		assert.equal(graph.nodes.Tavern.x, "10");
+		assert.equal(graph.nodes.Tavern.y, "-20");
+		assert.equal(graph.nodes.Tavern.dndUnplaced, undefined);
+		assert.equal(graph.nodes["Town#Old Well"].dndUnplaced, "yes");
+	});
+});
+
+test("map: pins fixed, movable while editing, never in the published copy", function() {
+	var saves = function(node) { return (node.free || "").indexOf("map-positions") !== -1; },
+		edit = {title: "$:/state/dndwiki-core/map-edit/Town", text: "yes"};
+	var graph = map("Town");
+	assert.equal(graph.nodes.Tavern.fixed, "yes");
+	assert.ok(!saves(graph.nodes.Tavern));
+	withTiddlers([edit], function() {
+		graph = map("Town");
+		assert.equal(graph.nodes.Tavern.fixed, "no");
+		assert.ok(saves(graph.nodes.Tavern));
+		withTiddlers([{title: "$:/status/IsReadOnly", text: "yes"}], function() {
+			graph = map("Town");
+			assert.equal(graph.nodes.Tavern.fixed, "yes");
+			assert.ok(!saves(graph.nodes.Tavern));
+		});
+	});
+});
+
+test("map: hidden nodes leave only the image", function() {
+	withTiddlers([{title: "$:/state/dndwiki-core/map-nodes/Town", text: "hide"}], function() {
+		var graph = map("Town");
+		assert.deepEqual(nodes(graph), []);
+		assert.equal(graph.graph.dndMapImage, "images/map/Town.png");
+	});
+});
+
+test("view template dnd-graph: nodes from the filter, edge types of the view", function() {
+	withTiddlers([{
+		title: "$:/graph/Test", type: "application/json", text: "{}",
+		template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph",
+		filter: "[[Guild]] [[Guildmaster]] [[Town]]",
+		"edges.fields": "leader",
+		"edges.functions": "rules"
+	}], function() {
+		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/graph/Test\"/>");
+		assert.deepEqual(nodes(graph), ["Guild", "Guildmaster", "Town"]);
+		assert.deepEqual(edges(graph), ["Guild -> Town (Controls)", "Guildmaster -> Guild (Leader)"]);
+		assert.equal(graph.nodes.Guild.color, colour("Organisation"));
+	});
 });
 
 test("map view lies outside $:/graph/ (not in the dropdown)", function() {

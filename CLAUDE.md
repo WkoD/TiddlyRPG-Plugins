@@ -34,7 +34,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   used, so this does not replace the tests.
 - `npm test` runs `test/**/*.test.js` with Node's built-in test runner (`node:test`); every file
   runs in its own process. `test/helpers.js` boots the smoke edition in-process, adds the fixture
-  tiddlers and offers `render`/`view`/`body`/`filter`. One file per topic:
+  tiddlers and offers `render`/`view`/`body`/`filter`, and `graph` (see below). One file per topic:
   - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
     leap rule
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
@@ -57,17 +57,26 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
     the band of the tiddler itself, the section lines as links
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<dnd.`
-  - `graph` - the `edges.typed` override (labels, `dndwiki-exclude`), the function edges
-    `rules` and `spots`, the map view outside `$:/graph/`, the fit of the map image
+  - `graph` - through the nodes and edges of the real templates (`h.graph`): the
+    `edges.typed` override (`dndwiki-exclude`, style from the edge type config), the function
+    edges `rules` and `spots`, the ego graph (type colours, the dead, a location as centre,
+    folding), the map (pins, spots, positions, editing, hidden nodes, image and fit), the view
+    template `dnd-graph`; the map view outside `$:/graph/`, the fit of the map image
     (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`)
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
     may be missing)
-  - `lang/i18n` - display names, tag hook, search, edge labels, refresh after a language change
+  - `lang/i18n` - display names, tag hook, search, edge labels of the real edges, refresh after
+    a language change
 
   Language mechanics go to `lang/`; plain expected output in one language stays with its topic.
   New check -> the file of its topic; new topic -> new file. A test that changes the wiki
-  restores it afterwards (the files do not share state, the tests within a file do). The graph
-  widget needs a browser; the tests render the relations through the list tab. The timeline
+  restores it afterwards (the files do not share state, the tests within a file do).
+  `h.graph(wiki, text, variables)` renders a graph without a browser: `<$graph>` (it needs a
+  window) is replaced by a widget that only renders its children, and the node and edge widgets
+  are collected by id as tw5-graph does - the last one wins, edges whose ends are no nodes are
+  left out. It returns the raw properties of each object (type config, enclosing `$properties`,
+  own attributes) and those of the graph, plus `refresh`. What vis-network draws from them -
+  position, curves, tooltip - only shows in a browser. The timeline
   renders in Node; what depends on measured sizes - the placement of the vertical labels, the
   widening of a selected card, the lines to its points - only shows in a browser. Extend the
   tests with every change.
@@ -364,9 +373,9 @@ only call their operators.
   the wikitext body into JSON. `graph/map-fit.js` (`dndMapFit` = `image` or `nodes`) fits the
   image to the width and sizes the container by its aspect ratio, or without an image fits the
   view to the nodes (height from the stylesheet); in both cases it switches off the improved
-  layout of vis-network (it would shift placed nodes). The graph renders only in a browser
-  (`$:/info/browser`), so the tests
-  check the tab through its buttons and spot texts.
+  layout of vis-network (it would shift placed nodes). The tab renders the graph only in a
+  browser (`$:/info/browser`): the tests check the tab through its buttons and spot texts, and
+  the map itself through `h.graph`.
 - Leading a location: `leader` pointing to a `Location` is drawn by the function edge `rules`,
   not by the field edge `leader` (its config has `dndwiki-exclude: [tag[Location]]`, applied by
   the override of `$edges.typed`). The relation list shows it as the group "Controls".

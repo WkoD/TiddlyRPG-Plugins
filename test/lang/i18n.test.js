@@ -21,6 +21,17 @@ function f(text, variables) {
 	return h.filter(wiki, text, variables).join();
 }
 
+// The ego graph of a tiddler and its edges as "from -> to: label", sorted
+function egoGraph(node) {
+	return h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/ego\"/>", {currentNode: node});
+}
+
+function edgeLabels(graph) {
+	return graph.edges.map(function(edge) {
+		return edge.from + " -> " + edge.to + (edge.props.label ? ": " + edge.props.label : "");
+	}).sort();
+}
+
 // Tags of a tiddler after the save hook, joined with "|" (the array comes from TiddlyWiki's own
 // context, so a deep comparison with a plain array fails on the prototype)
 function saveTags(tags) {
@@ -56,9 +67,13 @@ test.describe("de-DE", function() {
 		assert.equal(saveTags(["Ort", "Haus Kemri"]), "Location|Haus Kemri");
 	});
 
-	test("translated edge label filter", function() {
-		assert.equal(f("[[$:/config/flibbles/graph/edges/fields/leader]getindex[label]!is[blank]then[leader]addprefix[Field/]dndtranslate[]]"), "Anführer");
-		assert.equal(f("[[$:/config/flibbles/graph/edges/fields/location]getindex[label]!is[blank]then[location]addprefix[Field/]dndtranslate[]]"), "");
+	test("edge labels translated, an edge type without a label stays without one", function() {
+		assert.deepEqual(edgeLabels(egoGraph("Guildmaster")), [
+			"Guild -> Town",
+			"Guild -> Town: Kontrolliert",
+			"Guildmaster -> Guild: Anführer",
+			"Guildmaster -> Town"
+		]);
 	});
 
 	test.describe("search", function() {
@@ -106,6 +121,18 @@ test.describe("refresh", function() {
 		widget.refresh({"$:/language": {modified: true}});
 		var after = container.textContent;
 		assert.ok(before.indexOf("Mittwinter") !== -1 && after.indexOf("Midwinter") !== -1, [before, after].join(" / "));
+	});
+
+	test("edge labels refresh on a language change", function() {
+		h.setLanguage(wiki, "de-DE");
+		try {
+			var graph = egoGraph("Guildmaster");
+			assert.ok(edgeLabels(graph).indexOf("Guildmaster -> Guild: Anführer") !== -1);
+		} finally {
+			h.setLanguage(wiki, "en-GB");
+		}
+		graph = graph.refresh({"$:/language": {modified: true}});
+		assert.ok(edgeLabels(graph).indexOf("Guildmaster -> Guild: Leader") !== -1, edgeLabels(graph).join(" / "));
 	});
 
 	test("dateformat refreshes on a change of the calendar texts", function() {

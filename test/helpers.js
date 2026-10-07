@@ -91,6 +91,79 @@ exports.body = function(wiki, title) {
 	return render(wiki, "text/plain", "<$transclude $tiddler=\"" + title + "\" mode=\"block\"/>", {currentTiddler: title});
 };
 
+// Nodes and edges of a graph as tw5-graph hands them to vis-network, without a browser: the
+// widget <$graph> (it needs a window) is replaced by one that only renders its children, then
+// the node and edge widgets are collected by id - the last one wins, as in findGraphObjects of
+// tw5-graph - and edges whose ends are no nodes are left out (EdgeWidget.curate). props are the
+// raw properties of an object: edge/node type config, enclosing $properties and own attributes;
+// graph holds those of every $properties $for=graph, a later one wins.
+// Returns {graph, nodes: {id: props}, edges: [{id, from, to, props}], refresh(changedTiddlers)}; refresh
+// refreshes the widget tree and returns the objects anew. What vis-network draws from them
+// (position, curves, tooltip) still needs a browser.
+var graphStubbed = false;
+
+function stubGraph() {
+	if(graphStubbed) {
+		return;
+	}
+	var Widget = $tw.modules.execute("$:/core/modules/widgets/widget.js").widget,
+		Stub = function(parseTreeNode, options) {
+			this.initialise(parseTreeNode, options);
+		};
+	Stub.prototype = new Widget();
+	Stub.prototype.render = function(parent, nextSibling) {
+		this.parentDomNode = parent;
+		this.computeAttributes();
+		this.makeChildWidgets();
+		this.renderChildren(parent, nextSibling);
+	};
+	Stub.prototype.refresh = function(changedTiddlers) {
+		return this.refreshChildren(changedTiddlers);
+	};
+	Widget.prototype.widgetClasses.graph = Stub;
+	graphStubbed = true;
+}
+
+function graphObjects(widget) {
+	var found = {nodes: Object.create(null), edges: Object.create(null)},
+		graph = Object.create(null),
+		nodes = Object.create(null),
+		edges = [];
+	(function walk(w) {
+		if(found[w.graphObjectType]) {
+			found[w.graphObjectType][w.id] = w;
+		} else if(w.parseTreeNode && w.parseTreeNode.type === "properties" && w.type === "graph") {
+			Object.assign(graph, w.properties);
+		}
+		(w.children || []).forEach(walk);
+	})(widget);
+	Object.keys(found.nodes).forEach(function(id) {
+		nodes[id] = found.nodes[id].computeProperties({});
+	});
+	Object.keys(found.edges).forEach(function(id) {
+		var edge = found.edges[id];
+		if(nodes[edge.fromTiddler] && nodes[edge.toTiddler]) {
+			edges.push({id: id, from: edge.fromTiddler, to: edge.toTiddler, props: edge.computeProperties({})});
+		}
+	});
+	return {graph: graph, nodes: nodes, edges: edges};
+}
+
+exports.graph = function(wiki, text, variables) {
+	stubGraph();
+	var parser = wiki.parseText("text/vnd.tiddlywiki", IMPORT + text),
+		widget = wiki.makeWidget(parser, {document: $tw.fakeDocument, variables: variables || {}});
+	widget.render($tw.fakeDocument.createElement("div"), null);
+	var result = graphObjects(widget);
+	result.refresh = function(changedTiddlers) {
+		widget.refresh(changedTiddlers);
+		var again = graphObjects(widget);
+		again.refresh = result.refresh;
+		return again;
+	};
+	return result;
+};
+
 // Result of a filter (array of titles)
 exports.filter = function(wiki, text, variables) {
 	return wiki.filterTiddlers(text, $tw.rootWidget.makeFakeWidgetWithVariables(variables || {}));
