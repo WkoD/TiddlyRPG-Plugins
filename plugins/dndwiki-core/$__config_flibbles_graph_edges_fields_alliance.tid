@@ -1,10 +1,10 @@
 created: 20260715103636000
-modified: 20261001095424000
+dndwiki-symmetric: yes
+modified: 20261007071816000
 title: $:/config/flibbles/graph/edges/fields/alliance
 type: application/json
 
 {
     "label": "Alliance",
-    "color": "#06e502",
-    "smooth": "no"
+    "color": "#06e502"
 }

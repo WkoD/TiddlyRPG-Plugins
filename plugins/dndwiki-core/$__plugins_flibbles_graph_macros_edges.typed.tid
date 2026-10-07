@@ -1,5 +1,5 @@
 created: 20261001104500000
-modified: 20261006064449000
+modified: 20261007071831000
 tags: $:/tags/Global
 code-body: yes
 title: $:/plugins/flibbles/graph/macros/edges.typed
@@ -17,7 +17,8 @@ title: $:/plugins/flibbles/graph/macros/edges.typed
 
 <$let
 	dataTiddler=`$:/config/flibbles/graph/edges/fields/$(fieldName)$`
-	dndExclude={{{ [<fieldName>addprefix[$:/config/flibbles/graph/edges/fields/]get[dndwiki-exclude]] }}} >
+	dndExclude={{{ [<fieldName>addprefix[$:/config/flibbles/graph/edges/fields/]get[dndwiki-exclude]] }}}
+	dndSymmetric={{{ [<fieldName>addprefix[$:/config/flibbles/graph/edges/fields/]get[dndwiki-symmetric]] }}} >
 
 <$properties $for=edges
 	$tiddler=<<dataTiddler>>
@@ -34,14 +35,32 @@ title: $:/plugins/flibbles/graph/macros/edges.typed
      is the function edge "rules" -->
 <$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[gettyped<fieldName>] +[!is[blank]] -[subfilter<dndExclude>]">
 
-<$vars id=`$:/edge/fields/$($tiddler)$
+<!-- dndwiki-core: a symmetric field type (field dndwiki-symmetric of the config) is kept on
+     both ends; if the other end points back, both ends give the edge the same id - ordered
+     pair and field - so the graph keeps one edge, with arrows on both ends. One end alone keeps
+     its own id and a plain arrow. -->
+<$let
+	dndBoth={{{ [<dndSymmetric>match[yes]then<toTiddler>] :map:flat[gettyped<fieldName>] +[match<$tiddler>] }}}
+	dndFirst={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]first[]] }}}
+	dndLast={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]last[]] }}} >
+
+<$vars
+	dndPairId=`$:/edge/fields/$(dndFirst)$
+$(dndLast)$
+$(fieldName)$`
+	dndOwnId=`$:/edge/fields/$($tiddler)$
 $(fieldName)$-$(index)$`>
+
+<$vars id={{{ [<dndBoth>!is[blank]then<dndPairId>] ~[<dndOwnId>] }}}>
+
+<$properties $for=edges
+	arrows={{{ [<dndBoth>!is[blank]then[to from]] }}} >
 
 <$slot $name=ts-raw>
 
 <$edge $from=<<$tiddler>> $id=<<id>> />
 
-</$slot></$vars></$list></$properties></$properties></$let></$list>
+</$slot></$properties></$vars></$vars></$let></$list></$properties></$properties></$let></$list>
 
 <!-- Now create edges for function types -->
 

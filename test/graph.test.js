@@ -349,3 +349,68 @@ test("map fit without an image: fit to the nodes, the height stays", function() 
 	mapFit.fit(adapter, true);
 	assert.equal(fitted, 2);
 });
+
+// Symmetric relations (field config dndwiki-symmetric): kept on both ends by convention, drawn
+// as one edge with arrows on both ends; an end without the field leaves a plain arrow
+var SYMMETRIC = ["alliance", "bond", "enmity", "family"];
+
+function relations(list, fn) {
+	return withTiddlers(list.map(function(fields) {
+		return Object.assign({tags: "Person", text: "Someone."}, fields);
+	}), fn);
+}
+
+test("symmetric fields: marked in their config, curves allowed", function() {
+	SYMMETRIC.forEach(function(field) {
+		var config = wiki.getTiddler("$:/config/flibbles/graph/edges/fields/" + field);
+		assert.equal(config.fields["dndwiki-symmetric"], "yes", field);
+		assert.equal(JSON.parse(config.fields.text).smooth, undefined, field);
+	});
+	assert.equal(wiki.getTiddler("$:/config/flibbles/graph/edges/fields/mentor").fields["dndwiki-symmetric"], undefined);
+});
+
+test("symmetric field on both ends: one edge with arrows on both ends", function() {
+	relations([{title: "Alice", alliance: "Bob"}, {title: "Bob", alliance: "Alice"}], function() {
+		[ego("Alice"), ego("Bob")].forEach(function(graph) {
+			var alliance = graph.edges.filter(function(edge) { return edge.props.label === "Alliance"; });
+			assert.equal(alliance.length, 1, edges(graph).join(" / "));
+			assert.deepEqual([alliance[0].from, alliance[0].to].sort(), ["Alice", "Bob"]);
+			assert.equal(alliance[0].props.arrows, "to from");
+			assert.equal(alliance[0].props.smooth, undefined);
+		});
+	});
+});
+
+test("symmetric field on one end only: a plain arrow", function() {
+	relations([{title: "Alice", alliance: "Bob"}, {title: "Bob"}, {title: "Carol", enmity: "Alice"}], function() {
+		var graph = ego("Alice");
+		assert.deepEqual(edges(graph), ["Alice -> Bob (Alliance)", "Carol -> Alice (Enmity)"]);
+		graph.edges.forEach(function(edge) {
+			assert.equal(edge.props.arrows, undefined);
+		});
+	});
+});
+
+test("symmetric fields: every pair once, in the ego graph and in a view", function() {
+	relations([{title: "Alice", family: "Bob"}, {title: "Bob", family: "Alice Carol"}, {title: "Carol", family: "Bob"}], function() {
+		// Alice - Bob - Carol: in the ego graph of Bob all three
+		assert.equal(ego("Bob").edges.length, 2, edges(ego("Bob")).join(" / "));
+		withTiddlers([{
+			title: "$:/graph/Test", type: "application/json", text: "{}",
+			template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph",
+			filter: "[[Alice]] [[Bob]] [[Carol]]"
+		}], function() {
+			var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/graph/Test\"/>");
+			assert.equal(graph.edges.length, 2, edges(graph).join(" / "));
+			graph.edges.forEach(function(edge) {
+				assert.equal(edge.props.arrows, "to from");
+			});
+		});
+	});
+});
+
+test("a field that is not symmetric keeps one edge per end", function() {
+	relations([{title: "Alice", mentor: "Bob"}, {title: "Bob", mentor: "Alice"}], function() {
+		assert.deepEqual(edges(ego("Alice")), ["Alice -> Bob (Mentor)", "Bob -> Alice (Mentor)"]);
+	});
+});

@@ -1,10 +1,10 @@
 created: 20260715103636000
-modified: 20261001095424000
+dndwiki-symmetric: yes
+modified: 20261007071816000
 title: $:/config/flibbles/graph/edges/fields/family
 type: application/json
 
 {
     "label": "Family",
-    "color": "#a8a102",
-    "smooth": "no"
+    "color": "#a8a102"
 }

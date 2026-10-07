@@ -58,7 +58,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the band of the tiddler itself, the section lines as links
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<dnd.`
   - `graph` - through the nodes and edges of the real templates (`h.graph`): the
-    `edges.typed` override (`dndwiki-exclude`, style from the edge type config), the function
+    `edges.typed` override (`dndwiki-exclude`, symmetric edges, style from the edge type
+    config), the function
     edges `rules` and `spots`, the ego graph (type colours, the dead, a location as centre,
     folding), the map (pins, spots, positions, editing, hidden nodes, image and fit), the view
     template `dnd-graph`; the map view outside `$:/graph/`, the fit of the map image
@@ -449,8 +450,11 @@ namespace of its own where tw5-graph has none:
 
 - **Per edge type** (label, colour, stroke, arrows, curves, ...): one JSON tiddler per
   field/function under `$:/config/flibbles/graph/edges/fields/<field>` or `.../functions/<name>` -
-  namespace given by tw5-graph, values from us. Our own extra field on a field config:
-  `dndwiki-exclude` (a filter of targets this field type does not draw, see "Locations"). Resolved by `<$edges.typed>` automatically by
+  namespace given by tw5-graph, values from us. Our own extra fields on a field config:
+  `dndwiki-exclude` (a filter of targets this field type does not draw, see "Locations") and
+  `dndwiki-symmetric: yes` (`family`, `alliance`, `bond`, `enmity`: kept on both ends by
+  convention; if both ends carry the field, the graph draws one edge with arrows on both ends,
+  one end alone a plain arrow). Resolved by `<$edges.typed>` automatically by
   name. Values are plain hex/literal values, no live binding to e.g. tag `color` fields (the JSON
   is read with `JSON.parse`, no wikitext context) - update by hand when the source changes. The
   JSON `label` is English and only used in the tw5-graph settings: **the visible edge label comes
@@ -502,7 +506,7 @@ Current list:
 | `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
 | `dndwiki-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `dndwiki-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Only change: `<$text text={{{ [<__tag__>dndtitle[]] }}}/>` for the translated display name. |
 | `dndwiki-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `dndwiki-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`dndtitlesearch`), hits use `search/item` (translated name). |
-| `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes: an inner `$properties $for=edges label=...` with the translation of `Field/<field>` resp. `Field/<function>` (only for types whose JSON has a label), in the field and in the function branch; in the field branch the targets are cleaned by the filter in the field `dndwiki-exclude` of the field config (leader -> location is drawn by the function edge `rules`). Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
+| `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes: an inner `$properties $for=edges label=...` with the translation of `Field/<field>` resp. `Field/<function>` (only for types whose JSON has a label), in the field and in the function branch; in the field branch the targets are cleaned by the filter in the field `dndwiki-exclude` of the field config (leader -> location is drawn by the function edge `rules`); for a field type whose config has `dndwiki-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the field - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 
 **Naming convention:** files that override a core title are named
 `$__core_<path>_<name>.tid` (dots/slashes in the title -> underscores) - signals "this file
