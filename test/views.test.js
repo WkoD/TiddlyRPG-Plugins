@@ -282,3 +282,92 @@ test.describe("places that list titles", function() {
 		}
 	});
 });
+
+// Every secret below carries the word Qx7 (and its dates the year 1399): in its title, its text,
+// the name of a spot or the caption of a section. The sweep renders whatever a reader can reach
+// - every tiddler and hub through the view template with each tab, its graphs, the search, the
+// sidebar - and in the public view none of it may hold the word. A new feature is covered once
+// its output is part of the view template; a new kind of secret needs a fixture here.
+test.describe("sweep", function() {
+	var WORD = "Qx7",
+		YEAR = "1399",
+		fixtures = [
+			{title: "Qx7 Akte", tags: "Person Secret", location: "Town", bond: "Baile", text: "Qx7 file. TBC\n\n@@.tc-tiddler-frame\nopen\n@@"},
+			{title: "Qx7 Ort", tags: "Location Secret", location: "Town", text: "Qx7 house."},
+			{title: "Qx7 Fest", tags: "Event Secret", date: "1399-02-01", text: "At [[Baile]]."},
+			{title: "Sweep Bund", tags: "Organisation", location: "Baile [[Qx7 Ort]]", bond: "[[Qx7 Akte]]", text: "A league."},
+			{title: "Sweep Burg", tags: "Location", location: "Baile", text: "A castle.\n\n<<spot \"Hof\">>\n\nOpen.\n\n<<secret>><<spot \"Qx7 Kammer\">>\n\nQx7 room."},
+			{title: "Sweep Treffen", tags: "Event Frigg [[Qx7 Akte]]", date: "1351-08-01, 1399-01-01",
+				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
+			{title: "$:/graph/Sweep", type: "application/json", text: "{}",
+				template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph", filter: "[!is[system]]", "edges.functions": "links"}
+		],
+		TABS = [
+			{"$:/state/dndwiki-core/relations-tab": "$:/plugins/dndwiki-core/viewtemplates/relations/list", "$:/state/dndwiki-core/events-tab": "$:/plugins/dndwiki-core/viewtemplates/event-list/list"},
+			{"$:/state/dndwiki-core/relations-tab": "$:/plugins/dndwiki-core/viewtemplates/relations/graph", "$:/state/dndwiki-core/events-tab": "$:/plugins/dndwiki-core/viewtemplates/event-list/timeline"}
+		],
+		DEFAULTS = TABS[0];
+
+	test.before(function() {
+		fixtures.forEach(function(fields) { h.add(wiki, fields); });
+	});
+
+	test.after(function() {
+		fixtures.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		Object.keys(DEFAULTS).forEach(function(title) { h.add(wiki, {title: title, text: DEFAULTS[title]}); });
+	});
+
+	// What a reader sees of the HTML: text, tooltips, links - not the classes and data attributes
+	// the core puts every tag in (the published HTML holds everything anyway)
+	function seen(html) {
+		return html.replace(/\s(class|style|data-[\w-]+)="[^"]*"/g, "");
+	}
+
+	function setTabs(tabs) {
+		Object.keys(tabs).forEach(function(title) { h.add(wiki, {title: title, text: tabs[title]}); });
+	}
+
+	// Everything a reader of <view> can reach, as [{where, text}]
+	function sweep(view) {
+		return inView(view, function() {
+			var out = [],
+				titles = f("[all[shadows+tiddlers]!is[system]!is[draft]] :filter[dndvisible[]]");
+			TABS.forEach(function(tabs) {
+				setTabs(tabs);
+				titles.forEach(function(title) {
+					var vars = {currentTiddler: title, storyTiddler: title};
+					out.push({where: title, text: seen(h.view(wiki, title))});
+					// The graphs in the view (relations, map) with labels and tooltips
+					out.push({where: title + " (graphs)", text: JSON.stringify(h.graph(wiki, "<$transclude $tiddler=\"$:/core/ui/ViewTemplate\" mode=\"block\"/>", vars))});
+				});
+			});
+			setTabs(DEFAULTS);
+			f("[all[shadows+tiddlers]prefix[$:/graph/]]").forEach(function(title) {
+				out.push({where: title, text: JSON.stringify(h.graph(wiki, "<$graph.view $tiddler=\"" + title + "\"/>"))});
+			});
+			["first-search-filter", "second-search-filter"].forEach(function(field) {
+				out.push({where: "search " + field, text: h.render(wiki, "text/plain", "<$let userInput=\"" + WORD + "\"><$list filter={{$:/core/ui/DefaultSearchResultList!!" + field + "}}><<currentTiddler>>|</$list></$let>")});
+			});
+			out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/ui/sidebar\" $mode=\"block\"/>"))});
+			out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/dndwiki-core/ui/sidebar-recent}}")});
+			return out;
+		});
+	}
+
+	test("public: no word of a secret anywhere", function() {
+		var leaks = sweep("public").filter(function(item) {
+			return item.text.indexOf(WORD) !== -1 || item.text.indexOf(YEAR) !== -1;
+		}).map(function(item) {
+			var at = item.text.indexOf(WORD) !== -1 ? item.text.indexOf(WORD) : item.text.indexOf(YEAR);
+			return item.where + ": …" + item.text.substring(Math.max(0, at - 80), at + 40) + "…";
+		});
+		assert.deepEqual(leaks, []);
+	});
+
+	test("the DM: every secret shows, so the sweep reaches them", function() {
+		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
+		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", YEAR].forEach(function(word) {
+			assert.ok(all.indexOf(word) !== -1, word);
+		});
+	});
+});

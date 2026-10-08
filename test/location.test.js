@@ -258,7 +258,7 @@ test.describe("de-DE", function() {
 		assert.ok(h.view(wiki, "Hafenfest").indexOf("dnd-location-path") === -1);
 	});
 
-	test("... not even with a field location, nobody logged in", function() {
+	test("... not even with a field location", function() {
 		h.add(wiki, {title: "Placed Event", tags: "Event", location: "Town", text: ""});
 		try {
 			assert.ok(h.view(wiki, "Placed Event").indexOf("dnd-location-path") === -1);

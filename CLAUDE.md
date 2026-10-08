@@ -15,6 +15,33 @@ Plugin bundle for the `DnDWiki` repo family. Contents and how wikis use it: see 
 Sort new content accordingly instead of duplicating it. (Same split in the wiki repos,
 maintained canonically in `DnDWiki`.)
 
+## Visibility - check with every change
+
+Whatever the plugin shows must leave out what the active view does not see (rule and tools:
+"Views", "Sections"). Every plan and every change that adds or changes output answers these
+questions, before it is built:
+
+1. **What does it show?** Titles, text, dates, names of spots, tooltips (`title` attributes,
+   node tooltips), pills, edges, counts, colours, order.
+2. **Where does it come from?** A field, a tag, the body, another tiddler, an index of the core.
+   Titles go through `dnd.visible` (wikitext: `:filter[dnd.visible[]]`; JS:
+   `visibility.visible`). The link and tag indexes of the core (`links[]`, `backlinks[]`,
+   `tagging[]`, `listed[]`) know no lock in the text: `visiblelinks`, `sectionbacklinks`, the
+   sections model. Text from a body only through `dnd-body` or the sections model, never as raw
+   text or a cut-out substring. JS that depends on the view refreshes on `visibility.watched`.
+3. **What does the rest tell when an entry is left out?** A path above it, a parent, the span of
+   a date line, an edge between two visible nodes, a count, a position on a map. Leave out the
+   whole unit (the line, the section, the edge), not only the step that is locked.
+4. **Tests:** a test for the new output in the public view and in the view of the DM; the sweep
+   in `test/views.test.js` renders everything a reader can reach and looks for the word `Qx7` of
+   its fixtures. New output outside the view template, the search and the sidebar goes into the
+   sweep; a new kind of secret (a new section kind, a new field pointing to a tiddler) gets a
+   fixture there. The sweep finds names, not what the rest tells (question 3).
+
+Lock only with `Secret`, `<<secret>>` and `<$secret>`. Asking the view itself (`dndview`,
+`$:/state/dndwiki/view`) is for the frame of the page only: the page control, the page class,
+the sidebar.
+
 ## Editing the format layer
 
 `dndwiki-core` and `dndwiki-forgottenrealms` are **folder plugins** under `plugins/` (no build
@@ -52,8 +79,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     former characters), the default view, the choices, campaign events through player
     characters, the page control, the page class, the marker of a secret, the `Player` hub, and
     every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs,
-    open items). `h.setView`/`h.inView` set the view; without them the tests run in the view
-    of the DM (no `$:/status/IsReadOnly`)
+    open items), a secret presence; the sweep (see "Visibility - check with every change").
+    `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
+    `$:/status/IsReadOnly`)
   - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the hub
     lists of `Item` and of a category, a category of the campaign, the file of a book (field
     `data`), colour and image folder through the base type

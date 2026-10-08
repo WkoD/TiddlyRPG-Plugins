@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261007170245412
+modified: 20261008172516320
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -252,7 +252,8 @@ TimelineWidget.prototype.collect = function() {
 		events = [],
 		undated = [],
 		eventColour = colourOf(wiki,"Event") || "#48a4ff",
-		campaignColour = colourOf(wiki,"Campaign") || "#0069d2";
+		campaignColour = colourOf(wiki,"Campaign") || "#0069d2",
+		view = visibility.current(wiki);
 	$tw.utils.each(this.list,function(title) {
 		var tiddler = wiki.getTiddler(title);
 		if(!tiddler) {
@@ -267,8 +268,9 @@ TimelineWidget.prototype.collect = function() {
 				title: title,
 				campaign: campaign,
 				colour: campaign ? campaignColour : eventColour,
+				// A tag the view does not see gets no dot: its tooltip names it
 				tags: (tiddler.fields.tags || []).filter(function(tag) {
-					return tag !== "Event";
+					return tag !== "Event" && visibility.visible(wiki,tag,view);
 				})
 			};
 		$tw.utils.each(parsed.sections,function(section,i) {
