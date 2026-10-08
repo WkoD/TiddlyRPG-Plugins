@@ -221,6 +221,14 @@ copy). The event list of a location also contains the events of every place with
 graph shows the places within it; one with people, items or a leader starts folded ("▸ Baile")
 and opens with a click, its list shows them as a tree (people and items alike).
 
+**Secret presence.** An organisation (or anyone else) that is somewhere in secret needs no
+tiddler of its own for that: one entry of its `location` points to a location tagged `Secret`
+(`location: Baile [[Unterschlupf]]`, Unterschlupf `Secret` and within Baile). A view that does not
+see that location sees neither the entry nor its line in the path, nor the organisation among
+those at the places above. If the place itself may be known and only where it lies is secret,
+join it to a locked spot instead (`<<secret>><<spot "Versteck">>` in the body of the location):
+the place and who is there stay visible, but it has no parent and is missing among the spots.
+
 **Spots** - places of interest, written at the end of the body of a location:
 
 ```

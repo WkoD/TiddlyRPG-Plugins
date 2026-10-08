@@ -382,6 +382,12 @@ only call their operators.
   items and materials may have several locations; persons one, artifacts one owner or one
   location (`locationcheck` reports more, or both). Items are occupants like everyone else:
   in the tree of the relation list and for the folding in the ego graph.
+- Secret presence: an entry of `location` that points to a `Secret` location is missing in the
+  views that do not see it - its whole line of `dnd.locationpath` (the path above it would tell
+  where it lies), and the occupant among the places above, since the walk of `occupants` only
+  goes through spots and the lists filter with `dnd.visible`. A locked spot joined to a location
+  hides only where it lies (`spots.ownsVisibly`: no parent, not among the children). Test:
+  `views.test.js` ("secret presence").
 - Spots: `<<spot "Name">>` begins a section that runs to the next marker, `<$spot name="…">`
   is the block form (see "Sections"). The name may hold wikitext; its plain text (links
   replaced by their visible text) is the anchor, the node label and the target of

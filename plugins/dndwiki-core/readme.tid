@@ -1,5 +1,5 @@
 created: 20260706180604000
-modified: 20261007170245412
+modified: 20261008171437983
 title: $:/plugins/dndwiki-core/readme
 
 ! DnDWiki Core
@@ -31,7 +31,8 @@ The shared D&D format layer of the DnDWiki repo family:
   tiddler its own dates as a band behind the events
 * Locations: a location lies in another one (field `location`) or is a part of it (a spot
   `<<spot "Name">>` in its body); the path of parents below the title, who is at a location,
-  the events of the places within; references to spots with `<<spotlink>>`
+  the events of the places within; references to spots with `<<spotlink>>`; a `location` to a
+  location tagged `Secret` is a secret presence, missing in the views that do not see it
 * Maps of a location: the map image (field `map`) as a graph with the spots placed on it,
   battle maps (field `battlemap`, or per spot) as tabs
 

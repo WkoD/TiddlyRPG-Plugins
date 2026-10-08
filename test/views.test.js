@@ -231,6 +231,32 @@ test.describe("places that list titles", function() {
 		assert.ok(inView("public", function() { return h.view(wiki, "Town"); }).indexOf(">Geheimbund<") === -1);
 	});
 
+	test("secret presence: a location of an organisation that is Secret or a locked spot", function() {
+		var added = [
+			{title: "Unterschlupf", tags: "Location Secret", location: "Town", text: "Hidden house."},
+			{title: "Bund", tags: "Organisation", location: "Baile Unterschlupf", text: "A league."},
+			{title: "Feste", tags: "Location", text: "Fort.\n\n<<spot \"Keller\">>\n\nOpen.\n\n<<secret>><<spot \"Versteck\">>\n\nHidden."},
+			{title: "Versteck", tags: "Location", text: "A room."},
+			{title: "Zirkel", tags: "Organisation", location: "Versteck", text: "A circle."}
+		];
+		added.forEach(function(fields) { h.add(wiki, fields); });
+		var path = function(title) { return h.render(wiki, "text/plain", "<<dnd.locationpath>>", {currentTiddler: title}).replace(/\s+/g, ""); };
+		try {
+			// A Secret location: missing in the path of the organisation and at the location above
+			assert.equal(inView("public", function() { return path("Bund"); }), "Baile");
+			assert.ok(inView("public", function() { return h.view(wiki, "Town"); }).indexOf(">Bund<") === -1);
+			assert.equal(path("Bund"), "BaileContinent›Kingdom›Town›Unterschlupf");
+			assert.ok(h.view(wiki, "Town").indexOf(">Bund<") !== -1);
+			// A locked spot: the place stays, where it lies does not
+			assert.equal(inView("public", function() { return path("Zirkel"); }), "Versteck");
+			assert.deepEqual(inView("public", function() { return f("[[Feste]occupants[]] [[Feste]sublocations[]]"); }), []);
+			assert.equal(path("Zirkel"), "Feste›Versteck");
+			assert.deepEqual(f("[[Feste]occupants[]] [[Feste]sublocations[]]"), ["Zirkel", "Versteck"]);
+		} finally {
+			added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		}
+	});
+
 	test("open items: no locked tiddler", function() {
 		h.add(wiki, {title: "Geheimer Faden", tags: "Event Secret", text: "TBC\n\n@@.tc-tiddler-frame\nopen\n@@"});
 		try {

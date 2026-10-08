@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261007170245412
+modified: 20261008171437983
 tags: $:/tags/Global
 title: $:/plugins/dndwiki-core/functions
 type: text/vnd.tiddlywiki
@@ -198,11 +198,11 @@ type: text/vnd.tiddlywiki
 <!-- The parents of a tiddler as a path below its title: "Materielle Ebene › Andu Falas ›
      Königreich von Vandalia" for a location, its location(s) at the end for persons and the
      like (one line per entry), "Kontrolliert: …" for locations it leads; with the hints of
-     locationcheck (not in the published copy). Links locked for the logged-in player are left
-     out. -->
+     locationcheck (not in the published copy). What the view does not see is left out: an
+     entry it does not see with its whole line, else the line would tell where it lies. -->
 \procedure dnd.locationpath()
 \whitespace trim
-<$let dnd-lines={{{ [<currentTiddler>tag[Location]then<currentTiddler>] ~[<currentTiddler>get[location]enlist-input[]] +[format:titlelist[]join[ ]] }}}>
+<$let dnd-lines={{{ [<currentTiddler>tag[Location]then<currentTiddler>] ~[<currentTiddler>get[location]enlist-input[]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
 <$list filter="[enlist<dnd-lines>]" variable="dnd-line">
 <$let dnd-path={{{ [<dnd-line>locationpath[]] [<currentTiddler>!tag[Location]then<dnd-line>] +[!is[blank]] :filter[dnd.visible[]] +[format:titlelist[]join[ ]] }}}>
 <%if [enlist<dnd-path>first[]] %>
