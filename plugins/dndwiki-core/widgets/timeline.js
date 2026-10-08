@@ -181,24 +181,17 @@ function monthName(wiki,C,m) {
 	return calendar.monthDay(wiki,C.cal,m.toString(),"")[0].replace(/\s*\(\d+(\/\d+)?\)$/,"");
 }
 
-// Colour of a tiddler: own color field, else that of its first tag with one (type hub)
-function colourOf(wiki,title) {
-	var tiddler = wiki.getTiddler(title);
-	if(!tiddler) {
-		return null;
+// Colour of a tiddler: the same cascade as its tag pill (own color field, then its type hub,
+// config/type-colour) - not simply its first tag with a colour, that would be an organisation
+// before the hub Player
+var COLOUR_FILTER = "[<dnd-title>] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]]";
+
+TimelineWidget.prototype.colourOf = function(title) {
+	if(!(title in this.colours)) {
+		this.colours[title] = this.wiki.filterTiddlers(COLOUR_FILTER,this.makeFakeWidgetWithVariables({"dnd-title": title}))[0] || null;
 	}
-	if(tiddler.fields.color) {
-		return tiddler.fields.color;
-	}
-	var tags = tiddler.fields.tags || [];
-	for(var i = 0; i < tags.length; i++) {
-		var tag = wiki.getTiddler(tags[i]);
-		if(tag && tag.fields.color) {
-			return tag.fields.color;
-		}
-	}
-	return null;
-}
+	return this.colours[title];
+};
 
 // Colour of the type of a tiddler: its first tag that is a type hub (tagged Index) with a colour
 function typeColourOf(wiki,title) {
@@ -247,12 +240,14 @@ function sideLabel(wiki,cal,side,isStart) {
 }
 
 TimelineWidget.prototype.collect = function() {
+	// Colours are read anew with every render (refreshSelf)
+	this.colours = Object.create(null);
 	var wiki = this.wiki,
 		C = dates.scale(wiki),
 		events = [],
 		undated = [],
-		eventColour = colourOf(wiki,"Event") || "#48a4ff",
-		campaignColour = colourOf(wiki,"Campaign") || "#0069d2",
+		eventColour = this.colourOf("Event") || "#48a4ff",
+		campaignColour = this.colourOf("Campaign") || "#0069d2",
 		view = visibility.current(wiki);
 	$tw.utils.each(this.list,function(title) {
 		var tiddler = wiki.getTiddler(title);
@@ -340,7 +335,7 @@ TimelineWidget.prototype.collectBand = function(C) {
 	});
 	return {
 		title: this.self,
-		colour: typeColourOf(wiki,this.self) || colourOf(wiki,this.self) || "#888888",
+		colour: typeColourOf(wiki,this.self) || this.colourOf(this.self) || "#888888",
 		secs: secs,
 		unknown: secs.length === 0
 	};
@@ -822,7 +817,7 @@ TimelineWidget.prototype.drawCanvas = function() {
 		meta.appendChild(doc.createTextNode(ev.label));
 		$tw.utils.each(ev.tags,function(tag) {
 			var dot = doc.createElement("span"),
-				colour = colourOf(wiki,tag);
+				colour = self.colourOf(tag);
 			dot.className = "dnd-tl-tagdot";
 			if(colour) {
 				dot.style.backgroundColor = colour;
@@ -1172,7 +1167,8 @@ TimelineWidget.prototype.drawExtras = function() {
 // Extra lines of a selected card: the tags as links, then one line per section with its
 // caption, oldest first (a span is one line), as a link to that section of the event
 TimelineWidget.prototype.details = function(ev) {
-	var doc = this.document,
+	var self = this,
+		doc = this.document,
 		wiki = this.wiki,
 		box = doc.createElement("div");
 	box.className = "dnd-tl-details";
@@ -1182,7 +1178,7 @@ TimelineWidget.prototype.details = function(ev) {
 		$tw.utils.each(ev.tags,function(tag) {
 			var link = doc.createElement("a"),
 				dot = doc.createElement("span"),
-				colour = colourOf(wiki,tag);
+				colour = self.colourOf(tag);
 			link.className = "dnd-tl-tag tc-tiddlylink tc-tiddlylink-resolves";
 			link.setAttribute("href","#" + encodeURIComponent(tag));
 			link.setAttribute("data-title",tag);

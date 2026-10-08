@@ -195,3 +195,37 @@ test.describe("goes on after its last section", function() {
 		assert.doesNotMatch(html, /data-anchor="[^"]*"[^>]*>\?\?\?\?</);
 	});
 });
+
+test.describe("colour of the tag dots", function() {
+	test.before(function() {
+		h.add(wiki, {title: "Orden", tags: "Organisation", color: "#ff8000"});
+		h.add(wiki, {title: "Held", tags: "Orden Player"});
+		h.add(wiki, {title: "Eigenfarbe", tags: "Orden Player", color: "#123456"});
+		h.add(wiki, {title: "Treffen", tags: "Event Held Eigenfarbe Orden", date: "1351-07-01"});
+	});
+
+	test.after(function() {
+		["Orden", "Held", "Eigenfarbe", "Treffen"].forEach(function(title) { wiki.deleteTiddler(title); });
+	});
+
+	// Colour of every tag dot by its tooltip
+	function dots(html) {
+		var colours = {};
+		(html.match(/<span class="dnd-tl-tagdot"[^>]*>/g) || []).forEach(function(span) {
+			var title = /title="([^"]*)"/.exec(span),
+				colour = /background-color:\s*([^;"]+)/.exec(span);
+			if(title) {
+				colours[title[1]] = colour ? colour[1].trim() : null;
+			}
+		});
+		return colours;
+	}
+
+	test("like the tag pill: own colour, else the type hub, not the first coloured tag", function() {
+		var colours = dots(draw("[[Treffen]]")),
+			player = wiki.getTiddler("Player").fields.color;
+		assert.equal(colours.Held, player);
+		assert.equal(colours.Eigenfarbe, "#123456");
+		assert.equal(colours.Orden, "#ff8000");
+	});
+});
