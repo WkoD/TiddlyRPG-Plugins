@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261007170245412
+modified: 20261008174407692
 tags: $:/tags/Stylesheet
 title: $:/plugins/dndwiki-core/styles/view
 type: text/vnd.tiddlywiki
@@ -66,8 +66,8 @@ a.dnd-player-card {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 8em;
-	padding: 0.5em;
+	width: 14em;
+	padding: 0.8em 0.5em;
 	border: 1px solid {{Player!!color}};
 	border-radius: 6px;
 	text-decoration: none;
@@ -82,10 +82,11 @@ a.dnd-player-card:hover {
 	display: none;
 }
 .dnd-player-portrait img {
-	width: 5em;
-	height: 5em;
+	width: 9em;
+	height: 9em;
 	object-fit: cover;
-	border-radius: 50%;
+	object-position: top;
+	border-radius: 4px;
 }
 .dnd-player-name {
 	font-weight: bold;
@@ -98,7 +99,4 @@ a.dnd-player-card:hover {
 a.dnd-player-card.dnd-dead {
 	border-style: dashed;
 	opacity: 0.7;
-}
-.dnd-player-card.dnd-dead .dnd-player-name {
-	text-decoration: line-through;
 }
