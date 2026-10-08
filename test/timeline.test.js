@@ -148,27 +148,116 @@ test.describe("band of the tiddler itself", function() {
 		h.add(wiki, {title: "Old Actia", tags: "Player", date: "1200/1351-04-14"});
 		h.add(wiki, {title: "Alive", tags: "Person", date: "1322"});
 		h.add(wiki, {title: "Undated Place", tags: "Location"});
+		h.add(wiki, {title: "Vanished", tags: "Person", date: "1300/."});
+		h.add(wiki, {title: "Hidden Life", tags: "Event", date: "1290/1300, 1340/1345",
+			text: "<<date>>\n\nKnown.\n\n<<secret>><<date>>\n\nSecret."});
+		h.add(wiki, {title: "Unknown Birth", tags: "Person", date: "./1351-08-04"});
+		h.add(wiki, {title: "Somewhere", tags: "Person", date: "./.."});
+		h.add(wiki, {title: "Early Word", tags: "Event", date: "1340-01-01"});
+		h.add(wiki, {title: "Late Deed", tags: "Event", date: "1351-06-01"});
+		h.add(wiki, {title: "Secret Start", tags: "Event", date: "1330-01-01, 1351-06-01",
+			text: "<<secret>><<date>>\n\nSecret.\n\n<<date>>\n\nKnown."});
 	});
 
 	test.after(function() {
-		["Old Actia", "Alive", "Undated Place"].forEach(function(title) { wiki.deleteTiddler(title); });
+		["Old Actia", "Alive", "Undated Place", "Vanished", "Hidden Life", "Unknown Birth", "Somewhere", "Early Word", "Late Deed", "Secret Start"].forEach(function(title) { wiki.deleteTiddler(title); });
 	});
+
+	// Lower edge of the band (newest at the top: the oldest end) and the lowest point on the axis
+	function bandBottom(html) {
+		var rect = /<rect [^>]*class="dnd-tl-band-area"[^>]*>/.exec(html)[0];
+		return parseFloat(/ y="([-\d.]+)"/.exec(rect)[1]) + parseFloat(/height="([-\d.]+)"/.exec(rect)[1]);
+	}
+	function lowestPoint(html) {
+		return Math.max.apply(null, (html.match(/<circle [^>]*class="dnd-tl-point[^>]*>/g) || []).map(function(c) {
+			return parseFloat(/cy="([-\d.]+)"/.exec(c)[1]);
+		}));
+	}
+
+	test("unknown start: the band fades in from the first mention", function() {
+		var html = draw("[[Early Word]] [[Late Deed]]", "Unknown Birth"),
+			stops = bandStops(html);
+		assert.ok(Math.abs(bandBottom(html) - lowestPoint(html)) < 1, bandBottom(html) + " / " + lowestPoint(html));
+		assert.deepEqual(stops[0], [0, "0"]);
+	});
+
+	test("unknown start, alive: from the first mention, solid at the last, fades out at the top", function() {
+		var html = draw("[[Early Word]] [[Late Deed]]", "Somewhere"),
+			stops = bandStops(html);
+		assert.doesNotMatch(html, /dnd-tl-band-unknown/);
+		assert.ok(Math.abs(bandBottom(html) - lowestPoint(html)) < 1, bandBottom(html) + " / " + lowestPoint(html));
+		assert.deepEqual(stops.map(function(s) { return s[1]; }), ["0", "1", "1", "0"]);
+	});
+
+	test("first mention: a section the view does not see does not count, the DM's does", function() {
+		var visible = h.inView(wiki, "public", function() { return bandBottom(draw("[[Secret Start]] [[Late Deed]]", "Unknown Birth")); }),
+			dm = h.inView(wiki, "dm", function() { return bandBottom(draw("[[Secret Start]] [[Late Deed]]", "Unknown Birth")); });
+		assert.ok(dm > visible + 20, dm + " / " + visible);
+	});
+
+	// Texts of the band labels
+	function bandLabels(html) {
+		return (html.match(/class="dnd-tl-band-label"[^>]*>[^<]*</g) || []).map(function(m) {
+			return /> *([^<]*)<$/.exec(m)[1];
+		});
+	}
 
 	test("band with the own dates, which set anchors", function() {
 		var html = draw("[[Hafenfest]]", "Old Actia");
 		assert.equal((html.match(/class="dnd-tl-band"/g) || []).length, 1);
-		assert.match(html, /class="dnd-tl-band-label"[^>]*>1200</);
 		assert.match(html, /class="dnd-tl-year dnd-tl-major"[^>]*>1200</);
 	});
 
-	test("a single point of a non-event: start with an open end", function() {
-		assert.match(draw("[[Hafenfest]]", "Alive"), /class="dnd-tl-band-label"[^>]*>\?\?\?\?</);
+	test("band labels: the years only, not the whole date", function() {
+		assert.deepEqual(bandLabels(draw("[[Hafenfest]]", "Old Actia")).sort(), ["1200", "1351"]);
 	});
 
-	test("without a date: band over the whole axis, dates unknown", function() {
-		var html = draw("[[Hafenfest]]", "Undated Place");
-		assert.match(html, /class="dnd-tl-band dnd-tl-band-unknown"/);
-		assert.match(html, />Zeitraum unbekannt</);
+	test("band labels fit: the band is at least as wide as its years", function() {
+		var html = draw("[[Hafenfest]]", "Old Actia"),
+			area = /class="dnd-tl-band-area"[^>]*width="([\d.]+)"/.exec(html);
+		assert.ok(parseFloat(area[1]) >= 4 * 6.2 + 2 * 6, area[0]);
+	});
+
+	// The stops of the band gradient, bottom to top: [offset, opacity]
+	function bandStops(html) {
+		var grad = /<linearGradient [^>]*id="dnd-tl-b-[^"]*"[^>]*>(.*?)<\/linearGradient>/.exec(html);
+		return (grad[1].match(/<stop [^>]*>/g) || []).map(function(stop) {
+			return [parseFloat(/offset="([^"]*)"/.exec(stop)[1]), /stop-opacity="([^"]*)"/.exec(stop)[1]];
+		});
+	}
+
+	test("a single point of a non-event: start with an open end, no ???? above", function() {
+		assert.deepEqual(bandLabels(draw("[[Hafenfest]]", "Alive")), ["1322"]);
+	});
+
+	test("open end (alive): solid up to the last event, fades out at the top of the axis", function() {
+		var stops = bandStops(draw("[[Hafenfest]]", "Alive"));
+		assert.deepEqual(stops[stops.length - 1], [1, "0"]);
+		assert.equal(stops[stops.length - 2][1], "1");
+		assert.ok(stops[stops.length - 2][0] < 1, JSON.stringify(stops));
+	});
+
+	test("unknown end: the band fades out upwards, no ????", function() {
+		var html = draw("[[Hafenfest]]", "Vanished"),
+			stops = bandStops(html);
+		assert.deepEqual(bandLabels(html), ["1300"]);
+		assert.equal(stops[stops.length - 1][1], "0");
+	});
+
+	test("without a date: fades in from the first mention to the last and out again, no label", function() {
+		var html = draw("[[Early Word]] [[Late Deed]]", "Undated Place"),
+			stops = bandStops(html);
+		assert.deepEqual(bandLabels(html), []);
+		assert.ok(Math.abs(bandBottom(html) - lowestPoint(html)) < 1, bandBottom(html) + " / " + lowestPoint(html));
+		assert.deepEqual(stops.map(function(s) { return s[1]; }), ["0", "1", "1", "0"]);
+		assert.ok(stops[1][0] > 0 && stops[2][0] < 1, JSON.stringify(stops));
+	});
+
+	test("band of an event: a section the view does not see is left out, the DM sees it", function() {
+		var visible = h.inView(wiki, "public", function() { return bandLabels(draw("[[Hafenfest]]", "Hidden Life")); }),
+			dm = h.inView(wiki, "dm", function() { return bandLabels(draw("[[Hafenfest]]", "Hidden Life")); });
+		assert.deepEqual(visible.sort(), ["1290", "1300"]);
+		assert.deepEqual(dm.sort(), ["1290", "1300", "1340", "1345"]);
 	});
 
 	test("no band in the Event hub (no self)", function() {

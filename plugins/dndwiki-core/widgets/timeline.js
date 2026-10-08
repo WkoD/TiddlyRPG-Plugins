@@ -27,8 +27,12 @@ to the edge of the axis with an arrow, "." fades out, a start or end known only 
 year fades in/out over that time.
 
 self: a tiddler whose own dates (born - died, founded - dissolved, ...) are drawn as a pale band
-behind the lanes; its dates also set anchors. Without dates the band covers the whole axis
-("dates unknown"). A single point of a non-event is a start with an open end.
+behind the lanes; its dates also set anchors. A single point of a non-event is a start with an
+open end. An open end ("..", alive) runs to the top of the axis and fades out there: no end yet.
+An unknown start fades in from the first mention (the earliest event shown); without any known
+day - also without a date - the band fades in from the first mention to the last, see
+collectBand. The band is labelled with the years of its known sides only, and is at least as
+wide as these labels.
 
 At most L.maxLanes lanes: where more spans run side by side, they merge into one beam of that
 width and continue inside it as thin threads, spread over the full width by the number of
@@ -90,7 +94,9 @@ var L = {
 	selectedW: 260,  // a selected card narrower than this widens to the left over the lanes
 	maxLanes: 5,     // more spans side by side merge into one beam of this width
 	thread: 1.5,     // width of a span inside a beam
-	turn: 6          // half height of the curve where a span enters or leaves a beam
+	turn: 6,         // half height of the curve where a span enters or leaves a beam
+	bandChar: 6.2,   // width of a character of a band label (10px)
+	bandPad: 6       // band label -> right edge of the band
 };
 
 // Zoom levels: px per year (0 = compact, only the cards determine the spacing)
@@ -307,32 +313,53 @@ TimelineWidget.prototype.collect = function() {
 	$tw.utils.each(all,function(ev,i) {
 		ev.idx = i;
 	});
-	return {C: C, events: events, undated: undated, all: all, band: this.collectBand(C)};
+	return {C: C, events: events, undated: undated, all: all, band: this.collectBand(C,events)};
 };
 
 /*
-Band of the tiddler named in "self": its own sections; a point of a non-event is a start with
-an open end. {title, colour, secs, unknown}; unknown: no section with a known day or "..".
+Band of the tiddler named in "self": its own sections the view sees; a point of a non-event is a
+start with an open end. {title, colour, secs, unknown}; unknown: no section with a known day or
+"..", and no event to take the mentions from. A side is labelled with its year only - an unknown or open side has no label, the band
+fades out or runs to the edge of the axis there.
+
+An unknown start fades in from the first mention, the earliest of the events shown: nobody knows
+when it began, a mention is no proof either. s.mentions: {lo, hi} first and last day of the
+events, set where it matters - an unknown start before an earlier mention, or no known day at all
+("./..", "./.", no date; the band then runs from the first mention, solid at the last).
 */
-TimelineWidget.prototype.collectBand = function(C) {
+TimelineWidget.prototype.collectBand = function(C,events) {
 	var wiki = this.wiki,
 		tiddler = this.self ? wiki.getTiddler(this.self) : null;
 	if(!tiddler) {
 		return null;
 	}
 	var parsed = dates.parse(tiddler.fields.date),
+		hidden = dates.hidden(wiki,this.self),
 		event = tiddler.hasTag("Event"),
+		mentions = events.length ? {
+			lo: Math.min.apply(null,events.map(function(ev) { return ev.start; })),
+			hi: Math.max.apply(null,events.map(function(ev) { return ev.end; }))
+		} : null,
 		secs = [];
 	$tw.utils.each(parsed.sections,function(section,i) {
-		var end = section.range || event ? section.end : FOREVER,
-			s = daysOf(C,section,i + 1,section.start,end,true);
-		if(s.lo === undefined && !(s.start === FOREVER && s.end === FOREVER)) {
+		if(hidden[i + 1]) {
 			return;
 		}
-		s.startText = sideLabel(wiki,C.cal,s.start,true);
-		s.endText = sideLabel(wiki,C.cal,s.end,false);
+		var end = section.range || event ? section.end : FOREVER,
+			s = daysOf(C,section,i + 1,section.start,end,true);
+		if(s.start === UNKNOWN_SIDE && mentions && (s.lo === undefined || mentions.lo < s.lo)) {
+			s.mentions = mentions;
+		} else if(s.lo === undefined && !(s.start === FOREVER && s.end === FOREVER)) {
+			return;
+		}
+		s.startText = typeof s.start === "object" ? s.start.year.toString() : "";
+		s.endText = typeof s.end === "object" ? s.end.year.toString() : "";
 		secs.push(s);
 	});
+	// Without a date (or none the view sees) nothing is known: like "./." around the mentions
+	if(secs.length === 0 && mentions) {
+		secs.push({number: 0, range: true, start: UNKNOWN_SIDE, end: UNKNOWN_SIDE, mentions: mentions, startText: "", endText: ""});
+	}
 	return {
 		title: this.self,
 		colour: typeColourOf(wiki,this.self) || this.colourOf(this.self) || "#888888",
@@ -493,7 +520,20 @@ TimelineWidget.prototype.layout = function() {
 	});
 	if(band) {
 		$tw.utils.each(band.secs,function(s) {
-			place(s);
+			if(s.mentions && s.lo === undefined) {
+				// Nothing known but the mentions: fades in up to the last one, then runs on (alive)
+				// or fades out
+				var last = yOf(s.mentions.hi);
+				s.solid0 = last;
+				s.y0 = s.yAt = Math.min(yOf(s.mentions.lo),last - L.fade);
+				s.solid1 = s.end === FOREVER ? null : last;
+				s.y1 = s.end === FOREVER ? null : last + L.fade;
+			} else {
+				place(s);
+				if(s.mentions) {
+					s.y0 = Math.min(s.y0,yOf(s.mentions.lo));
+				}
+			}
 			if(s.y1 === null) {
 				anyForeverEnd = true;
 			} else {
@@ -533,7 +573,7 @@ TimelineWidget.prototype.layout = function() {
 	if(band) {
 		$tw.utils.each(band.secs,fill);
 		if(band.unknown) {
-			band.secs = [{range: true, start: UNKNOWN_SIDE, end: UNKNOWN_SIDE, y0: axisStart, y1: axisEnd, solid0: axisStart, solid1: axisEnd}];
+			band.secs = [{range: true, start: UNKNOWN_SIDE, end: UNKNOWN_SIDE, y0: axisStart, y1: axisEnd, solid0: axisStart, solid1: axisEnd, startText: "", endText: ""}];
 		}
 	}
 	// Lanes: greedy, by pixels
@@ -777,7 +817,12 @@ TimelineWidget.prototype.drawCanvas = function() {
 			}
 			return false;
 		},
-		cardX = laneX(lay.lanes) + L.cardGap - (lay.lanes ? L.laneW / 2 : 0),
+		// The band of the tiddler itself is at least as wide as its longest year label
+		bandLabelW = this.data.band ? Math.max.apply(null,[0].concat(this.data.band.secs.map(function(s) {
+			return Math.max(s.startText.length,s.endText.length) * L.bandChar;
+		}))) : 0,
+		cardX = Math.max(laneX(lay.lanes) + L.cardGap - (lay.lanes ? L.laneW / 2 : 0),
+			bandLabelW ? L.axisX + 4 + bandLabelW + 2 * L.bandPad + 6 : 0),
 		canvas = doc.createElement("div");
 	canvas.className = "dnd-tl-canvas";
 	canvas.style.height = total + "px";
@@ -934,20 +979,23 @@ TimelineWidget.prototype.drawCanvas = function() {
 				stop = function(y,opacity) {
 					svg(doc,"stop",{offset: Math.min(1,Math.max(0,(y - s.y0) / height)), "stop-color": band.colour, "stop-opacity": opacity},grad);
 				};
+			// An open end ("..", alive) fades out over the last L.fade of the axis: no end yet
+			var open = !band.unknown && s.end === FOREVER;
 			stop(s.y0,band.unknown || s.start === UNKNOWN_SIDE ? 0 : 1);
 			stop(s.solid0,1);
-			stop(s.solid1,1);
-			stop(s.y1,band.unknown || s.end === UNKNOWN_SIDE ? 0 : 1);
+			stop(open ? Math.max(s.solid0,s.y1 - L.fade) : s.solid1,1);
+			stop(s.y1,band.unknown || open || s.end === UNKNOWN_SIDE ? 0 : 1);
 			svg(doc,"rect",{"class": "dnd-tl-band-area", x: bandX, y: top, width: bandW, height: height, rx: 6, fill: "url(#" + gid + ")"},g);
-			var text = function(content,y,cls) {
-				var node = svg(doc,"text",{"class": cls, x: bandX + bandW - 6, y: y, "text-anchor": "end"},g);
-				node.appendChild(doc.createTextNode(content));
+			var text = function(content,y) {
+				if(content) {
+					var node = svg(doc,"text",{"class": "dnd-tl-band-label", x: bandX + bandW - L.bandPad, y: y, "text-anchor": "end"},g);
+					node.appendChild(doc.createTextNode(content));
+				}
 			};
-			if(band.unknown) {
-				text(self.t("Timeline/Unknown"),top + 14,"dnd-tl-band-label");
-			} else {
-				text(s.endText,top + 14,"dnd-tl-band-label");
-				text(s.startText,top + height - 6,"dnd-tl-band-label");
+			// Years only; the same year once if both would overlap
+			text(s.endText,top + 14);
+			if(s.startText !== s.endText || height >= 34) {
+				text(s.startText,top + height - 6);
 			}
 		});
 	}

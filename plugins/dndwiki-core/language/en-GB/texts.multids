@@ -74,7 +74,6 @@ Timeline/Expand: Expand gap
 Timeline/Gap: $n$ years
 Timeline/Gaps: Collapse gaps
 Timeline/GapsHint: Collapse long stretches without events
-Timeline/Unknown: dates unknown
 Timeline/WheelHint: Ctrl + mouse wheel: zoom
 Timeline/ZoomIn: Zoom in
 Timeline/ZoomOut: Zoom out
