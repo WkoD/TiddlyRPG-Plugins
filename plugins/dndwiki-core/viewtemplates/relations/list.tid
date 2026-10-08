@@ -1,12 +1,14 @@
 caption: <<dnd.t Relations/List>>
 created: 20260713135021000
-modified: 20261007163804094
+modified: 20261008062202000
 title: $:/plugins/dndwiki-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
-\function dnd.hits.default() [<self>listed<field>!is[system]] =[<self>get<field>enlist-input[]] +[!match<self>unique[]] :filter[dnd.visible[]] +[sort[title]]
-\function dnd.here(place) [<place>occupants[]] :filter[get[location]enlist-input[]match<place>] :filter[dnd.visible[]] +[!match<self>sort[title]]
-\function dnd.hits.leader() [<self>listed[leader]!is[system]] =[<self>get[leader]enlist-input[]!tag[Location]] +[!match<self>unique[]] :filter[dnd.visible[]] +[sort[title]]
+\function dnd.forward(type) [<self>relationtargets<type>!is[system]] :filter[dnd.visible[]] +[!match<self>sort[title]]
+\function dnd.backward(type) [<self>relationsources<type>!is[system]] :filter[dnd.visible[]] +[!match<self>sort[title]]
+\function dnd.both(type) [dnd.forward<type>] [dnd.backward<type>] +[sort[title]]
+\function dnd.at(place) [<currentTiddler>get[location]enlist-input[]] [<currentTiddler>get[leader]enlist-input[]] +[match<place>]
+\function dnd.here(place) [<place>occupants[]] :filter[dnd.at<place>] :filter[dnd.visible[]] +[!match<self>sort[title]]
 \function dnd.within(place) [<place>sublocations[]] :filter[dnd.visible[]] +[sort[title]]
 
 \procedure dnd.group(label)
@@ -26,7 +28,7 @@ type: text/vnd.tiddlywiki
 \procedure dnd.tree(place,depth)
 \whitespace trim
 <$list filter="[dnd.here<place>]">
-<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">></div>
+<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">><%if [<currentTiddler>get[leader]enlist-input[]match<place>] %><span class="dnd-via"><$text text={{{ [[Edge/rules]dndtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%></div>
 </$list>
 <%if [<depth>compare:number:lt[10]] %>
 <$list filter="[dnd.within<place>]" variable="dnd-sub">
@@ -42,32 +44,35 @@ type: text/vnd.tiddlywiki
 <%endif%>
 \end
 
-<!-- Iterates over all field edge types and shows ONE group per relation (forward: own fields
-     UNION backward: who points here) under the label Field/<field> from the language packs -
-     the same label the graph templates put on the edges. `self` comes from the calling
-     relations.tid. Backward via the indexed operator `listed` instead of a search over all
-     tiddlers; the hits are held once in the multi-valued variable `hits` and used for heading
-     and list.
-     Locations (filters/location.js): on a location the group "location" is a tree (procedure
-     dnd.tree) instead of the locations above and below it: who is there, then each place within
-     (both kinds, a spot marked) with who is there and its own places within, every depth.
-     Every place with entries starts folded (<details>). The parent is in the path
-     below the title. Leading a location (leader -> location) is the group "Controls", not
-     "Leader". -->
+<!-- The relations of `self` (from the calling relations.tid), type by type in the order of the
+     axes (modules/relations.js), with the same rules as the graph: a type another one includes
+     is left out (a leader is no member as well). A directed type shows two groups: forward
+     (Field/<type>: "Member of") from the own field, and the way back (FieldInverse/<type>:
+     "Members") from who points here, via the indexed operator `listed`. A symmetric type shows
+     one group, both ways together. The hits are held once in the multi-valued variable `hits`
+     and used for heading and list.
+     Locations (filters/location.js): on a location the way back of "location" is a tree
+     (procedure dnd.tree) instead of the locations above and below it: who is there - who leads
+     it marked -, then each place within (both kinds, a spot marked) with who is there and its
+     own places within, every depth. Every place with entries starts folded (<details>). The
+     parent is in the path below the title, the places a tiddler leads in the group of the
+     function type rules ("Controls"). -->
 
-<$list filter="[all[shadows+tiddlers]prefix[$:/config/flibbles/graph/edges/fields/]removeprefix[$:/config/flibbles/graph/edges/fields/]] -[[tags]] -[[list]] +[sort[]]" variable=field>
-<$let dnd-label={{{ [<field>addprefix[Field/]dndtranslate[]] }}}>
-<%if [<field>match[location]] :filter[<self>tag[Location]] %>
+<$list filter="[relationtypes:list[]]" variable=type>
+<$let dnd-label={{{ [<type>addprefix[Field/]dndtranslate[]] }}}
+	dnd-inverse={{{ [<type>addprefix[FieldInverse/]dndtranslate[]] :filter[!prefix[FieldInverse/]] ~[<type>addprefix[Field/]dndtranslate[]] }}}>
+<%if [<type>match[location]] :filter[<self>tag[Location]] %>
 <%if [<self>occupants[]] [<self>sublocations[]] :filter[dnd.visible[]] +[first[]] %>
-<h3 class="dnd-relations-group"><$text text=<<dnd-label>>/></h3>
+<h3 class="dnd-relations-group"><$text text=<<dnd-inverse>>/></h3>
 <$transclude $variable="dnd.tree" place=<<self>> depth="0"/>
 <%endif%>
-<%elseif [<field>match[leader]] %>
-<$let hits={{{ [dnd.hits.leader[]] }}}><$transclude $variable="dnd.group" label=<<dnd-label>>/></$let>
+<%elseif [<type>relationsymmetric[]] %>
+<$let hits={{{ [dnd.both<type>] }}}><$transclude $variable="dnd.group" label=<<dnd-label>>/></$let>
 <%else%>
-<$let hits={{{ [dnd.hits.default[]] }}}><$transclude $variable="dnd.group" label=<<dnd-label>>/></$let>
+<$let hits={{{ [dnd.forward<type>] }}}><$transclude $variable="dnd.group" label=<<dnd-label>>/></$let>
+<%if [<type>!match[rules]] %>
+<$let hits={{{ [dnd.backward<type>] }}}><$transclude $variable="dnd.group" label=<<dnd-inverse>>/></$let>
+<%endif%>
 <%endif%>
 </$let>
 </$list>
-<$let hits={{{ [<self>get[leader]enlist-input[]tag[Location]] :filter[dnd.visible[]] +[sort[title]] }}}><$transclude $variable="dnd.group" label={{{ [[Relations/Rules]dndtranslate[]] }}}/></$let>
-

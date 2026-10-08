@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261007170245412
+modified: 20261008062202000
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -23,7 +23,8 @@ owner or one location; items and materials may have several of each.
 [<title>sublocations[]]         the locations directly in <title>; suffix "all": all below;
                                 operand "spot" or "location": only that way
 [<title>occupants[]]            persons, players, organisations, deities and items whose
-                                location is <title> or (below, only through spots) a part of it
+                                location is <title> or (below, only through spots) a part of it;
+                                who leads a location (field leader) is there too
 [<title>locationcheck[]]        language keys of the problems of <title> (Location/Check/...)
 
 \*/
@@ -162,7 +163,8 @@ exports.occupants = function(source,operator,options) {
 	source(function(tiddler,title) {
 		var places = [title].concat(below(wiki,title,true,"spot"));
 		$tw.utils.each(places,function(place) {
-			$tw.utils.each(wiki.findListingsOfTiddler(place,"location"),function(candidate) {
+			var candidates = wiki.findListingsOfTiddler(place,"location").concat(wiki.findListingsOfTiddler(place,"leader"));
+			$tw.utils.each(candidates,function(candidate) {
 				var t = wiki.getTiddler(candidate);
 				if(t && !t.isDraft() && OCCUPANTS.some(function(type) { return t.hasTag(type); }) && results.indexOf(candidate) === -1) {
 					results.push(candidate);
@@ -192,7 +194,11 @@ exports.locationcheck = function(source,operator,options) {
 			return;
 		}
 		var keys = [],
-			list = entries(wiki,title);
+			list = entries(wiki,title),
+			leads = $tw.utils.parseStringArray(t.fields.leader || "") || [];
+		if(list.some(function(entry) { return leads.indexOf(entry) !== -1 && isLocation(wiki,entry); })) {
+			keys.push("Location/Check/LedAndLocation");
+		}
 		if(t.hasTag("Location")) {
 			var owners = (spots.index(wiki).owners[title] || []).filter(function(owner) {
 				return isLocation(wiki,owner);

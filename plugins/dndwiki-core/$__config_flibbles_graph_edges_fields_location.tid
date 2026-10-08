@@ -1,6 +1,8 @@
 created: 20260708125907000
-modified: 20261001095424000
+modified: 20261008062202000
 title: $:/config/flibbles/graph/edges/fields/location
 type: application/json
 
-{}
+{
+    "label": "Location"
+}

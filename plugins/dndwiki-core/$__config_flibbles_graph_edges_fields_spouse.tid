@@ -1,0 +1,9 @@
+created: 20261008062202000
+dndwiki-symmetric: yes
+modified: 20261008062202000
+title: $:/config/flibbles/graph/edges/fields/spouse
+type: application/json
+
+{
+    "label": "Spouse"
+}

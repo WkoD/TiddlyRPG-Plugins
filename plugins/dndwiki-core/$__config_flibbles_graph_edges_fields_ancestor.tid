@@ -1,0 +1,8 @@
+created: 20261008062202000
+modified: 20261008062202000
+title: $:/config/flibbles/graph/edges/fields/ancestor
+type: application/json
+
+{
+    "label": "Ancestor"
+}

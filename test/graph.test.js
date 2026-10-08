@@ -77,26 +77,29 @@ test("function edge rules: leader -> location", function() {
 	assert.deepEqual(f("[[Guildmaster]subfilter{$:/config/flibbles/graph/edges/functions/rules!!filter}]"), []);
 });
 
-test("function edge spots: location -> its spots that are locations", function() {
-	assert.deepEqual(f("[[Town]subfilter{$:/config/flibbles/graph/edges/functions/spots!!filter}]"), ["Tavern"]);
+test("function edge spots: a spot that is a location -> the location it is part of", function() {
+	assert.deepEqual(f("[[Tavern]subfilter{$:/config/flibbles/graph/edges/functions/spots!!filter}]"), ["Town"]);
+	assert.deepEqual(f("[[Town]subfilter{$:/config/flibbles/graph/edges/functions/spots!!filter}]"), []);
+	// a spot joined to an organisation is no part of the location
+	assert.deepEqual(f("[[Guild]subfilter{$:/config/flibbles/graph/edges/functions/spots!!filter}]"), []);
 });
 
 test("override: leader -> location only as the function edge rules, labels from the language keys", function() {
-	// The label "Controls" and the missing leader edge Guild -> Town both come from the
-	// override, so it wins over tw5-graph (plugin-priority)
+	// The label "controls" and the missing leader edge Guild -> Town both come from the
+	// override, so it wins over tw5-graph (plugin-priority); rules includes location, so the
+	// field location of Guild draws nothing to Town
 	assert.deepEqual(edges(ego("Guildmaster")), [
-		"Guild -> Town",
-		"Guild -> Town (Controls)",
-		"Guildmaster -> Guild (Leader)",
-		"Guildmaster -> Town"
+		"Guild -> Town (controls)",
+		"Guildmaster -> Guild (leads)",
+		"Guildmaster -> Town (in)"
 	]);
 });
 
 test("override: style of an edge type from its config", function() {
-	var leader = ego("Guildmaster").edges.filter(function(edge) { return edge.props.label === "Leader"; })[0];
+	var leader = ego("Guildmaster").edges.filter(function(edge) { return edge.props.label === "leads"; })[0];
 	assert.equal(leader.props.color, "#ff8000");
 	assert.equal(leader.props.width, "5.5");
-	var spot = ego("Town").edges.filter(function(edge) { return edge.from === "Town" && edge.to === "Tavern"; });
+	var spot = ego("Town").edges.filter(function(edge) { return edge.from === "Tavern" && edge.to === "Town"; });
 	assert.equal(spot.length, 1);
 	assert.equal(spot[0].props.stroke, "dashed", "function edge spots");
 });
@@ -121,7 +124,7 @@ test("ego graph of a location: its spots count as the centre, other locations st
 	assert.deepEqual(nodes(graph), ["Barkeep", "Guild", "Guildmaster", "Tavern", "Town", "Wanderer"]);
 	assert.equal(graph.nodes.Tavern.label, "Tavern");
 	assert.equal(graph.nodes.Tavern.dndToggle, undefined);
-	assert.ok(edges(graph).indexOf("Barkeep -> Tavern") !== -1, "who is in a spot");
+	assert.ok(edges(graph).indexOf("Barkeep -> Tavern (in)") !== -1, "who is in a spot");
 	assert.ok(edges(graph).every(function(edge) { return edge.indexOf("Kingdom") === -1; }), "no edge to the parent");
 });
 
@@ -137,7 +140,7 @@ test("ego graph of a location: places with someone in them start folded, a click
 		assert.equal(open.nodes.Town.label, "▾ Town");
 		assert.equal(open.nodes.Tavern.label, "▸ Tavern");
 		assert.ok(open.nodes.Guildmaster, "the neighbours of Town");
-		assert.ok(edges(open).indexOf("Guildmaster -> Guild (Leader)") !== -1);
+		assert.ok(edges(open).indexOf("Guildmaster -> Guild (leads)") !== -1);
 	});
 });
 
@@ -211,7 +214,7 @@ test("view template dnd-graph: nodes from the filter, edge types of the view", f
 	}], function() {
 		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/graph/Test\"/>");
 		assert.deepEqual(nodes(graph), ["Guild", "Guildmaster", "Town"]);
-		assert.deepEqual(edges(graph), ["Guild -> Town (Controls)", "Guildmaster -> Guild (Leader)"]);
+		assert.deepEqual(edges(graph), ["Guild -> Town (controls)", "Guildmaster -> Guild (leads)"]);
 		assert.equal(graph.nodes.Guild.color, colour("Organisation"));
 	});
 });
@@ -352,7 +355,7 @@ test("map fit without an image: fit to the nodes, the height stays", function() 
 
 // Symmetric relations (field config dndwiki-symmetric): kept on both ends by convention, drawn
 // as one edge with arrows on both ends; an end without the field leaves a plain arrow
-var SYMMETRIC = ["alliance", "bond", "enmity", "family"];
+var SYMMETRIC = ["alliance", "bond", "enmity", "family", "sibling", "spouse"];
 
 function relations(list, fn) {
 	return withTiddlers(list.map(function(fields) {
@@ -411,6 +414,120 @@ test("symmetric fields: every pair once, in the ego graph and in a view", functi
 
 test("a field that is not symmetric keeps one edge per end", function() {
 	relations([{title: "Alice", mentor: "Bob"}, {title: "Bob", mentor: "Alice"}], function() {
-		assert.deepEqual(edges(ego("Alice")), ["Alice -> Bob (Mentor)", "Bob -> Alice (Mentor)"]);
+		assert.deepEqual(edges(ego("Alice")), ["Alice -> Bob (student of)", "Bob -> Alice (student of)"]);
+	});
+});
+
+// The relation rules (modules/relations.js): axes, included types, every type its own edge,
+// the arrow from the dependent to what it depends on
+
+// Edges as "from -> to (label)", an edge with arrows on both ends as "a <-> b (label)" with
+// its ends sorted (either end may be its from)
+function pairs(graph) {
+	return graph.edges.map(function(edge) {
+		var label = edge.props.label ? " (" + edge.props.label + ")" : "";
+		if(edge.props.arrows === "to from") {
+			return [edge.from, edge.to].sort().join(" <-> ") + label;
+		}
+		return edge.from + " -> " + edge.to + label;
+	}).sort();
+}
+
+function view(filter, fields, functions, fn) {
+	return withTiddlers([{
+		title: "$:/graph/Test", type: "application/json", text: "{}",
+		template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph",
+		filter: filter,
+		"edges.fields": fields,
+		"edges.functions": functions
+	}], function() {
+		return fn(h.graph(wiki, "<$graph.view $tiddler=\"$:/graph/Test\"/>"));
+	});
+}
+
+test("relations: a type includes others, the included one is not drawn (leader > officer > member, parent > ancestor)", function() {
+	relations([{title: "Alice", leader: "Guild", member: "Guild"}, {title: "Bob", officer: "Guild", member: "Guild"}], function() {
+		assert.deepEqual(edges(ego("Guild")).filter(function(edge) { return /Alice|Bob/.test(edge); }), [
+			"Alice -> Guild (leads)",
+			"Bob -> Guild (officer of)"
+		]);
+	});
+	relations([{title: "Child", parent: "Mother", ancestor: "Mother Founder"}, {title: "Mother"}, {title: "Founder"}], function() {
+		assert.deepEqual(edges(ego("Child")), ["Child -> Founder (descendant of)", "Child -> Mother (child of)"]);
+	});
+});
+
+test("relations: different types of one direction stay edges of their own", function() {
+	relations([{title: "Ellid", under: "Tyria", mentor: "Tyria"}, {title: "Tyria"}], function() {
+		var graph = ego("Ellid");
+		assert.deepEqual(edges(graph), ["Ellid -> Tyria (answers to)", "Ellid -> Tyria (student of)"]);
+		var under = graph.edges.filter(function(edge) { return edge.props.label === "answers to"; })[0];
+		assert.equal(under.props.color, "#ff8000", "colour of the axis power");
+	});
+	withTiddlers([{title: "Axe", tags: "Artifact", creator: "Grum", former: "Grum", text: "An axe."}], function() {
+		assert.deepEqual(edges(ego("Axe")), ["Axe -> Grum (formerly with)", "Axe -> Grum (made by)"]);
+	});
+});
+
+test("relations: a symmetric type is never merged with a directed one", function() {
+	relations([{title: "Agin", bond: "Lagertha"}, {title: "Lagertha", bond: "Agin", mentor: "Agin"}], function() {
+		assert.deepEqual(pairs(ego("Agin")), ["Agin <-> Lagertha (Bond)", "Lagertha -> Agin (student of)"]);
+	});
+});
+
+test("relations: a type the view does not draw neither draws nor hides another one", function() {
+	view("[[Guild]] [[Town]] [[Kingdom]]", "location", "spots", function(graph) {
+		assert.deepEqual(edges(graph), ["Guild -> Kingdom (in)", "Guild -> Town (in)", "Town -> Kingdom (in)"]);
+	});
+	view("[[Guild]] [[Town]] [[Kingdom]]", "location", "rules", function(graph) {
+		assert.deepEqual(edges(graph), ["Guild -> Kingdom (in)", "Guild -> Town (controls)", "Town -> Kingdom (in)"]);
+	});
+});
+
+test("relations: colour of the axis, the colour of a type wins", function() {
+	relations([{title: "Alice", location: "Town", alliance: "Bob"}, {title: "Bob", alliance: "Alice"}], function() {
+		var graph = ego("Alice"),
+			place = graph.edges.filter(function(edge) { return edge.to === "Town"; })[0],
+			alliance = graph.edges.filter(function(edge) { return edge.props.label === "Alliance"; })[0];
+		assert.equal(place.props.color, wiki.getTiddlerData("$:/config/dndwiki/graph/axes/place").color);
+		assert.equal(alliance.props.color, "#06e502");
+	});
+});
+
+test("relations: every type is on an axis, except links, spots and transcludes", function() {
+	var outside = f("[relationtypes[]] :filter[relationaxis[]is[blank]]").filter(function(type) {
+		return ["tags", "list", "links", "spots", "transcludes"].indexOf(type) === -1;
+	});
+	assert.deepEqual(outside, []);
+});
+
+test("family: parent from the child, spouse and sibling both ways, a shared parent alone makes no siblings", function() {
+	relations([{title: "Sven"}, {title: "Lagertha", parent: "Sven", spouse: "Ragna", sibling: "Bjorn"}, {title: "Bjorn", parent: "Sven", sibling: "Lagertha"}, {title: "Ragna", spouse: "Lagertha"}, {title: "Foster", parent: "Sven"}], function() {
+		var graph = ego("Lagertha");
+		assert.deepEqual(pairs(graph), [
+			"Bjorn -> Sven (child of)",
+			"Bjorn <-> Lagertha (Sibling)",
+			"Lagertha -> Sven (child of)",
+			"Lagertha <-> Ragna (Spouse)"
+		]);
+		assert.ok(!graph.nodes.Foster, "same parent, no sibling: not a neighbour");
+		graph.edges.forEach(function(edge) {
+			assert.equal(edge.props.color, "#a8a102", "axis family");
+		});
+	});
+});
+
+test("links: their own edge in grey, mutual links as one edge with two arrows", function() {
+	relations([{title: "Alice", text: "Knows [[Bob]]."}, {title: "Bob", text: "Knows [[Alice]]."}, {title: "Carol", text: "Knows [[Alice]].", bond: "Alice"}], function() {
+		view("[[Alice]] [[Bob]] [[Carol]]", "[all[]] -[[tags]] -[[list]]", "links", function(graph) {
+			assert.deepEqual(pairs(graph), [
+				"Alice <-> Bob (references)",
+				"Carol -> Alice (Bond)",
+				"Carol -> Alice (references)"
+			]);
+			graph.edges.filter(function(edge) { return edge.props.label === "references"; }).forEach(function(edge) {
+				assert.equal(edge.props.color, "#999999");
+			});
+		});
 	});
 });

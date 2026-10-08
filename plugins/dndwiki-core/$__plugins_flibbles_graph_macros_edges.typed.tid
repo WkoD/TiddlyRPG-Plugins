@@ -1,5 +1,5 @@
 created: 20261001104500000
-modified: 20261007071831000
+modified: 20261008072856000
 tags: $:/tags/Global
 code-body: yes
 title: $:/plugins/flibbles/graph/macros/edges.typed
@@ -11,36 +11,37 @@ title: $:/plugins/flibbles/graph/macros/edges.typed
 	$$fields={{{ [<fieldsFilter>!is[blank]] ~"[all[]]" }}}
 	$$tiddler=<<currentTiddler>> >
 
+<!-- dndwiki-core: the relation rules (modules/relations.js) decide which targets a type draws
+     and how the edge is labelled. dndTypes: the field and function types this call draws -
+     a type left out of the view does not hide another one. -->
+<$let dndTypes={{{ [subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.fields}subfilter<$fields>] [subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.functions}subfilter<$functions>] +[format:titlelist[]join[ ]] }}}>
+
 <!-- First create edges for field types -->
 
 <$list variable=fieldName filter="+[subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.fields}subfilter<$fields>]">
 
 <$let
 	dataTiddler=`$:/config/flibbles/graph/edges/fields/$(fieldName)$`
-	dndExclude={{{ [<fieldName>addprefix[$:/config/flibbles/graph/edges/fields/]get[dndwiki-exclude]] }}}
-	dndSymmetric={{{ [<fieldName>addprefix[$:/config/flibbles/graph/edges/fields/]get[dndwiki-symmetric]] }}} >
+	dndSymmetric={{{ [<dataTiddler>get[dndwiki-symmetric]] }}} >
+
+<!-- dndwiki-core: the style of the axis of the type, outside its config so that the config wins -->
+<$properties $for=edges
+	$tiddler={{{ [<fieldName>relationaxis[]] }}} >
 
 <$properties $for=edges
 	$tiddler=<<dataTiddler>>
 	delete={{{ [<$editable>!match[no]then[<$action-removetyped $tiddler=<<fromTiddler>> $field=<<fieldName>> $value=<<toTiddler>> />]] }}} >
 
-<!-- dndwiki-core: translated edge label from the language key Field/<field>, only for edge
-     types whose config has a label; nested inside the config so that it wins -->
-<$properties $for=edges
-	label={{{ [<dataTiddler>getindex[label]!is[blank]then<fieldName>addprefix[Field/]dndtranslate[]] }}} >
+<!-- dndwiki-core: only the targets the type draws - without the excluded ones (dndwiki-exclude)
+     and those another type includes (dndwiki-implies) -->
+<$list variable=toTiddler counter=index filter="[<$tiddler>relationtargets<fieldName>,<dndTypes>]">
 
-
-<!-- dndwiki-core: the field config may name targets that this field type does not draw
-     (field dndwiki-exclude, a filter); another edge type draws them, e.g. leader -> location
-     is the function edge "rules" -->
-<$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[gettyped<fieldName>] +[!is[blank]] -[subfilter<dndExclude>]">
-
-<!-- dndwiki-core: a symmetric field type (field dndwiki-symmetric of the config) is kept on
-     both ends; if the other end points back, both ends give the edge the same id - ordered
-     pair and field - so the graph keeps one edge, with arrows on both ends. One end alone keeps
-     its own id and a plain arrow. -->
+<!-- dndwiki-core: a symmetric type (dndwiki-symmetric) is kept on both ends; if the other end
+     points back, both ends give the edge the same id - ordered pair and type - so the graph
+     keeps one edge, with arrows on both ends. One end alone keeps its own id and a plain
+     arrow. -->
 <$let
-	dndBoth={{{ [<dndSymmetric>match[yes]then<toTiddler>] :map:flat[gettyped<fieldName>] +[match<$tiddler>] }}}
+	dndBoth={{{ [<dndSymmetric>match[yes]then<toTiddler>relationtargets<fieldName>,<dndTypes>match<$tiddler>] }}}
 	dndFirst={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]first[]] }}}
 	dndLast={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]last[]] }}} >
 
@@ -53,7 +54,10 @@ $(fieldName)$-$(index)$`>
 
 <$vars id={{{ [<dndBoth>!is[blank]then<dndPairId>] ~[<dndOwnId>] }}}>
 
+<!-- dndwiki-core: the label from the language key Edge/<type>; nested inside the config so
+     that it wins -->
 <$properties $for=edges
+	label={{{ [<fieldName>relationlabel[]] }}}
 	arrows={{{ [<dndBoth>!is[blank]then[to from]] }}} >
 
 <$slot $name=ts-raw>
@@ -68,25 +72,42 @@ $(fieldName)$-$(index)$`>
 
 <$let
 	dataTiddler=`$:/config/flibbles/graph/edges/functions/$(functionName)$`
-	function={{{ [<dataTiddler>get[filter]] }}} >
+	dndSymmetric={{{ [<dataTiddler>get[dndwiki-symmetric]] }}} >
+
+<$properties $for=edges
+	$tiddler={{{ [<functionName>relationaxis[]] }}} >
 
 <$properties $for=edges
 	$tiddler=<<dataTiddler>> >
 
-<!-- dndwiki-core: translated label from Field/<function>, as for the field types -->
-<$properties $for=edges
-	label={{{ [<dataTiddler>getindex[label]!is[blank]then<functionName>addprefix[Field/]dndtranslate[]] }}} >
+<!-- dndwiki-core: the function runs in modules/relations.js, with the same rules as the fields -->
+<$list variable=toTiddler counter=index filter="[<$tiddler>relationtargets<functionName>,<dndTypes>]">
 
-<$list variable=toTiddler counter=index filter="[<$tiddler>] :map:flat[subfilter<function>] +[!is[blank]]">
+<$let
+	dndBoth={{{ [<dndSymmetric>match[yes]then<toTiddler>relationtargets<functionName>,<dndTypes>match<$tiddler>] }}}
+	dndFirst={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]first[]] }}}
+	dndLast={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]last[]] }}} >
 
-<$vars id=`$:/edge/functions/$($tiddler)$
+<$vars
+	dndPairId=`$:/edge/functions/$(dndFirst)$
+$(dndLast)$
+$(functionName)$`
+	dndOwnId=`$:/edge/functions/$($tiddler)$
 $(functionName)$-$(index)$`>
+
+<$vars id={{{ [<dndBoth>!is[blank]then<dndPairId>] ~[<dndOwnId>] }}}>
+
+<$properties $for=edges
+	label={{{ [<functionName>relationlabel[]] }}}
+	arrows={{{ [<dndBoth>!is[blank]then[to from]] }}} >
 
 <$slot $name=ts-raw>
 
 <$edge $from=<<$tiddler>> $id=<<id>> />
 
-</$slot></$vars></$list></$properties></$properties></$let></$list>
+</$slot></$properties></$vars></$vars></$let></$list></$properties></$properties></$let></$list>
+
+</$let>
 \end
 
 \relink $edges.typed $functions:filter $fields:filter $tiddler:title

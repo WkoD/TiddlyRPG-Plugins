@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261007170245412
+modified: 20261008062202000
 title: $:/dndwiki/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -35,6 +35,7 @@ Link/SeeAlso: See also
 Location/Check/ArtifactOwners: Check the location: an artifact is unique and has one owner (field owner has several entries)
 Location/Check/ArtifactTwice: Check the location: an artifact is unique and lies in one place only (field location has several entries)
 Location/Check/Cycle: Check the location: its parents form a cycle
+Location/Check/LedAndLocation: Check the location: the field location names a location the field leader already holds; whoever controls a location is present there too
 Location/Check/LocationTwice: Check the location: a location lies in one place only (field location has several entries)
 Location/Check/LockedParent: Check the location: its parent is hidden from someone who can see this location
 Location/Check/NotALocation: Check the location: the field location names a tiddler that is not a location

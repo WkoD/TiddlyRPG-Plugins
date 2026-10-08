@@ -153,6 +153,51 @@ Text of the section.
 
 The hints stand below the title of the tiddler, not in the published copy.
 
+## Relations
+
+Relations are fields holding titles. **The field lives on the dependent, the arrow points to
+what it depends on:** the member to its organisation, the child to its parent, the work to its
+creator, the potion to its ingredient, the part to the whole. So the long lists never pile up on
+a place or an organisation, and a new person is entered in one tiddler only. The graph and the
+relation list show the way back by themselves.
+
+| Axis | Field | On the dependent, e.g. | Edge | List forward / back |
+|---|---|---|---|---|
+| place | `leader` (on a location) | `leader: Baile` (organisation) | controls | Controls / - |
+| | `location` | `location: Baile` | in | Location / Present |
+| power | `leader` | `leader: [[Haus Eiree]]` (person) | leads | Leads / Leaders |
+| | `officer` | `officer: Guild` | officer of | Officer of / Officers |
+| | `member` | `member: Guild` | member of | Member of / Members |
+| | `under` | `under: Tyria`, `under: [[Haus Kemri]]` | answers to | Answers to / Subordinates |
+| | `former` | `former: Guild` (person), `former: Grum` (item) | formerly with | Formerly with / Former |
+| family | `parent` | `parent: [[Sven Sigra]]` (the child) | child of | Parents / Children |
+| | `ancestor` | `ancestor: Balor` (over several generations) | descendant of | Ancestors / Descendants |
+| | `spouse` | `spouse: Ragna` (both ends) | Spouse | Spouse |
+| | `sibling` | `sibling: Bjorn` (both ends) | Sibling | Siblings |
+| | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
+| attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
+| guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
+| | `patron` | `patron: Helm` | worships | Patron / Followers |
+| things | `creator` | `creator: Corelei` (the item) | made by | Creator / Created |
+| | `owner` | `owner: Balseth` | owned by | Owner / Possessions |
+| | `component` | `component: Löwengras` (the potion) | contains | Components / Part of |
+
+- **Symmetric relations** (`spouse`, `sibling`, `family`, `alliance`, `enmity`, `bond`) are entered on both
+  ends - deleting one tiddler loses nothing of the other. If both ends carry it, the graph draws
+  one edge with two arrows.
+- **One includes another:** a leader is an officer and a member as well, controlling a place
+  means being present there, a parent is an ancestor. Only the highest is entered; a lower one
+  next to it is not drawn and not listed (a `location` next to a `leader` on the same place
+  gets a hint).
+- **Every relation its own edge:** two different relations between the same tiddlers are two
+  edges (`under` and `mentor`: "answers to" and "student of").
+- The colour of an edge comes from its axis; `alliance`, `enmity`, `bond`, `former` and `patron`
+  keep their own.
+- **Links** in the text are an edge of their own in grey ("references"), only in views that
+  show them (`$:/graph/Default`); two tiddlers linking each other give one edge with two arrows.
+- A spot that is a location points to the location it is part of (dashed), like a field
+  `location`.
+
 ## Locations
 
 Where something is, and which place lies in which, comes from fields and from the body of a
@@ -164,7 +209,7 @@ location - tags carry no meaning for places.
 | Organisation | `location: [[Cair Di]] Baile` | the places where it sits or is present (several, all equal) |
 | Location | `location: [[Königreich von Vandalia]]` | lies in ("liegt in"): a place of its own within a larger one |
 | Location | `<<spot "Tavern">>` in the body of Baile | part of ("Teil von"): the tavern is a part of Baile - who is in the tavern is found in Baile |
-| Organisation, person | `leader: Baile` | leads or controls the location ("Controls") |
+| Organisation, person | `leader: Baile` | leads or controls the location ("Controls") and is present there - no `location` to the same place needed |
 | Artifact | `location: [[Leuchtturm von Cair Di]]` | where it lies - instead of an owner: an artifact is unique and has one owner **or** one location; when it passes from a person to a place, the person moves to `former` |
 | Item, material | `location: Briarwood Riganwald` | where it lies or is found (several, all equal); an item may have several owners as well |
 

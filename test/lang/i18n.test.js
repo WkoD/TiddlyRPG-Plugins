@@ -67,12 +67,11 @@ test.describe("de-DE", function() {
 		assert.equal(saveTags(["Ort", "Haus Kemri"]), "Location|Haus Kemri");
 	});
 
-	test("edge labels translated, an edge type without a label stays without one", function() {
+	test("edge labels translated (Edge/<type>)", function() {
 		assert.deepEqual(edgeLabels(egoGraph("Guildmaster")), [
-			"Guild -> Town",
-			"Guild -> Town: Kontrolliert",
-			"Guildmaster -> Guild: Anführer",
-			"Guildmaster -> Town"
+			"Guild -> Town: kontrolliert",
+			"Guildmaster -> Guild: führt",
+			"Guildmaster -> Town: in"
 		]);
 	});
 
@@ -127,12 +126,12 @@ test.describe("refresh", function() {
 		h.setLanguage(wiki, "de-DE");
 		try {
 			var graph = egoGraph("Guildmaster");
-			assert.ok(edgeLabels(graph).indexOf("Guildmaster -> Guild: Anführer") !== -1);
+			assert.ok(edgeLabels(graph).indexOf("Guildmaster -> Guild: führt") !== -1);
 		} finally {
 			h.setLanguage(wiki, "en-GB");
 		}
 		graph = graph.refresh({"$:/language": {modified: true}});
-		assert.ok(edgeLabels(graph).indexOf("Guildmaster -> Guild: Leader") !== -1, edgeLabels(graph).join(" / "));
+		assert.ok(edgeLabels(graph).indexOf("Guildmaster -> Guild: leads") !== -1, edgeLabels(graph).join(" / "));
 	});
 
 	test("dateformat refreshes on a change of the calendar texts", function() {

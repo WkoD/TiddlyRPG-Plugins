@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261007170245412
+modified: 20261008062202000
 title: $:/dndwiki/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -35,6 +35,7 @@ Link/SeeAlso: Siehe auch
 Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat einen Besitzer (Feld owner hat mehrere Einträge)
 Location/Check/ArtifactTwice: Ort prüfen: Ein Artefakt ist einzigartig und liegt an einem Ort (Feld location hat mehrere Einträge)
 Location/Check/Cycle: Ort prüfen: Die Oberorte bilden einen Kreis
+Location/Check/LedAndLocation: Ort prüfen: Das Feld location nennt einen Ort, den das Feld leader schon enthält; wer einen Ort kontrolliert, ist dort auch anwesend
 Location/Check/LocationTwice: Ort prüfen: Ein Ort liegt nur in einem Ort (Feld location hat mehrere Einträge)
 Location/Check/LockedParent: Ort prüfen: Der Oberort ist für jemanden gesperrt, der diesen Ort sieht
 Location/Check/NotALocation: Ort prüfen: Das Feld location nennt einen Tiddler, der kein Ort ist

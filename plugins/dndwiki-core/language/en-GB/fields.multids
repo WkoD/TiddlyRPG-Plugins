@@ -1,20 +1,24 @@
 created: 20261001095424000
-modified: 20261006064449000
+modified: 20261008071815000
 title: $:/dndwiki/language/en-GB/Field/
 
 alliance: Alliance
+ancestor: Ancestors
 bond: Bond
-component: Component
+component: Components
 creator: Creator
 enmity: Enmity
 family: Family
-former: Former
-leader: Leader
+former: Formerly with
+leader: Leads
 location: Location
-member: Member
+member: Member of
 mentor: Mentor
-officer: Officer
+officer: Officer of
 owner: Owner
+parent: Parents
 patron: Patron
 rules: Controls
-under: Under
+sibling: Siblings
+spouse: Spouse
+under: Answers to

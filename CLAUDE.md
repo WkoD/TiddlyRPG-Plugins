@@ -68,10 +68,12 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
     the band of the tiddler itself, the section lines as links
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<dnd.`
+  - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
+    label), the relation list forward and back, included types, symmetric types, family,
+    who leads a location as present there
   - `graph` - through the nodes and edges of the real templates (`h.graph`): the
     `edges.typed` override (`dndwiki-exclude`, symmetric edges, style from the edge type
-    config), the function
-    edges `rules` and `spots`, the ego graph (type colours, the dead, a location as centre,
+    config and its axis, included types, every type its own edge, the types of a view), the function edges `rules`, `spots` and `links`, the ego graph (type colours, the dead, a location as centre,
     folding), the map (pins, spots, positions, editing, hidden nodes, image and fit), the view
     template `dnd-graph`; the map view outside `$:/graph/`, the fit of the map image
     (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`)
@@ -165,7 +167,8 @@ the tiddler title:
   `eventrows`, the timeline, `dnd-date` and `deadlink`), `sections.js` (see "Sections": the
   sections of a body, their kinds, locks and rendering), `spots.js` (see "Locations": spots and
   `<<spotlink>>` from the model of `sections.js`, plain names, the index of owners and
-  references), `anchor-jump.js`
+  references), `relations.js` (see "Relations": the relation types, their axes, what a type
+  shows and draws, labels), `anchor-jump.js`
   (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
   lock, campaign events).
 - **Widgets** (`widgets/*`): `dnd-timeline` (`timeline.js`, attributes `filter`, `self`):
@@ -199,6 +202,8 @@ the tiddler title:
   `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
   `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`, `maptabs`),
+  `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
+  `relationsymmetric`, `relationtypes`, see "Relations"),
   `visibility.js` (`dndvisible`, `dndview`, `dndcharacter`, `dndcharacters`, `dndplayer`,
   `dndplayedby`, see "Views").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
@@ -237,7 +242,9 @@ the tiddler title:
 - **Search** (override of `$:/core/ui/DefaultSearchResultList` plus `search/item`): core search
   plus hubs whose translated name matches, hits shown with translated names.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
-  (`Plural/<hub>`), `fields` (`Field/<field>`, relation fields), `texts` (template texts).
+  (`Plural/<hub>`), `fields` (`Field/<type>`, a relation in the relation list, forward),
+  `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
+  `texts` (template texts).
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
   Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Information, Index, TBC,
   TBC/Campaign; titles without prefix, tag `Index`; the item categories also tagged
@@ -246,8 +253,10 @@ the tiddler title:
   `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or frame
   what it locks.
 - **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
-  + relink field types; the function edge types `rules` (leader -> location, "Controls") and
-  `spots` (a location -> its spots that are locations, dashed); relink of the macro parameters
+  + relink field types; the function edge types `rules` (leader -> location, "controls"),
+  `spots` (a spot that is a location -> the location it is part of, dashed) and a copy of
+  `links` of tw5-graph (grey, symmetric); the axes
+  `$:/config/dndwiki/graph/axes[/<axis>]` (see "Relations"); relink of the macro parameters
   of `spot` and `spotlink`; the graph templates
   `$:/plugins/dndwiki-core/graph/templates/dnd-graph` (type colours from the tag `color`,
   `shape=box`, no saved positions), `.../dnd-ego` and `.../dnd-map` (map of a location, see
@@ -415,7 +424,11 @@ only call their operators.
   the map itself through `h.graph`.
 - Leading a location: `leader` pointing to a `Location` is drawn by the function edge `rules`,
   not by the field edge `leader` (its config has `dndwiki-exclude: [tag[Location]]`, applied by
-  the override of `$edges.typed`). The relation list shows it as the group "Controls".
+  `modules/relations.js`). Who leads a location is present there: `occupants` reads `leader`
+  like `location`, the tree of the relation list marks them ("kontrolliert"); `rules` includes
+  `location` (see "Relations"), and `locationcheck` hints at a `location` to a place the field
+  `leader` already holds (`Location/Check/LedAndLocation`). The relation list shows the places
+  led as the group "Controls".
 
 ## Items
 
@@ -433,6 +446,37 @@ The rules of items live **once** in `filters/item.js` (base type and categories)
   category hangs on its tag (`viewtemplates/book`, `styles/item`).
 - The hints of `itemcheck` stand below the title (`viewtemplates/location-path`), next to
   those of `locationcheck`.
+
+## Relations
+
+The rules of the relation types live **once** in `modules/relations.js`; the override of
+`$edges.typed` and the relation list only call `filters/relations.js`. Meaning and examples:
+`README.md` ("Relations").
+
+- A relation type is an edge type of tw5-graph, field or function, read from its config. The
+  field lives on the dependent; the arrow points to what it depends on. A new type follows that
+  rule.
+- Axes: `$:/config/dndwiki/graph/axes` (field `list`: the axes in order), each axis
+  `.../axes/<axis>` an edge style (JSON) whose field `list` names its types in order. The order
+  of all types (`relationtypes`) is axis by axis; types without an axis come last. Every type
+  except `links`, `spots`, `transcludes` is on an axis (`graph.test.js` checks it).
+- Included types (`dndwiki-implies` on the config, every included type named, no chains:
+  `leader: officer member`): where A -> B has both, the included one is neither drawn nor
+  listed (`shown()`, `sources()`).
+- Every type draws its own edges; two types between the same tiddlers are two edges (decided
+  2026-10-08 against merging them into one labelled edge).
+- The types in play: a graph view draws only some types (`edges.fields`/`edges.functions`);
+  the override passes them on (`dndTypes`), so a type left out does not hide another one. The
+  relation list uses all.
+- Function types run their filter in `targets()` with the tiddler as input and
+  `currentTiddler`, cached per change of the wiki; `$nodes.neighbors` of tw5-graph runs the
+  same filters itself to find neighbours, so a function filter must not depend on other
+  variables. The way back of a function type needs the field its candidates come from
+  (`dndwiki-via`, `rules`: `leader`).
+- Relation list (`viewtemplates/relations/list`): per type in order a group forward
+  (`Field/<type>`) and back (`FieldInverse/<type>`, falls back to `Field/<type>`), one group
+  for a symmetric type; on a location the way back of `location` is the tree, `rules` has no
+  way back there (the tree marks who leads).
 
 ## Sections
 
@@ -544,18 +588,21 @@ namespace of its own where tw5-graph has none:
 
 - **Per edge type** (label, colour, stroke, arrows, curves, ...): one JSON tiddler per
   field/function under `$:/config/flibbles/graph/edges/fields/<field>` or `.../functions/<name>` -
-  namespace given by tw5-graph, values from us. Our own extra fields on a field config:
-  `dndwiki-exclude` (a filter of targets this field type does not draw, see "Locations") and
-  `dndwiki-symmetric: yes` (`family`, `alliance`, `bond`, `enmity`: kept on both ends by
-  convention; if both ends carry the field, the graph draws one edge with arrows on both ends,
-  one end alone a plain arrow). Resolved by `<$edges.typed>` automatically by
-  name. Values are plain hex/literal values, no live binding to e.g. tag `color` fields (the JSON
-  is read with `JSON.parse`, no wikitext context) - update by hand when the source changes. The
-  JSON `label` is English and only used in the tw5-graph settings: **the visible edge label comes
-  from `Field/<field>`**, set by the override of `$edges.typed` (see "Core overrides") - only for
-  field types whose JSON has a label (`location` stays unlabelled). This covers the edges of our
-  graph templates and those `$nodes.neighbors` creates in the ego graph, for field and function
-  types alike. The
+  namespace given by tw5-graph, values from us. Our own extra fields on a config (see
+  "Relations"): `dndwiki-exclude` (a filter of targets this type does not draw, see
+  "Locations"), `dndwiki-symmetric: yes` (`spouse`, `sibling`, `family`, `alliance`, `bond`,
+  `enmity`, `links`: if both ends point to each other, the graph draws one edge with arrows on
+  both ends, one end alone a plain arrow), `dndwiki-implies` (types this one includes) and
+  `dndwiki-via` (function types: the field of the way back). Resolved by `<$edges.typed>`
+  automatically by name. Values are plain hex/literal values, no live binding to e.g. tag
+  `color` fields (the JSON is read with `JSON.parse`, no wikitext context) - update by hand when
+  the source changes (the axis `place` has the colour of the hub `Location`). The JSON `label` is
+  English and only used in the tw5-graph settings: **the visible edge label comes from
+  `Edge/<type>`**, set by the override of `$edges.typed` (see "Core overrides") for every type
+  the language has a key for (`spots` has none). This covers the edges of our graph templates
+  and those `$nodes.neighbors` creates in the ego graph, for field and function types alike.
+- **Per axis** (colour): `$:/config/dndwiki/graph/axes/<axis>`, a JSON edge style like an edge
+  type config; the override puts it outside the type config, so the type wins. The
   type hub tiddlers themselves are shadow defaults in `dndwiki-core` (files without prefix in the
   plugin root, e.g. `Organisation.tid`), not in the campaign repo.
 - **Global per object type** (node/edge/graph defaults such as physics): own namespace
@@ -600,7 +647,9 @@ Current list:
 | `dndwiki-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `dndwiki-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
 | `dndwiki-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `dndwiki-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Only change: `<$text text={{{ [<__tag__>dndtitle[]] }}}/>` for the translated display name. |
 | `dndwiki-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `dndwiki-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`dndtitlesearch`) and keeps only what the view sees (`dnd.visible`), the second searches with `dndsearch` (only the text the view sees), hits use `search/item` (translated name). |
-| `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes: an inner `$properties $for=edges label=...` with the translation of `Field/<field>` resp. `Field/<function>` (only for types whose JSON has a label), in the field and in the function branch; in the field branch the targets are cleaned by the filter in the field `dndwiki-exclude` of the field config (leader -> location is drawn by the function edge `rules`); for a field type whose config has `dndwiki-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the field - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
+| `dndwiki-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `dndwiki-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes (field and function branch alike): the targets come from `relationtargets` (`modules/relations.js`: `dndwiki-exclude` and included types; function filters run there too), with the types of the call passed as `dndTypes`; an outer `$properties $for=edges` with the style of the axis of the type; an inner `$properties $for=edges label=...` from `relationlabel` (`Edge/<type>`); for a type whose config has `dndwiki-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the type - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge of a symmetric type has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
+
+| `dndwiki-core/$__config_flibbles_graph_edges_functions_links.tid` | `$:/config/flibbles/graph/edges/functions/links` (tw5-graph) | `dndwiki-core` | The edge type config of tw5-graph has no colour and no `dndwiki-symmetric`; an edge type config is found by name only. Changes: `color` grey, `dndwiki-symmetric: yes` (mutual links as one edge); filter and label as in the original. |
 
 **Naming convention:** files that override a core title are named
 `$__core_<path>_<name>.tid` (dots/slashes in the title -> underscores) - signals "this file
@@ -618,7 +667,8 @@ also in the wikis when they raise their own `tiddlywiki` version):
    compare the button list in `styles/readonly.tid` with
    `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid`. The tw5-graph
    override (`edges.typed`) is checked against `node_modules/tw5-graph/plugins/graph/macros/`
-   whenever the tw5-graph pin is raised.
+   and the copy of `links` against `.../graph/edges/functions/links.tid` whenever the tw5-graph
+   pin is raised.
 3. On differences: check whether the own change still fits (take it over, verify again in a wiki)
    or whether the core change brings a hook that makes the override unnecessary.
 4. Update this table if needed.

@@ -66,7 +66,16 @@ test.describe("checks", function() {
 	});
 
 	test("an organisation may have several", function() {
-		assert.deepEqual(f("[[Guild]locationcheck[]]"), []);
+		h.add(wiki, {title: "Traders", tags: "Organisation", location: "Town Kingdom", text: ""});
+		try {
+			assert.deepEqual(f("[[Traders]locationcheck[]]"), []);
+		} finally {
+			wiki.deleteTiddler("Traders");
+		}
+	});
+
+	test("location names a place the field leader already holds", function() {
+		assert.deepEqual(f("[[Guild]locationcheck[]]"), ["Location/Check/LedAndLocation"]);
 	});
 
 	test("spot of two locations", function() {
@@ -192,7 +201,7 @@ test.describe("items", function() {
 
 	test("relation list of a location: items in the tree like everyone else", function() {
 		var ort = list("Kingdom");
-		ort = ort.slice(ort.indexOf(">Ort<"));
+		ort = ort.slice(ort.indexOf(">Anwesend<"));
 		var herb = ort.indexOf(">Herb<"), town = ort.indexOf(">Town<"), rope = ort.indexOf(">Rope<"),
 			tavern = ort.indexOf(">Tavern<"), lantern = ort.indexOf(">Lantern<");
 		assert.ok(herb !== -1 && herb < town && town < rope && rope < tavern && tavern < lantern, ort);
@@ -266,7 +275,7 @@ test.describe("de-DE", function() {
 
 	test("relation list of a location: the places within as a tree, the parent left out", function() {
 		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"}),
-			ort = list.slice(list.indexOf(">Ort<"));
+			ort = list.slice(list.indexOf(">Anwesend<"));
 		assert.ok(ort.indexOf(">Continent<") === -1, ort);
 		// Town with its people and the Tavern below it, Barkeep inside the Tavern
 		var town = ort.indexOf(">Town<"), tavern = ort.indexOf(">Tavern<"), barkeep = ort.indexOf(">Barkeep<");
