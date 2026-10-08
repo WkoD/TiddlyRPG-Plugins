@@ -1,8 +1,8 @@
 created: 20261008062202000
 description: The tiddler contains a links of another resource.
 dndwiki-symmetric: yes
-filter: [links[]]
-modified: 20261008062202000
+filter: [visiblelinks[]]
+modified: 20261008170702467
 title: $:/config/flibbles/graph/edges/functions/links
 type: application/json
 

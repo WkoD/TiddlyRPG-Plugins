@@ -3,7 +3,7 @@ title: $:/plugins/dndwiki-core/filters/sections.js
 type: application/javascript
 module-type: filteroperator
 created: 20261007170000000
-modified: 20261007170000000
+modified: 20261008170702467
 
 Filter operators on the sections of a body (modules/sections.js):
 
@@ -15,6 +15,9 @@ Filter operators on the sections of a body (modules/sections.js):
                                 sections the view does not see
 [<title>sectionbacklinks[]]     the backlinks of <title> the view sees: tiddlers it sees with a
                                 link to <title> in a section it sees
+[<title>visiblelinks[]]         the links of <title> the view sees: like links[], without those
+                                that stand only in sections it does not see (the edge type
+                                links of the graph)
 
 \*/
 
@@ -58,6 +61,20 @@ exports.sectionbacklinks = function(source,operator,options) {
 			var links = sections.read(wiki,from).links.filter(function(link) { return link.to === title; });
 			if(!links.length || links.some(function(link) { return sections.visible(wiki,from,link.section,view); })) {
 				results.push(from);
+			}
+		});
+	});
+	return results;
+};
+
+exports.visiblelinks = function(source,operator,options) {
+	var wiki = options.wiki,
+		view = visibility.current(wiki),
+		results = [];
+	source(function(tiddler,title) {
+		$tw.utils.each(sections.read(wiki,title).links,function(link) {
+			if(results.indexOf(link.to) === -1 && sections.visible(wiki,title,link.section,view)) {
+				results.push(link.to);
 			}
 		});
 	});

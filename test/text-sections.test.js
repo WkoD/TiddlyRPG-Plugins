@@ -214,6 +214,26 @@ test.describe("what a locked section does not give away", function() {
 		assert.deepEqual(inView("public", function() { return f("[[Nacht]] +[dndsearch[wieder offen]]"); }), ["Nacht"]);
 	});
 
+	test("links: none that stand only in a locked section", function() {
+		assert.deepEqual(inView("public", function() { return f("[[Nacht]visiblelinks[]]"); }), ["Baile"]);
+		assert.deepEqual(inView("player:Anna", function() { return f("[[Nacht]visiblelinks[]]"); }), ["Baile", "Nowhere"]);
+		assert.deepEqual(f("[[Nacht]visiblelinks[]]").sort(), ["Baile", "Insel Avalon", "Nowhere"]);
+	});
+
+	test("graph: the edge type links draws no edge from a locked section", function() {
+		h.add(wiki, {title: "$:/graph/LinksTest", type: "application/json", text: "{}",
+			template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph", filter: "[[Nacht]] [[Baile]] [[Nowhere]]",
+			"edges.fields": "", "edges.functions": "links"});
+		try {
+			var view = "<$graph.view $tiddler=\"$:/graph/LinksTest\"/>",
+				targets = function(graph) { return graph.edges.filter(function(e) { return e.from === "Nacht"; }).map(function(e) { return e.to; }).sort(); };
+			assert.deepEqual(inView("public", function() { return targets(h.graph(wiki, view)); }), ["Baile"]);
+			assert.deepEqual(targets(h.graph(wiki, view)), ["Baile", "Nowhere"]);
+		} finally {
+			wiki.deleteTiddler("$:/graph/LinksTest");
+		}
+	});
+
 	test("backlinks: a link only in a locked section", function() {
 		assert.ok(inView("public", function() { return f("[[Nowhere]sectionbacklinks[]]"); }).indexOf("Nacht") === -1);
 		assert.ok(f("[[Nowhere]sectionbacklinks[]]").indexOf("Nacht") !== -1);
