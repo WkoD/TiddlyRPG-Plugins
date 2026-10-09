@@ -1,0 +1,11 @@
+created: 20261001095424000
+modified: 20261001095424000
+title: $:/plugins/tiddlyrpg-core/templates/title-translated
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- Tiddler heading with the translated display name (cascade entry
+     config/title-translated); same markup as $:/core/ui/ViewTemplate/title/default. -->
+<h2 class="tc-title">
+<$text text={{{ [<currentTiddler>trpgtitle[]] }}}/>
+</h2>

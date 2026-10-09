@@ -1,0 +1,21 @@
+created: 20261007162511000
+list-after: $:/core/ui/SideBarSegments/tabs
+modified: 20261007170245412
+tags: $:/tags/SideBarSegment
+title: $:/plugins/tiddlyrpg-core/ui/sidebar
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- The tabs of the sidebar in place of $:/core/ui/SideBarSegments/tabs (hidden by
+     config/sidebar-tabs): the core tabs in the view of the DM; in every other view "Open", the
+     recently changed tiddlers that view sees (ui/sidebar-recent) and the tabs of plugins (the
+     graph of tw5-graph: its views use trpg-graph, which leaves out what the view does not see) -
+     the core lists ("Recent", "All", "Tags", "Missing", ...) would name locked tiddlers
+     (modules/visibility.js). -->
+<%if [trpgview:mode[]match[dm]] %>
+<$transclude $tiddler="$:/core/ui/SideBarSegments/tabs" $mode="block"/>
+<%else%>
+<div class="tc-sidebar-lists tc-sidebar-tabs" role="region" aria-label={{$:/language/SideBar/Caption}}>
+<$macrocall $name="tabs" tabsList="[[$:/core/ui/SideBar/Open]] [[$:/plugins/tiddlyrpg-core/ui/sidebar-recent]] [all[shadows+tiddlers]tag[$:/tags/SideBar]!has[draft.of]!prefix[$:/core/ui/SideBar/]]" default="$:/core/ui/SideBar/Open" state="$:/state/tab/sidebar-tiddlyrpg" class="tc-sidebar-tabs-main" explicitState="$:/state/tab/sidebar-tiddlyrpg--view"/>
+</div>
+<%endif%>

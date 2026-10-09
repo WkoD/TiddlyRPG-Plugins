@@ -1,0 +1,7 @@
+created: 20260930204000000
+modified: 20261007163804094
+title: $:/plugins/tiddlyrpg-core/templates/body-locked
+type: text/vnd.tiddlywiki
+
+<!-- Empty body for tiddlers the active view does not see (tag Secret, modules/visibility.js).
+     Chosen by viewtemplates/body-filter (cascade $:/tags/ViewTemplateBodyFilter). -->

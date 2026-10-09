@@ -1,0 +1,17 @@
+created: 20200308185530421
+modified: 20261001095424000
+tags: Index
+title: Index
+type: text/vnd.tiddlywiki
+
+\define trpg.index.sort() [addprefix[Plural/]trpgtranslate[]]
+
+<ul>
+<div class="tc-menu-list-subitem">
+<$list filter="Item Deity Information Organisation Location Person +[sortsub:string<trpg.index.sort>]">
+<li><$link to={{!!title}}><$text text={{{ [<currentTiddler>addprefix[Plural/]trpgtranslate[]] }}}/></$link></li>
+</$list>
+<br>
+<li><$link to="TBC"><$text text={{{ [[Plural/TBC]trpgtranslate[]] }}}/></$link></li>
+</div>
+</ul>

@@ -1,6 +1,6 @@
 /*
  * Integration with tw5-graph: the override of $:/plugins/flibbles/graph/macros/edges.typed, the
- * function edges, the ego graph, the map and the view template dnd-graph - through the nodes and
+ * function edges, the ego graph, the map and the view template trpg-graph - through the nodes and
  * edges they hand to vis-network (h.graph, without a browser). What vis-network draws from them
  * is not checked here; translated edge labels are in lang/i18n.
  */
@@ -21,8 +21,8 @@ function f(text) {
 	return Array.from(h.filter(wiki, text));
 }
 
-var EGO = "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/ego\"/>",
-	MAP = "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/map\"/>";
+var EGO = "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>",
+	MAP = "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/map\"/>";
 
 function ego(node) {
 	return h.graph(wiki, EGO, {currentNode: node});
@@ -67,9 +67,9 @@ function withTiddlers(list, fn) {
 	}
 }
 
-test("leader: the field edge leaves out locations (dndwiki-exclude)", function() {
-	assert.deepEqual(f("[[Guild]get[leader]enlist-input[]] -[subfilter{$:/config/flibbles/graph/edges/fields/leader!!dndwiki-exclude}]"), []);
-	assert.deepEqual(f("[[Guildmaster]get[leader]enlist-input[]] -[subfilter{$:/config/flibbles/graph/edges/fields/leader!!dndwiki-exclude}]"), ["Guild"]);
+test("leader: the field edge leaves out locations (tiddlyrpg-exclude)", function() {
+	assert.deepEqual(f("[[Guild]get[leader]enlist-input[]] -[subfilter{$:/config/flibbles/graph/edges/fields/leader!!tiddlyrpg-exclude}]"), []);
+	assert.deepEqual(f("[[Guildmaster]get[leader]enlist-input[]] -[subfilter{$:/config/flibbles/graph/edges/fields/leader!!tiddlyrpg-exclude}]"), ["Guild"]);
 });
 
 test("function edge rules: leader -> location", function() {
@@ -123,17 +123,17 @@ test("ego graph of a location: its spots count as the centre, other locations st
 	var graph = ego("Town");
 	assert.deepEqual(nodes(graph), ["Barkeep", "Guild", "Guildmaster", "Tavern", "Town", "Wanderer"]);
 	assert.equal(graph.nodes.Tavern.label, "Tavern");
-	assert.equal(graph.nodes.Tavern.dndToggle, undefined);
+	assert.equal(graph.nodes.Tavern.trpgToggle, undefined);
 	assert.ok(edges(graph).indexOf("Barkeep -> Tavern (in)") !== -1, "who is in a spot");
 	assert.ok(edges(graph).every(function(edge) { return edge.indexOf("Kingdom") === -1; }), "no edge to the parent");
 });
 
 test("ego graph of a location: places with someone in them start folded, a click state unfolds them", function() {
-	var state = "$:/state/dndwiki-core/ego-open/Kingdom",
+	var state = "$:/state/tiddlyrpg-core/ego-open/Kingdom",
 		folded = ego("Kingdom");
 	assert.deepEqual(nodes(folded), ["Guild", "Kingdom", "Neighbour", "Tavern", "Town", "Twice", "Wanderer"]);
 	assert.equal(folded.nodes.Town.label, "▸ Town");
-	assert.equal(folded.nodes.Town.dndToggle, state);
+	assert.equal(folded.nodes.Town.trpgToggle, state);
 	assert.equal(folded.nodes.Twice.label, "Twice", "nobody there: nothing to fold");
 	withTiddlers([{title: state, list: "Town"}], function() {
 		var open = ego("Kingdom");
@@ -148,24 +148,24 @@ test("map: places lying in the location and its spots as pins, no edges", functi
 	var graph = map("Town");
 	assert.deepEqual(Object.keys(graph.nodes), ["Tavern", "Town#Old Well", "Town#Tempel von Chauntea", "Guild"]);
 	assert.deepEqual(graph.edges, []);
-	assert.equal(graph.nodes.Tavern.dndPin, "tiddler");
+	assert.equal(graph.nodes.Tavern.trpgPin, "tiddler");
 	// a spot joined to a tiddler that is no location: a point of interest, pinned as that tiddler
-	assert.equal(graph.nodes.Guild.dndPin, "tiddler");
+	assert.equal(graph.nodes.Guild.trpgPin, "tiddler");
 	assert.equal(graph.nodes.Guild.color, colour("Organisation"));
 	var well = graph.nodes["Town#Old Well"];
-	assert.equal(well.dndPin, "spot");
+	assert.equal(well.trpgPin, "spot");
 	assert.equal(well.label, "Old Well");
 	assert.equal(well.color, "#ffffff");
 	assert.equal(well.borderColor, colour("Location"));
-	assert.equal(graph.graph.dndMapImage, "images/map/Town.png");
-	assert.equal(graph.graph.dndMapFit, "image");
+	assert.equal(graph.graph.trpgMapImage, "images/map/Town.png");
+	assert.equal(graph.graph.trpgMapFit, "image");
 });
 
 test("map: places lying in it at every depth, the parts of a place only on its own map", function() {
 	var graph = map("Kingdom");
 	assert.deepEqual(nodes(graph), ["Neighbour", "Town", "Twice"]);
-	assert.equal(graph.graph.dndMapImage, undefined);
-	assert.equal(graph.graph.dndMapFit, "nodes");
+	assert.equal(graph.graph.trpgMapImage, undefined);
+	assert.equal(graph.graph.trpgMapFit, "nodes");
 });
 
 test("map: saved positions, a slot in the grid for the rest", function() {
@@ -173,14 +173,14 @@ test("map: saved positions, a slot in the grid for the rest", function() {
 		var graph = map("Town");
 		assert.equal(graph.nodes.Tavern.x, "10");
 		assert.equal(graph.nodes.Tavern.y, "-20");
-		assert.equal(graph.nodes.Tavern.dndUnplaced, undefined);
-		assert.equal(graph.nodes["Town#Old Well"].dndUnplaced, "yes");
+		assert.equal(graph.nodes.Tavern.trpgUnplaced, undefined);
+		assert.equal(graph.nodes["Town#Old Well"].trpgUnplaced, "yes");
 	});
 });
 
 test("map: pins fixed, movable while editing, never in the published copy", function() {
 	var saves = function(node) { return (node.free || "").indexOf("map-positions") !== -1; },
-		edit = {title: "$:/state/dndwiki-core/map-edit/Town", text: "yes"};
+		edit = {title: "$:/state/tiddlyrpg-core/map-edit/Town", text: "yes"};
 	var graph = map("Town");
 	assert.equal(graph.nodes.Tavern.fixed, "yes");
 	assert.ok(!saves(graph.nodes.Tavern));
@@ -197,17 +197,17 @@ test("map: pins fixed, movable while editing, never in the published copy", func
 });
 
 test("map: hidden nodes leave only the image", function() {
-	withTiddlers([{title: "$:/state/dndwiki-core/map-nodes/Town", text: "hide"}], function() {
+	withTiddlers([{title: "$:/state/tiddlyrpg-core/map-nodes/Town", text: "hide"}], function() {
 		var graph = map("Town");
 		assert.deepEqual(nodes(graph), []);
-		assert.equal(graph.graph.dndMapImage, "images/map/Town.png");
+		assert.equal(graph.graph.trpgMapImage, "images/map/Town.png");
 	});
 });
 
-test("view template dnd-graph: nodes from the filter, edge types of the view", function() {
+test("view template trpg-graph: nodes from the filter, edge types of the view", function() {
 	withTiddlers([{
 		title: "$:/graph/Test", type: "application/json", text: "{}",
-		template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph",
+		template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph",
 		filter: "[[Guild]] [[Guildmaster]] [[Town]]",
 		"edges.fields": "leader",
 		"edges.functions": "rules"
@@ -220,17 +220,17 @@ test("view template dnd-graph: nodes from the filter, edge types of the view", f
 });
 
 test("map view lies outside $:/graph/ (not in the dropdown)", function() {
-	assert.ok(wiki.tiddlerExists("$:/plugins/dndwiki-core/graph/map") || wiki.isShadowTiddler("$:/plugins/dndwiki-core/graph/map"));
-	assert.deepEqual(f("[all[shadows+tiddlers]prefix[$:/graph/]] +[match[$:/plugins/dndwiki-core/graph/map]]"), []);
+	assert.ok(wiki.tiddlerExists("$:/plugins/tiddlyrpg-core/graph/map") || wiki.isShadowTiddler("$:/plugins/tiddlyrpg-core/graph/map"));
+	assert.deepEqual(f("[all[shadows+tiddlers]prefix[$:/graph/]] +[match[$:/plugins/tiddlyrpg-core/graph/map]]"), []);
 });
 
 test("map fit: the map 600 units wide across the container, height from the aspect ratio, a hidden tab waits", function() {
-	var mapFit = tw.modules.execute("$:/plugins/dndwiki-core/graph/map-fit.js"),
+	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
 		moved = [],
 		element = {clientWidth: 800, style: {}, ownerDocument: {defaultView: {innerHeight: 1000}}},
 		adapter = {
-			dndMapFit: "image",
-			dndImage: {width: 1600, height: 1200},
+			trpgMapFit: "image",
+			trpgImage: {width: 1600, height: 1200},
 			element: element,
 			vis: {setSize: function() {}, moveTo: function(options) { moved.push(options); }}
 		};
@@ -239,7 +239,7 @@ test("map fit: the map 600 units wide across the container, height from the aspe
 	assert.equal(moved[0].scale, 800 / 600);
 	assert.ok(moved[0].position.x === 0 && moved[0].position.y === 0);
 	// a tall image keeps its whole height, nothing is cut off
-	adapter.dndImage = {width: 800, height: 2000};
+	adapter.trpgImage = {width: 800, height: 2000};
 	mapFit.fit(adapter, true);
 	assert.equal(element.style.height, "2000px");
 	// a tab not shown yet has no width
@@ -248,26 +248,26 @@ test("map fit: the map 600 units wide across the container, height from the aspe
 });
 
 test("map: nodes without a position get a grid slot, kept per id", function() {
-	var mapFit = tw.modules.execute("$:/plugins/dndwiki-core/graph/map-fit.js"),
+	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
 		adapter = {},
-		changes = {nodes: {a: {dndUnplaced: true}, b: {dndUnplaced: true}, c: {dndUnplaced: true, x: 5, y: 6}}};
+		changes = {nodes: {a: {trpgUnplaced: true}, b: {trpgUnplaced: true}, c: {trpgUnplaced: true, x: 5, y: 6}}};
 	mapFit.process.call(adapter, {}, changes);
 	assert.ok(changes.nodes.a.x !== changes.nodes.b.x, "side by side");
 	assert.ok(changes.nodes.c.x === 5 && changes.nodes.c.y === 6, "a saved position wins");
-	var again = {nodes: {a: {dndUnplaced: true}}};
+	var again = {nodes: {a: {trpgUnplaced: true}}};
 	mapFit.process.call(adapter, {}, again);
 	assert.equal(again.nodes.a.x, changes.nodes.a.x);
-	assert.equal(again.nodes.a.dndUnplaced, undefined);
+	assert.equal(again.nodes.a.trpgUnplaced, undefined);
 });
 
 test("ego toggle: a click folds or unfolds after a short wait, a double click does not", async function() {
-	var toggleModule = tw.modules.execute("$:/plugins/dndwiki-core/graph/ego-toggle.js"),
-		state = "$:/state/dndwiki-core/ego-open/Kingdom",
+	var toggleModule = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/ego-toggle.js"),
+		state = "$:/state/tiddlyrpg-core/ego-open/Kingdom",
 		handlers = {},
 		adapter = {};
-	toggleModule.process.call(adapter, {}, {nodes: {Town: {dndToggle: state}, Other: {label: "x"}}});
-	assert.equal(adapter.dndToggles.Town, state);
-	assert.equal(adapter.dndToggles.Other, undefined);
+	toggleModule.process.call(adapter, {}, {nodes: {Town: {trpgToggle: state}, Other: {label: "x"}}});
+	assert.equal(adapter.trpgToggles.Town, state);
+	assert.equal(adapter.trpgToggles.Other, undefined);
 	toggleModule.init.call(adapter, {on: function(name, fn) { handlers[name] = fn; }});
 	var wait = function() { return new Promise(function(resolve) { setTimeout(resolve, toggleModule.DELAY + 50); }); };
 	try {
@@ -289,14 +289,14 @@ test("ego toggle: a click folds or unfolds after a short wait, a double click do
 });
 
 test("map pin: a custom shape, the same size on screen at any zoom", function() {
-	var pin = tw.modules.execute("$:/plugins/dndwiki-core/graph/map-pin.js"),
+	var pin = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-pin.js"),
 		scale = 1,
 		adapter = {vis: {getScale: function() { return scale; }}},
-		changes = {nodes: {a: {dndPin: "spot"}, b: {dndPin: "tiddler"}, c: {label: "c"}}};
+		changes = {nodes: {a: {trpgPin: "spot"}, b: {trpgPin: "tiddler"}, c: {label: "c"}}};
 	pin.process.call(adapter, {}, changes);
 	assert.equal(changes.nodes.a.shape, "custom");
 	assert.equal(typeof changes.nodes.b.ctxRenderer, "function");
-	assert.equal(changes.nodes.a.dndPin, undefined);
+	assert.equal(changes.nodes.a.trpgPin, undefined);
 	assert.equal(changes.nodes.c.shape, undefined);
 	var drawn = [],
 		ctx = {font: "12px arial", measureText: function() { return {width: parseFloat(this.font) * 4}; }, beginPath: function() {}, arc: function() {}, fill: function() {}, stroke: function() {},
@@ -312,13 +312,13 @@ test("map pin: a custom shape, the same size on screen at any zoom", function() 
 });
 
 test("map fit: a pin below the image makes the frame taller, one beside it wider", function() {
-	var mapFit = tw.modules.execute("$:/plugins/dndwiki-core/graph/map-fit.js"),
+	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
 		moved = [],
 		element = {clientWidth: 600, style: {}, ownerDocument: {defaultView: {}}},
 		positions = {a: {x: 0, y: 0}},
 		adapter = {
-			dndMapFit: "image",
-			dndImage: {width: 1200, height: 800},
+			trpgMapFit: "image",
+			trpgImage: {width: 1200, height: 800},
 			element: element,
 			vis: {setSize: function() {}, moveTo: function(options) { moved.push(options); }, getPositions: function() { return positions; }}
 		};
@@ -334,11 +334,11 @@ test("map fit: a pin below the image makes the frame taller, one beside it wider
 });
 
 test("map fit without an image: fit to the nodes, the height stays", function() {
-	var mapFit = tw.modules.execute("$:/plugins/dndwiki-core/graph/map-fit.js"),
+	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
 		fitted = 0,
 		element = {clientWidth: 800, style: {}, ownerDocument: {defaultView: {innerHeight: 1000}}},
 		adapter = {
-			dndMapFit: "nodes",
+			trpgMapFit: "nodes",
 			element: element,
 			vis: {fit: function() { fitted++; }, setSize: function() { throw new Error("no resize"); }}
 		};
@@ -346,14 +346,14 @@ test("map fit without an image: fit to the nodes, the height stays", function() 
 	assert.equal(fitted, 1);
 	assert.equal(element.style.height, undefined);
 	// moved by the viewer: only the button fits again
-	adapter.dndMapMoved = true;
+	adapter.trpgMapMoved = true;
 	mapFit.fit(adapter, false);
 	assert.equal(fitted, 1);
 	mapFit.fit(adapter, true);
 	assert.equal(fitted, 2);
 });
 
-// Symmetric relations (field config dndwiki-symmetric): kept on both ends by convention, drawn
+// Symmetric relations (field config tiddlyrpg-symmetric): kept on both ends by convention, drawn
 // as one edge with arrows on both ends; an end without the field leaves a plain arrow
 var SYMMETRIC = ["alliance", "bond", "enmity", "family", "sibling", "spouse"];
 
@@ -366,10 +366,10 @@ function relations(list, fn) {
 test("symmetric fields: marked in their config, curves allowed", function() {
 	SYMMETRIC.forEach(function(field) {
 		var config = wiki.getTiddler("$:/config/flibbles/graph/edges/fields/" + field);
-		assert.equal(config.fields["dndwiki-symmetric"], "yes", field);
+		assert.equal(config.fields["tiddlyrpg-symmetric"], "yes", field);
 		assert.equal(JSON.parse(config.fields.text).smooth, undefined, field);
 	});
-	assert.equal(wiki.getTiddler("$:/config/flibbles/graph/edges/fields/mentor").fields["dndwiki-symmetric"], undefined);
+	assert.equal(wiki.getTiddler("$:/config/flibbles/graph/edges/fields/mentor").fields["tiddlyrpg-symmetric"], undefined);
 });
 
 test("symmetric field on both ends: one edge with arrows on both ends", function() {
@@ -400,7 +400,7 @@ test("symmetric fields: every pair once, in the ego graph and in a view", functi
 		assert.equal(ego("Bob").edges.length, 2, edges(ego("Bob")).join(" / "));
 		withTiddlers([{
 			title: "$:/graph/Test", type: "application/json", text: "{}",
-			template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph",
+			template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph",
 			filter: "[[Alice]] [[Bob]] [[Carol]]"
 		}], function() {
 			var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/graph/Test\"/>");
@@ -436,7 +436,7 @@ function pairs(graph) {
 function view(filter, fields, functions, fn) {
 	return withTiddlers([{
 		title: "$:/graph/Test", type: "application/json", text: "{}",
-		template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph",
+		template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph",
 		filter: filter,
 		"edges.fields": fields,
 		"edges.functions": functions
@@ -489,7 +489,7 @@ test("relations: colour of the axis, the colour of a type wins", function() {
 		var graph = ego("Alice"),
 			place = graph.edges.filter(function(edge) { return edge.to === "Town"; })[0],
 			alliance = graph.edges.filter(function(edge) { return edge.props.label === "Alliance"; })[0];
-		assert.equal(place.props.color, wiki.getTiddlerData("$:/config/dndwiki/graph/axes/place").color);
+		assert.equal(place.props.color, wiki.getTiddlerData("$:/config/tiddlyrpg/graph/axes/place").color);
 		assert.equal(alliance.props.color, "#06e502");
 	});
 });

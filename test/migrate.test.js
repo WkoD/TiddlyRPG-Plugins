@@ -1,5 +1,5 @@
 /*
- * scripts/migrate-dates.js and scripts/check-dates.js against a small wiki folder of fixtures
+ * scripts/migrate-dates.js and scripts/check-wiki.js against a small wiki folder of fixtures
  * (written to the temp folder): conversion rules per type, bodies, rules, snippets, filters,
  * <<date>> at the start of every event,
  * idempotence; the checker before and after.
@@ -29,9 +29,9 @@ function run(script, args) {
 }
 
 test.before(function() {
-	dir = fs.mkdtempSync(path.join(os.tmpdir(), "dndwiki-dates-"));
+	dir = fs.mkdtempSync(path.join(os.tmpdir(), "tiddlyrpg-dates-"));
 	fs.mkdirSync(path.join(dir, "tiddlers"));
-	fs.writeFileSync(path.join(dir, "tiddlywiki.info"), JSON.stringify({plugins: ["dndwiki-core", "dndwiki-forgottenrealms"], languages: ["de-DE"]}));
+	fs.writeFileSync(path.join(dir, "tiddlywiki.info"), JSON.stringify({plugins: ["tiddlyrpg-core", "tiddlyrpg-setting-forgottenrealms"], languages: ["de-DE"]}));
 	tid("Turm", {title: "Turm", tags: "Campaign Event", date: "1351-07-01.1351-07-11.1351-11-10."},
 		"<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-01\"/>\n\nA.\n\n---\n\n<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-11\"/>\n\nB.\n\n---\n\n<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-08-09\"/>\n\nC.\n\n---\n\nD.\n");
 	tid("Intro", {title: "Intro", tags: "Event", date: "1351-08-15.1351-11-12"},
@@ -86,7 +86,7 @@ test.describe("after --write", function() {
 
 	test("snippet and filter", function() {
 		assert.match(read("Snippet"), /\n\n<<date>>$/);
-		assert.match(read("WorldMap"), /-\[dnd\.dead\[\]\]/);
+		assert.match(read("WorldMap"), /-\[trpg\.dead\[\]\]/);
 	});
 
 	test("a second run changes nothing", function() {
@@ -98,7 +98,7 @@ test.describe("after --write", function() {
 	});
 
 	test("checker: the date left in the body is an error, the intro a hint", function() {
-		var result = run("check-dates.js", [dir]);
+		var result = run("check-wiki.js", [dir]);
 		assert.equal(result.status, 1, result.out);
 		assert.match(result.out, /Turm\n(.*\n)*\s+error  date in the body instead of the field: <<dateformat "1351-08-09">>/);
 		assert.match(result.out, /Intro\n(.*\n)*\s+hint  sections without heading: 1/);
@@ -109,16 +109,16 @@ test.describe("after --write", function() {
 		tid("Turm", {title: "Turm", tags: "Campaign Event", date: "1351-07-01, 1351-07-11, 1351-08-09/.."},
 			"<<date>>\n\nA.\n\n<<date \"Zweiter\">>\n\nB.\n\n<<date>>\n\nC.\n");
 		tid("Intro", {title: "Intro", tags: "Event", date: "1351-08-15, 1351-11-12"}, "<<date>>\n\nZuerst.\n\n<<date>>\n\nDann.\n");
-		var result = run("check-dates.js", [dir]);
+		var result = run("check-wiki.js", [dir]);
 		assert.equal(result.status, 0, result.out);
 		assert.match(result.out, /0 errors, 0 warnings/);
 	});
 
 	test("checker: locks - asking the view, a transcluded secret, the hints on sections", function() {
 		tid("Geheim", {title: "Geheim", tags: "Event Secret", date: "1351"}, "<<date>>\n\nNur DM.\n");
-		tid("Nutzer", {title: "Nutzer", tags: "Person"}, "{{Geheim}}\n\n<$list filter=\"[{$:/state/dndwiki/view}]\">x</$list>\n");
+		tid("Nutzer", {title: "Nutzer", tags: "Person"}, "{{Geheim}}\n\n<$list filter=\"[{$:/state/tiddlyrpg/view}]\">x</$list>\n");
 		tid("Mitte", {title: "Mitte", tags: "Event", date: "1351"}, "<<date>>\n\nA <<secret>> B.\n");
-		var result = run("check-dates.js", [dir]);
+		var result = run("check-wiki.js", [dir]);
 		assert.match(result.out, /Nutzer\n(.*\n)*\s+warning  asks the view itself/);
 		assert.match(result.out, /Nutzer\n(.*\n)*\s+warning  transcludes the secret tiddler Geheim/);
 		assert.match(result.out, /Mitte\n(.*\n)*\s+warning  .*<<secret>>/);

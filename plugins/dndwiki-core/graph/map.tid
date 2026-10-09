@@ -1,9 +1,0 @@
-caption: Map
-created: 20261006064449000
-filter: [<currentNode>]
-modified: 20261006064449000
-template: $:/plugins/dndwiki-core/graph/templates/dnd-map
-title: $:/plugins/dndwiki-core/graph/map
-type: application/json
-
-{}

@@ -1,0 +1,12 @@
+created: 20200209132938109
+modified: 20261001095424000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/dead
+type: text/css
+
+/* Deceased/destroyed: class trpg-dead (config/class-dead, function trpg.dead). Grey as a mix of
+   palette colours - exactly #dddddd in the Vanilla palette, correspondingly dark in dark
+   palettes. */
+.trpg-dead {
+background-color: color-mix(in srgb, var(--tpc-muted-foreground) 50%, var(--tpc-tiddler-background));
+}

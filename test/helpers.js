@@ -55,9 +55,9 @@ function fixtures(wiki) {
 		{title: "Friggs Traum", tags: "Event Frigg Secret", date: "1351-07-03", text: "At [[Insel Avalon]]."},
 		{title: "PlayerLevel", tags: "Information", text: "100000 EXP"},
 		// The graph widget needs a browser; the relation tests use the list tab
-		{title: "$:/state/dndwiki-core/relations-tab", text: "$:/plugins/dndwiki-core/viewtemplates/relations/list"},
+		{title: "$:/state/tiddlyrpg-core/relations-tab", text: "$:/plugins/tiddlyrpg-core/viewtemplates/relations/list"},
 		// The history checks read the table; the timeline is checked on its own
-		{title: "$:/state/dndwiki-core/events-tab", text: "$:/plugins/dndwiki-core/viewtemplates/event-list/list"}
+		{title: "$:/state/tiddlyrpg-core/events-tab", text: "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list"}
 	].forEach(function(fields) {
 		fields.created = T;
 		fields.modified = T;
@@ -78,9 +78,9 @@ exports.add = function(wiki, fields) {
 // the default applies - dm here, as the tests run without $:/status/IsReadOnly
 exports.setView = function(wiki, view) {
 	if(view === null) {
-		wiki.deleteTiddler("$:/state/dndwiki/view");
+		wiki.deleteTiddler("$:/state/tiddlyrpg/view");
 	} else {
-		wiki.addTiddler(new $tw.Tiddler({title: "$:/state/dndwiki/view", text: view}));
+		wiki.addTiddler(new $tw.Tiddler({title: "$:/state/tiddlyrpg/view", text: view}));
 	}
 };
 

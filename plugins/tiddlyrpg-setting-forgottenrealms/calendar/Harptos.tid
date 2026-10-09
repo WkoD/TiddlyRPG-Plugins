@@ -1,0 +1,23 @@
+created: 20261001095424000
+modified: 20261001095424000
+title: $:/tiddlyrpg/calendar/Harptos
+type: application/json
+
+{
+    "id": "Harptos",
+    "leap": { "every": 4, "start": 0 },
+    "months": [
+        { "id": "Hammer",    "days": 30, "festivals": [ { "id": "Midwinter" } ] },
+        { "id": "Alturiak",  "days": 30 },
+        { "id": "Ches",      "days": 30 },
+        { "id": "Tarsakh",   "days": 30, "festivals": [ { "id": "Greengrass" } ] },
+        { "id": "Mirtul",    "days": 30 },
+        { "id": "Kythorn",   "days": 30 },
+        { "id": "Flamerule", "days": 30, "festivals": [ { "id": "Midsummer" }, { "id": "Shieldmeet", "leap": true } ] },
+        { "id": "Eleasis",   "days": 30 },
+        { "id": "Eleint",    "days": 30, "festivals": [ { "id": "Highharvestide" } ] },
+        { "id": "Marpenoth", "days": 30 },
+        { "id": "Uktar",     "days": 30, "festivals": [ { "id": "FeastOfTheMoon" } ] },
+        { "id": "Nightal",   "days": 30 }
+    ]
+}

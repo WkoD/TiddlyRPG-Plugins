@@ -1,5 +1,5 @@
 /*
- * Translation mechanics: display names (dndtitle, tag pill), the tag hook that stores translated
+ * Translation mechanics: display names (trpgtitle, tag pill), the tag hook that stores translated
  * tag names under the internal name, the search for translated hub names, translated edge labels
  * and the refresh of date output after a language change or a change of the calendar texts.
  * Plain expected output in one language belongs to the file of its topic.
@@ -23,7 +23,7 @@ function f(text, variables) {
 
 // The ego graph of a tiddler and its edges as "from -> to: label", sorted
 function egoGraph(node) {
-	return h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/ego\"/>", {currentNode: node});
+	return h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: node});
 }
 
 function edgeLabels(graph) {
@@ -43,20 +43,20 @@ test.describe("de-DE", function() {
 		h.setLanguage(wiki, "de-DE");
 	});
 
-	test("dndtitle hub", function() {
-		assert.equal(f("[[Location]dndtitle[]]"), "Ort");
+	test("trpgtitle hub", function() {
+		assert.equal(f("[[Location]trpgtitle[]]"), "Ort");
 	});
 
-	test("dndtitle sub-tiddler", function() {
-		assert.equal(f("[[Insel Avalon/Map]dndtitle[]]"), "Insel Avalon/Karte");
+	test("trpgtitle sub-tiddler", function() {
+		assert.equal(f("[[Insel Avalon/Map]trpgtitle[]]"), "Insel Avalon/Karte");
 	});
 
-	test("dndtitle without existing parent", function() {
-		assert.equal(f("[[Foo/Map]dndtitle[]]"), "Foo/Map");
+	test("trpgtitle without existing parent", function() {
+		assert.equal(f("[[Foo/Map]trpgtitle[]]"), "Foo/Map");
 	});
 
-	test("dndtitle TBC/Campaign", function() {
-		assert.equal(f("[[TBC/Campaign]dndtitle[]]"), "TBC/Kampagne");
+	test("trpgtitle TBC/Campaign", function() {
+		assert.equal(f("[[TBC/Campaign]trpgtitle[]]"), "TBC/Kampagne");
 	});
 
 	test("tag pill translated", function() {
@@ -136,7 +136,7 @@ test.describe("refresh", function() {
 
 	test("dateformat refreshes on a change of the calendar texts", function() {
 		// Rename a festival in the language keys
-		var title = "$:/dndwiki/language/en-GB/Calendar/Harptos/Festival/Midwinter",
+		var title = "$:/tiddlyrpg/language/en-GB/Calendar/Harptos/Festival/Midwinter",
 			changes = {};
 		changes[title] = {modified: true};
 		h.add(wiki, {title: title, text: "Deep Midwinter"});

@@ -71,7 +71,7 @@ test.describe("itemcheck", function() {
 	});
 
 	test("a category of the campaign counts too", function() {
-		withTiddlers([{title: "Rune", tags: "$:/tags/dndwiki/ItemKind"}, {title: "Loose Rune", tags: "Rune"}], function() {
+		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Loose Rune", tags: "Rune"}], function() {
 			assert.deepEqual(f("[[Loose Rune]itemcheck[]]"), ["Item/Check/NoBase"]);
 		});
 	});
@@ -104,7 +104,7 @@ test.describe("hubs", function() {
 	});
 
 	test("a category of the campaign: heading with its display name", function() {
-		withTiddlers([{title: "Rune", tags: "$:/tags/dndwiki/ItemKind"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
+		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
 			assert.ok(inOrder(h.body(wiki, "Item"), ["Gegenstände", "Rune", "Hagalaz", "Materialien"]));
 		});
 	});

@@ -1,0 +1,11 @@
+created: 20260715125428000
+tiddlyrpg-implies: member
+modified: 20261008062202000
+title: $:/config/flibbles/graph/edges/fields/officer
+type: application/json
+
+{
+    "label": "Officer",
+    "color": "#ff8000",
+    "width": "3"
+}

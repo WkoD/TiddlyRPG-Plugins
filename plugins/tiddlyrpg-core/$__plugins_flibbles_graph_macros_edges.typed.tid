@@ -1,0 +1,113 @@
+created: 20261001104500000
+modified: 20261008072856000
+tags: $:/tags/Global
+code-body: yes
+title: $:/plugins/flibbles/graph/macros/edges.typed
+
+\widget $edges.typed($editable:no)
+\whitespace trim
+<$parameters
+	$$functions={{{ [<functionsFilter>!is[blank]] ~"[all[]]" }}}
+	$$fields={{{ [<fieldsFilter>!is[blank]] ~"[all[]]" }}}
+	$$tiddler=<<currentTiddler>> >
+
+<!-- tiddlyrpg-core: the relation rules (modules/relations.js) decide which targets a type draws
+     and how the edge is labelled. trpgTypes: the field and function types this call draws -
+     a type left out of the view does not hide another one. -->
+<$let trpgTypes={{{ [subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.fields}subfilter<$fields>] [subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.functions}subfilter<$functions>] +[format:titlelist[]join[ ]] }}}>
+
+<!-- First create edges for field types -->
+
+<$list variable=fieldName filter="+[subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.fields}subfilter<$fields>]">
+
+<$let
+	dataTiddler=`$:/config/flibbles/graph/edges/fields/$(fieldName)$`
+	trpgSymmetric={{{ [<dataTiddler>get[tiddlyrpg-symmetric]] }}} >
+
+<!-- tiddlyrpg-core: the style of the axis of the type, outside its config so that the config wins -->
+<$properties $for=edges
+	$tiddler={{{ [<fieldName>relationaxis[]] }}} >
+
+<$properties $for=edges
+	$tiddler=<<dataTiddler>>
+	delete={{{ [<$editable>!match[no]then[<$action-removetyped $tiddler=<<fromTiddler>> $field=<<fieldName>> $value=<<toTiddler>> />]] }}} >
+
+<!-- tiddlyrpg-core: only the targets the type draws - without the excluded ones (tiddlyrpg-exclude)
+     and those another type includes (tiddlyrpg-implies) -->
+<$list variable=toTiddler counter=index filter="[<$tiddler>relationtargets<fieldName>,<trpgTypes>]">
+
+<!-- tiddlyrpg-core: a symmetric type (tiddlyrpg-symmetric) is kept on both ends; if the other end
+     points back, both ends give the edge the same id - ordered pair and type - so the graph
+     keeps one edge, with arrows on both ends. One end alone keeps its own id and a plain
+     arrow. -->
+<$let
+	trpgBoth={{{ [<trpgSymmetric>match[yes]then<toTiddler>relationtargets<fieldName>,<trpgTypes>match<$tiddler>] }}}
+	trpgFirst={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]first[]] }}}
+	trpgLast={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]last[]] }}} >
+
+<$vars
+	trpgPairId=`$:/edge/fields/$(trpgFirst)$
+$(trpgLast)$
+$(fieldName)$`
+	trpgOwnId=`$:/edge/fields/$($tiddler)$
+$(fieldName)$-$(index)$`>
+
+<$vars id={{{ [<trpgBoth>!is[blank]then<trpgPairId>] ~[<trpgOwnId>] }}}>
+
+<!-- tiddlyrpg-core: the label from the language key Edge/<type>; nested inside the config so
+     that it wins -->
+<$properties $for=edges
+	label={{{ [<fieldName>relationlabel[]] }}}
+	arrows={{{ [<trpgBoth>!is[blank]then[to from]] }}} >
+
+<$slot $name=ts-raw>
+
+<$edge $from=<<$tiddler>> $id=<<id>> />
+
+</$slot></$properties></$vars></$vars></$let></$list></$properties></$properties></$let></$list>
+
+<!-- Now create edges for function types -->
+
+<$list variable=functionName filter="[subfilter{$:/plugins/flibbles/graph/subfilters##edgetypes.functions}subfilter<$functions>]">
+
+<$let
+	dataTiddler=`$:/config/flibbles/graph/edges/functions/$(functionName)$`
+	trpgSymmetric={{{ [<dataTiddler>get[tiddlyrpg-symmetric]] }}} >
+
+<$properties $for=edges
+	$tiddler={{{ [<functionName>relationaxis[]] }}} >
+
+<$properties $for=edges
+	$tiddler=<<dataTiddler>> >
+
+<!-- tiddlyrpg-core: the function runs in modules/relations.js, with the same rules as the fields -->
+<$list variable=toTiddler counter=index filter="[<$tiddler>relationtargets<functionName>,<trpgTypes>]">
+
+<$let
+	trpgBoth={{{ [<trpgSymmetric>match[yes]then<toTiddler>relationtargets<functionName>,<trpgTypes>match<$tiddler>] }}}
+	trpgFirst={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]first[]] }}}
+	trpgLast={{{ [<$tiddler>] [<toTiddler>] +[sortcs[]last[]] }}} >
+
+<$vars
+	trpgPairId=`$:/edge/functions/$(trpgFirst)$
+$(trpgLast)$
+$(functionName)$`
+	trpgOwnId=`$:/edge/functions/$($tiddler)$
+$(functionName)$-$(index)$`>
+
+<$vars id={{{ [<trpgBoth>!is[blank]then<trpgPairId>] ~[<trpgOwnId>] }}}>
+
+<$properties $for=edges
+	label={{{ [<functionName>relationlabel[]] }}}
+	arrows={{{ [<trpgBoth>!is[blank]then[to from]] }}} >
+
+<$slot $name=ts-raw>
+
+<$edge $from=<<$tiddler>> $id=<<id>> />
+
+</$slot></$properties></$vars></$vars></$let></$list></$properties></$properties></$let></$list>
+
+</$let>
+\end
+
+\relink $edges.typed $functions:filter $fields:filter $tiddler:title

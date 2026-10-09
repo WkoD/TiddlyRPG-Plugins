@@ -1,0 +1,9 @@
+created: 20261008062202000
+tiddlyrpg-implies: ancestor
+modified: 20261008072856000
+title: $:/config/flibbles/graph/edges/fields/parent
+type: application/json
+
+{
+    "label": "Parent"
+}

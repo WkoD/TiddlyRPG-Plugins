@@ -1,0 +1,11 @@
+caption: <<trpg.title Event>>
+color: #48a4ff
+created: 20200209100013995
+modified: 20261001154438000
+tags: Index
+title: Event
+type: text/vnd.tiddlywiki
+
+<$let trpg-events="[tag[Event]]">
+{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/tabs}}
+</$let>

@@ -1,5 +1,5 @@
 /*
- * Views and the lock (modules/visibility.js, filters/visibility.js): the rule of dnd.visible in
+ * Views and the lock (modules/visibility.js, filters/visibility.js): the rule of trpg.visible in
  * every view, the default view, the views that can be chosen, campaign events through player
  * characters, the page control, the page class, the marker of a locked tiddler, the Player hub,
  * and every place that lists titles: hubs, search, tag pills, sidebar, relation list, graphs,
@@ -38,30 +38,30 @@ test.describe("the rule", function() {
 	var ALL = "[[Hideout]] [[Friggs Traum]] [[Ylvas Brief]] [[Geheimbund]] [[Der dunkle Turm]] [[Baile]]";
 
 	test("public: nothing tagged Secret", function() {
-		assert.deepEqual(inView("public", function() { return f(ALL + " +[dndvisible[]]"); }), ["Der dunkle Turm", "Baile"]);
+		assert.deepEqual(inView("public", function() { return f(ALL + " +[trpgvisible[]]"); }), ["Der dunkle Turm", "Baile"]);
 	});
 
 	test("a player: what is locked for one of their characters, active or former", function() {
-		assert.deepEqual(inView("player:Anna", function() { return f(ALL + " +[dndvisible[]]"); }),
+		assert.deepEqual(inView("player:Anna", function() { return f(ALL + " +[trpgvisible[]]"); }),
 			["Hideout", "Friggs Traum", "Ylvas Brief", "Der dunkle Turm", "Baile"]);
-		assert.deepEqual(inView("player:Jan", function() { return f(ALL + " +[dndvisible[]]"); }), ["Der dunkle Turm", "Baile"]);
+		assert.deepEqual(inView("player:Jan", function() { return f(ALL + " +[trpgvisible[]]"); }), ["Der dunkle Turm", "Baile"]);
 	});
 
 	test("the DM: everything", function() {
-		assert.equal(inView("dm", function() { return f(ALL + " +[dndvisible[]]"); }).length, 6);
+		assert.equal(inView("dm", function() { return f(ALL + " +[trpgvisible[]]"); }).length, 6);
 	});
 
 	test("a player character tagged without Secret locks nothing", function() {
-		assert.deepEqual(inView("public", function() { return f("[[Der dunkle Turm]dndvisible[]]"); }), ["Der dunkle Turm"]);
-		// dnd.visible (functions.tid) is the same rule
-		assert.equal(inView("public", function() { return h.render(wiki, "text/plain", "<$text text={{{ [[Hideout]] [[Baile]] +[dnd.visible[]] +[join[,]] }}}/>"); }), "Baile");
+		assert.deepEqual(inView("public", function() { return f("[[Der dunkle Turm]trpgvisible[]]"); }), ["Der dunkle Turm"]);
+		// trpg.visible (functions.tid) is the same rule
+		assert.equal(inView("public", function() { return h.render(wiki, "text/plain", "<$text text={{{ [[Hideout]] [[Baile]] +[trpg.visible[]] +[join[,]] }}}/>"); }), "Baile");
 	});
 
 	test("an active character without the field player counts as its own player", function() {
 		h.add(wiki, {title: "Solo", tags: "Player"});
 		h.add(wiki, {title: "Solos Geheimnis", tags: "Event Solo Secret"});
 		try {
-			assert.deepEqual(inView("player:Solo", function() { return f("[[Solos Geheimnis]dndvisible[]]"); }), ["Solos Geheimnis"]);
+			assert.deepEqual(inView("player:Solo", function() { return f("[[Solos Geheimnis]trpgvisible[]]"); }), ["Solos Geheimnis"]);
 		} finally {
 			wiki.deleteTiddler("Solo");
 			wiki.deleteTiddler("Solos Geheimnis");
@@ -71,45 +71,45 @@ test.describe("the rule", function() {
 
 test.describe("default view", function() {
 	test.afterEach(function() {
-		["$:/status/IsReadOnly", "$:/config/dndwiki/view/dm-published"].forEach(function(title) { wiki.deleteTiddler(title); });
+		["$:/status/IsReadOnly", "$:/config/tiddlyrpg/view/dm-published"].forEach(function(title) { wiki.deleteTiddler(title); });
 		h.setView(wiki, null);
 	});
 
 	test("editable wiki: the DM", function() {
-		assert.deepEqual(f("[dndview[]]"), ["dm"]);
+		assert.deepEqual(f("[trpgview[]]"), ["dm"]);
 	});
 
 	test("read-only copy: public", function() {
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
-		assert.deepEqual(f("[dndview[]]"), ["public"]);
-		assert.deepEqual(f("[[Hideout]dndvisible[]]"), []);
+		assert.deepEqual(f("[trpgview[]]"), ["public"]);
+		assert.deepEqual(f("[[Hideout]trpgvisible[]]"), []);
 	});
 
 	test("read-only copy: dm only if published", function() {
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
 		h.setView(wiki, "dm");
-		assert.deepEqual(f("[dndview[]]"), ["public"]);
-		assert.ok(f("[dndview:choices[]]").indexOf("dm") === -1);
-		h.add(wiki, {title: "$:/config/dndwiki/view/dm-published", text: "yes"});
-		assert.deepEqual(f("[dndview[]]"), ["dm"]);
-		assert.ok(f("[dndview:choices[]]").indexOf("dm") !== -1);
+		assert.deepEqual(f("[trpgview[]]"), ["public"]);
+		assert.ok(f("[trpgview:choices[]]").indexOf("dm") === -1);
+		h.add(wiki, {title: "$:/config/tiddlyrpg/view/dm-published", text: "yes"});
+		assert.deepEqual(f("[trpgview[]]"), ["dm"]);
+		assert.ok(f("[trpgview:choices[]]").indexOf("dm") !== -1);
 	});
 
 	test("an unknown value counts as public", function() {
 		h.setView(wiki, "whatever");
-		assert.deepEqual(f("[dndview:mode[]]"), ["public"]);
+		assert.deepEqual(f("[trpgview:mode[]]"), ["public"]);
 	});
 });
 
 test.describe("players and characters", function() {
 	test("choices: public, the players of active characters, dm", function() {
-		assert.deepEqual(f("[dndview:choices[]]"), ["public", "player:Anna", "player:Jan", "dm"]);
+		assert.deepEqual(f("[trpgview:choices[]]"), ["public", "player:Anna", "player:Jan", "dm"]);
 	});
 
 	test("characters, active and former; their player", function() {
-		assert.deepEqual(f("[[Frigg]] [[Ylva]] [[Grum]] +[dndcharacter[]]"), ["Frigg", "Ylva"]);
-		assert.deepEqual(f("[[Ylva]dndplayer[]]"), ["Anna"]);
-		assert.deepEqual(f("[[Anna]dndplayedby[]]"), ["Frigg"]);
+		assert.deepEqual(f("[[Frigg]] [[Ylva]] [[Grum]] +[trpgcharacter[]]"), ["Frigg", "Ylva"]);
+		assert.deepEqual(f("[[Ylva]trpgplayer[]]"), ["Anna"]);
+		assert.deepEqual(f("[[Anna]trpgplayedby[]]"), ["Frigg"]);
 	});
 
 	test("campaign event: a player character tagged, a former one too", function() {
@@ -127,33 +127,33 @@ test.describe("players and characters", function() {
 
 test.describe("page control and page class", function() {
 	function control() {
-		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/ui/view-switcher\" $mode=\"block\"/>");
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/view-switcher\" $mode=\"block\"/>");
 	}
 
 	test("the button names the active view", function() {
-		assert.match(control(), /class="dnd-view-current">DM</);
-		assert.match(inView("player:Anna", control), /class="dnd-view-current">Anna \(Frigg\)</);
-		assert.match(inView("public", control), /class="dnd-view-current">Öffentlich</);
+		assert.match(control(), /class="trpg-view-current">DM</);
+		assert.match(inView("player:Anna", control), /class="trpg-view-current">Anna \(Frigg\)</);
+		assert.match(inView("public", control), /class="trpg-view-current">Öffentlich</);
 	});
 
 	test("page class per mode", function() {
 		var page = "[all[shadows+tiddlers]tag[$:/tags/ClassFilters/PageTemplate]!is[draft]] :map:flat[subfilter{!!text}]";
-		assert.ok(f(page).indexOf("dnd-view-dm") !== -1);
-		assert.ok(inView("player:Jan", function() { return f(page); }).indexOf("dnd-view-player") !== -1);
-		assert.ok(inView("public", function() { return f(page); }).indexOf("dnd-view-public") !== -1);
+		assert.ok(f(page).indexOf("trpg-view-dm") !== -1);
+		assert.ok(inView("player:Jan", function() { return f(page); }).indexOf("trpg-view-player") !== -1);
+		assert.ok(inView("public", function() { return f(page); }).indexOf("trpg-view-public") !== -1);
 	});
 });
 
 test.describe("a locked tiddler", function() {
 	test("marker for who sees it: the DM and its players", function() {
-		assert.match(h.view(wiki, "Friggs Traum"), /class="dnd-secret-marker">.*Geheim: Frigg</s);
+		assert.match(h.view(wiki, "Friggs Traum"), /class="trpg-secret-marker">.*Geheim: Frigg</s);
 		assert.match(inView("player:Anna", function() { return h.view(wiki, "Friggs Traum"); }), /Geheim: Frigg/);
 		assert.match(h.view(wiki, "Geheimbund"), /Geheim: nur DM/);
 	});
 
 	test("opened in a view that does not see it: no body, tags, marker, relations, date line", function() {
 		var html = inView("public", function() { return h.view(wiki, "Geheimbund"); });
-		assert.doesNotMatch(html, /DM only\.|tc-tag-list-item|dnd-secret-marker|tc-tab-set|dnd-dateline/);
+		assert.doesNotMatch(html, /DM only\.|tc-tag-list-item|trpg-secret-marker|tc-tab-set|trpg-dateline/);
 		assert.match(h.view(wiki, "Geheimbund"), /DM only\./);
 	});
 });
@@ -161,7 +161,7 @@ test.describe("a locked tiddler", function() {
 test.describe("Player hub", function() {
 	test("cards of the active characters, the former ones below", function() {
 		var html = h.render(wiki, "text/html", "{{Player}}");
-		assert.match(html, /dnd-player-card"[^>]*>.*Frigg.*Anna/s);
+		assert.match(html, /trpg-player-card"[^>]*>.*Frigg.*Anna/s);
 		assert.ok(html.indexOf("Spielerfiguren") < html.indexOf("Frühere Figuren"));
 		assert.ok(html.indexOf("Ylva") > html.indexOf("Frühere Figuren"));
 	});
@@ -205,23 +205,23 @@ test.describe("places that list titles", function() {
 	test("tag pills: none for a locked tag, its dropdown only what the view sees", function() {
 		var html = inView("public", function() { return h.view(wiki, "Geheimbund Notiz"); });
 		assert.ok(html.indexOf('data-tag-title="Geheimbund"') === -1 && html.indexOf('data-tag-title="Event"') !== -1);
-		var list = "<$macrocall $name=\"list-tagged-draggable\" tag=\"Frigg\" subFilter=\"dnd.visible[]\"/>";
+		var list = "<$macrocall $name=\"list-tagged-draggable\" tag=\"Frigg\" subFilter=\"trpg.visible[]\"/>";
 		var shown = inView("public", function() { return h.render(wiki, "text/plain", list); });
 		assert.ok(shown.indexOf("Der dunkle Turm") !== -1 && shown.indexOf("Friggs Traum") === -1, shown);
 		assert.ok(h.render(wiki, "text/plain", list).indexOf("Friggs Traum") !== -1);
 	});
 
 	test("tag area through the cascade, with the pill template of the plugin", function() {
-		assert.deepEqual(f("[[Hafenfest]] :cascade[all[shadows+tiddlers]tag[$:/tags/ViewTemplateTagsFilter]!is[draft]get[text]]"), ["$:/plugins/dndwiki-core/templates/tags"]);
+		assert.deepEqual(f("[[Hafenfest]] :cascade[all[shadows+tiddlers]tag[$:/tags/ViewTemplateTagsFilter]!is[draft]get[text]]"), ["$:/plugins/tiddlyrpg-core/templates/tags"]);
 	});
 
 	test("sidebar: the core tabs for the DM, Open and Recent for everyone else", function() {
-		var segment = "<$transclude $tiddler=\"$:/plugins/dndwiki-core/ui/sidebar\" $mode=\"block\"/>";
+		var segment = "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/sidebar\" $mode=\"block\"/>";
 		assert.equal(wiki.getTiddlerText("$:/config/SideBarSegments/Visibility/$:/core/ui/SideBarSegments/tabs"), "hide");
 		assert.match(h.render(wiki, "text/html", segment), /Mehr|More/);
 		var pub = inView("public", function() { return h.render(wiki, "text/html", segment); });
 		assert.doesNotMatch(pub, />(Mehr|More)</);
-		var recent = inView("public", function() { return h.render(wiki, "text/plain", "{{$:/plugins/dndwiki-core/ui/sidebar-recent}}"); });
+		var recent = inView("public", function() { return h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/sidebar-recent}}"); });
 		assert.ok(recent.indexOf("Baile") !== -1 && recent.indexOf("Hideout") === -1, recent);
 	});
 
@@ -240,7 +240,7 @@ test.describe("places that list titles", function() {
 			{title: "Zirkel", tags: "Organisation", location: "Versteck", text: "A circle."}
 		];
 		added.forEach(function(fields) { h.add(wiki, fields); });
-		var path = function(title) { return h.render(wiki, "text/plain", "<<dnd.locationpath>>", {currentTiddler: title}).replace(/\s+/g, ""); };
+		var path = function(title) { return h.render(wiki, "text/plain", "<<trpg.locationpath>>", {currentTiddler: title}).replace(/\s+/g, ""); };
 		try {
 			// A Secret location: missing in the path of the organisation and at the location above
 			assert.equal(inView("public", function() { return path("Bund"); }), "Baile");
@@ -269,12 +269,12 @@ test.describe("places that list titles", function() {
 
 	test("graphs: no locked node", function() {
 		h.add(wiki, {title: "$:/graph/Views", type: "application/json", text: "{}",
-			template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph", filter: "[[Bote]] [[Geheimbund]] [[Town]]"});
+			template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[[Bote]] [[Geheimbund]] [[Town]]"});
 		try {
 			var view = "<$graph.view $tiddler=\"$:/graph/Views\"/>";
 			assert.deepEqual(Object.keys(inView("public", function() { return h.graph(wiki, view); }).nodes).sort(), ["Bote", "Town"]);
 			assert.ok(h.graph(wiki, view).nodes.Geheimbund);
-			var ego = "<$graph.view $tiddler=\"$:/plugins/dndwiki-core/graph/ego\"/>";
+			var ego = "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>";
 			assert.ok(!inView("public", function() { return h.graph(wiki, ego, {currentNode: "Bote"}); }).nodes.Geheimbund);
 			assert.ok(h.graph(wiki, ego, {currentNode: "Bote"}).nodes.Geheimbund);
 		} finally {
@@ -300,11 +300,11 @@ test.describe("sweep", function() {
 			{title: "Sweep Treffen", tags: "Event Frigg [[Qx7 Akte]]", date: "1351-08-01, 1399-01-01",
 				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			{title: "$:/graph/Sweep", type: "application/json", text: "{}",
-				template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph", filter: "[!is[system]]", "edges.functions": "links"}
+				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[!is[system]]", "edges.functions": "links"}
 		],
 		TABS = [
-			{"$:/state/dndwiki-core/relations-tab": "$:/plugins/dndwiki-core/viewtemplates/relations/list", "$:/state/dndwiki-core/events-tab": "$:/plugins/dndwiki-core/viewtemplates/event-list/list"},
-			{"$:/state/dndwiki-core/relations-tab": "$:/plugins/dndwiki-core/viewtemplates/relations/graph", "$:/state/dndwiki-core/events-tab": "$:/plugins/dndwiki-core/viewtemplates/event-list/timeline"}
+			{"$:/state/tiddlyrpg-core/relations-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/relations/list", "$:/state/tiddlyrpg-core/events-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list"},
+			{"$:/state/tiddlyrpg-core/relations-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph", "$:/state/tiddlyrpg-core/events-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/timeline"}
 		],
 		DEFAULTS = TABS[0];
 
@@ -331,7 +331,7 @@ test.describe("sweep", function() {
 	function sweep(view) {
 		return inView(view, function() {
 			var out = [],
-				titles = f("[all[shadows+tiddlers]!is[system]!is[draft]] :filter[dndvisible[]]");
+				titles = f("[all[shadows+tiddlers]!is[system]!is[draft]] :filter[trpgvisible[]]");
 			TABS.forEach(function(tabs) {
 				setTabs(tabs);
 				titles.forEach(function(title) {
@@ -348,8 +348,8 @@ test.describe("sweep", function() {
 			["first-search-filter", "second-search-filter"].forEach(function(field) {
 				out.push({where: "search " + field, text: h.render(wiki, "text/plain", "<$let userInput=\"" + WORD + "\"><$list filter={{$:/core/ui/DefaultSearchResultList!!" + field + "}}><<currentTiddler>>|</$list></$let>")});
 			});
-			out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/ui/sidebar\" $mode=\"block\"/>"))});
-			out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/dndwiki-core/ui/sidebar-recent}}")});
+			out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/sidebar\" $mode=\"block\"/>"))});
+			out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/sidebar-recent}}")});
 			return out;
 		});
 	}

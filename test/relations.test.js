@@ -35,13 +35,13 @@ function people(list, fn) {
 }
 
 function list(self) {
-	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
+	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
 }
 
 // The groups of a relation list: {heading: [titles]}
 function groups(html) {
 	var result = {};
-	html.split("<h3 class=\"dnd-relations-group\">").slice(1).forEach(function(part) {
+	html.split("<h3 class=\"trpg-relations-group\">").slice(1).forEach(function(part) {
 		var heading = part.slice(0, part.indexOf("</h3>")),
 			titles = [];
 		part.replace(/<a [^>]*>([^<]*)<\/a>/g, function(match, title) {
@@ -127,8 +127,8 @@ test("who leads a location is present there, marked in the tree", function() {
 		assert.ok(f("[[Tavern]occupants[]]").indexOf("Watch") !== -1);
 		assert.ok(f("[[Town]occupants[]]").indexOf("Watch") !== -1, "through the spot");
 		var town = list("Town");
-		assert.match(town, /<a [^>]*>Guild<\/a><span class="dnd-via"> \(kontrolliert\)<\/span>/);
-		assert.match(town, /<a [^>]*>Watch<\/a><span class="dnd-via"> \(kontrolliert\)<\/span>/);
+		assert.match(town, /<a [^>]*>Guild<\/a><span class="trpg-via"> \(kontrolliert\)<\/span>/);
+		assert.match(town, /<a [^>]*>Watch<\/a><span class="trpg-via"> \(kontrolliert\)<\/span>/);
 		assert.ok(town.indexOf(">Wanderer</a><span") === -1, "someone who is only there: no mark");
 	} finally {
 		wiki.deleteTiddler("Watch");

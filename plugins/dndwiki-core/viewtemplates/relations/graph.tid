@@ -1,9 +1,0 @@
-caption: <<dnd.t Relations/Graph>>
-created: 20260713135021000
-modified: 20261001095424000
-title: $:/plugins/dndwiki-core/viewtemplates/relations/graph
-type: text/vnd.tiddlywiki
-
-<div class="boundingbox" style="height:420px;">
-<$graph.view $tiddler="$:/plugins/dndwiki-core/graph/ego" $mode=inline/>
-</div>

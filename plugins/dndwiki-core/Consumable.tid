@@ -1,9 +1,0 @@
-caption: <<dnd.title Consumable>>
-color: #ff80ff
-created: 20261006154328000
-modified: 20261006154328000
-tags: Index $:/tags/dndwiki/ItemKind
-title: Consumable
-type: text/vnd.tiddlywiki
-
-{{ || Item }}

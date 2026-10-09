@@ -24,7 +24,7 @@ function f(text, variables) {
 }
 
 function mapTab(title) {
-	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/location/map\" mode=\"block\"/>", {currentTiddler: title});
+	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/map\" mode=\"block\"/>", {currentTiddler: title});
 }
 
 test.describe("reading", function() {
@@ -45,7 +45,7 @@ test.describe("reading", function() {
 	});
 
 	test("text of a spot (tooltip on the map): without its heading", function() {
-		var text = h.render(wiki, "text/plain", "<$dnd-body $tiddler=\"Town\" $mode=\"block\" $only=\"spot\" $name=\"Old Well\" $marker=\"no\"/>");
+		var text = h.render(wiki, "text/plain", "<$trpg-body $tiddler=\"Town\" $mode=\"block\" $only=\"spot\" $name=\"Old Well\" $marker=\"no\"/>");
 		assert.equal(text.trim(), "Deep and dark.");
 	});
 
@@ -81,22 +81,22 @@ test.describe("reading", function() {
 
 test.describe("body and map tab", function() {
 	test("the body of a location shows the text without its spots", function() {
-		var body = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/templates/body-sections\" mode=\"block\"/>", {currentTiddler: "Town"});
-		assert.ok(body.indexOf("A town.") !== -1 && body.indexOf("Deep and dark") === -1 && body.indexOf("dnd-spot") === -1, body);
+		var body = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/templates/body-sections\" mode=\"block\"/>", {currentTiddler: "Town"});
+		assert.ok(body.indexOf("A town.") !== -1 && body.indexOf("Deep and dark") === -1 && body.indexOf("trpg-spot") === -1, body);
 	});
 
 	test("body filter picks the sections template for bodies with sections only", function() {
 		var cascade = " :cascade[all[shadows+tiddlers]tag[$:/tags/ViewTemplateBodyFilter]!is[draft]get[text]]";
-		assert.deepEqual(f("[[Town]]" + cascade), ["$:/plugins/dndwiki-core/templates/body-sections"]);
-		assert.notDeepEqual(f("[[Baile]]" + cascade), ["$:/plugins/dndwiki-core/templates/body-sections"]);
+		assert.deepEqual(f("[[Town]]" + cascade), ["$:/plugins/tiddlyrpg-core/templates/body-sections"]);
+		assert.notDeepEqual(f("[[Baile]]" + cascade), ["$:/plugins/tiddlyrpg-core/templates/body-sections"]);
 	});
 
 	test("map tab: heading of a joined spot links to the tiddler", function() {
-		assert.match(mapTab("Town"), /<h3 class="dnd-spot" data-dnd-anchor="spot-tavern"><a class="tc-tiddlylink tc-tiddlylink-resolves" href="#Tavern">Tavern<\/a><\/h3>/);
+		assert.match(mapTab("Town"), /<h3 class="trpg-spot" data-trpg-anchor="spot-tavern"><a class="tc-tiddlylink tc-tiddlylink-resolves" href="#Tavern">Tavern<\/a><\/h3>/);
 	});
 
 	test("map tab: a link in the name stays a link", function() {
-		assert.match(mapTab("Town"), /data-dnd-anchor="spot-tempel-von-chauntea">Tempel von <a [^>]*href="#Chauntea">Chauntea<\/a><\/h3>/);
+		assert.match(mapTab("Town"), /data-trpg-anchor="spot-tempel-von-chauntea">Tempel von <a [^>]*href="#Chauntea">Chauntea<\/a><\/h3>/);
 	});
 
 	test("map tab: the texts follow their headings", function() {
@@ -108,7 +108,7 @@ test.describe("body and map tab", function() {
 		h.add(wiki, {title: "Village", tags: "Location", text: "Small.\n\n<<spot \"Inn\">>\n\nBeds."});
 		try {
 			var html = mapTab("Village");
-			assert.ok(html.indexOf("spot-inn") !== -1 && html.indexOf("dnd-map-buttons") !== -1 && html.indexOf('class="dnd-map"') !== -1, html);
+			assert.ok(html.indexOf("spot-inn") !== -1 && html.indexOf("trpg-map-buttons") !== -1 && html.indexOf('class="trpg-map"') !== -1, html);
 		} finally {
 			wiki.deleteTiddler("Village");
 		}

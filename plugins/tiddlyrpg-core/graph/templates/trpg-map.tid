@@ -1,0 +1,120 @@
+caption: TiddlyRPG map (map image as background, spots placed by hand)
+created: 20261006064449000
+modified: 20261007170245412
+title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
+
+\whitespace trim
+
+\procedure trpg.node()
+<$wikify name=label mode=inline text={{{ [{!!title}get[caption]else[<$text text={{!!title}} />]] }}}>
+<$node label=<<label>> image={{!!icon}} />
+</$wikify>
+\end trpg.node
+
+\procedure trpg.save()
+<$let trpg-xy={{{ [<x>addsuffix[,]addsuffix<y>] }}}>
+<$action-setfield $tiddler=<<trpg-loc>> map-positions={{{ [<trpg-loc>get[map-positions]else[{}]jsonset<nodeTiddler>,<trpg-xy>] }}}/>
+</$let>
+\end trpg.save
+
+\procedure trpg.fixed(id)
+\whitespace trim
+<$let trpg-pos={{{ [<trpg-loc>get[map-positions]jsonget<id>] }}}
+	trpg-x={{{ [<trpg-pos>split[,]first[]] }}}
+	trpg-y={{{ [<trpg-pos>split[,]last[]] }}}>
+<%if [<trpg-pos>!is[blank]] %>
+<$properties x=<<trpg-x>> y=<<trpg-y>> physics="no"><$slot $name="ts-raw"/></$properties>
+<%else%>
+<$properties physics="no" trpgUnplaced="yes"><$slot $name="ts-raw"/></$properties>
+<%endif%>
+</$let>
+\end trpg.fixed
+
+<!-- Map of the location <<currentNode>> (viewtemplates/location/map): its map image (field map,
+     images/map/) as background, always 600 units wide and fitted to the width (vis-property
+     trpg-map-fit, graph/map-fit.js); without an image
+     an empty canvas fitted to the nodes. Fixed at the
+     positions saved in its field map-positions ("x,y" per node id, map units - the image is 600 wide - with
+     the origin in the middle; a node without a saved position gets a grid slot): its spots (a spot joined to a tiddler is that
+     tiddler, any other one a dot with the id <location>#<plain name>) and the locations lying
+     in it ("liegt in", all levels) - not the location itself. Only places: who is there or
+     leads them is left out. Each is a pin (graph/map-pin.js): a dot at the position, the name in
+     a pill below it - filled for a tiddler, white and dashed for a spot without a tiddler of its
+     own. A double click on such a spot scrolls to its text below the map, on any other node it
+     opens the tiddler; hovering shows the text. No edges: where a place lies, the map shows.
+     States per location: $:/state/tiddlyrpg-core/map-nodes/<title> = hide (only the image),
+     $:/state/tiddlyrpg-core/map-edit/<title> = yes (nodes can be moved; dropping one saves its
+     position - never in the published copy). -->
+
+<$let trpg-loc=<<currentNode>>
+	trpg-hidden={{{ [<trpg-loc>addprefix[$:/state/tiddlyrpg-core/map-nodes/]get[text]match[hide]] }}}
+	trpg-edit={{{ [<trpg-loc>addprefix[$:/state/tiddlyrpg-core/map-edit/]get[text]match[yes]] :filter[{$:/status/IsReadOnly}!match[yes]] }}}
+	trpg-places={{{ [<trpg-loc>sublocations:all[location]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
+<$graph>
+<$properties $for=graph $tiddler="$:/config/tiddlyrpg/graph/physics" />
+<$properties $for=graph trpgMapImage={{{ [<trpg-loc>get[map]encodeuri[]addprefix[images/map/]] }}} trpgMapFit={{{ [<trpg-loc>has[map]then[image]else[nodes]] }}} />
+<!-- tw5-graph hands a node event to every enclosing $properties as well: open only real
+     tiddlers, not the dots of spots (their own action jumps to their text) -->
+<$properties $for=nodes actions="<$list filter='[<nodeTiddler>is[tiddler]] [<nodeTiddler>is[shadow]] +[first[]]' variable='trpg-open'><$action-navigate $to=<<trpg-open>>/></$list>">
+<$properties.popup $enabled="yes">
+<$fill $name="tooltip">
+<%if [<nodeTiddler>prefix<trpg-loc>removeprefix<trpg-loc>prefix[#]] %>
+<$let trpg-name={{{ [<nodeTiddler>removeprefix<trpg-loc>removeprefix[#]] }}}>
+<$trpg-body $tiddler=<<trpg-loc>> $mode="block" $only="spot" $name=<<trpg-name>> $marker="no"/>
+</$let>
+<%else%>
+<$transclude $tiddler=<<nodeTiddler>> $mode="block"/>
+<%endif%>
+</$fill>
+<$properties physics=yes shape=box>
+
+<$slot $name=ts-raw $depth=4 />
+
+<$properties $filter="[tag[Location]]"            color={{Location!!color}}>
+<$properties $filter="[tag[Deity]]"           color={{Deity!!color}}>
+<$properties $filter="[tag[Person]]"         color={{Person!!color}}>
+<$properties $filter="[tag[Player]]"        color={{Player!!color}}>
+<$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
+<$properties $filter="[tag[Person]trpg.dead[]]"       color="#dddddd" borderColor={{Person!!color}}>
+<$properties $filter="[tag[Organisation]trpg.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
+
+<%if [<trpg-hidden>is[blank]] %>
+
+<!-- fixed: the locations lying in it, the spots -->
+<$properties fixed={{{ [<trpg-edit>match[yes]then[no]else[yes]] }}} free={{{ [<trpg-edit>match[yes]then<trpg.save>] }}} trpgPin="tiddler">
+<$list filter="[enlist<trpg-places>]">
+<$transclude $variable="trpg.fixed" id=<<currentTiddler>>><<trpg.node>></$transclude>
+</$list>
+<$list filter="[<trpg-loc>spots:raw[]]" variable="trpg-spot">
+<$let trpg-plain={{{ [<trpg-spot>spotplain[]] }}}
+	trpg-joined={{{ [<trpg-spot>spottarget[]] -[enlist<trpg-places>] :filter[trpg.visible[]] }}}>
+<%if [<trpg-joined>!is[blank]] %>
+<$tiddler tiddler=<<trpg-joined>>>
+<$transclude $variable="trpg.fixed" id=<<trpg-joined>>><<trpg.node>></$transclude>
+</$tiddler>
+<%elseif [<trpg-spot>spottarget[]count[]match[0]] %>
+<$let trpg-id={{{ [<trpg-loc>addsuffix[#]addsuffix<trpg-plain>] }}}>
+<$transclude $variable="trpg.fixed" id=<<trpg-id>>>
+<$node $tiddler=<<trpg-id>> label=<<trpg-plain>> trpgPin="spot" color="#ffffff" borderColor={{Location!!color}}
+	actions="<$action-trpg-jump $tiddler=<<trpg-loc>> $anchor={{{ [<nodeTiddler>removeprefix<trpg-loc>removeprefix[#]spotanchor[]] }}}/>" />
+</$transclude>
+</$let>
+<%endif%>
+</$let>
+</$list>
+</$properties>
+
+<%endif%>
+
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties.popup>
+</$properties>
+</$graph>
+</$let>

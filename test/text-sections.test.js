@@ -14,8 +14,8 @@ test.before(function() {
 	return h.boot().then(function(tw) {
 		$tw = tw;
 		wiki = $tw.wiki;
-		sections = $tw.modules.execute("$:/plugins/dndwiki-core/modules/sections.js");
-		dates = $tw.modules.execute("$:/plugins/dndwiki-core/modules/dates.js");
+		sections = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/sections.js");
+		dates = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/dates.js");
 		h.setLanguage(wiki, "de-DE");
 		// Anna plays Frigg (fixture), Jan plays Ragna, Max plays Odo
 		h.add(wiki, {title: "Ragna", tags: "Player", player: "Jan"});
@@ -42,7 +42,7 @@ function inView(view, fn) {
 }
 
 function body(title) {
-	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/templates/body-sections\" $mode=\"block\"/>", {currentTiddler: title});
+	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/templates/body-sections\" $mode=\"block\"/>", {currentTiddler: title});
 }
 
 function withTiddler(fields, fn) {
@@ -61,9 +61,9 @@ test.describe("forms and numbers", function() {
 
 	test("a block draws the same heading, with its caption and jump mark", function() {
 		var html = body("Mischung");
-		assert.match(html, /data-dnd-anchor="date-2">1\. Hammer 1351 DR|data-dnd-anchor="date-2">[^<]*1351 DR<span class="dnd-date-label"> – Block/);
+		assert.match(html, /data-trpg-anchor="date-2">1\. Hammer 1351 DR|data-trpg-anchor="date-2">[^<]*1351 DR<span class="trpg-date-label"> – Block/);
 		assert.ok(html.indexOf("Erster.") < html.indexOf("Zweiter.") && html.indexOf("Zweiter.") < html.indexOf("Dritter."), html);
-		assert.equal((html.match(/class="dnd-section dnd-section-date/g) || []).length, 3);
+		assert.equal((html.match(/class="trpg-section trpg-section-date/g) || []).length, 3);
 	});
 
 	test("a date in a date does not count", function() {
@@ -110,7 +110,7 @@ test.describe("locks in the text", function() {
 		assert.ok(pub.indexOf("Offen in") !== -1 && pub.indexOf("Geheim in") === -1 && pub.indexOf("Traum") === -1, pub);
 		assert.ok(inView("player:Anna", function() { return body("Nacht"); }).indexOf("Geheim in") !== -1);
 		var dm = body("Nacht");
-		assert.match(dm, /dnd-section-locked">.*Geheim: Frigg.*Geheim in/s);
+		assert.match(dm, /trpg-section-locked">.*Geheim: Frigg.*Geheim in/s);
 	});
 
 	test("<$secret> in the text: only the block, the text around stays", function() {
@@ -128,7 +128,7 @@ test.describe("locks in the text", function() {
 	});
 
 	test("a locked spot: not on the map, its text not in the tab", function() {
-		var tab = "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/location/map\" mode=\"block\"/>",
+		var tab = "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/map\" mode=\"block\"/>",
 			pub = inView("public", function() { return h.render(wiki, "text/html", tab, {currentTiddler: "Hafen"}); });
 		assert.ok(pub.indexOf("Am Wasser.") !== -1 && pub.indexOf("Verborgen.") === -1 && pub.indexOf("Odos Stand") === -1, pub);
 		assert.ok(inView("player:Max", function() { return h.render(wiki, "text/html", tab, {currentTiddler: "Hafen"}); }).indexOf("Odos Stand") !== -1);
@@ -187,7 +187,7 @@ test.describe("what a locked section does not give away", function() {
 		assert.doesNotMatch(rows, /Traum/);
 		assert.equal((rows.match(/<tr/g) || []).length, 2);
 		assert.match(f("[[Nacht]] +[eventrows[]]").join(""), /Traum/);
-		var tl = "<$dnd-timeline filter=\"[[Nacht]]\"/>";
+		var tl = "<$trpg-timeline filter=\"[[Nacht]]\"/>";
 		assert.doesNotMatch(inView("public", function() { return h.render(wiki, "text/html", tl); }), /Traum/);
 		assert.match(h.render(wiki, "text/html", tl), /Traum/);
 	});
@@ -209,9 +209,9 @@ test.describe("what a locked section does not give away", function() {
 	});
 
 	test("search: a word only in a locked section", function() {
-		assert.deepEqual(inView("public", function() { return f("[[Nacht]] +[dndsearch[Wortgeheimnis]]"); }), []);
-		assert.deepEqual(f("[[Nacht]] +[dndsearch[Wortgeheimnis]]"), ["Nacht"]);
-		assert.deepEqual(inView("public", function() { return f("[[Nacht]] +[dndsearch[wieder offen]]"); }), ["Nacht"]);
+		assert.deepEqual(inView("public", function() { return f("[[Nacht]] +[trpgsearch[Wortgeheimnis]]"); }), []);
+		assert.deepEqual(f("[[Nacht]] +[trpgsearch[Wortgeheimnis]]"), ["Nacht"]);
+		assert.deepEqual(inView("public", function() { return f("[[Nacht]] +[trpgsearch[wieder offen]]"); }), ["Nacht"]);
 	});
 
 	test("links: none that stand only in a locked section", function() {
@@ -222,7 +222,7 @@ test.describe("what a locked section does not give away", function() {
 
 	test("graph: the edge type links draws no edge from a locked section", function() {
 		h.add(wiki, {title: "$:/graph/LinksTest", type: "application/json", text: "{}",
-			template: "$:/plugins/dndwiki-core/graph/templates/dnd-graph", filter: "[[Nacht]] [[Baile]] [[Nowhere]]",
+			template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[[Nacht]] [[Baile]] [[Nowhere]]",
 			"edges.fields": "", "edges.functions": "links"});
 		try {
 			var view = "<$graph.view $tiddler=\"$:/graph/LinksTest\"/>",

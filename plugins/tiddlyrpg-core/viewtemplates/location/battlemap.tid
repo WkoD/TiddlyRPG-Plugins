@@ -1,0 +1,11 @@
+created: 20261006064449000
+modified: 20261006064449000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/location/battlemap
+type: text/vnd.tiddlywiki
+
+<!-- Tab content of a battle map (viewtemplates/location): the image <<currentTab>> stands for
+     (filter maptabs), scaled to the width; a click opens the original file. -->
+<$let trpg-file={{{ [<currentTiddler>maptabs[]] :filter[jsonget[id]match<currentTab>] +[first[]jsonget[file]] }}}
+	trpg-path={{{ [<trpg-file>addprefix[images/battlemap/]] }}}>
+<div align="center"><a class="trpg-battlemap" href={{{ [<trpg-path>encodeuri[]] }}} target="_blank" rel="noopener noreferrer"><$image source=<<trpg-path>>/></a></div>
+</$let>

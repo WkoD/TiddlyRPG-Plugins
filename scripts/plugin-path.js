@@ -2,7 +2,7 @@
  * Plugin search path for TiddlyWiki in this repo (used by scripts/tw.js and test/helpers.js).
  *
  * Assembles TIDDLYWIKI_PLUGIN_PATH from this repo's own `plugins` folder
- * (wkod first-party: dndwiki-core, dndwiki-forgottenrealms, staticfiles) plus the individually
+ * (wkod first-party: tiddlyrpg-core, tiddlyrpg-setting-forgottenrealms, staticfiles) plus the individually
  * pinned flibbles graph-stack packages in node_modules (each ships under <pkg>/plugins), joined
  * with the OS-specific path delimiter (";" Windows, ":" elsewhere) - which is what TiddlyWiki's
  * boot splits on.

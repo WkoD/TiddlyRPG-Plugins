@@ -1,0 +1,14 @@
+created: 20200814090319235
+modified: 20261001095424000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/border
+type: text/vnd.tiddlywiki
+
+<!-- Border in the colour of the type: one rule per type hub of the format layer (tag Index,
+     field color). all[shadows] restricts this to the types from the plugin - content tiddlers
+     with their own color (faction/location tags of the campaigns) get no border. -->
+<$list filter="[all[shadows]] :filter[tag[Index]has[color]] +[sort[]]">
+.tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/> {
+border: 2px solid <$text text={{!!color}}/>;
+}
+</$list>

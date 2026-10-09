@@ -1,0 +1,10 @@
+created: 20260715103636000
+tiddlyrpg-symmetric: yes
+modified: 20261007071816000
+title: $:/config/flibbles/graph/edges/fields/enmity
+type: application/json
+
+{
+    "label": "Enmity",
+    "color": "#e50910"
+}

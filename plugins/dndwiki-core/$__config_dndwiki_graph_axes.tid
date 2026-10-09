@@ -1,8 +1,0 @@
-created: 20261008062202000
-list: place power family attitude guidance things
-modified: 20261008062202000
-title: $:/config/dndwiki/graph/axes
-
-The axes of the relations, in order (field list). Each axis $:/config/dndwiki/graph/axes/<axis>
-is an edge style (JSON, like an edge type config, the config of the type wins) and lists its
-relation types in order (field list). Rules: modules/relations.js.

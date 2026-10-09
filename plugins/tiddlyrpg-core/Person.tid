@@ -1,0 +1,13 @@
+caption: <<trpg.title Person>>
+color: #00a600
+created: 20200209095738040
+modified: 20261007163804094
+tags: Index
+title: Person
+type: text/vnd.tiddlywiki
+
+<$list filter="[tag[Person]] :filter[trpg.visible[]] +[sort[title]]">
+<div class="tc-menu-list-subitem">
+<<deadlink title={{!!title}} style="~~">>
+</div>
+</$list>

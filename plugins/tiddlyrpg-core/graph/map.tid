@@ -1,0 +1,9 @@
+caption: Map
+created: 20261006064449000
+filter: [<currentNode>]
+modified: 20261006064449000
+template: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
+title: $:/plugins/tiddlyrpg-core/graph/map
+type: application/json
+
+{}

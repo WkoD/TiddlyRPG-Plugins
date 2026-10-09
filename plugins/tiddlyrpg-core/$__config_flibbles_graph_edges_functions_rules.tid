@@ -1,0 +1,12 @@
+created: 20261006064449000
+tiddlyrpg-implies: location
+tiddlyrpg-via: leader
+filter: [get[leader]enlist-input[]tag[Location]]
+modified: 20261008062202000
+title: $:/config/flibbles/graph/edges/functions/rules
+type: application/json
+
+{
+    "label": "Controls",
+    "width": "3"
+}

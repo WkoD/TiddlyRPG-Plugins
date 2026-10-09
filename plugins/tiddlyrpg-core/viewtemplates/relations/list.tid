@@ -1,0 +1,78 @@
+caption: <<trpg.t Relations/List>>
+created: 20260713135021000
+modified: 20261008062202000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/list
+type: text/vnd.tiddlywiki
+
+\function trpg.forward(type) [<self>relationtargets<type>!is[system]] :filter[trpg.visible[]] +[!match<self>sort[title]]
+\function trpg.backward(type) [<self>relationsources<type>!is[system]] :filter[trpg.visible[]] +[!match<self>sort[title]]
+\function trpg.both(type) [trpg.forward<type>] [trpg.backward<type>] +[sort[title]]
+\function trpg.at(place) [<currentTiddler>get[location]enlist-input[]] [<currentTiddler>get[leader]enlist-input[]] +[match<place>]
+\function trpg.here(place) [<place>occupants[]] :filter[trpg.at<place>] :filter[trpg.visible[]] +[!match<self>sort[title]]
+\function trpg.within(place) [<place>sublocations[]] :filter[trpg.visible[]] +[sort[title]]
+
+\procedure trpg.group(label)
+<%if [(hits)] %>
+<h3 class="trpg-relations-group"><$text text=<<label>>/></h3>
+<$list filter="[(hits)]">
+<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">></div>
+</$list>
+<%endif%>
+\end
+
+\procedure trpg.tree.entry(place,sub)
+\whitespace trim
+<<deadlink title=<<sub>> style="~~">><%if [<sub>spotowner[]match<place>] %><span class="trpg-via"><$text text={{{ [[Relations/Spot]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%>
+\end
+
+\procedure trpg.tree(place,depth)
+\whitespace trim
+<$list filter="[trpg.here<place>]">
+<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">><%if [<currentTiddler>get[leader]enlist-input[]match<place>] %><span class="trpg-via"><$text text={{{ [[Edge/rules]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%></div>
+</$list>
+<%if [<depth>compare:number:lt[10]] %>
+<$list filter="[trpg.within<place>]" variable="trpg-sub">
+<$let trpg-n={{{ [trpg.here<trpg-sub>] [trpg.within<trpg-sub>] +[count[]] }}}
+	trpg-next={{{ [<depth>add[1]] }}}>
+<%if [<trpg-n>match[0]] %>
+<div class="tc-menu-list-subitem"><$transclude $variable="trpg.tree.entry" place=<<place>> sub=<<trpg-sub>>/></div>
+<%else%>
+<details class="trpg-tree"><summary class="tc-menu-list-subitem"><$transclude $variable="trpg.tree.entry" place=<<place>> sub=<<trpg-sub>>/></summary><div class="trpg-tree-children"><$transclude $variable="trpg.tree" place=<<trpg-sub>> depth=<<trpg-next>>/></div></details>
+<%endif%>
+</$let>
+</$list>
+<%endif%>
+\end
+
+<!-- The relations of `self` (from the calling relations.tid), type by type in the order of the
+     axes (modules/relations.js), with the same rules as the graph: a type another one includes
+     is left out (a leader is no member as well). A directed type shows two groups: forward
+     (Field/<type>: "Member of") from the own field, and the way back (FieldInverse/<type>:
+     "Members") from who points here, via the indexed operator `listed`. A symmetric type shows
+     one group, both ways together. The hits are held once in the multi-valued variable `hits`
+     and used for heading and list.
+     Locations (filters/location.js): on a location the way back of "location" is a tree
+     (procedure trpg.tree) instead of the locations above and below it: who is there - who leads
+     it marked -, then each place within (both kinds, a spot marked) with who is there and its
+     own places within, every depth. Every place with entries starts folded (<details>). The
+     parent is in the path below the title, the places a tiddler leads in the group of the
+     function type rules ("Controls"). -->
+
+<$list filter="[relationtypes:list[]]" variable=type>
+<$let trpg-label={{{ [<type>addprefix[Field/]trpgtranslate[]] }}}
+	trpg-inverse={{{ [<type>addprefix[FieldInverse/]trpgtranslate[]] :filter[!prefix[FieldInverse/]] ~[<type>addprefix[Field/]trpgtranslate[]] }}}>
+<%if [<type>match[location]] :filter[<self>tag[Location]] %>
+<%if [<self>occupants[]] [<self>sublocations[]] :filter[trpg.visible[]] +[first[]] %>
+<h3 class="trpg-relations-group"><$text text=<<trpg-inverse>>/></h3>
+<$transclude $variable="trpg.tree" place=<<self>> depth="0"/>
+<%endif%>
+<%elseif [<type>relationsymmetric[]] %>
+<$let hits={{{ [trpg.both<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-label>>/></$let>
+<%else%>
+<$let hits={{{ [trpg.forward<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-label>>/></$let>
+<%if [<type>!match[rules]] %>
+<$let hits={{{ [trpg.backward<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-inverse>>/></$let>
+<%endif%>
+<%endif%>
+</$let>
+</$list>

@@ -1,0 +1,222 @@
+created: 20260930204000000
+modified: 20261008172516320
+tags: $:/tags/Global
+title: $:/plugins/tiddlyrpg-core/functions
+type: text/vnd.tiddlywiki
+
+<!-- Shared checks of the format layer. They work on their input and are called as filter
+     operators, e.g. [<currentTiddler>trpg.dead[]] - so they behave the same in ViewTemplates,
+     cascades, ClassFilters and graph templates. -->
+
+<!-- Lock: the input titles the active view ($:/state/tiddlyrpg/view) sees - every tiddler, except
+     one tagged Secret: that only the DM and the players of the player characters it is tagged
+     with (modules/visibility.js). -->
+\function trpg.visible() [trpgvisible[]]
+
+<!-- Deceased/destroyed: the date field ends (last section a range with an end other than
+     "..", modules/dates.js). Events excluded - their sections are points and spans in time. -->
+\function trpg.dead() [!is[system]!tag[Event]] :filter[get[date]dateended[]]
+
+<!-- Language system (modules/language.js): translation of a key, display name of a title,
+     plural of a type. Missing keys fall back to en-GB, then to the key/title itself. -->
+\function trpg.t(key) [<key>trpgtranslate[]]
+\function trpg.title(title) [<title>trpgtitle[]]
+\function trpg.plural(type) [<type>addprefix[Plural/]trpgtranslate[]]
+
+<!-- Date output through the calendar engine (filters/date.js). Procedures with filtered
+     attributes, so that they recompute when the language or the calendar data changes. -->
+
+<!-- Short form of a date field or of one of its sections, with the era -->
+\procedure dateformat(date,section)
+<$text text={{{ [<date>dateformat:era<section>] }}}/>
+\end
+
+\procedure dateadd(date,days)
+<$text text={{{ [<date>dateadd<days>] }}}/>
+\end
+
+\procedure datediff(from,to)
+<$text text={{{ [<from>datediff<to>] }}}/>
+\end
+
+<!-- Locations linked in a section of the body of the current tiddler (0 = before the first
+     <<date>>), without those the active view does not see; as pills, nothing if none. A
+     <<spotlink>> in the section gives a pill "Spot (Location)" that jumps to the spot. -->
+\procedure trpg.places(section)
+\whitespace trim
+<$let trpg-places={{{ [<currentTiddler>sectionlinks<section>tag[Location]] :filter[trpg.visible[]] +[sort[]format:titlelist[]join[ ]] }}}
+	trpg-spotrefs={{{ [<currentTiddler>sectionspots<section>] :filter[jsonget[place]trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<trpg-places>] [enlist<trpg-spotrefs>] +[first[]] %>
+<div class="trpg-places">
+<$list filter="[enlist<trpg-places>]" variable="trpg-place">
+<$link to=<<trpg-place>>><$transclude $variable="tag-pill" tag=<<trpg-place>>/></$link>
+</$list>
+<$list filter="[enlist<trpg-spotrefs>]" variable="trpg-ref">
+<$transclude $variable="trpg.spotpill" place={{{ [<trpg-ref>jsonget[place]] }}} spot={{{ [<trpg-ref>jsonget[spot]] }}}/>
+</$list>
+</div>
+<%endif%>
+</$let>
+\end
+
+<!-- Pill of a <<spotlink>> in a section: "Spot (Location)" in the colour of the location;
+     opens the tiddler the spot is joined to, or the location at the spot in its map tab -->
+\procedure trpg.spotpill(place,spot)
+\whitespace trim
+<$let trpg-colour={{{ [<place>] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]] }}}
+	trpg-label={{{ [<place>spots[]match<spot>then<spot>addsuffix[ (]addsuffix<place>addsuffix[)]] ~[<place>] }}}>
+<$transclude $variable="trpg.spotjump" place=<<place>> spot=<<spot>>>
+<span class="tc-tag-label trpg-spot-pill" style.background-color=<<trpg-colour>>><$text text=<<trpg-label>>/></span>
+</$transclude>
+\end
+
+<!-- Link around the slot content to a spot: the tiddler the spot is joined to; else the
+     location, switched to its map tab and scrolled to the spot (widgets/jump.js); else the
+     location alone (missing spot) -->
+\procedure trpg.spotjump(place,spot)
+\whitespace trim
+<$let trpg-joined={{{ [<spot>spottarget[]] }}}>
+<%if [<trpg-joined>!is[blank]] %>
+<$link to=<<trpg-joined>>><$slot $name="ts-raw"/></$link>
+<%elseif [<place>spots[]match<spot>] %>
+<$trpg-jump anchor={{{ [<spot>spotanchor[]] }}} tabstate={{{ [<place>addprefix[$:/state/tiddlyrpg-core/location-tab/]] }}} tab="map"><$link to=<<place>>><$slot $name="ts-raw"/></$link></$trpg-jump>
+<%else%>
+<$link to=<<place>>><$slot $name="ts-raw"/></$link>
+<%endif%>
+</$let>
+\end
+
+<!-- Date line below the tags of every tiddler with dates, right-aligned: an event shows the span
+     of its date field ("????" with the era if it has none), every other type its years of
+     existence (mode "year", nothing without dates). With the hint on a date that cannot be read. -->
+\procedure trpg.dateline(mode)
+\whitespace trim
+<%if [<mode>match[year]] %>
+<$let trpg-text={{{ [<currentTiddler>get[date]dateformat:year,era[]] }}}>
+<%if [<trpg-text>!is[blank]] %><div class="trpg-dateline"><$text text=<<trpg-text>>/></div><%endif%>
+</$let>
+<%else%>
+<div class="trpg-dateline"><$text text={{{ [<currentTiddler>visibledate[]dateformat:era[]!is[blank]] ~[calendar[era]!is[blank]addprefix[???? ]] ~[[????]] }}}/></div>
+<%endif%>
+<<trpg.datecheck>>
+\end
+
+<!-- Hint for the editor if the date field of the current tiddler cannot be read or names a
+     day the calendar does not have; not in the published (read-only) copy -->
+\procedure trpg.datecheck()
+\whitespace trim
+<$list filter="[<currentTiddler>get[date]datecheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="trpg-raw">
+<div class="trpg-date-invalid"><$text text={{{ [[Date/Invalid]trpgtranslate[]] }}}/> <code><$text text=<<trpg-raw>>/></code></div>
+</$list>
+\end
+
+<!-- A dated section in the body: <<date>> is the next section of the date field (the first
+     is 1), <<date 3>> section 3, <<date "Caption">> / <<date 3 "Caption">> with a caption.
+     Draws the rule before it (not at the very start of the body), the date, the caption and
+     the locations of the section. widgets/date.js finds out which section it is. Without any
+     date in the field the heading is "????" (with the era). The heading is the jump mark
+     "date-<n>" (data-trpg-anchor, modules/anchor-jump.js) - not at the very start of the body:
+     there a jump would only hide the title, the plain navigation already shows the section. -->
+\procedure date(n,label)
+\whitespace trim
+<$trpg-date n=<<n>> label=<<label>>>
+
+<%if [<trpg-section>is[blank]] %>
+<div class="trpg-date-invalid"><$text text={{{ [[Date/SectionHint]trpgtranslate[]] }}}/></div>
+<%else%>
+<$let trpg-dated={{{ [<currentTiddler>get[date]trim[]] }}}
+	trpg-text={{{ [<currentTiddler>get[date]dateformat:era<trpg-section>!is[blank]] ~[<trpg-dated>is[blank]then[????]] }}}
+	trpg-era={{{ [<trpg-dated>is[blank]] :then[calendar[era]!is[blank]addprefix[ ]] }}}
+	trpg-anchor={{{ [<trpg-first>!match[yes]] :then[<trpg-section>addprefix[date-]] }}}>
+
+<%if [<trpg-first>!match[yes]] %><hr class="trpg-date-rule"/><%endif%>
+<%if [<trpg-text>is[blank]] %>
+<div class="trpg-date-invalid" data-trpg-anchor=<<trpg-anchor>>><$text text={{{ [[Date/SectionMissing]trpgtranslate[]search-replace[$n$],<trpg-section>] }}}/></div>
+<%else%>
+<div class="trpg-date-heading" data-trpg-anchor=<<trpg-anchor>>><$text text=<<trpg-text>>/><$text text=<<trpg-era>>/><%if [<trpg-label>!is[blank]] %><span class="trpg-date-label"><$text text={{{ [<trpg-label>addprefix[ – ]] }}}/></span><%endif%></div>
+<%endif%>
+<$transclude $variable="trpg.places" section=<<trpg-section>>/>
+
+</$let>
+<%endif%>
+
+</$trpg-date>
+\end
+
+<!-- A lock: <<secret "Theren" "Actia">> locks the section it stands at (modules/sections.js),
+     <$secret for="...">...</$secret> what it encloses (widgets/sections.js). Draws nothing itself:
+     the section shows the marker for whom it is. -->
+\procedure secret()
+\end
+
+<!-- A spot of a location (modules/spots.js): <<spot "Name">>, <<spot "Tempel von [[Chauntea]]">>,
+     <<spot "Name" "Tiddler">>, <<spot "Name" battlemap:"a.jpg">>. Draws the heading of the
+     spot with the jump mark "spot-<name>". Joined to a tiddler (the second parameter, or a
+     tiddler with the plain name), the heading links to it; otherwise the name is rendered as
+     wikitext, links in it stay links. Its text and its place on the map come from the parse
+     tree, not from this procedure. -->
+\procedure spot(name,target,battlemap)
+\whitespace trim
+<$let trpg-target={{{ [<name>spottarget<target>] }}}>
+<h3 class="trpg-spot" data-trpg-anchor={{{ [<name>spotanchor[]] }}}>
+<%if [<trpg-target>!is[blank]] %>
+<$link to=<<trpg-target>>><$text text={{{ [<name>spotplain[]] }}}/></$link>
+<%else%>
+<$transclude $variable="name" $mode="inline"/>
+<%endif%>
+</h3>
+</$let>
+\end
+
+<!-- A reference to a spot: <<spotlink "Baile" "Schloss Baile">> or
+     <<spotlink "Miehall" "[[Trunkenen Eulenbären|Zum Trunkenen Eulenbären]]">> (text before
+     "|", spot after it). A spot joined to a tiddler opens that tiddler, any other spot the
+     location at the spot; a spot or location that does not exist gives a hint for the editor
+     (not in the published copy). The section pills (trpg.places) show it as well. -->
+\procedure spotlink(place,spot)
+\whitespace trim
+<$let trpg-spot={{{ [<spot>spotref:spot[]] }}}
+	trpg-text={{{ [<spot>spotref:text[]] }}}>
+<$transclude $variable="trpg.spotjump" place=<<place>> spot=<<trpg-spot>>><$text text=<<trpg-text>>/></$transclude>
+<$transclude $variable="trpg.spotcheck" place=<<place>> spot=<<trpg-spot>>/>
+</$let>
+\end
+
+<!-- Hint for the editor on a <<spotlink>> whose location or spot does not exist; not in the
+     published (read-only) copy -->
+\procedure trpg.spotcheck(place,spot)
+\whitespace trim
+<%if [{$:/status/IsReadOnly}!match[yes]] %>
+<%if [<place>!is[tiddler]!is[shadow]] %>
+<span class="trpg-date-invalid"> <$text text={{{ [[Spot/PlaceMissing]trpgtranslate[]search-replace[$place$],<place>] }}}/></span>
+<%elseif [<spot>spottarget[]] [<place>spots[]match<spot>] +[count[]match[0]] %>
+<span class="trpg-date-invalid"> <$text text={{{ [[Spot/Missing]trpgtranslate[]search-replace[$spot$],<spot>search-replace[$place$],<place>] }}}/></span>
+<%endif%>
+<%endif%>
+\end
+
+<!-- The parents of a tiddler as a path below its title: "Materielle Ebene › Andu Falas ›
+     Königreich von Vandalia" for a location, its location(s) at the end for persons and the
+     like (one line per entry), "Kontrolliert: …" for locations it leads; with the hints of
+     locationcheck (not in the published copy). What the view does not see is left out: an
+     entry it does not see with its whole line, else the line would tell where it lies. -->
+\procedure trpg.locationpath()
+\whitespace trim
+<$let trpg-lines={{{ [<currentTiddler>tag[Location]then<currentTiddler>] ~[<currentTiddler>get[location]enlist-input[]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
+<$list filter="[enlist<trpg-lines>]" variable="trpg-line">
+<$let trpg-path={{{ [<trpg-line>locationpath[]] [<currentTiddler>!tag[Location]then<trpg-line>] +[!is[blank]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<trpg-path>first[]] %>
+<div class="trpg-location-path"><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep">›</span><%endif%><$macrocall $name="deadlink" title=<<trpg-step>> style="~~"/></$list></div>
+<%endif%>
+</$let>
+</$list>
+<$let trpg-rules={{{ [<currentTiddler>get[leader]enlist-input[]tag[Location]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<trpg-rules>first[]] %>
+<div class="trpg-location-path trpg-location-rules"><$text text={{{ [[Relations/Rules]trpgtranslate[]addsuffix[: ]] }}}/><$list filter="[enlist<trpg-rules>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep trpg-location-path-comma">,</span><%endif%><$macrocall $name="deadlink" title=<<trpg-step>> style="~~"/></$list></div>
+<%endif%>
+</$let>
+<$list filter="[<currentTiddler>locationcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="trpg-key">
+<div class="trpg-date-invalid"><$text text={{{ [<trpg-key>trpgtranslate[]] }}}/></div>
+</$list>
+</$let>
+\end

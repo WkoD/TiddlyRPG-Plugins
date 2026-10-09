@@ -14,13 +14,13 @@ test.before(function() {
 	return h.boot().then(function($tw) {
 		wiki = $tw.wiki;
 		h.setLanguage(wiki, "de-DE");
-		timeline = h.render(wiki, "text/html", "<$dnd-timeline filter=\"[tag[Event]]\"/>");
+		timeline = h.render(wiki, "text/html", "<$trpg-timeline filter=\"[tag[Event]]\"/>");
 	});
 });
 
 // Vertical position of the card of an event
 function cardTop(title) {
-	var cards = timeline.split('<div class="dnd-tl-card').slice(1);
+	var cards = timeline.split('<div class="trpg-tl-card').slice(1);
 	for(var i = 0; i < cards.length; i++) {
 		if(cards[i].indexOf(">" + title + "<") !== -1) {
 			return parseFloat(/top:\s*([-\d.]+)px/.exec(cards[i])[1]);
@@ -30,16 +30,16 @@ function cardTop(title) {
 }
 
 test("timeline: one card per event", function() {
-	assert.equal((timeline.match(/class="dnd-tl-card/g) || []).length, 4);
+	assert.equal((timeline.match(/class="trpg-tl-card/g) || []).length, 4);
 });
 
 test("timeline: campaign solid bar, other event dashed point", function() {
-	assert.ok(timeline.indexOf("dnd-tl-bar dnd-tl-campaign") !== -1 && timeline.indexOf("dnd-tl-point dnd-tl-other") !== -1);
+	assert.ok(timeline.indexOf("trpg-tl-bar trpg-tl-campaign") !== -1 && timeline.indexOf("trpg-tl-point trpg-tl-other") !== -1);
 });
 
 test("timeline: details for the selected card (points in time)", function() {
-	assert.ok(timeline.indexOf("dnd-tl-details") !== -1);
-	assert.match(timeline, /class="dnd-tl-point-date"[^>]*>1\. Flamerule 1351</);
+	assert.ok(timeline.indexOf("trpg-tl-details") !== -1);
+	assert.match(timeline, /class="trpg-tl-point-date"[^>]*>1\. Flamerule 1351</);
 });
 
 test.describe("seven overlapping spans", function() {
@@ -51,7 +51,7 @@ test.describe("seven overlapping spans", function() {
 			many.push("[[Beam " + n + "]]");
 			h.add(wiki, {title: "Beam " + n, tags: "Event", date: "1351-0" + n + "-01/1351-12-01"});
 		}
-		beams = h.render(wiki, "text/html", "<$dnd-timeline filter=\"" + many.join(" ") + "\"/>");
+		beams = h.render(wiki, "text/html", "<$trpg-timeline filter=\"" + many.join(" ") + "\"/>");
 	});
 
 	test.after(function() {
@@ -61,13 +61,13 @@ test.describe("seven overlapping spans", function() {
 	});
 
 	test("timeline: more than five spans merge into a beam", function() {
-		assert.ok(beams.indexOf("dnd-tl-beam") !== -1);
-		assert.equal((beams.match(/class="dnd-tl-thread"/g) || []).length, 7);
+		assert.ok(beams.indexOf("trpg-tl-beam") !== -1);
+		assert.equal((beams.match(/class="trpg-tl-thread"/g) || []).length, 7);
 	});
 
 	test("timeline: at most five lanes wide", function() {
 		var xs = {};
-		(beams.match(/class="dnd-tl-stroke" d="M([\d.]+) /g) || []).forEach(function(m) { xs[m] = true; });
+		(beams.match(/class="trpg-tl-stroke" d="M([\d.]+) /g) || []).forEach(function(m) { xs[m] = true; });
 		assert.ok(Object.keys(xs).length <= 5, Object.keys(xs).join("\n"));
 	});
 });
@@ -82,12 +82,12 @@ test("timeline: undated at the very bottom as ????", function() {
 });
 
 test("timeline: Harptos label", function() {
-	assert.ok(timeline.indexOf("1. Flamerule 1351") !== -1, String(timeline.match(/dnd-tl-date">[^<]*/g)));
+	assert.ok(timeline.indexOf("1. Flamerule 1351") !== -1, String(timeline.match(/trpg-tl-date">[^<]*/g)));
 });
 
 // Renders a timeline of the given events; the result is HTML
 function draw(filter, self) {
-	return h.render(wiki, "text/html", "<$dnd-timeline filter=\"" + filter + "\"" + (self ? " self=\"" + self + "\"" : "") + "/>");
+	return h.render(wiki, "text/html", "<$trpg-timeline filter=\"" + filter + "\"" + (self ? " self=\"" + self + "\"" : "") + "/>");
 }
 
 test.describe("sections", function() {
@@ -111,35 +111,35 @@ test.describe("sections", function() {
 
 	test("points of an event in a lane are dots, the track shows while highlighted", function() {
 		var points = draw("[[Points]]");
-		assert.equal((points.match(/class="dnd-tl-mid"/g) || []).length, 2);
-		assert.equal((points.match(/class="dnd-tl-track"/g) || []).length, 1);
+		assert.equal((points.match(/class="trpg-tl-mid"/g) || []).length, 2);
+		assert.equal((points.match(/class="trpg-tl-track"/g) || []).length, 1);
 	});
 
 	test("ongoing: arrow at the end of the axis", function() {
-		assert.match(draw("[[Ongoing]]"), /class="dnd-tl-arrow"/);
-		assert.doesNotMatch(draw("[[Span]]"), /class="dnd-tl-arrow"/);
+		assert.match(draw("[[Ongoing]]"), /class="trpg-tl-arrow"/);
+		assert.doesNotMatch(draw("[[Span]]"), /class="trpg-tl-arrow"/);
 	});
 
 	test("card: the span with the tag dots above the title", function() {
 		var html = draw("[[Mixed]]");
-		assert.ok(html.indexOf("dnd-tl-date") < html.indexOf("dnd-tl-title"));
-		assert.match(html, /class="dnd-tl-date">1351 – 1356</);
+		assert.ok(html.indexOf("trpg-tl-date") < html.indexOf("trpg-tl-title"));
+		assert.match(html, /class="trpg-tl-date">1351 – 1356</);
 	});
 
 	test("selected card: below the title the tags, then one line per section with its caption", function() {
 		var html = draw("[[Mixed]]"),
-			details = html.slice(html.indexOf("dnd-tl-details"));
-		assert.ok(html.indexOf("dnd-tl-title") < html.indexOf("dnd-tl-details"));
-		assert.ok(details.indexOf("dnd-tl-tags") < details.indexOf("dnd-tl-point-date"));
-		assert.match(details, /dnd-tl-point-date"[^>]*>1351 – 1352<span class="dnd-tl-caption">Krieg</);
-		assert.match(details, /dnd-tl-point-date"[^>]*>1356<span class="dnd-tl-caption">Nachspiel</);
+			details = html.slice(html.indexOf("trpg-tl-details"));
+		assert.ok(html.indexOf("trpg-tl-title") < html.indexOf("trpg-tl-details"));
+		assert.ok(details.indexOf("trpg-tl-tags") < details.indexOf("trpg-tl-point-date"));
+		assert.match(details, /trpg-tl-point-date"[^>]*>1351 – 1352<span class="trpg-tl-caption">Krieg</);
+		assert.match(details, /trpg-tl-point-date"[^>]*>1356<span class="trpg-tl-caption">Nachspiel</);
 	});
 
 	test("selected card: every section line links to its section of the event", function() {
 		var details = draw("[[Mixed]]");
-		details = details.slice(details.indexOf("dnd-tl-details"));
-		assert.match(details, /class="dnd-tl-point-date"[^>]*data-anchor="date-1"[^>]*data-title="Mixed"[^>]*>1351 – 1352</);
-		assert.match(details, /class="dnd-tl-point-date"[^>]*data-anchor="date-2"[^>]*>1356</);
+		details = details.slice(details.indexOf("trpg-tl-details"));
+		assert.match(details, /class="trpg-tl-point-date"[^>]*data-anchor="date-1"[^>]*data-title="Mixed"[^>]*>1351 – 1352</);
+		assert.match(details, /class="trpg-tl-point-date"[^>]*data-anchor="date-2"[^>]*>1356</);
 	});
 });
 
@@ -165,11 +165,11 @@ test.describe("band of the tiddler itself", function() {
 
 	// Lower edge of the band (newest at the top: the oldest end) and the lowest point on the axis
 	function bandBottom(html) {
-		var rect = /<rect [^>]*class="dnd-tl-band-area"[^>]*>/.exec(html)[0];
+		var rect = /<rect [^>]*class="trpg-tl-band-area"[^>]*>/.exec(html)[0];
 		return parseFloat(/ y="([-\d.]+)"/.exec(rect)[1]) + parseFloat(/height="([-\d.]+)"/.exec(rect)[1]);
 	}
 	function lowestPoint(html) {
-		return Math.max.apply(null, (html.match(/<circle [^>]*class="dnd-tl-point[^>]*>/g) || []).map(function(c) {
+		return Math.max.apply(null, (html.match(/<circle [^>]*class="trpg-tl-point[^>]*>/g) || []).map(function(c) {
 			return parseFloat(/cy="([-\d.]+)"/.exec(c)[1]);
 		}));
 	}
@@ -184,7 +184,7 @@ test.describe("band of the tiddler itself", function() {
 	test("unknown start, alive: from the first mention, solid at the last, fades out at the top", function() {
 		var html = draw("[[Early Word]] [[Late Deed]]", "Somewhere"),
 			stops = bandStops(html);
-		assert.doesNotMatch(html, /dnd-tl-band-unknown/);
+		assert.doesNotMatch(html, /trpg-tl-band-unknown/);
 		assert.ok(Math.abs(bandBottom(html) - lowestPoint(html)) < 1, bandBottom(html) + " / " + lowestPoint(html));
 		assert.deepEqual(stops.map(function(s) { return s[1]; }), ["0", "1", "1", "0"]);
 	});
@@ -197,15 +197,15 @@ test.describe("band of the tiddler itself", function() {
 
 	// Texts of the band labels
 	function bandLabels(html) {
-		return (html.match(/class="dnd-tl-band-label"[^>]*>[^<]*</g) || []).map(function(m) {
+		return (html.match(/class="trpg-tl-band-label"[^>]*>[^<]*</g) || []).map(function(m) {
 			return /> *([^<]*)<$/.exec(m)[1];
 		});
 	}
 
 	test("band with the own dates, which set anchors", function() {
 		var html = draw("[[Hafenfest]]", "Old Actia");
-		assert.equal((html.match(/class="dnd-tl-band"/g) || []).length, 1);
-		assert.match(html, /class="dnd-tl-year dnd-tl-major"[^>]*>1200</);
+		assert.equal((html.match(/class="trpg-tl-band"/g) || []).length, 1);
+		assert.match(html, /class="trpg-tl-year trpg-tl-major"[^>]*>1200</);
 	});
 
 	test("band labels: the years only, not the whole date", function() {
@@ -214,13 +214,13 @@ test.describe("band of the tiddler itself", function() {
 
 	test("band labels fit: the band is at least as wide as its years", function() {
 		var html = draw("[[Hafenfest]]", "Old Actia"),
-			area = /class="dnd-tl-band-area"[^>]*width="([\d.]+)"/.exec(html);
+			area = /class="trpg-tl-band-area"[^>]*width="([\d.]+)"/.exec(html);
 		assert.ok(parseFloat(area[1]) >= 4 * 6.2 + 2 * 6, area[0]);
 	});
 
 	// The stops of the band gradient, bottom to top: [offset, opacity]
 	function bandStops(html) {
-		var grad = /<linearGradient [^>]*id="dnd-tl-b-[^"]*"[^>]*>(.*?)<\/linearGradient>/.exec(html);
+		var grad = /<linearGradient [^>]*id="trpg-tl-b-[^"]*"[^>]*>(.*?)<\/linearGradient>/.exec(html);
 		return (grad[1].match(/<stop [^>]*>/g) || []).map(function(stop) {
 			return [parseFloat(/offset="([^"]*)"/.exec(stop)[1]), /stop-opacity="([^"]*)"/.exec(stop)[1]];
 		});
@@ -261,7 +261,7 @@ test.describe("band of the tiddler itself", function() {
 	});
 
 	test("no band in the Event hub (no self)", function() {
-		assert.doesNotMatch(draw("[[Hafenfest]]"), /class="dnd-tl-band[" ]/);
+		assert.doesNotMatch(draw("[[Hafenfest]]"), /class="trpg-tl-band[" ]/);
 	});
 });
 
@@ -276,10 +276,10 @@ test.describe("goes on after its last section", function() {
 
 	test("dashed continuation with an arrow, the points stay points", function() {
 		var html = draw("[[Weiter]]");
-		assert.match(html, /class="dnd-tl-continue"/);
-		assert.match(html, /class="dnd-tl-arrow"/);
-		assert.equal((html.match(/class="dnd-tl-mid"/g) || []).length, 2);
-		assert.match(html, /dnd-tl-point-date">\?\?\?\?</);
+		assert.match(html, /class="trpg-tl-continue"/);
+		assert.match(html, /class="trpg-tl-arrow"/);
+		assert.equal((html.match(/class="trpg-tl-mid"/g) || []).length, 2);
+		assert.match(html, /trpg-tl-point-date">\?\?\?\?</);
 		// The continuation is no section: no link
 		assert.doesNotMatch(html, /data-anchor="[^"]*"[^>]*>\?\?\?\?</);
 	});
@@ -300,7 +300,7 @@ test.describe("colour of the tag dots", function() {
 	// Colour of every tag dot by its tooltip
 	function dots(html) {
 		var colours = {};
-		(html.match(/<span class="dnd-tl-tagdot"[^>]*>/g) || []).forEach(function(span) {
+		(html.match(/<span class="trpg-tl-tagdot"[^>]*>/g) || []).forEach(function(span) {
 			var title = /title="([^"]*)"/.exec(span),
 				colour = /background-color:\s*([^;"]+)/.exec(span);
 			if(title) {

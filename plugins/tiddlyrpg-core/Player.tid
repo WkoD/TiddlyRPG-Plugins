@@ -1,0 +1,33 @@
+caption: <<trpg.title Player>>
+color: #005500
+created: 20200209100237010
+modified: 20261007163804094
+tags: Index
+title: Player
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- The player characters as cards with portrait, name and player: the active ones (tag
+     Player), below them those someone played before (any other tiddler with a field player).
+     Which view the wiki shows is chosen in the page controls (ui/view-switcher). -->
+\procedure trpg.playercard()
+\whitespace trim
+<$link to=<<currentTiddler>> class={{{ [<currentTiddler>trpg.dead[]then[trpg-player-card trpg-dead]else[trpg-player-card]] }}}>
+<span class="trpg-player-portrait"><$transclude $variable="image" title=<<currentTiddler>>/></span>
+<span class="trpg-player-name"><$text text={{{ [<currentTiddler>get[caption]else<currentTiddler>] }}}/></span>
+<span class="trpg-player-of"><$text text={{{ [<currentTiddler>get[player]] }}}/></span>
+</$link>
+\end
+
+<h3><$text text={{{ [[Player/Active]trpgtranslate[]] }}}/></h3>
+<div class="trpg-players">
+<$list filter="[tag[Player]!is[draft]] :filter[trpg.visible[]] +[sort[title]]"><<trpg.playercard>></$list>
+</div>
+<$list filter="[!is[system]!is[draft]!tag[Player]has[player]] :filter[trpg.visible[]] +[sort[title]] +[limit[1]]" variable="ignore">
+<h3><$text text={{{ [[Player/Former]trpgtranslate[]] }}}/></h3>
+<div class="trpg-players">
+<$list filter="[!is[system]!is[draft]!tag[Player]has[player]] :filter[trpg.visible[]] +[sort[title]]"><<trpg.playercard>></$list>
+</div>
+</$list>
+<h3><$text text={{{ [[PlayerLevel]trpgtitle[]] }}}/></h3>
+<div class="trpg-player-level"><b>{{PlayerLevel}}</b></div>

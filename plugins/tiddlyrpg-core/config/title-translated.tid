@@ -1,0 +1,8 @@
+created: 20261001095424000
+list-before: $:/config/ViewTemplateTitleFilters/default
+modified: 20261001095424000
+tags: $:/tags/ViewTemplateTitleFilter
+title: $:/plugins/tiddlyrpg-core/config/title-translated
+type: text/vnd.tiddlywiki
+
+[<currentTiddler>trpgtitle[]] -[<currentTiddler>] +[then[$:/plugins/tiddlyrpg-core/templates/title-translated]]

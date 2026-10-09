@@ -1,0 +1,8 @@
+created: 20261006064449000
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/body-filter
+modified: 20261007170245412
+tags: $:/tags/ViewTemplateBodyFilter
+title: $:/plugins/tiddlyrpg-core/viewtemplates/body-filter-sections
+type: text/vnd.tiddlywiki
+
+[hassections[]then[$:/plugins/tiddlyrpg-core/templates/body-sections]]

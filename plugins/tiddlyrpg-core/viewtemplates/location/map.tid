@@ -1,0 +1,49 @@
+created: 20261006064449000
+modified: 20261007170245412
+title: $:/plugins/tiddlyrpg-core/viewtemplates/location/map
+type: text/vnd.tiddlywiki
+
+<!-- Tab "Map" of a location (viewtemplates/location): the map as a graph (graph/map, template
+     graph/templates/trpg-map) with its buttons - over the map image (field map) if there is one,
+     otherwise on an empty canvas -, below it the spots of the location with their texts, from
+     the parse tree of the body (trpg-body, widgets/sections.js): the procedure spot draws the
+     heading and jump mark "spot-<name>", a locked spot shows only to a view that sees it.
+     Buttons: "Fit map" (message trpg-map-fit through a messagerelay into the graph), "Hide
+     nodes"/"Show nodes" ($:/state/tiddlyrpg-core/map-nodes/<title>), "Edit positions"
+     ($:/state/tiddlyrpg-core/map-edit/<title>; not in the published copy, off while the nodes are
+     hidden). The states are temporary and not saved with the location. -->
+\whitespace trim
+<$let trpg-relay=<<qualify "trpg-map-relay">>
+	trpg-nodes-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-nodes/]] }}}
+	trpg-edit-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-edit/]] }}}
+	currentNode=<<currentTiddler>>>
+<div class="trpg-map-buttons">
+<$messagerelay to=<<trpg-relay>>>
+<$button class="tc-btn-invisible trpg-map-button" message="trpg-map-fit"><$text text={{{ [[Map/Fit]trpgtranslate[]] }}}/></$button>
+</$messagerelay>
+<%if [<trpg-nodes-state>get[text]match[hide]] %>
+<$button class="tc-btn-invisible trpg-map-button"><$action-deletetiddler $tiddler=<<trpg-nodes-state>>/><$text text={{{ [[Map/ShowNodes]trpgtranslate[]] }}}/></$button>
+<%else%>
+<$button class="tc-btn-invisible trpg-map-button"><$action-setfield $tiddler=<<trpg-nodes-state>> text="hide"/><$action-deletetiddler $tiddler=<<trpg-edit-state>>/><$text text={{{ [[Map/HideNodes]trpgtranslate[]] }}}/></$button>
+<%endif%>
+<%if [{$:/status/IsReadOnly}!match[yes]] %>
+<%if [<trpg-nodes-state>get[text]match[hide]] %>
+<span class="trpg-map-button trpg-map-button-off"><$text text={{{ [[Map/Edit]trpgtranslate[]] }}}/></span>
+<%elseif [<trpg-edit-state>get[text]match[yes]] %>
+<$button class="tc-btn-invisible trpg-map-button trpg-map-button-on"><$action-deletetiddler $tiddler=<<trpg-edit-state>>/><$text text={{{ [[Map/EditDone]trpgtranslate[]] }}}/></$button>
+<%else%>
+<$button class="tc-btn-invisible trpg-map-button"><$action-setfield $tiddler=<<trpg-edit-state>> text="yes"/><$text text={{{ [[Map/Edit]trpgtranslate[]] }}}/></$button>
+<%endif%>
+<%endif%>
+</div>
+<div class="trpg-map">
+<%if [{$:/info/browser}match[yes]] %>
+<$graph.view $tiddler="$:/plugins/tiddlyrpg-core/graph/map" $mode=inline>
+<$messagerelay name=<<trpg-relay>>/>
+</$graph.view>
+<%endif%>
+</div>
+<div class="trpg-spots">
+<$trpg-body $tiddler=<<currentTiddler>> $mode="block" $only="spot"/>
+</div>
+</$let>

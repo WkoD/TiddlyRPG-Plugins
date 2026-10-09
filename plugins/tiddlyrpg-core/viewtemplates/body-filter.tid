@@ -1,0 +1,8 @@
+created: 20260930204000000
+list-before:
+modified: 20261001095424000
+tags: $:/tags/ViewTemplateBodyFilter
+title: $:/plugins/tiddlyrpg-core/viewtemplates/body-filter
+type: text/vnd.tiddlywiki
+
+[trpg.visible[]count[]match[0]then[$:/plugins/tiddlyrpg-core/templates/body-locked]]

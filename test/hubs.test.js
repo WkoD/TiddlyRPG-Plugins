@@ -40,11 +40,11 @@ test.describe("de-DE", function() {
 	});
 
 	test("calendar hub: calculator written out", function() {
-		h.add(wiki, {title: "$:/temp/dndwiki/calendar", calc_date: "1351-07-30", calc_day: "1"});
+		h.add(wiki, {title: "$:/temp/tiddlyrpg/calendar", calc_date: "1351-07-30", calc_day: "1"});
 		try {
 			assert.ok(h.body(wiki, "Calendar").indexOf("Mittsommer (07/08)") !== -1);
 		} finally {
-			wiki.deleteTiddler("$:/temp/dndwiki/calendar");
+			wiki.deleteTiddler("$:/temp/tiddlyrpg/calendar");
 		}
 	});
 
@@ -83,9 +83,9 @@ test.describe("de-DE", function() {
 	});
 
 	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "TBC", "Item", "Event"].forEach(function(title) {
-		test("no raw <<dnd. in " + title, function() {
+		test("no raw <<trpg. in " + title, function() {
 			var html = h.view(wiki, title);
-			assert.ok(html.indexOf("&lt;&lt;dnd.") === -1 && html.indexOf("<<dnd.") === -1);
+			assert.ok(html.indexOf("&lt;&lt;trpg.") === -1 && html.indexOf("<<trpg.") === -1);
 		});
 	});
 });
@@ -108,11 +108,11 @@ test.describe("en-GB", function() {
 test.describe("without calendar", function() {
 	test.before(function() {
 		h.setLanguage(wiki, "de-DE");
-		h.add(wiki, {title: "$:/config/dndwiki/calendar", text: ""});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/calendar", text: ""});
 	});
 
 	test.after(function() {
-		wiki.deleteTiddler("$:/config/dndwiki/calendar");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/calendar");
 	});
 
 	test("information without Kalender", function() {

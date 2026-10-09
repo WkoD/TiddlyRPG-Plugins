@@ -1,0 +1,46 @@
+caption: <<trpg.title Item>>
+color: #ff80ff
+created: 20200209095911454
+modified: 20261007163804094
+tags: Index
+title: Item
+type: text/vnd.tiddlywiki
+
+\define trpg.kind.name() [addprefix[Plural/]trpgtranslate[]] :filter[!prefix[Plural/]] ~[trpgtitle[]]
+
+\procedure trpg.items(filter)
+<$list filter="[subfilter<filter>] :filter[trpg.visible[]]">
+<div class="tc-menu-list-subitem">
+<<deadlink title={{!!title}} style="~~">>
+</div>
+</$list>
+\end
+
+<!-- Items have one base type (Artifact: unique, Item: several, Material) and any number of
+     categories: hubs tagged $:/tags/tiddlyrpg/ItemKind (Book, Consumable, Equipment, or one of
+     the campaign). This hub lists every base type, first the items without a category, then one
+     heading per category (sorted by its displayed name). A category hub transcludes it ({{ || Item }}) and lists only its own
+     items, per base type. -->
+<$let trpg-kinds={{{ [all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]sortsub:string<trpg.kind.name>format:titlelist[]join[ ]] }}}
+	trpg-kind={{{ [<currentTiddler>tag[$:/tags/tiddlyrpg/ItemKind]] }}}>
+<$list filter="Artifact Item Material" variable="type">
+<%if [<trpg-kind>!is[blank]] %>
+<%if [tag<type>tag<trpg-kind>] :filter[trpg.visible[]] %>
+
+!!! <$text text={{{ [<type>addprefix[Plural/]trpgtranslate[]] }}}/>
+<$transclude $variable="trpg.items" filter="[tag<type>tag<trpg-kind>sort[title]]"/>
+<%endif%>
+<%elseif [tag<type>] :filter[trpg.visible[]] %>
+
+!!! <$text text={{{ [<type>addprefix[Plural/]trpgtranslate[]] }}}/>
+<$transclude $variable="trpg.items" filter="[tag<type>] -[enlist<trpg-kinds>tagging[]] +[sort[title]]"/>
+<$list filter="[enlist<trpg-kinds>]" variable="kind">
+<%if [tag<type>tag<kind>] :filter[trpg.visible[]] %>
+
+!!!! <$text text={{{ [<kind>subfilter<trpg.kind.name>] }}}/>
+<$transclude $variable="trpg.items" filter="[tag<type>tag<kind>sort[title]]"/>
+<%endif%>
+</$list>
+<%endif%>
+</$list>
+</$let>

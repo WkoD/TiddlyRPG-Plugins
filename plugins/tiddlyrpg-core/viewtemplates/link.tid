@@ -1,0 +1,16 @@
+created: 20200308095626026
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/event-list
+modified: 20261001095424000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/link
+type: text/vnd.tiddlywiki
+
+<$reveal type="nomatch" stateTitle=<<folded-state>> text="hide" tag="div" retain="yes" animate="yes">
+<%if [<currentTiddler>trpg.visible[]] %>
+<div class="tc-subtitle">
+<$list filter="[all[current]has:field[link]]">
+<<trpg.t Link/SeeAlso>> <$transclude field="link"/>
+</$list>
+</div>
+<%endif%>
+</$reveal>

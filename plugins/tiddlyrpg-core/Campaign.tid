@@ -1,0 +1,22 @@
+caption: <<trpg.title Campaign>>
+color: #0069D2
+created: 20171009090415567
+modified: 20261001160600000
+tags: Index $:/tags/Pinned
+title: Campaign
+type: text/vnd.tiddlywiki
+
+@@float:right;{{||Index}}
+@@
+
+{{||Player}}
+
+@@clear:both;
+---
+!! <<trpg.t Campaign/OpenTasks>>
+
+{{||TBC/Campaign}}
+
+---
+{{||Event}}
+@@

@@ -1,0 +1,74 @@
+created: 20261006064449000
+modified: 20261006064449000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/location
+type: text/css
+
+/* Locations: the path below the title (procedure trpg.locationpath), the pill of a <<spotlink>>
+   in a section (trpg.spotpill), the spots of a location (procedure spot, tab "Map") and the map
+   with its buttons (viewtemplates/location/map). Palette colours via --tpc-*. */
+.trpg-location-path {
+	color: var(--tpc-muted-foreground, #888);
+	font-size: 0.85em;
+	margin: -0.3em 0 0.4em;
+}
+.trpg-location-path a.tc-tiddlylink {
+	font-weight: normal;
+}
+.trpg-location-path-sep {
+	margin: 0 0.35em;
+}
+.trpg-location-path-comma {
+	margin: 0 0.35em 0 0;
+}
+/* Group heading of the relation list: only the first letter, a label of several words keeps
+   its small letters. */
+.trpg-relations-group::first-letter {
+	text-transform: uppercase;
+}
+.trpg-spot-pill {
+	display: inline-block;
+	color: var(--tpc-tag-foreground, #fff);
+	border-radius: 1em;
+	padding: 0 0.5em;
+	font-size: 0.9em;
+	line-height: 1.5;
+	white-space: nowrap;
+}
+.trpg-via {
+	color: var(--tpc-muted-foreground, #888);
+	font-size: 0.9em;
+}
+/* The tree of a location in the relation list (viewtemplates/relations/list, trpg.tree) */
+details.trpg-tree > summary {
+	cursor: pointer;
+}
+.trpg-tree-children {
+	margin-left: 1.2em;
+}
+.trpg-spot {
+	margin: 1em 0 0.3em;
+}
+.trpg-spots > .trpg-spot:first-child {
+	margin-top: 0.5em;
+}
+.trpg-map .graph-canvas {
+	height: 420px;
+}
+.trpg-map-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	margin: 0.3em 0;
+	font-size: 0.9em;
+}
+.trpg-map-button {
+	color: var(--tpc-tiddler-link-foreground, inherit);
+}
+.trpg-map-button-on {
+	font-weight: bold;
+}
+.trpg-map-button-off {
+	color: var(--tpc-muted-foreground, #888);
+	cursor: default;
+}

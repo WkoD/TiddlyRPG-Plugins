@@ -1,0 +1,25 @@
+created: 20200305182729567
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/item
+modified: 20261007170245412
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/event-list
+type: text/vnd.tiddlywiki
+
+<!-- The events of a tiddler (tabs "Timeline"/"List"): those that link to it or are tagged with
+     it. For a location also those of every place within it, at any depth ("liegt in" and spots,
+     filters/location.js), and those that reference one of these places with <<spotlink>>
+     (filter spotlinked) - an event in Baile is an event in the Kingdom. -->
+\function trpg.places() [<self>] [<self>tag[Location]sublocations:all[]]
+
+<$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
+<%if [<currentTiddler>trpg.visible[]] %>
+<$list filter="[all[current]!is[system]!untagged[]!tag[Event]!tag[Index]!tag[Information]]">
+
+<hr>
+<$let self=<<currentTiddler>> trpg-events="[trpg.places[]sectionbacklinks[]] [trpg.places[]spotlinked[]] [trpg.places[]tagging[]] +[tag[Event]]">
+{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/tabs}}
+</$let>
+<hr>
+</$list>
+<%endif%>
+</$reveal>

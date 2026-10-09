@@ -1,0 +1,9 @@
+created: 20261008071815000
+tiddlyrpg-symmetric: yes
+modified: 20261008071815000
+title: $:/config/flibbles/graph/edges/fields/sibling
+type: application/json
+
+{
+    "label": "Sibling"
+}

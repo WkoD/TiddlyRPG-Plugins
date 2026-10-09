@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /*
- * Migrates the dates of a DnDWiki campaign wiki to the date format of dndwiki-core 2.0
+ * Migrates the dates of a TiddlyRPG campaign wiki to the date format of tiddlyrpg-core 2.0
  * (sections separated by ",", spans with "/", "." unknown, ".." forever; see
- * plugins/dndwiki-core/modules/dates.js).
+ * plugins/tiddlyrpg-core/modules/dates.js).
  *
  *   node scripts/migrate-dates.js <wiki folder>           dry run: report only (default)
  *   node scripts/migrate-dates.js <wiki folder> --write   apply (files only, nothing staged)
  *
  * Purely mechanical - which points of an event are really spans, intros before the first date
- * and captions are decided by hand afterwards; scripts/check-dates.js then checks the result.
+ * and captions are decided by hand afterwards; scripts/check-wiki.js then checks the result.
  *
  * Field date (only under tiddlers/):
  *   events      a.b.c -> a, b, c     a. -> a/..     a.b. -> a, b, ..    .a -> ./a
@@ -19,13 +19,13 @@
  *   <b>Jahr:</b> <$macrocall $name="datelong" date="X"/> and <<datelong ...>> (with or without a
  *   bold label before it) become <<date>> if X is the next section of the date field, <<date k>>
  *   if it is section k out of order, and <<dateformat "X">> (new syntax) if X is not a section of
- *   the field - nothing is lost, check-dates.js lists those. A "---" line right before a call
+ *   the field - nothing is lost, check-wiki.js lists those. A "---" line right before a call
  *   that became <<date>> goes (the placeholder draws its own rule). In editor snippets a
  *   datelong call becomes <<date>>.
  *   Every event starts with <<date>>: an event body without a placeholder gets one at the start
  *   (after leading pragmas); an event whose first placeholder has text before it is only
  *   reported (an intro - decided by hand).
- * Graph views and other filters: -[search:date[.]] -> -[dnd.dead[]].
+ * Graph views and other filters: -[search:date[.]] -> -[trpg.dead[]].
  *
  * Timestamps (created/modified) are left alone: a mechanical migration. Already migrated values
  * are recognised and skipped, so the script can run again.
@@ -216,8 +216,8 @@ files.forEach(function(file) {
 	}
 	// Filters on the old dead marker (graph views, own lists)
 	if(/search:date\[\.\]/.test(t.head + "\n" + t.body)) {
-		t.head = t.head.replace(/-\[search:date\[\.\]\]/g, "-[dnd.dead[]]");
-		t.body = t.body.replace(/-\[search:date\[\.\]\]/g, "-[dnd.dead[]]");
+		t.head = t.head.replace(/-\[search:date\[\.\]\]/g, "-[trpg.dead[]]");
+		t.body = t.body.replace(/-\[search:date\[\.\]\]/g, "-[trpg.dead[]]");
 		report.filters.push(title);
 		changed = true;
 	}
@@ -276,4 +276,4 @@ printList("Events whose first placeholder is not section 1 or has text before it
 printList("Body dates that are not a section of the field (now <<dateformat \"...\">>)", report.unmatched);
 printList("Editor snippets -> <<date>>", report.snippets);
 printList("Other tiddlers with datelong calls", report.other);
-printList("Filters -[search:date[.]] -> -[dnd.dead[]]", report.filters);
+printList("Filters -[search:date[.]] -> -[trpg.dead[]]", report.filters);

@@ -1,0 +1,9 @@
+caption: <<trpg.title Book>>
+color: #ff80ff
+created: 20200814090152724
+modified: 20261006154328000
+tags: Index $:/tags/tiddlyrpg/ItemKind
+title: Book
+type: text/vnd.tiddlywiki
+
+{{ || Item }}

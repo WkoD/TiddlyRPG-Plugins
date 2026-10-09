@@ -1,0 +1,11 @@
+created: 20260930204000000
+modified: 20261001095424000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/pinned
+type: text/css
+
+/* Pinned tiddlers (tag $:/tags/Pinned, class trpg-pinned from config/class-pinned):
+   no close button. "Close all" leaves them open anyway ($:/core/ui/PageTemplate/story). */
+.trpg-pinned .tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fclose {
+display: none;
+}

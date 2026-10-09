@@ -1,7 +1,7 @@
-# TiddlyDnD-Plugins
+# TiddlyRPG-Plugins
 
-Plugin bundle for the **DnDWiki** repo family: the **own plugins** (`dndwiki-core`,
-`dndwiki-forgottenrealms`, `staticfiles`) live here, the **flibbles graph stack** separately
+Plugin bundle for the **TiddlyRPG** repo family: the **own plugins** (`tiddlyrpg-core`,
+`tiddlyrpg-setting-forgottenrealms`, `staticfiles`) live here, the **flibbles graph stack** separately
 (see "Third-party plugins" below). Wikis use the official `tiddlywiki` from npm and get the
 plugins from here.
 
@@ -9,8 +9,8 @@ plugins from here.
 
 | Plugin | Folder | Purpose | Origin |
 |---|---|---|---|
-| `$:/plugins/dndwiki-core` | `plugins/dndwiki-core` | **D&D format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar engine, graph schema, event timeline | own, versioned |
-| `$:/plugins/dndwiki-forgottenrealms` | `plugins/dndwiki-forgottenrealms` | **optional**: Calendar of Harptos (Forgotten Realms) as calendar data with language keys | own, versioned with the core |
+| `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar engine, graph schema, event timeline | own, versioned |
+| `$:/plugins/tiddlyrpg-setting-forgottenrealms` | `plugins/tiddlyrpg-setting-forgottenrealms` | **optional**: Calendar of Harptos (Forgotten Realms) as calendar data with language keys | own, versioned with the core |
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
 
 ## Third-party plugins
@@ -28,7 +28,7 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 ```json
 "devDependencies": {
   "tiddlywiki": "5.4.1",
-  "tiddlydnd-plugins": "git+https://github.com/WkoD/TiddlyDnD-Plugins.git#2.0.0",
+  "tiddlyrpg-plugins": "git+https://github.com/WkoD/TiddlyRPG-Plugins.git#2.0.0",
   "tw5-graph": "git+https://github.com/flibbles/tw5-graph.git#v1.7.1",
   "tw5-vis-network": "git+https://github.com/flibbles/tw5-vis-network.git#v10.6.3",
   "tw5-relink": "git+https://github.com/flibbles/tw5-relink.git#v2.6.1"
@@ -37,16 +37,16 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 
 A small launcher (`scripts/tw.js`) in the wiki builds `TIDDLYWIKI_PLUGIN_PATH` platform
 independently (`path.delimiter`) from all `node_modules/*/plugins`; `tiddlywiki.info` lists the
-plugins by folder name (`dndwiki-core`, `staticfiles`, `graph`, `vis-network`, `relink`, and
-optionally `dndwiki-forgottenrealms`).
+plugins by folder name (`tiddlyrpg-core`, `staticfiles`, `graph`, `vis-network`, `relink`, and
+optionally `tiddlyrpg-setting-forgottenrealms`).
 
 ## Languages
 
-Everything `dndwiki-core` displays comes from language packs. The internal names (tags, fields,
+Everything `tiddlyrpg-core` displays comes from language packs. The internal names (tags, fields,
 tiddler titles, macros) are English; the active language follows `$:/language`, so one switch
-covers the TiddlyWiki interface and the D&D texts.
+covers the TiddlyWiki interface and the texts of the plugin.
 
-| Language | Code | dndwiki-core | Official TiddlyWiki interface pack |
+| Language | Code | tiddlyrpg-core | Official TiddlyWiki interface pack |
 |---|---|---|---|
 | English (British) | `en-GB` | base and fallback | built into the core |
 | German | `de-DE` | complete | yes |
@@ -61,16 +61,16 @@ pills, lists and search results. A tag typed as "Ort" is stored as `Location`.
 
 ### Adding a language
 
-Keys are tiddlers `$:/dndwiki/language/<code>/<key>`. A language can come as
+Keys are tiddlers `$:/tiddlyrpg/language/<code>/<key>`. A language can come as
 
-- a folder `plugins/dndwiki-core/language/<code>/` (pull request), with the same files as
+- a folder `plugins/tiddlyrpg-core/language/<code>/` (pull request), with the same files as
   `en-GB/` (`titles.multids`, `plurals.multids`, `fields.multids`, `texts.multids`),
 - a small plugin of its own, or
 - tiddlers directly in a wiki.
 
 Missing keys fall back to en-GB, so a partial translation works. `npm run test-lang` reports
 missing and extra keys per language. If TiddlyWiki has no interface pack for the language, set
-only `$:/language`; the TiddlyWiki interface then stays English, the D&D texts follow.
+only `$:/language`; the TiddlyWiki interface then stays English, the texts of the plugin follow.
 
 ## Player characters, views and secrets
 
@@ -98,7 +98,7 @@ DM only. Every other tiddler is visible to everyone.
 Outside the public view a coloured bar at the top of the window shows that the view is not the
 public one. The view is not saved: after a reload the editable wiki (`npm start`) opens in the
 view of the DM, the published read-only copy in the public view. The published copy offers the
-view of the DM only if the wiki ships `$:/config/dndwiki/view/dm-published` with the text
+view of the DM only if the wiki ships `$:/config/tiddlyrpg/view/dm-published` with the text
 `yes`.
 
 What a view does not see does not show anywhere: not in hubs, lists, search results, tag pills
@@ -125,7 +125,7 @@ span in the date line; a locked spot is missing on the map, among the spots and 
 A spot joined to a secret tiddler is locked as well. The search finds no word of a locked part.
 Lock only with `Secret`, `<<secret>>` and `<$secret>`: a `$list` or `<%if%>` of your own on the
 view hides the text, but not the dates, locations and spots in it, and a transcluded secret
-tiddler shows wherever it is transcluded (`scripts/check-dates.js` warns about both).
+tiddler shows wherever it is transcluded (`scripts/check-wiki.js` warns about both).
 
 ## Sections in the text
 
@@ -296,7 +296,7 @@ The hub `Item` lists the base types, each first with the items without a categor
 heading per category; a category hub lists only its own items. How many of an item exist is
 told by the text - a list field carries every name once.
 
-**An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/dndwiki/ItemKind`,
+**An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/ItemKind`,
 used as a tag next to the base type. Its heading in the hub is its display name.
 
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
@@ -340,7 +340,7 @@ span. Elsewhere in the list it cannot be read.
 | `../..` | a deity since time immemorial |
 
 A non-event whose last section is a span with an end other than `..` counts as dead or
-destroyed (function `dnd.dead`: struck-through links, the class `dnd-dead`, the atlas).
+destroyed (function `trpg.dead`: struck-through links, the class `trpg-dead`, the atlas).
 
 **Dated sections in the body of an event.** The dates stay in the field; the body only marks
 where each section begins:
@@ -370,31 +370,31 @@ around an ordinary link, and find the section a date falls into with `datesectio
 narrowest matching section, nothing without a match):
 
 ```
-<$dnd-jump anchor="date-2">[[Der dunkle Turm]]</$dnd-jump>
-<$dnd-jump anchor={{{ [[Der dunkle Turm]datesection[1351-11-12]addprefix[date-]] }}}>[[Der dunkle Turm]]</$dnd-jump>
+<$trpg-jump anchor="date-2">[[Der dunkle Turm]]</$trpg-jump>
+<$trpg-jump anchor={{{ [[Der dunkle Turm]datesection[1351-11-12]addprefix[date-]] }}}>[[Der dunkle Turm]]</$trpg-jump>
 ```
 
-A jump target is any element with `data-dnd-anchor` inside the opened tiddler; so far only the
+A jump target is any element with `data-trpg-anchor` inside the opened tiddler; so far only the
 section headings (`date-<n>`) carry one. Without a target (edit mode, folded, a section the
 view does not see) the link opens the tiddler as usual.
 
 **Upgrading from 1.x.** `node scripts/migrate-dates.js <wiki>` converts the former `.`
-notation mechanically (dry run first, `--write` applies); `node scripts/check-dates.js <wiki>`
+notation mechanically (dry run first, `--write` applies); `node scripts/check-wiki.js <wiki>`
 then reports what is left to decide or fix by hand. Both have a header with the details.
 
 ## Calendar
 
-`dndwiki-core` contains a calendar engine but no calendar. The active calendar is a JSON data
-tiddler named in `$:/config/dndwiki/calendar`. Without one, dates are shown as entered
+`tiddlyrpg-core` contains a calendar engine but no calendar. The active calendar is a JSON data
+tiddler named in `$:/config/tiddlyrpg/calendar`. Without one, dates are shown as entered
 (`1350-03-12`), and the calculator on the `Calendar` hub is hidden.
 
-**Forgotten Realms:** add `"dndwiki-forgottenrealms"` to the plugins in `tiddlywiki.info`. It
-brings the Calendar of Harptos (`$:/dndwiki/calendar/Harptos`), activates it and adds the names
+**Forgotten Realms:** add `"tiddlyrpg-setting-forgottenrealms"` to the plugins in `tiddlywiki.info`. It
+brings the Calendar of Harptos (`$:/tiddlyrpg/calendar/Harptos`), activates it and adds the names
 in en-GB and de-DE (month names and DR only in en-GB, they are proper names).
 
-**Own calendar:** copy `$:/dndwiki/calendar/Harptos` into the wiki under a new title, change
-`id`, months, days, festivals and leap rule, and point `$:/config/dndwiki/calendar` to it.
-Display names go into `$:/dndwiki/language/<code>/Calendar/<id>/...` (`Name`, `Era`,
+**Own calendar:** copy `$:/tiddlyrpg/calendar/Harptos` into the wiki under a new title, change
+`id`, months, days, festivals and leap rule, and point `$:/config/tiddlyrpg/calendar` to it.
+Display names go into `$:/tiddlyrpg/language/<code>/Calendar/<id>/...` (`Name`, `Era`,
 `Month/<month>`, `Epithet/<month>`, `Festival/<festival>`, `Description`); without them the ids
 are shown.
 

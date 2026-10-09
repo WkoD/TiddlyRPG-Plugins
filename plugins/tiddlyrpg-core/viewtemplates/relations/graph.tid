@@ -1,0 +1,9 @@
+caption: <<trpg.t Relations/Graph>>
+created: 20260713135021000
+modified: 20261001095424000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/graph
+type: text/vnd.tiddlywiki
+
+<div class="boundingbox" style="height:420px;">
+<$graph.view $tiddler="$:/plugins/tiddlyrpg-core/graph/ego" $mode=inline/>
+</div>

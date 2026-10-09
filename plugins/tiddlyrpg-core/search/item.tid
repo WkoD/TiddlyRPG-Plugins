@@ -1,0 +1,7 @@
+created: 20261001095424000
+modified: 20261001095424000
+title: $:/plugins/tiddlyrpg-core/search/item
+type: text/vnd.tiddlywiki
+
+<!-- Search hit like $:/core/ui/ListItemTemplate, but with the translated display name. -->
+<div class="tc-menu-list-item"><$link><$text text={{{ [<currentTiddler>trpgtitle[]] }}}/></$link></div>

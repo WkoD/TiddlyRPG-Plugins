@@ -12,11 +12,11 @@ test.before(function() {
 	return h.boot().then(function(tw) {
 		$tw = tw;
 		wiki = tw.wiki;
-		calendar = $tw.modules.execute("$:/plugins/dndwiki-core/modules/calendar.js");
+		calendar = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/calendar.js");
 	});
 });
 
-// Former hard-wired Harptos arithmetic (dndwiki-core 1.4.1, macros/library.js) as reference
+// Former hard-wired Harptos arithmetic (tiddlyrpg-core 1.4.1, macros/library.js) as reference
 var reference = (function() {
 	function daysInMonth(year, month) {
 		var months = [31, 30, 30, 31, 30, 30, 31, 30, 31, 30, 31, 30],
@@ -81,12 +81,12 @@ test.describe("own calendar with leap start 2", function() {
 				{id: "C", days: 9, festivals: [{id: "Leapday", leap: true}]}
 			]
 		})});
-		h.add(wiki, {title: "$:/config/dndwiki/calendar", text: title});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/calendar", text: title});
 		odd = calendar.active(wiki);
 	});
 
 	test.after(function() {
-		wiki.deleteTiddler("$:/config/dndwiki/calendar");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/calendar");
 		wiki.deleteTiddler(title);
 	});
 

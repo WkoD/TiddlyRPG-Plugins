@@ -1,0 +1,9 @@
+caption: <<trpg.t Relations/List>>
+created: 20261001133844000
+modified: 20261002082222000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/event-list/list
+type: text/vnd.tiddlywiki
+
+<table><tr><th align="center" colspan="3"><$text text={{{ [[Date/Column]trpgtranslate[]] [calendar[era]!is[blank]addprefix[(]addsuffix[)]] +[join[ ]] }}}/></th><th><<trpg.t Event/Event>></th></tr>
+<$list filter="[subfilter<trpg-events>] :filter[trpg.visible[]] +[eventrows[]]">{{!!title}}</$list>
+</table>

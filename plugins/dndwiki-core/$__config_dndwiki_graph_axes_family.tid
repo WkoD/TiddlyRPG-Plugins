@@ -1,9 +1,0 @@
-created: 20261008062202000
-list: parent ancestor spouse sibling family
-modified: 20261008071815000
-title: $:/config/dndwiki/graph/axes/family
-type: application/json
-
-{
-    "color": "#a8a102"
-}

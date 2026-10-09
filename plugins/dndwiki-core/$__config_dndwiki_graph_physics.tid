@@ -1,9 +1,0 @@
-created: 20260715103636000
-modified: 20260715103636000
-title: $:/config/dndwiki/graph/physics
-type: application/json
-
-{
-    "gravitationalConstant": "-50",
-    "maxVelocity": "10"
-}

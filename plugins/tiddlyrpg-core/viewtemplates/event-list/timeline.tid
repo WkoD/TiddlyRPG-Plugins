@@ -1,0 +1,8 @@
+caption: <<trpg.t Event/Timeline>>
+created: 20261001133844000
+modified: 20261002082222000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/event-list/timeline
+type: text/vnd.tiddlywiki
+
+<!-- self: the tiddler whose events these are (set by viewtemplates/event-list, not in the Event hub); its own dates become the band of the timeline -->
+<$trpg-timeline filter="[subfilter<trpg-events>] :filter[trpg.visible[]]" self=<<self>>/>

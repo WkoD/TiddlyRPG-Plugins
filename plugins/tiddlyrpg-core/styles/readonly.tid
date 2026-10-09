@@ -1,0 +1,35 @@
+created: 20260930215500000
+modified: 20261001095424000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/readonly
+type: text/css
+
+/* Published copy: the CI sets $:/status/IsReadOnly to "yes", config/class-readonly then adds
+   the class trpg-readonly to the page container. Hidden are the same buttons as in
+   $:/plugins/tiddlywiki/tiddlyweb/readonly (the tiddlyweb plugin is not part of the offline
+   build) plus the save button. Locally (npm start) the server reports "no" - everything stays
+   editable there. */
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fclone,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fclone,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fdelete,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fdelete,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fedit,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fedit,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-here,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-here,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-journal-here,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-journal-here,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fimport,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fimport,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fmanager,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fmanager,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-image,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-image,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-journal,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-journal,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-tiddler,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fnew-tiddler,
+.trpg-readonly button.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fsave-wiki,
+.trpg-readonly div.tc-btn-\%24\%3A\%2Fcore\%2Fui\%2FButtons\%2Fsave-wiki {
+display: none;
+}

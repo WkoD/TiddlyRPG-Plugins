@@ -1,0 +1,37 @@
+caption: <<trpg.title Calendar>>
+created: 20181002134333437
+modified: 20261002082222000
+tags: Information
+title: Calendar
+type: text/vnd.tiddlywiki
+
+<!-- Built from the active calendar ($:/config/tiddlyrpg/calendar, see modules/calendar.js).
+     Description and name come from the language keys Calendar/<id>/Description and .../Name. -->
+<%if [{$:/config/tiddlyrpg/calendar}!is[blank]] %>
+<$let trpg-desc-key={{{ [calendar[id]addprefix[Calendar/]addsuffix[/Description]] }}}
+	trpg-desc={{{ [<trpg-desc-key>trpgtranslate[]] -[<trpg-desc-key>] }}}
+	trpg-hint={{{ [[Calendar/InputHint]trpgtranslate[]] }}}
+	trpg-table={{{ [calendar[table]] }}}
+	trpg-result={{{ [{$:/temp/tiddlyrpg/calendar!!calc_date}dateadd{$:/temp/tiddlyrpg/calendar!!calc_day}] }}}>
+
+<<trpg-desc>>
+
+!!! <<trpg.t Calendar/Calculator>>
+<<trpg-hint>>
+
+|!<<trpg.t Calendar/Date>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_date" type="text"/> |
+|!<<trpg.t Calendar/ExtraDays>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_day" type="text"/> |
+|!<<trpg.t Calendar/Result>> | <$text text=<<trpg-result>>/> |
+|!<<trpg.t Calendar/WrittenOut>> | <$let trpg-long={{{ [<trpg-result>!is[blank]dateformat:long[]] }}}><<trpg-long>></$let> |
+
+!!! <<trpg.t Calendar/DaysBetween>>
+|!<<trpg.t Calendar/From>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_from" type="text"/> |
+|!<<trpg.t Calendar/To>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_to" type="text"/> |
+|!<<trpg.t Calendar/Days>> | <<datediff from={{$:/temp/tiddlyrpg/calendar!!calc_from}} to={{$:/temp/tiddlyrpg/calendar!!calc_to}}>> |
+
+!!! <$text text={{{ [calendar[title]] }}}/>
+
+<<trpg-table>>
+
+</$let>
+<%endif%>

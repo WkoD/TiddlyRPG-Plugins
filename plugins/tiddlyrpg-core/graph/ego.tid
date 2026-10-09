@@ -1,0 +1,9 @@
+caption: Relations
+created: 20260710141721000
+filter: [<currentNode>]
+modified: 20261001095424000
+template: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
+title: $:/plugins/tiddlyrpg-core/graph/ego
+type: application/json
+
+{}

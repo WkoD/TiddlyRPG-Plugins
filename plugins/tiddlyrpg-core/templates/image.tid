@@ -1,0 +1,7 @@
+created: 20200306173851644
+modified: 20261001095424000
+tags:
+title: $:/plugins/tiddlyrpg-core/templates/image
+type: text/vnd.tiddlywiki
+
+<<image title={{!!title}}>>

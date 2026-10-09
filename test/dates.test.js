@@ -1,7 +1,7 @@
 /*
  * The date field (modules/dates.js) and the date operators (filters/date.js): syntax of
  * sections, spans, "." and "..", the short form of dateformat in de-DE and en-GB with the
- * Harptos calendar, the long form for the calculator, dateadd/datediff, dateended (dnd.dead)
+ * Harptos calendar, the long form for the calculator, dateadd/datediff, dateended (trpg.dead)
  * and datecheck, datesection (the section a date falls into), and the raw output without a
  * calendar.
  */
@@ -15,7 +15,7 @@ test.before(function() {
 	return h.boot().then(function(tw) {
 		$tw = tw;
 		wiki = $tw.wiki;
-		dates = $tw.modules.execute("$:/plugins/dndwiki-core/modules/dates.js");
+		dates = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/dates.js");
 	});
 });
 
@@ -74,7 +74,7 @@ test.describe("syntax", function() {
 	});
 
 	test("calendar check", function() {
-		var cal = $tw.modules.execute("$:/plugins/dndwiki-core/modules/calendar.js").active(wiki);
+		var cal = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/calendar.js").active(wiki);
 		assert.equal(dates.check(cal, dates.parse("1351-07-31, 1352-07-32")).join(), "");
 		assert.equal(dates.check(cal, dates.parse("1351-07-41")).length, 1);
 		assert.equal(dates.check(cal, dates.parse("1351-07-32")).length, 1, "Shieldmeet only in leap years");
@@ -184,11 +184,11 @@ test.describe("en-GB", function() {
 test.describe("without calendar", function() {
 	test.before(function() {
 		h.setLanguage(wiki, "de-DE");
-		h.add(wiki, {title: "$:/config/dndwiki/calendar", text: ""});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/calendar", text: ""});
 	});
 
 	test.after(function() {
-		wiki.deleteTiddler("$:/config/dndwiki/calendar");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/calendar");
 	});
 
 	test("raw date", function() {

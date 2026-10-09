@@ -1,8 +1,8 @@
 {
-    "description": "Minimal edition for the boot/smoke check only (npm run smoke): loads dndwiki-core, dndwiki-forgottenrealms and the graph stack with the de-DE language and aborts on module/load errors. Deliberately without sync plugins (tiddlyweb/filesystem) -> writes nothing to disk, no content, no preview. The format layer is edited in the IDE and checked in a real wiki (DnDWiki via file: junction).",
+    "description": "Minimal edition for the boot/smoke check only (npm run smoke): loads tiddlyrpg-core, tiddlyrpg-setting-forgottenrealms and the graph stack with the de-DE language and aborts on module/load errors. Deliberately without sync plugins (tiddlyweb/filesystem) -> writes nothing to disk, no content, no preview. The format layer is edited in the IDE and checked in a real wiki (TiddlyRPG via file: junction).",
     "plugins": [
-        "dndwiki-core",
-        "dndwiki-forgottenrealms",
+        "tiddlyrpg-core",
+        "tiddlyrpg-setting-forgottenrealms",
         "staticfiles",
         "graph",
         "vis-network",

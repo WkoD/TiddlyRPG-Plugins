@@ -3,7 +3,7 @@
  *
  * For every plugin with a language/ folder, each language is compared with en-GB of the same
  * plugin: no keys missing in the language, no keys en-GB does not know, no titles outside
- * $:/dndwiki/language/<code>/. Keys from en-GB/names.multids are proper names (month names, era)
+ * $:/tiddlyrpg/language/<code>/. Keys from en-GB/names.multids are proper names (month names, era)
  * that may fall back to en-GB on purpose; their absence is not reported.
  *
  * Keys are read from .multids files (title prefix + "key: value" lines) and from .tid files
@@ -19,7 +19,7 @@ var pluginsDir = path.join(__dirname, "..", "..", "plugins"),
 	BASE = "en-GB";
 
 function readKeys(dir, code) {
-	var prefix = "$:/dndwiki/language/" + code + "/",
+	var prefix = "$:/tiddlyrpg/language/" + code + "/",
 		keys = {},
 		optional = {},
 		outside = [];
@@ -72,7 +72,7 @@ fs.readdirSync(pluginsDir).forEach(function(plugin) {
 			return;
 		}
 		var base = readKeys(path.join(langDir, BASE), BASE);
-		test(BASE + ": titles inside $:/dndwiki/language/" + BASE + "/", function() {
+		test(BASE + ": titles inside $:/tiddlyrpg/language/" + BASE + "/", function() {
 			assert.deepEqual(base.outside, []);
 		});
 		codes.forEach(function(code) {
@@ -86,7 +86,7 @@ fs.readdirSync(pluginsDir).forEach(function(plugin) {
 			test(code + ": no keys unknown to " + BASE, function() {
 				assert.deepEqual(Object.keys(other.keys).filter(function(key) { return !base.keys[key]; }).sort(), []);
 			});
-			test(code + ": titles inside $:/dndwiki/language/" + code + "/", function() {
+			test(code + ": titles inside $:/tiddlyrpg/language/" + code + "/", function() {
 				assert.deepEqual(other.outside, []);
 			});
 		});

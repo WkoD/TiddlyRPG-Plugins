@@ -3,7 +3,7 @@
  * the first <<date>>), the placeholder <<date>> (counting, explicit number, caption, rule, hint
  * without a position, not counted in code), locations per section (DM notes skipped, player
  * lock), the hint on dates that cannot be read, the subtitle without the modifier, the event
- * table, and the jump marks of the sections with the wrapper dnd-jump.
+ * table, and the jump marks of the sections with the wrapper trpg-jump.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -15,7 +15,7 @@ test.before(function() {
 	return h.boot().then(function(tw) {
 		$tw = tw;
 		wiki = $tw.wiki;
-		dates = $tw.modules.execute("$:/plugins/dndwiki-core/modules/dates.js");
+		dates = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/dates.js");
 		h.setLanguage(wiki, "de-DE");
 		h.add(wiki, {title: "Schild", tags: "Event Frigg", date: "1351-07-05, 1351-07-09, 1351-07-22/1351-07-24",
 			text: "<<date \"Banbanzas Bitte\">>\n\nIn [[Baile]].\n\n<<date>>\n\nAuf [[Insel Avalon]] und [[Hideout]].\n\n```\n<<date>>\n```\n\n<<date \"Das Ritual\">>\n\nNach [[Baile]].\n\n@@.tc-tiddler-frame\n[[Nowhere]]\n@@\n"});
@@ -30,7 +30,7 @@ function body(title) {
 }
 
 function headings(html) {
-	return (html.match(/<div class="dnd-date-heading"[^>]*>.*?<\/div>/g) || []).map(function(s) { return s.replace(/<[^>]+>/g, ""); });
+	return (html.match(/<div class="trpg-date-heading"[^>]*>.*?<\/div>/g) || []).map(function(s) { return s.replace(/<[^>]+>/g, ""); });
 }
 
 test("sections from the parse tree: counting, captions, code not counted", function() {
@@ -50,14 +50,14 @@ test("headings of the sections with era and caption", function() {
 });
 
 test("rule before every section but one at the very start", function() {
-	assert.equal((body("Schild").match(/dnd-date-rule/g) || []).length, 2);
-	assert.equal((body("Vinland").match(/dnd-date-rule/g) || []).length, 1);
+	assert.equal((body("Schild").match(/trpg-date-rule/g) || []).length, 2);
+	assert.equal((body("Vinland").match(/trpg-date-rule/g) || []).length, 1);
 });
 
 test("no paragraph around a section heading", function() {
 	// The outer <p> comes from rendering the transclusion inline in the test
 	var html = body("Schild").replace(/^<p>/, "");
-	assert.doesNotMatch(html, /<p>(<hr class="dnd-date-rule">)?<div class="dnd-date-heading"/);
+	assert.doesNotMatch(html, /<p>(<hr class="trpg-date-rule">)?<div class="trpg-date-heading"/);
 });
 
 test("locations per section; DM notes skipped", function() {
@@ -79,14 +79,14 @@ test("... but shown to their player and the DM", function() {
 
 test("head: span of the field and the locations before the first placeholder", function() {
 	var view = h.view(wiki, "Vinland");
-	assert.match(view, /<div class="dnd-dateline">15\. Eleasis 1351 DR – \?\?\?\?<\/div>/);
-	assert.match(view, /dnd-event-head.*data-tag-title="Nowhere".*<\/div>\s*<hr class="dnd-event-rule">/s);
+	assert.match(view, /<div class="trpg-dateline">15\. Eleasis 1351 DR – \?\?\?\?<\/div>/);
+	assert.match(view, /trpg-event-head.*data-tag-title="Nowhere".*<\/div>\s*<hr class="trpg-event-rule">/s);
 });
 
 test("head without the former labels", function() {
 	var view = h.view(wiki, "Schild");
 	assert.ok(view.indexOf("Jahr:") === -1 && view.indexOf("Ort:") === -1);
-	assert.match(view, /<div class="dnd-dateline">5\. – 24\. Flamerule 1351 DR<\/div>/);
+	assert.match(view, /<div class="trpg-dateline">5\. – 24\. Flamerule 1351 DR<\/div>/);
 });
 
 test("hint without a position, explicit number works anywhere", function() {
@@ -160,7 +160,7 @@ test("refresh after a language change", function() {
 });
 
 test("event table: a span is a start and an end row in one title cell, with caption and flags", function() {
-	var table = h.render(wiki, "text/html", "<$let dnd-events=\"[[Schild]] [[Vinland]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+	var table = h.render(wiki, "text/html", "<$let trpg-events=\"[[Schild]] [[Vinland]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
 	assert.doesNotMatch(table, /bis /);
 	assert.match(table, /<td rowspan="2"><u><a[^>]*>Schild<\/a><\/u> – Das Ritual <em>\(Ende\)<\/em><\/td>/);
 	assert.match(table, /Schild<\/a><\/u> – Banbanzas Bitte <em>\(Start\)<\/em>/);
@@ -173,9 +173,9 @@ test("event table: a span is a start and an end row in one title cell, with capt
 
 test("date line below the tags: span of an event, years of the other types", function() {
 	var event = h.view(wiki, "Schild");
-	assert.ok(event.indexOf("tc-tags-wrapper") < event.indexOf("dnd-dateline"));
-	assert.doesNotMatch(event, /dnd-dateline[^>]*>[^<]*<\/div><h2/);
-	assert.match(h.view(wiki, "Grum"), /<div class="dnd-dateline">\?\?\?\? – 1350 DR<\/div>/);
+	assert.ok(event.indexOf("tc-tags-wrapper") < event.indexOf("trpg-dateline"));
+	assert.doesNotMatch(event, /trpg-dateline[^>]*>[^<]*<\/div><h2/);
+	assert.match(h.view(wiki, "Grum"), /<div class="trpg-dateline">\?\?\?\? – 1350 DR<\/div>/);
 });
 
 test("<<date>> without any date in the field: ???? with the era", function() {
@@ -191,8 +191,8 @@ test("no date line for an event locked for the player", function() {
 	h.add(wiki, {title: "Geheim", tags: "Event Ragna Secret", date: "1351"});
 	h.add(wiki, {title: "Ragna", tags: "Player", player: "Jan"});
 	try {
-		assert.doesNotMatch(h.inView(wiki, "player:Anna", function() { return h.view(wiki, "Geheim"); }), /dnd-dateline/);
-		assert.match(h.inView(wiki, "player:Jan", function() { return h.view(wiki, "Geheim"); }), /dnd-dateline/);
+		assert.doesNotMatch(h.inView(wiki, "player:Anna", function() { return h.view(wiki, "Geheim"); }), /trpg-dateline/);
+		assert.match(h.inView(wiki, "player:Jan", function() { return h.view(wiki, "Geheim"); }), /trpg-dateline/);
 	} finally {
 		["Geheim", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
 	}
@@ -201,8 +201,8 @@ test("no date line for an event locked for the player", function() {
 test("date line of an event without date: ???? with the era", function() {
 	h.add(wiki, {title: "Ohne Datum", tags: "Event", text: "<<date>>"});
 	try {
-		assert.match(h.view(wiki, "Ohne Datum"), /<div class="dnd-dateline">\?\?\?\? DR<\/div>/);
-		assert.doesNotMatch(h.view(wiki, "Frigg"), /dnd-dateline/);
+		assert.match(h.view(wiki, "Ohne Datum"), /<div class="trpg-dateline">\?\?\?\? DR<\/div>/);
+		assert.doesNotMatch(h.view(wiki, "Frigg"), /trpg-dateline/);
 	} finally {
 		wiki.deleteTiddler("Ohne Datum");
 	}
@@ -212,10 +212,10 @@ test("event table: consecutive rows of one event share a title cell", function()
 	h.add(wiki, {title: "Orden", tags: "Event", date: "700, 849"});
 	h.add(wiki, {title: "Dazwischen", tags: "Event", date: "800"});
 	try {
-		var alone = h.render(wiki, "text/html", "<$let dnd-events=\"[[Orden]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		var alone = h.render(wiki, "text/html", "<$let trpg-events=\"[[Orden]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
 		assert.match(alone, /<td rowspan="2"><a[^>]*>Orden<\/a><\/td>/);
 		assert.equal((alone.match(/>Orden</g) || []).length, 1);
-		var split = h.render(wiki, "text/html", "<$let dnd-events=\"[[Orden]] [[Dazwischen]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		var split = h.render(wiki, "text/html", "<$let trpg-events=\"[[Orden]] [[Dazwischen]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
 		assert.match(split, /Orden<\/a> <em>\(Ende\)<\/em>/);
 		assert.match(split, /Orden<\/a> <em>\(Start\)<\/em>/);
 	} finally {
@@ -227,7 +227,7 @@ test("event table: consecutive rows of one event share a title cell", function()
 test("event table: a span alone reads across both years without a flag", function() {
 	h.add(wiki, {title: "Spanne", tags: "Event", date: "700/849"});
 	try {
-		var table = h.render(wiki, "text/html", "<$let dnd-events=\"[[Spanne]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		var table = h.render(wiki, "text/html", "<$let trpg-events=\"[[Spanne]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
 		assert.match(table, /<td rowspan="2"><a[^>]*>Spanne<\/a><\/td>/);
 		assert.ok(table.indexOf(">849<") < table.indexOf(">700<"));
 	} finally {
@@ -238,7 +238,7 @@ test("event table: a span alone reads across both years without a flag", functio
 test("event table: an event that goes on ends in continued", function() {
 	h.add(wiki, {title: "Weiter", tags: "Event", date: "1351-07-01, 1351-07-11, .."});
 	try {
-		var table = h.render(wiki, "text/html", "<$let dnd-events=\"[[Weiter]]\">{{||$:/plugins/dndwiki-core/viewtemplates/event-list/list}}</$let>");
+		var table = h.render(wiki, "text/html", "<$let trpg-events=\"[[Weiter]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
 		assert.match(table, /<td rowspan="2"><a[^>]*>Weiter<\/a> <em>\(Start\)<\/em><\/td>/);
 	} finally {
 		wiki.deleteTiddler("Weiter");
@@ -247,11 +247,11 @@ test("event table: an event that goes on ends in continued", function() {
 
 test("jump marks: every section heading and the missing-section hint, not at the very start", function() {
 	// Schild begins with section 1: the plain navigation shows it, a jump would hide the title
-	assert.equal(body("Schild").match(/data-dnd-anchor="[^"]+"/g).join(), 'data-dnd-anchor="date-2",data-dnd-anchor="date-3"');
-	assert.match(body("Vinland"), /<div class="dnd-date-heading" data-dnd-anchor="date-2">/);
+	assert.equal(body("Schild").match(/data-trpg-anchor="[^"]+"/g).join(), 'data-trpg-anchor="date-2",data-trpg-anchor="date-3"');
+	assert.match(body("Vinland"), /<div class="trpg-date-heading" data-trpg-anchor="date-2">/);
 	h.add(wiki, {title: "Kurz", tags: "Event", date: "1351", text: "Vorher.\n\n<<date 2>>"});
 	try {
-		assert.match(body("Kurz"), /<div class="dnd-date-invalid" data-dnd-anchor="date-2">Abschnitt 2 fehlt/);
+		assert.match(body("Kurz"), /<div class="trpg-date-invalid" data-trpg-anchor="date-2">Abschnitt 2 fehlt/);
 	} finally {
 		wiki.deleteTiddler("Kurz");
 	}
@@ -266,20 +266,20 @@ test("event table: the title jumps to the earliest section of its cell", functio
 	}
 	// One cell per caption, the span of section 3 over two rows
 	assert.equal(cell("Schild"), [
-		"<$dnd-jump anchor=\"date-3\">__[[Schild]]__</$dnd-jump> – Das Ritual //(Ende)//",
-		"<$dnd-jump anchor=\"date-2\">__[[Schild]]__</$dnd-jump> //(Fortsetzung)//",
-		"<$dnd-jump anchor=\"date-1\">__[[Schild]]__</$dnd-jump> – Banbanzas Bitte //(Start)//"
+		"<$trpg-jump anchor=\"date-3\">__[[Schild]]__</$trpg-jump> – Das Ritual //(Ende)//",
+		"<$trpg-jump anchor=\"date-2\">__[[Schild]]__</$trpg-jump> //(Fortsetzung)//",
+		"<$trpg-jump anchor=\"date-1\">__[[Schild]]__</$trpg-jump> – Banbanzas Bitte //(Start)//"
 	].join(" | "));
 	// Two sections without caption in one cell: the earliest one, also oldest first
-	assert.equal(cell("Vinland"), "<$dnd-jump anchor=\"date-1\">[[Vinland]]</$dnd-jump> //(Start)//");
+	assert.equal(cell("Vinland"), "<$trpg-jump anchor=\"date-1\">[[Vinland]]</$trpg-jump> //(Start)//");
 	assert.match(h.filter(wiki, "[[Vinland]] +[!eventrows[]]").join(""), /anchor="date-1">\[\[Vinland\]\]/);
 	// Undated: the event as a whole
 	assert.equal(cell("Sage"), "[[Sage]]");
 });
 
-test("dnd-jump: draws nothing of its own and passes the navigation on", function() {
-	assert.equal(h.render(wiki, "text/html", "<$dnd-jump anchor=\"date-2\">[[Baile]]</$dnd-jump>"), h.render(wiki, "text/html", "[[Baile]]"));
-	var parser = wiki.parseText("text/vnd.tiddlywiki", "<$dnd-jump anchor=\"date-2\">[[Baile]]</$dnd-jump>"),
+test("trpg-jump: draws nothing of its own and passes the navigation on", function() {
+	assert.equal(h.render(wiki, "text/html", "<$trpg-jump anchor=\"date-2\">[[Baile]]</$trpg-jump>"), h.render(wiki, "text/html", "[[Baile]]"));
+	var parser = wiki.parseText("text/vnd.tiddlywiki", "<$trpg-jump anchor=\"date-2\">[[Baile]]</$trpg-jump>"),
 		root = wiki.makeWidget(parser, {document: $tw.fakeDocument}),
 		seen = [];
 	root.render($tw.fakeDocument.createElement("div"), null);

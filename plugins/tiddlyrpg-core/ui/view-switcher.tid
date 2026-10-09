@@ -1,0 +1,51 @@
+caption: {{$:/core/images/preview-open}} <<trpg.t View/Caption>>
+created: 20261007162511000
+description: <<trpg.t View/Hint>>
+modified: 20261007170245412
+tags: $:/tags/PageControls
+title: $:/plugins/tiddlyrpg-core/ui/view-switcher
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- Page control: whose view the wiki shows (modules/visibility.js). The button names the
+     active view, the dropdown offers the views that can be chosen (filter trpgview:choices) and
+     sets $:/state/tiddlyrpg/view. Not saved: after a reload the default applies again. -->
+\procedure trpg.viewname(view)
+\whitespace trim
+<%if [<view>match[dm]] %>
+<$text text={{{ [[View/DM]trpgtranslate[]] }}}/>
+<%elseif [<view>prefix[player:]] %>
+<$let trpg-player={{{ [<view>removeprefix[player:]] }}}
+	trpg-characters={{{ [<trpg-player>trpgplayedby[]] +[join[, ]] }}}>
+<$text text={{{ [[View/Player]trpgtranslate[]search-replace[$player$],<trpg-player>search-replace[$characters$],<trpg-characters>] }}}/>
+</$let>
+<%else%>
+<$text text={{{ [[View/Public]trpgtranslate[]] }}}/>
+<%endif%>
+\end
+<$let trpg-popup=<<qualify "$:/state/popup/tiddlyrpg/view">>>
+<span class="tc-popup-keep">
+<$button popup=<<trpg-popup>> tooltip={{{ [[View/Hint]trpgtranslate[]] }}} aria-label={{{ [[View/Caption]trpgtranslate[]] }}} class={{{ [<tv-config-toolbar-class>] [[trpg-view-button]] +[join[ ]] }}} selectedClass="tc-selected">
+<%if [trpgview:mode[]match[dm]] %>
+{{$:/core/images/unlocked-padlock}}
+<%else%>
+{{$:/core/images/preview-open}}
+<%endif%>
+<span class="trpg-view-current"><$transclude $variable="trpg.viewname" view={{{ [trpgview[]] }}}/></span>
+</$button>
+</span>
+<$reveal state=<<trpg-popup>> type="popup" position="belowleft" animate="yes">
+<div class="tc-drop-down trpg-view-dropdown">
+<$list filter="[trpgview:choices[]]" variable="trpg-choice">
+<$button class="tc-btn-invisible" set="$:/state/tiddlyrpg/view" setTo=<<trpg-choice>>>
+<span class="trpg-view-check">
+<%if [trpgview[]match<trpg-choice>] %>
+{{$:/core/images/done-button}}
+<%endif%>
+</span>
+<$transclude $variable="trpg.viewname" view=<<trpg-choice>>/>
+</$button>
+</$list>
+</div>
+</$reveal>
+</$let>

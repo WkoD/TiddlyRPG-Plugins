@@ -1,8 +1,0 @@
-created: 20261002082222000
-list-before: $:/config/ViewTemplateSubtitleFilters/default
-modified: 20261002082222000
-tags: $:/tags/ViewTemplateSubtitleFilter
-title: $:/plugins/dndwiki-core/config/subtitle
-type: text/vnd.tiddlywiki
-
-[[$:/plugins/dndwiki-core/templates/subtitle]]

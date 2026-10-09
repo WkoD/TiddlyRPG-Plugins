@@ -133,7 +133,7 @@ test.describe("items", function() {
 	];
 
 	function list(self) {
-		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
 	}
 
 	function withItem(fields, fn) {
@@ -183,14 +183,14 @@ test.describe("items", function() {
 
 	test("path below the title of an artifact", function() {
 		var lantern = h.view(wiki, "Lantern"),
-			path = lantern.slice(lantern.indexOf("dnd-location-path"));
+			path = lantern.slice(lantern.indexOf("trpg-location-path"));
 		path = path.slice(0, path.indexOf("</div>"));
 		var order = ["Continent", "Kingdom", "Town", "Tavern"].map(function(s) { return path.indexOf(">" + s + "<"); });
 		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), path);
 	});
 
 	test("material: one path line per location", function() {
-		assert.equal((h.view(wiki, "Herb").match(/class="dnd-location-path"/g) || []).length, 2);
+		assert.equal((h.view(wiki, "Herb").match(/class="trpg-location-path"/g) || []).length, 2);
 	});
 
 	test("hint below the title", function() {
@@ -208,7 +208,7 @@ test.describe("items", function() {
 	});
 
 	test("relation list of a location: a place with only an item starts folded", function() {
-		assert.match(list("Town"), /<details class="dnd-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Cellar<\/a><\/summary><div class="dnd-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barrel<\/a>/);
+		assert.match(list("Town"), /<details class="trpg-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Cellar<\/a><\/summary><div class="trpg-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barrel<\/a>/);
 	});
 });
 
@@ -222,7 +222,7 @@ test.describe("de-DE", function() {
 
 	test("path below the title: location, its parents in order", function() {
 		var barkeep = h.view(wiki, "Barkeep"),
-			path = barkeep.slice(barkeep.indexOf("dnd-location-path"));
+			path = barkeep.slice(barkeep.indexOf("trpg-location-path"));
 		path = path.slice(0, path.indexOf("</div>"));
 		var order = ["Continent", "Kingdom", "Town", "Tavern"].map(function(s) { return path.indexOf(">" + s + "<"); });
 		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), path);
@@ -230,15 +230,15 @@ test.describe("de-DE", function() {
 
 	test("path of a location ends before itself", function() {
 		var town = h.view(wiki, "Town"),
-			path = town.slice(town.indexOf("dnd-location-path"));
+			path = town.slice(town.indexOf("trpg-location-path"));
 		path = path.slice(0, path.indexOf("</div>"));
 		assert.ok(path.indexOf(">Kingdom<") !== -1 && path.indexOf(">Town<") === -1, path);
 	});
 
 	test("organisation: one path line per location, and the locations it rules", function() {
 		var guild = h.view(wiki, "Guild");
-		assert.equal((guild.match(/class="dnd-location-path"/g) || []).length, 2);
-		assert.match(guild, /class="dnd-location-path dnd-location-rules">Kontrolliert: /);
+		assert.equal((guild.match(/class="trpg-location-path"/g) || []).length, 2);
+		assert.match(guild, /class="trpg-location-path trpg-location-rules">Kontrolliert: /);
 	});
 
 	test("hint for the editor", function() {
@@ -255,26 +255,26 @@ test.describe("de-DE", function() {
 	});
 
 	test("no path for events", function() {
-		assert.ok(h.view(wiki, "Hafenfest").indexOf("dnd-location-path") === -1);
+		assert.ok(h.view(wiki, "Hafenfest").indexOf("trpg-location-path") === -1);
 	});
 
 	test("... not even with a field location", function() {
 		h.add(wiki, {title: "Placed Event", tags: "Event", location: "Town", text: ""});
 		try {
-			assert.ok(h.view(wiki, "Placed Event").indexOf("dnd-location-path") === -1);
+			assert.ok(h.view(wiki, "Placed Event").indexOf("trpg-location-path") === -1);
 		} finally {
 			wiki.deleteTiddler("Placed Event");
 		}
 	});
 
 	test("relation list of a location: who is there, a spot as a branch of the tree", function() {
-		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Town", currentTiddler: "Town"});
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Town", currentTiddler: "Town"});
 		assert.ok(list.indexOf(">Wanderer<") !== -1 && list.indexOf(">Guild<") !== -1);
-		assert.match(list, /<summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a><span class="dnd-via"> \(Spot\)<\/span><\/summary><div class="dnd-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barkeep<\/a>/);
+		assert.match(list, /<summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a><span class="trpg-via"> \(Spot\)<\/span><\/summary><div class="trpg-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barkeep<\/a>/);
 	});
 
 	test("relation list of a location: the places within as a tree, the parent left out", function() {
-		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"}),
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"}),
 			ort = list.slice(list.indexOf(">Anwesend<"));
 		assert.ok(ort.indexOf(">Continent<") === -1, ort);
 		// Town with its people and the Tavern below it, Barkeep inside the Tavern
@@ -284,14 +284,14 @@ test.describe("de-DE", function() {
 	});
 
 	test("relation list of a location: every place with entries starts folded", function() {
-		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"});
-		assert.match(list, /<details class="dnd-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Town<\/a>/);
-		assert.match(list, /<details class="dnd-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a>/);
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"});
+		assert.match(list, /<details class="trpg-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Town<\/a>/);
+		assert.match(list, /<details class="trpg-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a>/);
 		assert.ok(list.indexOf("open=") === -1, list);
 	});
 
 	test("relation list: Rules and Leader apart", function() {
-		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Guild", currentTiddler: "Guild"}),
+		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Guild", currentTiddler: "Guild"}),
 			leader = list.slice(list.indexOf(">Anführer<"));
 		leader = leader.slice(0, leader.indexOf("<h3"));
 		var rules = list.slice(list.indexOf(">Kontrolliert<"));
@@ -321,11 +321,11 @@ test.describe("de-DE", function() {
 	});
 
 	test("map tab: the spot heading", function() {
-		assert.match(avalon, /<h3 class="dnd-spot" data-dnd-anchor="spot-kantine">Kantine<\/h3>/);
+		assert.match(avalon, /<h3 class="trpg-spot" data-trpg-anchor="spot-kantine">Kantine<\/h3>/);
 	});
 
 	test("map tab: buttons in one row, editing only outside the published copy", function() {
-		var row = avalon.split('class="dnd-map-buttons"');
+		var row = avalon.split('class="trpg-map-buttons"');
 		assert.equal(row.length, 2, avalon);
 		var fit = row[1].indexOf("Karte einpassen"), hide = row[1].indexOf("Knoten ausblenden"), edit = row[1].indexOf("Positionen bearbeiten");
 		assert.ok(fit !== -1 && fit < hide && hide < edit, row[1]);
@@ -338,22 +338,22 @@ test.describe("de-DE", function() {
 	});
 
 	test("map tab: nodes hidden, editing switched off", function() {
-		h.add(wiki, {title: "$:/state/dndwiki-core/map-nodes/Insel Avalon", text: "hide"});
+		h.add(wiki, {title: "$:/state/tiddlyrpg-core/map-nodes/Insel Avalon", text: "hide"});
 		try {
 			var html = h.view(wiki, "Insel Avalon");
-			assert.ok(html.indexOf("Knoten einblenden") !== -1 && html.indexOf("dnd-map-button-off") !== -1);
+			assert.ok(html.indexOf("Knoten einblenden") !== -1 && html.indexOf("trpg-map-button-off") !== -1);
 		} finally {
-			wiki.deleteTiddler("$:/state/dndwiki-core/map-nodes/Insel Avalon");
+			wiki.deleteTiddler("$:/state/tiddlyrpg-core/map-nodes/Insel Avalon");
 		}
 	});
 
 	test("map tab for a location with places within only (no image, no spots)", function() {
 		var html = h.view(wiki, "Continent");
-		assert.ok(html.indexOf(">Karte<") !== -1 && html.indexOf('class="dnd-map"') !== -1, html);
+		assert.ok(html.indexOf(">Karte<") !== -1 && html.indexOf('class="trpg-map"') !== -1, html);
 	});
 
 	test("battle map tab links to the file", function() {
-		var battlemap = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/dndwiki-core/viewtemplates/location/battlemap\" mode=\"block\"/>", {currentTiddler: "Insel Avalon", currentTab: "battlemap"});
+		var battlemap = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/battlemap\" mode=\"block\"/>", {currentTiddler: "Insel Avalon", currentTab: "battlemap"});
 		assert.ok(battlemap.indexOf('href="images/battlemap/Insel%20Avalon.jpg"') !== -1, battlemap);
 	});
 
@@ -399,11 +399,11 @@ test.describe("de-DE", function() {
 
 	test("dead class", function() {
 		var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/core/ui/StoryTiddlerTemplate\" mode=\"block\"/>", {currentTiddler: "Grum", storyTiddler: "Grum"});
-		assert.ok(html.indexOf("dnd-dead") !== -1);
+		assert.ok(html.indexOf("trpg-dead") !== -1);
 	});
 
 	test("activity line year", function() {
-		assert.ok(h.view(wiki, "Grum").indexOf("<div class=\"dnd-dateline\">???? – 1350 DR</div>") !== -1);
+		assert.ok(h.view(wiki, "Grum").indexOf("<div class=\"trpg-dateline\">???? – 1350 DR</div>") !== -1);
 	});
 });
 
@@ -430,7 +430,7 @@ test.describe("en-GB", function() {
 
 	test("en path hint and rules", function() {
 		assert.ok(h.view(wiki, "Wanderer").indexOf("Check the location: a person has one location") !== -1);
-		assert.match(h.view(wiki, "Guild"), /dnd-location-rules">Controls: /);
+		assert.match(h.view(wiki, "Guild"), /trpg-location-rules">Controls: /);
 	});
 });
 
@@ -439,12 +439,12 @@ test.describe("without calendar", function() {
 
 	test.before(function() {
 		h.setLanguage(wiki, "de-DE");
-		h.add(wiki, {title: "$:/config/dndwiki/calendar", text: ""});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/calendar", text: ""});
 		avalon = h.view(wiki, "Insel Avalon");
 	});
 
 	test.after(function() {
-		wiki.deleteTiddler("$:/config/dndwiki/calendar");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/calendar");
 	});
 
 	test("history header without era", function() {

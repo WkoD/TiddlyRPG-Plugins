@@ -1,8 +1,0 @@
-created: 20260930204000000
-list-before:
-modified: 20261001095424000
-tags: $:/tags/ViewTemplateBodyFilter
-title: $:/plugins/dndwiki-core/viewtemplates/body-filter
-type: text/vnd.tiddlywiki
-
-[dnd.visible[]count[]match[0]then[$:/plugins/dndwiki-core/templates/body-locked]]

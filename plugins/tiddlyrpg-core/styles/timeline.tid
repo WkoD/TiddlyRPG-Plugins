@@ -1,0 +1,349 @@
+created: 20261001133844000
+modified: 20261004170125000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/timeline
+type: text/css
+
+/* Event timeline (widgets/timeline.js). Palette colours via --tpc-*.
+   Campaign events (with the player characters) solid, other events dashed. */
+.trpg-tl {
+	position: relative;
+	margin: 0.5em 0;
+	--trpg-tl-fg: var(--tpc-foreground, #333);
+	--trpg-tl-muted: var(--tpc-muted-foreground, #999);
+	--trpg-tl-bg: var(--tpc-tiddler-background, #fff);
+	--trpg-tl-line: color-mix(in srgb, var(--trpg-tl-muted) 55%, var(--trpg-tl-bg));
+}
+.trpg-tl-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	padding: 4px 0 8px;
+}
+.trpg-tl-button {
+	min-width: 2em;
+	padding: 2px 10px;
+	border: 1px solid var(--trpg-tl-line);
+	border-radius: 999px;
+	background: var(--trpg-tl-bg);
+	color: var(--trpg-tl-fg);
+	cursor: pointer;
+	font-size: 0.85em;
+	line-height: 1.6;
+}
+.trpg-tl-button:hover {
+	border-color: var(--trpg-tl-muted);
+}
+.trpg-tl-button.trpg-tl-pressed {
+	background: color-mix(in srgb, #48a4ff 18%, var(--trpg-tl-bg));
+	border-color: #48a4ff;
+}
+.trpg-tl-scale {
+	display: inline-flex;
+	gap: 3px;
+	margin: 0 6px 0 2px;
+}
+.trpg-tl-scale-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--trpg-tl-line);
+}
+.trpg-tl-scale-dot.trpg-tl-on {
+	background: #48a4ff;
+}
+.trpg-tl-hint {
+	margin-left: auto;
+	color: var(--trpg-tl-muted);
+	font-size: 0.75em;
+}
+/* Ctrl + mouse wheel only exists with a mouse */
+@media (hover: none) {
+	.trpg-tl-hint {
+		display: none;
+	}
+}
+.trpg-tl-scroll {
+	position: relative;
+	max-height: 75vh;
+	overflow: auto;
+	border: 1px solid color-mix(in srgb, var(--trpg-tl-line) 50%, var(--trpg-tl-bg));
+	border-radius: 8px;
+	background:
+		linear-gradient(to right, color-mix(in srgb, var(--trpg-tl-muted) 7%, var(--trpg-tl-bg)) 0 34px, transparent 34px);
+}
+.trpg-tl-canvas {
+	position: relative;
+}
+.trpg-tl-svg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	overflow: visible;
+}
+
+/* Axis */
+.trpg-tl-axis-line {
+	stroke: var(--trpg-tl-line);
+	stroke-width: 2;
+	stroke-linecap: round;
+}
+.trpg-tl-axis-break {
+	fill: none;
+	stroke: var(--trpg-tl-line);
+	stroke-width: 1.5;
+}
+.trpg-tl-tick {
+	stroke: var(--trpg-tl-line);
+	stroke-width: 1;
+}
+.trpg-tl-tick.trpg-tl-major {
+	stroke: var(--trpg-tl-muted);
+	stroke-width: 2;
+}
+.trpg-tl-year {
+	fill: var(--trpg-tl-muted);
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+}
+.trpg-tl-month {
+	fill: var(--trpg-tl-muted);
+	font-size: 10px;
+}
+.trpg-tl-year.trpg-tl-major {
+	fill: var(--trpg-tl-fg);
+	font-size: 13px;
+	font-weight: 600;
+}
+.trpg-tl-break {
+	position: absolute;
+	padding: 1px 10px;
+	border: 1px dashed var(--trpg-tl-line);
+	border-radius: 999px;
+	background: var(--trpg-tl-bg);
+	color: var(--trpg-tl-muted);
+	font-size: 0.75em;
+	white-space: nowrap;
+	cursor: zoom-in;
+	z-index: 1;
+}
+.trpg-tl-break:hover {
+	color: var(--trpg-tl-fg);
+	border-color: var(--trpg-tl-muted);
+}
+
+/* Events */
+.trpg-tl-connector {
+	fill: none;
+	stroke-width: 1.25;
+	opacity: 0.35;
+	transition: opacity 0.15s;
+}
+.trpg-tl-bar,
+.trpg-tl-point,
+.trpg-tl-card {
+	cursor: pointer;
+	transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.trpg-tl-stroke {
+	opacity: 0.85;
+}
+.trpg-tl-campaign .trpg-tl-stroke {
+	stroke-linecap: round;
+}
+.trpg-tl-other .trpg-tl-stroke {
+	stroke-dasharray: 6 4;
+}
+.trpg-tl-bar.trpg-tl-active .trpg-tl-stroke {
+	opacity: 1;
+}
+.trpg-tl-axis-unknown {
+	stroke-dasharray: 4 4;
+}
+/* Track of an event in a lane: only spans are bars; the rest shows dashed while highlighted */
+.trpg-tl-track {
+	stroke-width: 1.5;
+	stroke-dasharray: 3 4;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.trpg-tl-bar.trpg-tl-active .trpg-tl-track {
+	opacity: 0.7;
+}
+/* An event that began earlier or goes on (".."/"." as a section of its own) */
+.trpg-tl-continue {
+	stroke-width: 1.5;
+	stroke-dasharray: 2 3;
+}
+.trpg-tl-arrow {
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+.trpg-tl-hit {
+	stroke: transparent;
+	stroke-width: 10;
+	pointer-events: stroke;
+}
+.trpg-tl-beam {
+	fill: color-mix(in srgb, var(--trpg-tl-muted) 22%, var(--trpg-tl-bg));
+	stroke: color-mix(in srgb, var(--trpg-tl-muted) 40%, var(--trpg-tl-bg));
+	stroke-width: 1;
+}
+.trpg-tl-thread {
+	opacity: 0.9;
+}
+.trpg-tl-other .trpg-tl-thread {
+	stroke-dasharray: 3 2;
+}
+.trpg-tl-bar.trpg-tl-active .trpg-tl-thread {
+	stroke-width: 3.5px;
+	opacity: 1;
+}
+.trpg-tl-start {
+	stroke: var(--trpg-tl-bg);
+	stroke-width: 1.5;
+}
+.trpg-tl-mid {
+	fill: var(--trpg-tl-bg);
+	stroke-width: 1.5;
+}
+.trpg-tl-point {
+	stroke-width: 2.5;
+	paint-order: stroke;
+}
+.trpg-tl-point.trpg-tl-campaign {
+	stroke: var(--trpg-tl-bg);
+}
+.trpg-tl-point.trpg-tl-other {
+	fill: var(--trpg-tl-bg);
+	stroke-width: 2;
+	stroke-dasharray: 3 2.3;
+}
+.trpg-tl-card {
+	position: absolute;
+	right: 8px;
+	box-sizing: border-box;
+	padding: 4px 10px 4px 9px;
+	border: 1px solid color-mix(in srgb, var(--trpg-tl-line) 60%, var(--trpg-tl-bg));
+	border-left: 4px solid;
+	border-radius: 6px;
+	background: var(--trpg-tl-bg);
+	overflow: hidden;
+	line-height: 1.3;
+}
+.trpg-tl-card.trpg-tl-other {
+	border-style: dashed;
+}
+.trpg-tl-date {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--trpg-tl-muted);
+	font-size: 0.75em;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.trpg-tl-tagdot {
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--trpg-tl-line);
+}
+.trpg-tl-date .trpg-tl-tagdot:first-of-type {
+	margin-left: 4px;
+}
+.trpg-tl-title {
+	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Hover: the active event stands out, the rest steps back */
+.trpg-tl-has-active .trpg-tl-card:not(.trpg-tl-active),
+.trpg-tl-has-active .trpg-tl-bar:not(.trpg-tl-active),
+.trpg-tl-has-active .trpg-tl-point:not(.trpg-tl-active) {
+	opacity: 0.3;
+}
+.trpg-tl-extra {
+	opacity: 1;
+	stroke-width: 2;
+}
+.trpg-tl-extra-dot {
+	fill: var(--trpg-tl-bg);
+	stroke-width: 2;
+}
+.trpg-tl-connector.trpg-tl-active {
+	opacity: 1;
+	stroke-width: 2;
+}
+.trpg-tl-card.trpg-tl-active {
+	box-shadow: 0 2px 10px color-mix(in srgb, var(--trpg-tl-fg) 22%, transparent);
+	z-index: 2;
+}
+
+/* Selected (click/tap): the card grows and shows all points in time and the tags */
+.trpg-tl-card.trpg-tl-selected {
+	z-index: 3;
+	box-shadow: 0 4px 18px color-mix(in srgb, var(--trpg-tl-fg) 30%, transparent);
+	cursor: default;
+}
+.trpg-tl-selected .trpg-tl-title {
+	white-space: normal;
+	cursor: pointer;
+}
+.trpg-tl-selected .trpg-tl-date {
+	white-space: normal;
+	flex-wrap: wrap;
+}
+.trpg-tl-details {
+	display: none;
+	margin-top: 4px;
+	font-size: 0.8em;
+	line-height: 1.5;
+}
+.trpg-tl-selected .trpg-tl-details {
+	display: block;
+}
+.trpg-tl-label {
+	color: var(--trpg-tl-muted);
+}
+.trpg-tl-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 10px;
+	margin: 2px 0 4px;
+}
+.trpg-tl-caption {
+	margin-left: 0.6em;
+	color: var(--trpg-tl-muted);
+}
+.trpg-tl-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	cursor: pointer;
+}
+/* A section line opens the event at that section */
+.trpg-tl-point-date[data-anchor] {
+	cursor: pointer;
+}
+.trpg-tl-point-date[data-anchor]:hover {
+	text-decoration: underline;
+}
+
+/* Band of the tiddler itself: its own dates behind the lanes */
+.trpg-tl-band-area {
+	opacity: 0.14;
+}
+.trpg-tl-band-unknown .trpg-tl-band-area {
+	opacity: 0.08;
+}
+.trpg-tl-band-label {
+	fill: var(--trpg-tl-muted);
+	font-size: 10px;
+}
