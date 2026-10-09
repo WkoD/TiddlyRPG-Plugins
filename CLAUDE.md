@@ -128,7 +128,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
     or file names below `plugins/`; new names use `tiddlyrpg-`, `trpg-`, `trpg.`
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
-    may be missing)
+    may be missing; keys ending in `/Parse` are words read in one language only)
   - `lang/i18n` - display names, tag hook, search, edge labels of the real edges, refresh after
     a language change
   - `lang/rules-lang` - the rules language: both settings in the three modes, independent,

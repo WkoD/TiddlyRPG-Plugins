@@ -4,7 +4,9 @@
  * For every plugin with a language/ folder, each language is compared with en-GB of the same
  * plugin: no keys missing in the language, no keys en-GB does not know, no titles outside
  * $:/tiddlyrpg/language/<code>/. Keys from en-GB/names.multids are proper names (month names, era)
- * that may fall back to en-GB on purpose; their absence is not reported.
+ * that may fall back to en-GB on purpose; their absence is not reported. Keys ending in /Parse
+ * are the words read in a language ("bludgeon", "nekrotischen Schaden"): each language has
+ * its own or none, so they are neither missing nor unknown.
  *
  * Keys are read from .multids files (title prefix + "key: value" lines) and from .tid files
  * (title field). Plugins and languages are found by folder, new ones are checked automatically.
@@ -17,6 +19,11 @@ var test = require("node:test"),
 
 var pluginsDir = path.join(__dirname, "..", "..", "plugins"),
 	BASE = "en-GB";
+
+// Words read in one language only (modules/rules.js)
+function ownWords(key) {
+	return /\/Parse$/.test(key);
+}
 
 function readKeys(dir, code) {
 	var prefix = "$:/tiddlyrpg/language/" + code + "/",
@@ -81,10 +88,10 @@ fs.readdirSync(pluginsDir).forEach(function(plugin) {
 			}
 			var other = readKeys(path.join(langDir, code), code);
 			test(code + ": no missing keys", function() {
-				assert.deepEqual(Object.keys(base.keys).filter(function(key) { return !other.keys[key] && !base.optional[key]; }).sort(), []);
+				assert.deepEqual(Object.keys(base.keys).filter(function(key) { return !other.keys[key] && !base.optional[key] && !ownWords(key); }).sort(), []);
 			});
 			test(code + ": no keys unknown to " + BASE, function() {
-				assert.deepEqual(Object.keys(other.keys).filter(function(key) { return !base.keys[key]; }).sort(), []);
+				assert.deepEqual(Object.keys(other.keys).filter(function(key) { return !base.keys[key] && !ownWords(key); }).sort(), []);
 			});
 			test(code + ": titles inside $:/tiddlyrpg/language/" + code + "/", function() {
 				assert.deepEqual(other.outside, []);
