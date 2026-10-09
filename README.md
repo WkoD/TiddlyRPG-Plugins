@@ -1,7 +1,7 @@
 # TiddlyRPG-Plugins
 
 Plugin bundle for the **TiddlyRPG** repo family: the **own plugins** (`tiddlyrpg-core`,
-`tiddlyrpg-setting-forgottenrealms`, `staticfiles`) live here, the **flibbles graph stack** separately
+`staticfiles`) live here, the **flibbles graph stack** separately
 (see "Third-party plugins" below). Wikis use the official `tiddlywiki` from npm and get the
 plugins from here.
 
@@ -10,8 +10,10 @@ plugins from here.
 | Plugin | Folder | Purpose | Origin |
 |---|---|---|---|
 | `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar engine, graph schema, event timeline | own, versioned |
-| `$:/plugins/tiddlyrpg-setting-forgottenrealms` | `plugins/tiddlyrpg-setting-forgottenrealms` | **optional**: Calendar of Harptos (Forgotten Realms) as calendar data with language keys | own, versioned with the core |
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
+
+Content for D&D 5e and the Forgotten Realms lives in the separate repo `TiddlyRPG-DnD` (npm
+`tiddlyrpg-dnd`): the setting `tiddlyrpg-setting-forgottenrealms` with the Calendar of Harptos.
 
 ## Third-party plugins
 
@@ -38,7 +40,7 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 A small launcher (`scripts/tw.js`) in the wiki builds `TIDDLYWIKI_PLUGIN_PATH` platform
 independently (`path.delimiter`) from all `node_modules/*/plugins`; `tiddlywiki.info` lists the
 plugins by folder name (`tiddlyrpg-core`, `staticfiles`, `graph`, `vis-network`, `relink`, and
-optionally `tiddlyrpg-setting-forgottenrealms`).
+optionally plugins of other packages, e.g. `tiddlyrpg-setting-forgottenrealms` from `tiddlyrpg-dnd`).
 
 ## Languages
 
@@ -388,7 +390,8 @@ then reports what is left to decide or fix by hand. Both have a header with the 
 tiddler named in `$:/config/tiddlyrpg/calendar`. Without one, dates are shown as entered
 (`1350-03-12`), and the calculator on the `Calendar` hub is hidden.
 
-**Forgotten Realms:** add `"tiddlyrpg-setting-forgottenrealms"` to the plugins in `tiddlywiki.info`. It
+**Forgotten Realms:** add the package `tiddlyrpg-dnd` (repo `TiddlyRPG-DnD`) to the wiki and
+`"tiddlyrpg-setting-forgottenrealms"` to the plugins in `tiddlywiki.info`. It
 brings the Calendar of Harptos (`$:/tiddlyrpg/calendar/Harptos`), activates it and adds the names
 in en-GB and de-DE (month names and DR only in en-GB, they are proper names).
 

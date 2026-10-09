@@ -44,8 +44,10 @@ the sidebar.
 
 ## Editing the format layer
 
-`tiddlyrpg-core` and `tiddlyrpg-setting-forgottenrealms` are **folder plugins** under `plugins/` (no build
-step - the folder *is* the plugin, edit the tiddlers there directly).
+`tiddlyrpg-core` and `staticfiles` are **folder plugins** under `plugins/` (no build step - the
+folder *is* the plugin, edit the tiddlers there directly). Content for D&D 5e and the Forgotten
+Realms (setting and ruleset plugins) lives in the repo `TiddlyRPG-DnD`; it uses only what core
+offers. The tests here need none of it: they use fixture plugins (`test/fixtures/plugins`).
 
 ```bash
 npm install
@@ -60,7 +62,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   boot exits 0 - locally read the output; the CI step fails on it. JS modules only run when
   used, so this does not replace the tests.
 - `npm test` runs `test/**/*.test.js` with Node's built-in test runner (`node:test`); every file
-  runs in its own process. `test/helpers.js` boots the smoke edition in-process, adds the fixture
+  runs in its own process. `test/helpers.js` boots the test edition `editions/test` in-process
+  (the plugins of the smoke edition plus the fixture plugins of `test/fixtures/plugins`, e.g.
+  `fixture-setting-harptos` with a calendar in the style of Harptos), adds the fixture
   tiddlers and offers `render`/`view`/`body`/`filter`, and `graph` (see below). One file per topic:
   - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
     leap rule
@@ -127,7 +131,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
 - CI (`.github/workflows/test.yml`) runs `npm run smoke` and `npm test` on every push and pull
   request.
 - The launcher `scripts/tw.js` and the tests take `TIDDLYWIKI_PLUGIN_PATH` from
-  `scripts/plugin-path.js`: `./plugins` plus the pinned `node_modules/tw5-*/plugins`. A
+  `scripts/plugin-path.js`: `./plugins` plus the pinned `node_modules/tw5-*/plugins`, then
+  the folders a caller adds (the tests `test/fixtures/plugins`, `check-wiki.js` the `plugins`
+  folders of the packages of the checked wiki), then a `TIDDLYWIKI_PLUGIN_PATH` set before. A
   **content preview** deliberately does not exist here - use the IDE loop in a real wiki (below).
 
 **Checking in a real wiki (IDE loop instead of WYSIWYG):** The format layer is edited here in
@@ -299,8 +305,11 @@ the tiddler title:
   `graph/map-fit-message.js` (`vis-message`, `trpg-map-fit`). The thin view definitions
   (`$:/graph/Default`/`Cosmogram`/`Atlas`/`Items`) live in each wiki on purpose, not here.
 
-`tiddlyrpg-setting-forgottenrealms` contains no code: `$:/tiddlyrpg/calendar/Harptos` (data),
-`$:/config/tiddlyrpg/calendar` (activates it) and `language/<code>/` with `Calendar/Harptos/...`.
+The fixture plugin `fixture-setting-harptos` (`test/fixtures/plugins`) contains no code:
+`$:/tiddlyrpg/calendar/Harptos` (data), `$:/config/tiddlyrpg/calendar` (activates it) and
+`language/<code>/` with `Calendar/Harptos/...` - a copy of the data of
+`tiddlyrpg-setting-forgottenrealms` in the repo `TiddlyRPG-DnD`, so the engine tests need no
+other repo.
 
 ## Language system
 
@@ -366,7 +375,8 @@ mind when changing it:
   never falls back to "the section before" - a jump to the whole event is better than one to
   the wrong section.
 - `scripts/migrate-dates.js` converts the 1.x notation (dots), `scripts/check-wiki.js` checks a
-  wiki (boots it with the plugins of this repo, so its calendar applies). Both are tested in
+  wiki (boots it with the plugins of this repo and of the packages in its `node_modules`, so its
+  calendar applies). Both are tested in
   `test/migrate.test.js`.
 
 ## Jump marks
@@ -719,9 +729,9 @@ its `CLAUDE.md`.)
 
 ## Publishing a new version
 
-1. Change the format -> raise `version` in `plugins/tiddlyrpg-core/plugin.info` **and**
-   `plugins/tiddlyrpg-setting-forgottenrealms/plugin.info` (same version; semver: patch=fix, minor=new
-   features, major=breaking change).
+1. Change the format -> raise `version` in `plugins/tiddlyrpg-core/plugin.info` (semver:
+   patch=fix, minor=new features, major=breaking change). The plugins of `TiddlyRPG-DnD` have a
+   version of their own.
 2. Raise `version` in `package.json` to the same value.
 3. Run `npm install` -> brings `package-lock.json` to the same version. Do not skip it: otherwise
    the lockfile version drifts permanently.

@@ -1,8 +1,7 @@
 {
-    "description": "Minimal edition for the boot/smoke check only (npm run smoke): loads tiddlyrpg-core, tiddlyrpg-setting-forgottenrealms and the graph stack with the de-DE language and aborts on module/load errors. Deliberately without sync plugins (tiddlyweb/filesystem) -> writes nothing to disk, no content, no preview. The format layer is edited in the IDE and checked in a real wiki (TiddlyRPG via file: junction).",
+    "description": "Minimal edition for the boot/smoke check only (npm run smoke): loads tiddlyrpg-core, staticfiles and the graph stack with the de-DE language and aborts on module/load errors. Deliberately without sync plugins (tiddlyweb/filesystem) -> writes nothing to disk, no content, no preview. The tests boot editions/test, which adds the fixture plugins. The format layer is edited in the IDE and checked in a real wiki (TiddlyRPG via file: junction).",
     "plugins": [
         "tiddlyrpg-core",
-        "tiddlyrpg-setting-forgottenrealms",
         "staticfiles",
         "graph",
         "vis-network",

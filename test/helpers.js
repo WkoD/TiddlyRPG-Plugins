@@ -1,22 +1,27 @@
 /*
  * Shared setup for the tests (npm test).
  *
- * Every test file runs in its own process (node:test), boots TiddlyWiki once with the smoke
- * edition (all plugins, de-DE language pack) and adds the fixture tiddlers below. Files do not
- * share wiki state; within a file, a test that changes the wiki restores it afterwards.
+ * Every test file runs in its own process (node:test), boots TiddlyWiki once with the test
+ * edition (editions/test: the plugins of this repo, the fixture plugins of test/fixtures/plugins,
+ * de-DE language pack) and adds the fixture tiddlers below. Files do not share wiki state;
+ * within a file, a test that changes the wiki restores it afterwards.
  */
 var path = require("path");
 
-require("../scripts/plugin-path")();
+var root = path.join(__dirname, "..");
 
-var root = path.join(__dirname, ".."),
-	$tw;
+// The fixture plugins stand in for the content of other repos (calendar data, ...)
+exports.fixturePlugins = path.join(root, "test", "fixtures", "plugins");
+
+require("../scripts/plugin-path")([exports.fixturePlugins]);
+
+var $tw;
 
 // Boots the wiki with the fixtures; resolves with $tw
 exports.boot = function() {
 	return new Promise(function(resolve) {
 		$tw = require("tiddlywiki").TiddlyWiki();
-		$tw.boot.argv = [path.join(root, "editions", "smoke")];
+		$tw.boot.argv = [path.join(root, "editions", "test")];
 		$tw.boot.boot(function() {
 			fixtures($tw.wiki);
 			resolve($tw);

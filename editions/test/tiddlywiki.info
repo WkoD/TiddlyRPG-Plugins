@@ -1,0 +1,14 @@
+{
+    "description": "Edition of the tests (test/helpers.js): like editions/smoke, plus the fixture plugins from test/fixtures/plugins (data in the style of other repos, so the tests of tiddlyrpg-core need none of their content). The tests put test/fixtures/plugins on the plugin path.",
+    "plugins": [
+        "tiddlyrpg-core",
+        "staticfiles",
+        "graph",
+        "vis-network",
+        "relink",
+        "fixture-setting-harptos"
+    ],
+    "languages": [
+        "de-DE"
+    ]
+}

@@ -23,15 +23,17 @@ function read(name) {
 	return fs.readFileSync(path.join(dir, "tiddlers", name + ".tid"), "utf8");
 }
 
+// The scripts find the calendar of the fixture wiki among the fixture plugins
 function run(script, args) {
-	var result = childProcess.spawnSync(process.execPath, [path.join(root, "scripts", script)].concat(args), {encoding: "utf8"});
+	var env = Object.assign({}, process.env, {TIDDLYWIKI_PLUGIN_PATH: path.join(root, "test", "fixtures", "plugins")}),
+		result = childProcess.spawnSync(process.execPath, [path.join(root, "scripts", script)].concat(args), {encoding: "utf8", env: env});
 	return {status: result.status, out: result.stdout + result.stderr};
 }
 
 test.before(function() {
 	dir = fs.mkdtempSync(path.join(os.tmpdir(), "tiddlyrpg-dates-"));
 	fs.mkdirSync(path.join(dir, "tiddlers"));
-	fs.writeFileSync(path.join(dir, "tiddlywiki.info"), JSON.stringify({plugins: ["tiddlyrpg-core", "tiddlyrpg-setting-forgottenrealms"], languages: ["de-DE"]}));
+	fs.writeFileSync(path.join(dir, "tiddlywiki.info"), JSON.stringify({plugins: ["tiddlyrpg-core", "fixture-setting-harptos"], languages: ["de-DE"]}));
 	tid("Turm", {title: "Turm", tags: "Campaign Event", date: "1351-07-01.1351-07-11.1351-11-10."},
 		"<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-01\"/>\n\nA.\n\n---\n\n<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-07-11\"/>\n\nB.\n\n---\n\n<b>Jahr:</b> <$macrocall $name=\"datelong\" date=\"1351-08-09\"/>\n\nC.\n\n---\n\nD.\n");
 	tid("Intro", {title: "Intro", tags: "Event", date: "1351-08-15.1351-11-12"},

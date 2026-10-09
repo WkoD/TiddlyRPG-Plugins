@@ -6,7 +6,9 @@
  *   node scripts/check-wiki.js <wiki folder>      (npm run check-wiki -- <wiki folder>)
  *
  * Boots the wiki with the plugins of this repo, so the calendar of the wiki applies and bodies
- * are read from their parse tree, like the format layer does.
+ * are read from their parse tree, like the format layer does. Plugins of other packages (a
+ * setting with the calendar, a ruleset) come from the `plugins` folders of the packages in
+ * <wiki folder>/node_modules; the ones of this repo win.
  *
  *   error    field date: old format, cannot be read, a day the calendar does not have, start
  *            after end, sections out of order; <<date n>> beyond the sections of the field;
@@ -29,13 +31,19 @@
 var path = require("path"),
 	fs = require("fs");
 
-require("./plugin-path")();
-
 var wikiDir = process.argv[2];
 if(!wikiDir || !fs.existsSync(path.join(wikiDir, "tiddlywiki.info"))) {
 	console.error("Usage: node scripts/check-wiki.js <wiki folder>");
 	process.exit(2);
 }
+
+// The plugins folders of the packages of the wiki (node_modules/<package>/plugins)
+var wikiModules = path.join(path.resolve(wikiDir), "node_modules"),
+	wikiPlugins = fs.existsSync(wikiModules) ? fs.readdirSync(wikiModules).map(function(name) {
+		return path.join(wikiModules, name, "plugins");
+	}) : [];
+
+require("./plugin-path")(wikiPlugins);
 
 var $tw = require("tiddlywiki").TiddlyWiki();
 $tw.boot.argv = [path.resolve(wikiDir)];
