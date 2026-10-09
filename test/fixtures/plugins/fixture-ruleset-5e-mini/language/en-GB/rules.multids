@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -24,6 +24,13 @@ Rules/Damage/poison/Phrase: poison damage
 Rules/Damage/slashing: slashing
 Rules/Damage/slashing/Parse: slash
 Rules/Damage/slashing/Phrase: slashing damage
+Rules/Domain/Ability: Abilities
+Rules/Domain/Damage: Damage
+Rules/Domain/Dice: Dice
+Rules/Domain/Distance: Distance
+Rules/Domain/Size: Size
+Rules/Domain/Terms: Terms
+Rules/Domain/Weight: Weight
 Rules/System/Name: Fixture 5e mini
 Rules/Term/ac: AC
 Rules/Term/dc: DC

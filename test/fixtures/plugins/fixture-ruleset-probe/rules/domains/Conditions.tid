@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Conditions
 type: application/json
@@ -15,5 +15,6 @@ type: application/json
         {
             "id": "prone"
         }
-    ]
+    ],
+    "example": "frightened 2"
 }

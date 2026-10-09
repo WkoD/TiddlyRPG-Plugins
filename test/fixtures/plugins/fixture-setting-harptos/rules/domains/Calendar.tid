@@ -1,5 +1,5 @@
 created: 20261009181232255
-modified: 20261009181232255
+modified: 20261009190000000
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Calendar
 type: application/json
@@ -7,5 +7,6 @@ type: application/json
 {
     "domain": "Calendar",
     "type": "calendar",
-    "keys": "Calendar/"
+    "keys": "Calendar/",
+    "example": "1351-01-31"
 }

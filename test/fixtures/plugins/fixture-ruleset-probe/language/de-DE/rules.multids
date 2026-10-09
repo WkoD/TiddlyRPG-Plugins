@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Fillers: Schaden
@@ -12,6 +12,12 @@ Rules/Damage/fire: Feuer
 Rules/Damage/fire/Phrase: Feuerschaden
 Rules/Damage/persistent: anhaltender
 Rules/Damage/splash: Spritz-
+Rules/Domain/Bulk: Traglast
+Rules/Domain/Conditions: Zustände
+Rules/Domain/Damage: Schaden
+Rules/Domain/Dice: Würfel
+Rules/Domain/Saves: Rettungswürfe
+Rules/Domain/Traits: Merkmale
 Rules/System/Name: Fixture probe
 Rules/Term/concentrate: Konzentration
 Rules/Term/fortitude: Zähigkeit

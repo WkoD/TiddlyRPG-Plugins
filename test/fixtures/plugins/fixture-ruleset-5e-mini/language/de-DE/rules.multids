@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -24,6 +24,13 @@ Rules/Damage/poison/Phrase: Giftschaden
 Rules/Damage/slashing: Hieb
 Rules/Damage/slashing/Parse: Hiebschadens
 Rules/Damage/slashing/Phrase: Hiebschaden
+Rules/Domain/Ability: Attribute
+Rules/Domain/Damage: Schaden
+Rules/Domain/Dice: Würfel
+Rules/Domain/Distance: Entfernung
+Rules/Domain/Size: Größe
+Rules/Domain/Terms: Begriffe
+Rules/Domain/Weight: Gewicht
 Rules/System/Name: Fixture 5e mini
 Rules/Term/ac: RK
 Rules/Term/dc: SG

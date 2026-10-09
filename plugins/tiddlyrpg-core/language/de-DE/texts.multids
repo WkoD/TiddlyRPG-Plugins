@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261009183000000
+modified: 20261009190000000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -66,6 +66,9 @@ Rules/Check/NoUnit: Text prüfen: <<unit $text$>> braucht eine Einheit oder eine
 Rules/Check/Term: Text prüfen: <<term>> kennt kein „$id$“
 Rules/Check/Unit: Text prüfen: keine bekannte Einheit in <<unit "$text$">>
 Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$“
+Rules/Mode/all: eine Sprache für alles:
+Rules/Mode/domain: pro Bereich (in der Tabelle)
+Rules/Mode/wiki: die Wiki-Sprache
 Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
@@ -76,6 +79,24 @@ Section/Check/WrongType: Text prüfen: <<$macro$>> zählt nur in einem Tiddler m
 Section/Kind/date: Datumsabschnitte
 Section/Kind/secret: Sperren
 Section/Kind/spot: Spots
+Settings/Check/Version: $title$ braucht tiddlyrpg-core $required$, dieses Wiki hat $core$
+Settings/Check/VersionFormat: $title$: tiddlyrpg-core-version $required$ - als >=x.y.z schreiben
+Settings/Hint: Einstellungen von tiddlyrpg-core für dieses Wiki. Sie werden mit dem Wiki gespeichert und gelten für alle, die es lesen.
+Settings/Problem/NoChoice: Mehrere sind installiert und keins ist gewählt – aktiv ist das erste nach Titel, $1$.
+Settings/Problem/disabled: Festgelegt ist $1$, das ist deaktiviert – aktiv ist $2$.
+Settings/Problem/missing: Festgelegt ist $1$, das ist nicht installiert – aktiv ist $2$.
+Settings/Problem/type: Festgelegt ist $1$, das ist kein Plugin dieses Typs – aktiv ist $2$.
+Settings/Rules/Caption: Regelsprache
+Settings/Rules/Domain: Bereich
+Settings/Rules/Example: Beispiel
+Settings/Rules/Hint: In welcher Sprache Regelbegriffe in den Texten geschrieben und den Lesern angezeigt werden – Einheiten, Würfel, Schaden, Begriffe und die Namen des Kalenders. „Geschrieben in“ entscheidet über die Einheit einer Zahl, die ohne Einheit steht.
+Settings/Rules/Set/display: Angezeigt in
+Settings/Rules/Set/input: Geschrieben in
+Settings/Rules/WikiLanguage: Wiki-Sprache
+Settings/Ruleset/Caption: Regelwerk und Kampagnenwelt
+Settings/Ruleset/None: keins
+Settings/Ruleset/Ruleset: Regelwerk
+Settings/Ruleset/Setting: Kampagnenwelt
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden

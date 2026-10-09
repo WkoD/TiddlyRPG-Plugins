@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261009183000000
+modified: 20261009190000000
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -17,6 +17,10 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<id>trpgterm<arg>]                each input id as term, with a variant or value
 [<title>trpgrulecheck[]]           the problems of the rules macros in the body of each input
                                    tiddler (texts in the wiki language)
+[trpgrulesdomains[]]               the names of the registered rules domains, sorted
+[<name>trpgrulesdomain[type]]      a property of each input domain: type, keys, example; kinds
+                                   gives yes or no
+[<name>trpgrulesexample[]]         the example of each input domain as "input → output"
 
 \*/
 
@@ -64,6 +68,37 @@ exports.trpgterm = function(source,operator,options) {
 	return each(source,function(id) {
 		return rules.term(options.wiki,id,operator.operand).text;
 	});
+};
+
+exports.trpgrulesdomains = function(source,operator,options) {
+	return Object.keys(language.domains(options.wiki)).sort();
+};
+
+exports.trpgrulesdomain = function(source,operator,options) {
+	var domains = language.domains(options.wiki),
+		results = [];
+	source(function(tiddler,name) {
+		var domain = domains[name];
+		if(domain) {
+			if(operator.operand === "kinds") {
+				results.push(domain.kinds && Object.keys(domain.kinds).length ? "yes" : "no");
+			} else if(domain[operator.operand] !== undefined && typeof domain[operator.operand] !== "object") {
+				results.push(domain[operator.operand].toString());
+			}
+		}
+	});
+	return results;
+};
+
+exports.trpgrulesexample = function(source,operator,options) {
+	var results = [];
+	source(function(tiddler,name) {
+		var example = rules.example(options.wiki,name);
+		if(example) {
+			results.push(example.input + " → " + example.output);
+		}
+	});
+	return results;
 };
 
 exports.trpgrulecheck = function(source,operator,options) {

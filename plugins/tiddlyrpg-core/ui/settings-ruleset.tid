@@ -1,0 +1,51 @@
+caption: <<trpg.t Settings/Ruleset/Caption>>
+condition: [[yes]]
+created: 20261009190000000
+modified: 20261009190000000
+tags: $:/tags/tiddlyrpg/SettingsTab
+title: $:/plugins/tiddlyrpg-core/ui/settings-ruleset
+type: text/vnd.tiddlywiki
+
+<!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the choice of the ruleset and of the campaign
+     setting (modules/plugin-types.js), like the theme switcher of the core: the active plugin is
+     marked chosen, also without config; a click writes $:/config/tiddlyrpg/<type>, "none" too.
+     Hints when the config names no usable plugin and when several are installed and none is
+     chosen. -->
+\procedure trpg.typechooser(type)
+\whitespace trim
+<$let trpg-active={{{ [trpgplugin<type>] }}}
+	trpg-configured={{{ [trpgplugin:configured<type>] }}}
+	trpg-config={{{ [<type>addprefix[$:/config/tiddlyrpg/]] }}}
+	trpg-count={{{ [trpgplugins<type>count[]] }}}
+	trpg-disabled={{{ [{$:/status/IsReadOnly}match[yes]then[yes]else[no]] }}}
+	trpg-none={{{ [[Settings/Ruleset/None]trpgtranslate[]] }}}>
+<$let trpg-shown={{{ [<trpg-active>else<trpg-none>] }}}>
+<div class="tc-chooser trpg-chooser" role="listbox">
+<$list filter="[trpgplugins<type>]" variable="trpg-plugin">
+<div class={{{ [<trpg-plugin>match<trpg-active>then[tc-chooser-item tc-chosen]else[tc-chooser-item]] }}}>
+<$button set=<<trpg-config>> setTo=<<trpg-plugin>> class="tc-btn-invisible" disabled=<<trpg-disabled>>>
+''<$view tiddler=<<trpg-plugin>> field="name" format="text"/>''&#32;<$view tiddler=<<trpg-plugin>> field="description" format="text"/>
+</$button>
+</div>
+</$list>
+<div class={{{ [<trpg-active>is[blank]then[tc-chooser-item tc-chosen]else[tc-chooser-item]] }}}>
+<$button set=<<trpg-config>> setTo="none" class="tc-btn-invisible" disabled=<<trpg-disabled>>>''<<trpg-none>>''</$button>
+</div>
+</div>
+<$list filter="[trpgplugin:problem<type>]" variable="trpg-problem">
+<div class="trpg-date-invalid"><$text text={{{ [<trpg-problem>addprefix[Settings/Problem/]trpgtranslate[]substitute<trpg-configured>,<trpg-shown>] }}}/></div>
+</$list>
+<%if [<trpg-count>compare:number:gt[1]] :filter[<trpg-configured>is[blank]] %>
+<div class="trpg-date-invalid"><$text text={{{ [[Settings/Problem/NoChoice]trpgtranslate[]substitute<trpg-active>] }}}/></div>
+<%endif%>
+</$let>
+</$let>
+\end
+
+!! <<trpg.t Settings/Ruleset/Ruleset>>
+
+<<trpg.typechooser ruleset>>
+
+!! <<trpg.t Settings/Ruleset/Setting>>
+
+<<trpg.typechooser setting>>

@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Fillers: damage
@@ -12,6 +12,12 @@ Rules/Damage/fire: fire
 Rules/Damage/fire/Phrase: fire damage
 Rules/Damage/persistent: persistent
 Rules/Damage/splash: splash
+Rules/Domain/Bulk: Bulk
+Rules/Domain/Conditions: Conditions
+Rules/Domain/Damage: Damage
+Rules/Domain/Dice: Dice
+Rules/Domain/Saves: Saves
+Rules/Domain/Traits: Traits
 Rules/System/Name: Fixture probe
 Rules/Term/concentrate: concentrate
 Rules/Term/fortitude: Fortitude

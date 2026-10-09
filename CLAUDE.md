@@ -123,6 +123,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     display rules, input language, the damage grammar, variants, what is not understood
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain - without code changes
+  - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
+    campaign setting with its hints, the rules language with its table and examples, shown only
+    with domains or an own calendar, disabled inputs in the published copy, version hints
   - `rules-check` - the hints on rules macros below the title: wiki language, not in the
     published copy, not for a section the view does not see, not for computed parameters
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
@@ -272,8 +275,14 @@ the tiddler title:
   ("Ort") under the internal name (`Location`). `startup/plugin-types.js`: the switchers of the
   plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting").
 - **Plugin types** (`modules/plugin-types.js`, `filters/plugin-types.js`: `trpgplugins`,
-  `trpgplugin`), the tabs `ui/controlpanel-rulesets` and `ui/controlpanel-settings` under
-  ControlPanel -> Plugins.
+  `trpgplugin` with the suffixes `configured` and `problem`, `trpgversionhints`), the tabs
+  `ui/controlpanel-rulesets` and `ui/controlpanel-settings` under ControlPanel -> Plugins.
+- **Settings tab** `ui/controlpanel-tiddlyrpg` (ControlPanel -> Settings -> TiddlyRPG): its tabs
+  are tagged `$:/tags/tiddlyrpg/SettingsTab` and show when their field `condition` (a filter)
+  gives anything - `ui/settings-ruleset` (ruleset and campaign setting, like the theme switcher)
+  and `ui/settings-rules` (rules language; operators `trpgrulesdomains`, `trpgrulesdomain`,
+  `trpgrulesexample`). In the published copy the inputs are disabled; no button, no page of its
+  own.
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`

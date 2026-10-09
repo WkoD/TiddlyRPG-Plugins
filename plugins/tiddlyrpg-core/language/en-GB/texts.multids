@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261009183000000
+modified: 20261009190000000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -66,6 +66,9 @@ Rules/Check/NoUnit: Check the text: <<unit $text$>> needs a unit or a kind
 Rules/Check/Term: Check the text: <<term>> knows no "$id$"
 Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
 Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
+Rules/Mode/all: one language for all:
+Rules/Mode/domain: per domain (in the table)
+Rules/Mode/wiki: the wiki language
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
@@ -76,6 +79,24 @@ Section/Check/WrongType: Check the text: <<$macro$>> counts only in a tiddler ta
 Section/Kind/date: dated sections
 Section/Kind/secret: locks
 Section/Kind/spot: spots
+Settings/Check/Version: $title$ needs tiddlyrpg-core $required$, this wiki has $core$
+Settings/Check/VersionFormat: $title$: tiddlyrpg-core-version $required$ - write it as >=x.y.z
+Settings/Hint: Settings of tiddlyrpg-core for this wiki. They are saved with the wiki and apply to everyone who reads it.
+Settings/Problem/NoChoice: Several are installed and none is chosen - active is the first by title, $1$.
+Settings/Problem/disabled: Set is $1$, which is disabled - active is $2$.
+Settings/Problem/missing: Set is $1$, which is not installed - active is $2$.
+Settings/Problem/type: Set is $1$, which is no plugin of this type - active is $2$.
+Settings/Rules/Caption: Rules language
+Settings/Rules/Domain: Domain
+Settings/Rules/Example: Example
+Settings/Rules/Hint: In which language rules terms are written in the texts and shown to the readers - units, dice, damage, terms and the names of the calendar. "Written in" decides the unit of a number written without one.
+Settings/Rules/Set/display: Shown in
+Settings/Rules/Set/input: Written in
+Settings/Rules/WikiLanguage: wiki language
+Settings/Ruleset/Caption: Ruleset and campaign setting
+Settings/Ruleset/None: none
+Settings/Ruleset/Ruleset: Ruleset
+Settings/Ruleset/Setting: Campaign setting
 Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
 Spot/Missing: Spot "$spot$" not found at $place$

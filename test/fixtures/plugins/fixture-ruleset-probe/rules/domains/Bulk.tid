@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Bulk
 type: application/json
@@ -14,5 +14,6 @@ type: application/json
             "before": "\\b",
             "after": "\\b"
         }
-    ]
+    ],
+    "example": "L"
 }

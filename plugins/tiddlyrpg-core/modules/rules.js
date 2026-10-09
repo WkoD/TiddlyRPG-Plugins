@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261009183000000
+modified: 20261009190000000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -49,6 +49,9 @@ Domain types and their data:
     The dice of the calculation follow the tokens domains.
 
   calendar, currency: see modules/calendar.js and modules/currency.js.
+
+Every domain may have "example": an input shown in the settings tab next to its output ("228 cm",
+"1d8 cold", "wis save", a date for a calendar).
 
 Numbers take "." or "," as decimal mark and are shown with the one of the wiki language
 (Number/Decimal); no thousands separator.
@@ -515,6 +518,40 @@ exports.damage = function(wiki,text) {
 		}).replace(/\s+/g," ").trim();
 	});
 	return result(shown.join(" " + join + " "));
+};
+
+/* Examples */
+
+// The example of a domain ("example" in its JSON) as {input, output}, shown the way its type
+// shows it; null without example. A label example is "<id> [variant|value]".
+exports.example = function(wiki,name) {
+	var domain = language.domains(wiki)[name],
+		input = domain && domain.example ? domain.example.toString() : "";
+	if(!input) {
+		return null;
+	}
+	var output;
+	switch(domain.type) {
+		case "unit":
+			output = exports.unit(wiki,input).text;
+			break;
+		case "tokens":
+			output = dice(wiki,input).text;
+			break;
+		case "damage":
+			output = exports.damage(wiki,input).text;
+			break;
+		case "label":
+			var parts = input.split(/\s+/);
+			output = exports.term(wiki,parts[0],parts.slice(1).join(" ")).text;
+			break;
+		case "calendar":
+			output = wiki.filterTiddlers("[<v>dateformat[]]",$tw.rootWidget.makeFakeWidgetWithVariables({v: input}))[0] || input;
+			break;
+		default:
+			output = input;
+	}
+	return {input: input, output: output};
 };
 
 /* Check */

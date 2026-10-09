@@ -1,0 +1,19 @@
+caption: TiddlyRPG
+created: 20261009190000000
+list-after: $:/core/ui/ControlPanel/Settings/TiddlyWiki
+modified: 20261009190000000
+tags: $:/tags/ControlPanel/SettingsTab
+title: $:/plugins/tiddlyrpg-core/ui/controlpanel-tiddlyrpg
+type: text/vnd.tiddlywiki
+
+<!-- ControlPanel -> Settings -> TiddlyRPG: the settings of tiddlyrpg-core, as tabs tagged
+     $:/tags/tiddlyrpg/SettingsTab. A tab shows if its field condition (a filter) gives anything;
+     without condition it does not show. In the published copy ($:/status/IsReadOnly) the tabs
+     show the values with their inputs disabled. -->
+<<trpg.t Settings/Hint>>
+
+<$list filter="[trpgversionhints[]]" variable="trpg-text">
+<div class="trpg-date-invalid"><$text text=<<trpg-text>>/></div>
+</$list>
+
+<$macrocall $name="tabs" tabsList="[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/SettingsTab]!has[draft.of]] :filter[subfilter{!!condition}]" default="$:/plugins/tiddlyrpg-core/ui/settings-ruleset" explicitState="$:/state/tiddlyrpg/settings-tab"/>
