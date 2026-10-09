@@ -769,8 +769,9 @@ its `CLAUDE.md`.)
 ## Publishing a new version
 
 1. Change the format -> raise `version` in `plugins/tiddlyrpg-core/plugin.info` (semver:
-   patch=fix, minor=new features, major=breaking change). The plugins of `TiddlyRPG-DnD` have a
-   version of their own.
+   patch=fix, minor=new features, major=breaking change). For now all TiddlyRPG repos keep the
+   same version to show they fit together: raise `TiddlyRPG-DnD` (its `package.json` and every
+   `plugin.info`) to the same value and release it right after.
 2. Raise `version` in `package.json` to the same value.
 3. Run `npm install` -> brings `package-lock.json` to the same version. Do not skip it: otherwise
    the lockfile version drifts permanently.
