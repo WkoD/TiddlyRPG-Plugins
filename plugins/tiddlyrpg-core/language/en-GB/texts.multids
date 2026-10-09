@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261008062202000
+modified: 20261009175258363
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -14,6 +14,8 @@ Calendar/Result: Result:
 Calendar/To: To:
 Calendar/WrittenOut: Written out:
 Campaign/OpenTasks: Open Tasks
+ControlPanel/Rulesets/Caption: Rulesets
+ControlPanel/Settings/Caption: Campaign settings
 Date/Column: Date
 Date/Day: $day$
 Date/DayMonth: $day$ $month$

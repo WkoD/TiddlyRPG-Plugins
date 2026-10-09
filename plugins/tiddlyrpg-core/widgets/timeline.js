@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261008172516320
+modified: 20261009175258363
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -103,7 +103,9 @@ var L = {
 var ZOOM = [0,30,90,270,810,2430,7290];
 var DEFAULT_ZOOM = 2;
 
-var CONFIG = "$:/config/tiddlyrpg/calendar";
+var CONFIG = "$:/config/tiddlyrpg/calendar",
+	// The active ruleset and setting (modules/plugin-types.js) bring calendars and labels
+	PLUGIN_CONFIGS = ["$:/config/tiddlyrpg/ruleset","$:/config/tiddlyrpg/setting"];
 
 // Spans get a colour per lane so that bar and card belong together at a glance; single
 // events keep the colour of their type hub
@@ -166,8 +168,9 @@ TimelineWidget.prototype.refresh = function(changedTiddlers) {
 		viewChanged = visibility.watched.some(function(title) { return changedTiddlers[title]; }),
 		characterChanged = Object.keys(changedTiddlers).some(function(title) {
 			return visibility.isCharacter(wiki,title);
-		});
-	if(changedAttributes.filter || changedAttributes.self || changedTiddlers["$:/language"] || changedTiddlers[CONFIG] ||
+		}),
+		pluginChanged = PLUGIN_CONFIGS.some(function(title) { return changedTiddlers[title]; });
+	if(changedAttributes.filter || changedAttributes.self || changedTiddlers["$:/language"] || changedTiddlers[CONFIG] || pluginChanged ||
 		(calTitle && changedTiddlers[calTitle]) || changedTiddlers.Event || changedTiddlers.Campaign || viewChanged ||
 		characterChanged || (this.self && changedTiddlers[this.self])) {
 		this.refreshSelf();

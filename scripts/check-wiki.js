@@ -13,7 +13,10 @@
  *   error    field date: old format, cannot be read, a day the calendar does not have, start
  *            after end, sections out of order; <<date n>> beyond the sections of the field;
  *            datelong calls or <<dateformat "...">> left in an event body (dates belong in the
- *            field); filters on the old dead marker (search:date[.])
+ *            field); filters on the old dead marker (search:date[.]); $:/config/tiddlyrpg/ruleset
+ *            or .../setting naming a plugin that is missing, disabled or of another type (another
+ *            one is active); a plugin whose tiddlyrpg-core-version the core does not meet or that
+ *            is not written ">=x.y.z"
  *   warning  empty side or section in the field; two placeholders for the same section; a
  *            "---" right before <<date>> (the placeholder draws its own rule); the hints on
  *            sections (modules/sections.js: a short form inside another block, a section in one
@@ -60,7 +63,26 @@ $tw.boot.boot(function() {
 			errors++;
 		}
 	};
-	var sections = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/sections.js");
+	var sections = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/sections.js"),
+		pluginTypes = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/plugin-types.js");
+	// The plugin types ruleset and setting: a config naming a plugin that is not used
+	var PROBLEMS = {
+		missing: "is not installed",
+		disabled: "is disabled",
+		type: "is no plugin of this type"
+	};
+	$tw.utils.each(pluginTypes.TYPES, function(type) {
+		var state = pluginTypes.state(wiki, type);
+		if(state.problem) {
+			add(pluginTypes.config(type), "error", state.configured + " " + PROBLEMS[state.problem] +
+				" - active is " + (state.active || "none"));
+		}
+	});
+	$tw.utils.each(pluginTypes.versionProblems(wiki), function(problem) {
+		add(problem.title, "error", problem.problem === "format" ?
+			"tiddlyrpg-core-version " + problem.required + " - use the form >=x.y.z" :
+			"needs tiddlyrpg-core " + problem.required + ", the wiki has " + pluginTypes.coreVersion(wiki));
+	});
 	// Titles of the tiddlers tagged Secret that a parse tree transcludes
 	var secretTransclusions = function(nodes, out) {
 		$tw.utils.each(nodes, function(node) {

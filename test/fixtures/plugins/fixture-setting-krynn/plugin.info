@@ -1,0 +1,13 @@
+{
+  "title": "$:/plugins/fixture-setting-krynn",
+  "name": "fixture-setting-krynn",
+  "description": "Test fixture: a second campaign setting in the style of Dragonlance (Krynn).",
+  "author": "WkoD",
+  "version": "0.0.0",
+  "core-version": ">=5.4.0",
+  "plugin-type": "setting",
+  "dependents": [
+    "$:/plugins/tiddlyrpg-core"
+  ],
+  "tiddlyrpg-core-version": ">=2.0.0"
+}

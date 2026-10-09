@@ -1,0 +1,13 @@
+{
+  "title": "$:/plugins/fixture-ruleset-probe",
+  "name": "fixture-ruleset-probe",
+  "description": "Test fixture: a ruleset in the style of Pathfinder 2E, to show that another system runs without code changes in tiddlyrpg-core.",
+  "author": "WkoD",
+  "version": "0.0.0",
+  "core-version": ">=5.4.0",
+  "plugin-type": "ruleset",
+  "dependents": [
+    "$:/plugins/tiddlyrpg-core"
+  ],
+  "tiddlyrpg-core-version": ">=2.0.0"
+}

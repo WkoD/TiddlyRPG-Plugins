@@ -1,0 +1,13 @@
+caption: <<trpg.t ControlPanel/Settings/Caption>> (<$count filter="[!has[draft.of]plugin-type[setting]]"/>)
+created: 20261009175258363
+list-after: $:/plugins/tiddlyrpg-core/ui/controlpanel-rulesets
+modified: 20261009175258363
+tags: $:/tags/ControlPanel/Plugins
+title: $:/plugins/tiddlyrpg-core/ui/controlpanel-settings
+type: text/vnd.tiddlywiki
+
+<!-- Tab of ControlPanel -> Plugins: the installed campaign settings (plugin type setting, see
+     modules/plugin-types.js), like the tab of the themes. The caption is not "Settings", which
+     would read like the tab ControlPanel -> Settings. plugin-table is defined in
+     $:/core/ui/ControlPanel/Plugins, which renders this tab. -->
+<<plugin-table setting>>

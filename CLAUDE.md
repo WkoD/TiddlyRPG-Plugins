@@ -109,6 +109,15 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     folding), the map (pins, spots, positions, editing, hidden nodes, image and fit), the view
     template `trpg-graph`; the map view outside `$:/graph/`, the fit of the map image
     (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`)
+  - `plugin-types` - the plugin types `ruleset` and `setting` against the fixture plugins: the
+    active plugin unpacked, the other not, the default without config (none created), switching
+    and `none` at runtime (the switch is asynchronous, the tests wait), the shadow tiddlers
+    reported as changed, a config naming a missing, disabled or foreign plugin, the tabs under
+    ControlPanel -> Plugins
+  - `plugin-versions` - the core version equals `package.json`; `tiddlyrpg-core-version` met,
+    not met, wrong form
+  - `check-wiki` - `scripts/check-wiki.js` beyond dates: the config of the plugin types, the
+    core version a plugin needs, plugins from the packages in the wiki's `node_modules`
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
     or file names below `plugins/`; new names use `tiddlyrpg-`, `trpg-`, `trpg.`
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
@@ -246,7 +255,11 @@ the tiddler title:
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
   tab "Recent"), see "Views".
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
-  ("Ort") under the internal name (`Location`).
+  ("Ort") under the internal name (`Location`). `startup/plugin-types.js`: the switchers of the
+  plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting").
+- **Plugin types** (`modules/plugin-types.js`, `filters/plugin-types.js`: `trpgplugins`,
+  `trpgplugin`), the tabs `ui/controlpanel-rulesets` and `ui/controlpanel-settings` under
+  ControlPanel -> Plugins.
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
@@ -310,6 +323,30 @@ The fixture plugin `fixture-setting-harptos` (`test/fixtures/plugins`) contains 
 `language/<code>/` with `Calendar/Harptos/...` - a copy of the data of
 `tiddlyrpg-setting-forgottenrealms` in the repo `TiddlyRPG-DnD`, so the engine tests need no
 other repo.
+
+## Plugin types ruleset and setting
+
+Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or a `setting`
+(campaign setting: calendar, later currency). Of each type one is active, chosen in
+`$:/config/tiddlyrpg/ruleset` and `.../setting`; the rule lives **once** in
+`modules/plugin-types.js` (`state()`):
+
+- `none`: none. A config naming an installed, not disabled plugin of the type: that one.
+  Otherwise the first installed one by title; a config naming something else is a problem
+  (`missing`, `disabled`, `type`), reported by `check-wiki.js`. No config is written until the DM
+  switches.
+- `startup/plugin-types.js` subclasses `$tw.PluginSwitcher` (required directly: startup modules
+  load before `load-modules` sets the globals). The core switcher would read `none` as "not
+  found" and take its fixed defaults. The subclass also switches when a plugin of the type or
+  its `$:/config/Plugins/Disabled/...` changes, and queues change events for the shadow tiddlers
+  that come and go, like `$:/core/modules/startup/plugins.js` - without them nothing that shows
+  them refreshes. Change events are dispatched asynchronously: a switch takes effect after the
+  dispatch, tests wait for it.
+- Data plugins name the core version they need: `"tiddlyrpg-core-version": ">=x.y.z"` in
+  `plugin.info`, only this form (`$tw.utils.checkVersions` reads plain `x.y.z`, so `>=` is cut
+  off first). `versionProblems()` lists what is not met; `check-wiki.js` reports it.
+- They declare `"dependents": ["$:/plugins/tiddlyrpg-core"]`; `registerPluginTiddlers` takes
+  only plugins of the type, so the core is not registered twice.
 
 ## Language system
 
@@ -713,7 +750,9 @@ also in the wikis when they raise their own `tiddlywiki` version):
    `templates/tags.tid` with `ui/ViewTemplate/tags/default.tid` and `ui/sidebar.tid` with
    `ui/SideBarSegments/tabs.tid` (copies, no overrides), and
    compare the button list in `styles/readonly.tid` with
-   `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid`. The tw5-graph
+   `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid`. Compare
+   `startup/plugin-types.js` with `core/modules/pluginswitcher.js` (the subclass replaces
+   `switchPlugins`) and `core/modules/startup/plugins.js` (the change events). The tw5-graph
    override (`edges.typed`) is checked against `node_modules/tw5-graph/plugins/graph/macros/`
    and the copy of `links` against `.../graph/edges/functions/links.tid` whenever the tw5-graph
    pin is raised.

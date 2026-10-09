@@ -1,10 +1,11 @@
 {
   "title": "$:/plugins/fixture-setting-harptos",
   "name": "fixture-setting-harptos",
-  "description": "Test fixture: a calendar in the style of the Calendar of Harptos with language keys (en-GB, de-DE), so that the tests of tiddlyrpg-core need no content of other repos.",
+  "description": "Test fixture: a campaign setting in the style of the Forgotten Realms - a calendar like the Calendar of Harptos with language keys (en-GB, de-DE), so that the tests of tiddlyrpg-core need no content of other repos.",
   "author": "WkoD",
   "version": "0.0.0",
   "core-version": ">=5.4.0",
-  "plugin-type": "plugin",
-  "dependents": ["$:/plugins/tiddlyrpg-core"]
+  "plugin-type": "setting",
+  "dependents": ["$:/plugins/tiddlyrpg-core"],
+  "tiddlyrpg-core-version": ">=2.0.0"
 }

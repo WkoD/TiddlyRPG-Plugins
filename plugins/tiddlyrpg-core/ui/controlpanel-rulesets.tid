@@ -1,0 +1,12 @@
+caption: <<trpg.t ControlPanel/Rulesets/Caption>> (<$count filter="[!has[draft.of]plugin-type[ruleset]]"/>)
+created: 20261009175258363
+list-after: $:/core/ui/ControlPanel/Plugins/Installed/Themes
+modified: 20261009175258363
+tags: $:/tags/ControlPanel/Plugins
+title: $:/plugins/tiddlyrpg-core/ui/controlpanel-rulesets
+type: text/vnd.tiddlywiki
+
+<!-- Tab of ControlPanel -> Plugins: the installed rulesets (plugin type ruleset, see
+     modules/plugin-types.js), like the tab of the themes. plugin-table is defined in
+     $:/core/ui/ControlPanel/Plugins, which renders this tab. -->
+<<plugin-table ruleset>>

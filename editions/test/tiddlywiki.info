@@ -1,12 +1,15 @@
 {
-    "description": "Edition of the tests (test/helpers.js): like editions/smoke, plus the fixture plugins from test/fixtures/plugins (data in the style of other repos, so the tests of tiddlyrpg-core need none of their content). The tests put test/fixtures/plugins on the plugin path.",
+    "description": "Edition of the tests (test/helpers.js): like editions/smoke, plus the fixture plugins from test/fixtures/plugins (data in the style of other repos, so the tests of tiddlyrpg-core need none of their content): two rulesets and two settings, of which the first by title is active without config. The tests put test/fixtures/plugins on the plugin path.",
     "plugins": [
         "tiddlyrpg-core",
         "staticfiles",
         "graph",
         "vis-network",
         "relink",
-        "fixture-setting-harptos"
+        "fixture-ruleset-5e-mini",
+        "fixture-ruleset-probe",
+        "fixture-setting-harptos",
+        "fixture-setting-krynn"
     ],
     "languages": [
         "de-DE"
