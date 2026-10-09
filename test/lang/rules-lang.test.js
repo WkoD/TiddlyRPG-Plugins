@@ -52,7 +52,7 @@ test.describe("modes", function() {
 	test("all: one language for every domain", function() {
 		withRules({"display/mode": "all", "display/language": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
-			assert.equal(f("[trpgruleslang[Size]]"), "en-GB", "also an unregistered domain");
+			assert.equal(f("[trpgruleslang[Volume]]"), "en-GB", "also an unregistered domain");
 		});
 	});
 
@@ -72,8 +72,8 @@ test.describe("modes", function() {
 	});
 
 	test("domain: an unregistered domain gets the wiki language", function() {
-		withRules({"display/mode": "domain", "display/domain/Size": "en-GB"}, function() {
-			assert.equal(f("[trpgruleslang[Size]]"), "de-DE");
+		withRules({"display/mode": "domain", "display/domain/Volume": "en-GB"}, function() {
+			assert.equal(f("[trpgruleslang[Volume]]"), "de-DE");
 		});
 	});
 

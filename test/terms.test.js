@@ -1,0 +1,85 @@
+/*
+ * Domains of type label (modules/rules.js, <<term>>) against fixture-ruleset-5e-mini (Ability,
+ * Terms): the label in the display language of its domain, a variant, the id in any case, an
+ * unknown id or variant; ids unique over the label domains; "GM" is the game master in the domain
+ * Terms (in a currency it would be a gold piece - parsing stays within a domain).
+ */
+var test = require("node:test"),
+	assert = require("node:assert/strict"),
+	h = require("./helpers");
+
+var $tw, wiki, rules, language;
+
+test.before(function() {
+	return h.boot().then(function(tw) {
+		$tw = tw;
+		wiki = $tw.wiki;
+		rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js");
+		language = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/language.js");
+	});
+});
+
+function t(id, arg) {
+	return h.filter(wiki, "[<id>trpgterm<arg>]", {id: id, arg: arg || ""}).join();
+}
+
+test.describe("de-DE", function() {
+	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
+	});
+
+	test("labels", function() {
+		assert.equal(t("wis"), "WEI");
+		assert.equal(t("ac"), "RK");
+		assert.equal(t("gm"), "SL");
+		assert.equal(t("xp"), "EP");
+	});
+
+	test("variants", function() {
+		assert.equal(t("wis", "save"), "WEI-Rettungswurf");
+		assert.equal(t("str", "name"), "Stärke");
+	});
+
+	test("the id in any case", function() {
+		assert.equal(t("WIS"), "WEI");
+	});
+});
+
+test.describe("en-GB", function() {
+	test.before(function() {
+		h.setLanguage(wiki, "en-GB");
+	});
+
+	test("labels and variants", function() {
+		assert.equal(t("wis", "save"), "WIS save");
+		assert.equal(t("gm"), "GM");
+	});
+});
+
+test.describe("what is not understood", function() {
+	test("an unknown id and an unknown variant: unchanged, with a problem", function() {
+		var r = rules.term(wiki, "xyz");
+		assert.equal(r.text, "xyz");
+		assert.equal(r.problem, "Rules/Check/Term");
+		r = rules.term(wiki, "wis", "check");
+		assert.equal(r.text, "wis check");
+		assert.equal(r.problem, "Rules/Check/Variant");
+	});
+});
+
+test("the ids are unique over the label domains of the active ruleset and setting", function() {
+	var domains = language.domains(wiki),
+		seen = {},
+		twice = [];
+	Object.keys(domains).forEach(function(name) {
+		if(domains[name].type === "label") {
+			(domains[name].entries || []).forEach(function(entry) {
+				if(seen[entry.id]) {
+					twice.push(entry.id);
+				}
+				seen[entry.id] = true;
+			});
+		}
+	});
+	assert.deepEqual(twice, []);
+});

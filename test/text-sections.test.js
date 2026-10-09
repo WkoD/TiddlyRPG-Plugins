@@ -104,6 +104,29 @@ test.describe("forms and numbers", function() {
 	});
 });
 
+test.describe("rules macros in sections", function() {
+	test("in short and block sections, behind <<secret>>: rendered, no marker", function() {
+		withTiddler({title: "Regeltext", tags: "Event", date: "1351, 1352, 1353",
+			text: "<<date>>\n\nWeit <<unit \"30 ft\">>.\n\n<$date>\n\n<<damage \"1d8 cold\">>\n\n</$date>\n\n<<secret>><<date>>\n\n<<term wis save>>"}, function() {
+			assert.deepEqual(numbers("Regeltext"), [1, 2, 3]);
+			var dm = body("Regeltext");
+			assert.ok(dm.indexOf("Weit 9 m.") !== -1, dm);
+			assert.ok(dm.indexOf("1W8 Kälteschaden") !== -1, dm);
+			assert.ok(dm.indexOf("WEI-Rettungswurf") !== -1, dm);
+			var pub = inView("public", function() { return body("Regeltext"); });
+			assert.ok(pub.indexOf("Weit 9 m.") !== -1 && pub.indexOf("WEI-Rettungswurf") === -1, pub);
+		});
+	});
+
+	test("in a spot of a location: in the text of the spot, the spot stays one", function() {
+		withTiddler({title: "Regelort", tags: "Location", text: "Ort.\n\n<<spot \"Turm\">>\n\nHoch, <<unit \"60 ft\">>."}, function() {
+			var spot = h.render(wiki, "text/plain", "<$trpg-body $tiddler=\"Regelort\" $mode=\"block\" $only=\"spot\" $name=\"Turm\" $marker=\"no\"/>");
+			assert.match(spot, /Hoch, 18 m\./);
+			assert.deepEqual(f("[[Regelort]spots[]]"), ["Turm"]);
+		});
+	});
+});
+
 test.describe("locks in the text", function() {
 	test("<<secret>><<date>>: the whole section, only for its players and the DM", function() {
 		var pub = inView("public", function() { return body("Nacht"); });

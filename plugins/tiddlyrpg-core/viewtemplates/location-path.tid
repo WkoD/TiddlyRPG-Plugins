@@ -1,6 +1,6 @@
 created: 20261006064449000
 list-after: $:/core/ui/ViewTemplate/title
-modified: 20261007170245412
+modified: 20261009183000000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/location-path
 type: text/vnd.tiddlywiki
@@ -9,7 +9,8 @@ type: text/vnd.tiddlywiki
      for every tiddler with a parent or a location, except events (their sections show their
      locations as pills) and system tiddlers; not for tiddlers the view does not see. Below it
      the hints of itemcheck (filters/item.js), like those of locationcheck not in the published
-     copy; for every tiddler the hints on its sections (sectioncheck, modules/sections.js). -->
+     copy; for every tiddler the hints on its sections (sectioncheck, modules/sections.js) and on
+     its rules macros (trpgrulecheck, modules/rules.js). -->
 <%if [<currentTiddler>!is[system]!tag[Event]] :filter[trpg.visible[]] %>
 <<trpg.locationpath>>
 <$list filter="[<currentTiddler>itemcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="trpg-key">
@@ -17,7 +18,7 @@ type: text/vnd.tiddlywiki
 </$list>
 <%endif%>
 <%if [<currentTiddler>!is[system]] :filter[trpg.visible[]] :filter[[yes]!match{$:/status/IsReadOnly}] %>
-<$list filter="[<currentTiddler>sectioncheck[]]" variable="trpg-text">
+<$list filter="[<currentTiddler>sectioncheck[]] [<currentTiddler>trpgrulecheck[]]" variable="trpg-text">
 <div class="trpg-date-invalid"><$text text=<<trpg-text>>/></div>
 </$list>
 <%endif%>

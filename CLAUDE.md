@@ -118,6 +118,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     not met, wrong form
   - `check-wiki` - `scripts/check-wiki.js` beyond dates: the config of the plugin types, the
     core version a plugin needs, plugins from the packages in the wiki's `node_modules`
+  - `units`, `dice`, `damage`, `terms` - the domain types `unit`, `tokens`, `damage`, `label` of
+    the rules engine against `fixture-ruleset-5e-mini`: parsing in every language, pairs, kinds,
+    display rules, input language, the damage grammar, variants, what is not understood
+  - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
+    values, qualifiers, another tokens domain - without code changes
+  - `rules-check` - the hints on rules macros below the title: wiki language, not in the
+    published copy, not for a section the view does not see, not for computed parameters
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
     or file names below `plugins/`; new names use `tiddlyrpg-`, `trpg-`, `trpg.`
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
@@ -201,7 +208,8 @@ the tiddler title:
 
 - **Functions and procedures** (`functions`, tag `$:/tags/Global`): `trpg.visible`, `trpg.dead`
   (see "Functions & cascades"), `trpg.t`, `trpg.title`, `trpg.plural` (language system), the
-  procedures `dateformat`, `dateadd`, `datediff` (calendar), `date` (dated section in a body,
+  procedures `dateformat`, `dateadd`, `datediff` (calendar), `unit`, `dice`, `damage`, `term`
+  (rules engine), `date` (dated section in a body,
   with `widgets/date.js`), `trpg.places` (location pills of a section, with the pills of
   `<<spotlink>>` via `trpg.spotpill`), `trpg.dateline` (date line below the tags: span of an
   event, years of existence of the other types), `trpg.datecheck` (hint on a date that cannot
@@ -254,8 +262,9 @@ the tiddler title:
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
   `relationsymmetric`, `relationtypes`, see "Relations"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
-  `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, see "Language
-  system" -> "Rules language").
+  `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgunit`,
+  `trpgdice`, `trpgdamage`, `trpgterm`, `trpgrulecheck`, see "Language system" -> "Rules
+  language" and "Rules engine").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
   tab "Recent"), see "Views".
@@ -389,6 +398,16 @@ Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or 
   texts of hubs, the calculator or the date patterns. A domain without tiddler (an own calendar
   without setting) follows the mode; in the mode `domain` it gets the wiki language. JS that
   shows terms refreshes on `$:/config/tiddlyrpg/rules/...` (the timeline does).
+- **Rules engine** (`modules/rules.js`; the data formats of the domain types are in its header,
+  the one place for them): the procedures `unit`, `dice`, `damage`, `term` (`functions.tid`,
+  filtered attributes) through the operators `trpgunit`, `trpgdice`, `trpgdamage`, `trpgterm`.
+  It knows no word of a rules system - units, tokens, damage words and labels all come from the
+  domains and the language keys of the active ruleset or setting; the die letters of a damage
+  calculation are the tokens of the `tokens` domains. Parsing reads the words of every language,
+  showing uses the display language of the domain. What is not understood shows unchanged;
+  `check()` (operator `trpgrulecheck`) gives the hints below the title, in the editable wiki
+  only, and leaves out calls in sections the active view does not see (the hint would show their
+  text, `sections.hiddenRanges()`). Numbers show with `Number/Decimal` of the wiki language.
 
 ## Calendar engine
 

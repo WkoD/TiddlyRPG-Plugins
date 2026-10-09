@@ -1,0 +1,21 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Ability
+type: application/json
+
+{
+    "domain": "Ability",
+    "type": "label",
+    "keys": "Rules/Term/",
+    "entries": [
+        {
+            "id": "str",
+            "shortcut": "str"
+        },
+        {
+            "id": "wis",
+            "shortcut": "wis"
+        }
+    ]
+}

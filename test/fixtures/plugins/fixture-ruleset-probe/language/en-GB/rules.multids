@@ -1,0 +1,23 @@
+created: 20261009183000000
+modified: 20261009183000000
+title: $:/tiddlyrpg/language/en-GB/
+
+Rules/Damage/Fillers: damage
+Rules/Damage/Join: plus
+Rules/Damage/Joiners: plus, and
+Rules/Damage/Pattern: $dice$ $qualifiers$ $type$
+Rules/Damage/bleed: bleed
+Rules/Damage/bleed/Phrase: bleed damage
+Rules/Damage/fire: fire
+Rules/Damage/fire/Phrase: fire damage
+Rules/Damage/persistent: persistent
+Rules/Damage/splash: splash
+Rules/System/Name: Fixture probe
+Rules/Term/concentrate: concentrate
+Rules/Term/fortitude: Fortitude
+Rules/Term/frightened: frightened $value$
+Rules/Term/magical: magical
+Rules/Term/prone: prone
+Rules/Term/reflex: Reflex
+Rules/Token/die: d
+Rules/Token/light: L

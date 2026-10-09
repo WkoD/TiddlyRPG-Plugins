@@ -1,0 +1,18 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Bulk
+type: application/json
+
+{
+    "domain": "Bulk",
+    "type": "tokens",
+    "keys": "Rules/Token/",
+    "tokens": [
+        {
+            "id": "light",
+            "before": "\\b",
+            "after": "\\b"
+        }
+    ]
+}

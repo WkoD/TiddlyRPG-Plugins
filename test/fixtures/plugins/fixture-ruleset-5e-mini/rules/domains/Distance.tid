@@ -1,0 +1,84 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Distance
+type: application/json
+
+{
+    "domain": "Distance",
+    "type": "unit",
+    "keys": "Rules/Unit/",
+    "units": {
+        "ft": {
+            "system": "imperial",
+            "factor": 1
+        },
+        "mi": {
+            "system": "imperial",
+            "factor": 5280
+        },
+        "m": {
+            "system": "metric",
+            "factor": 1
+        },
+        "km": {
+            "system": "metric",
+            "factor": 1000
+        }
+    },
+    "pairs": [
+        [
+            "ft",
+            "m",
+            0.3
+        ],
+        [
+            "mi",
+            "km",
+            1.6
+        ]
+    ],
+    "defaults": [
+        "ft",
+        "mi",
+        "m",
+        "km"
+    ],
+    "kinds": {
+        "range": {
+            "imperial": "ft",
+            "metric": "m"
+        },
+        "travel": {
+            "imperial": "mi",
+            "metric": "km"
+        }
+    },
+    "display": {
+        "imperial": {
+            "steps": [
+                {
+                    "unit": "ft",
+                    "below": 5280
+                },
+                {
+                    "unit": "mi",
+                    "decimals": 1
+                }
+            ]
+        },
+        "metric": {
+            "steps": [
+                {
+                    "unit": "m",
+                    "below": 1000,
+                    "decimals": 1
+                },
+                {
+                    "unit": "km",
+                    "decimals": 1
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,34 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Damage
+type: application/json
+
+{
+    "domain": "Damage",
+    "type": "damage",
+    "keys": "Rules/Damage/",
+    "entries": [
+        {
+            "id": "acid"
+        },
+        {
+            "id": "bludgeoning"
+        },
+        {
+            "id": "cold"
+        },
+        {
+            "id": "fire"
+        },
+        {
+            "id": "piercing"
+        },
+        {
+            "id": "poison"
+        },
+        {
+            "id": "slashing"
+        }
+    ]
+}

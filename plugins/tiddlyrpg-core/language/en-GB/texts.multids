@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261009175258363
+modified: 20261009183000000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -50,6 +50,7 @@ Map/EditDone: Done editing
 Map/Fit: Fit map
 Map/HideNodes: Hide nodes
 Map/ShowNodes: Show nodes
+Number/Decimal: .
 Player/Active: Player characters
 Player/Former: Former characters
 Player/Player: Player:
@@ -57,6 +58,14 @@ Relations/Graph: Graph
 Relations/List: List
 Relations/Rules: Controls
 Relations/Spot: spot
+Rules/Check/Damage: Check the text: "$text$" in <<damage>> is no known damage word
+Rules/Check/DamageType: Check the text: <<damage "$text$">> names no damage type
+Rules/Check/Kind: Check the text: <<unit>> knows no kind "$kind$"
+Rules/Check/NoRules: Check the text: <<$type$>> needs a ruleset that knows it
+Rules/Check/NoUnit: Check the text: <<unit $text$>> needs a unit or a kind
+Rules/Check/Term: Check the text: <<term>> knows no "$id$"
+Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
+Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there

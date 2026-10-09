@@ -1,0 +1,27 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Damage
+type: application/json
+
+{
+    "domain": "Damage",
+    "type": "damage",
+    "keys": "Rules/Damage/",
+    "entries": [
+        {
+            "id": "fire"
+        },
+        {
+            "id": "bleed"
+        },
+        {
+            "id": "persistent",
+            "qualifier": true
+        },
+        {
+            "id": "splash",
+            "qualifier": true
+        }
+    ]
+}

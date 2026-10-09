@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261008172516320
+modified: 20261009183000000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -37,6 +37,27 @@ type: text/vnd.tiddlywiki
 
 \procedure datediff(from,to)
 <$text text={{{ [<from>datediff<to>] }}}/>
+\end
+
+<!-- Rules terms in the display language of their domain (modules/rules.js, filters/rules.js):
+     <<unit "228 cm">>, <<unit 60 range>>, <<dice "4d6">>, <<damage "1d8 slashing">>,
+     <<term wis save>>, <<term frightened 2>>. Filtered attributes, so that they recompute when
+     the rules language changes. What is not understood shows unchanged; the hint stands below
+     the title (trpgrulecheck). -->
+\procedure unit(value,kind)
+<$text text={{{ [<value>trpgunit<kind>] }}}/>
+\end
+
+\procedure dice(value)
+<$text text={{{ [<value>trpgdice[]] }}}/>
+\end
+
+\procedure damage(value)
+<$text text={{{ [<value>trpgdamage[]] }}}/>
+\end
+
+\procedure term(id,arg)
+<$text text={{{ [<id>trpgterm<arg>] }}}/>
 \end
 
 <!-- Locations linked in a section of the body of the current tiddler (0 = before the first

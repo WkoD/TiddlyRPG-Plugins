@@ -1,0 +1,28 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Terms
+type: application/json
+
+{
+    "domain": "Terms",
+    "type": "label",
+    "keys": "Rules/Term/",
+    "entries": [
+        {
+            "id": "ac",
+            "shortcut": "ac"
+        },
+        {
+            "id": "dc",
+            "shortcut": "dc"
+        },
+        {
+            "id": "gm"
+        },
+        {
+            "id": "xp",
+            "shortcut": "xp"
+        }
+    ]
+}

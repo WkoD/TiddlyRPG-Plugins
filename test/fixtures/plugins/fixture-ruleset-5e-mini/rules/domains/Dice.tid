@@ -1,0 +1,18 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Dice
+type: application/json
+
+{
+    "domain": "Dice",
+    "type": "tokens",
+    "keys": "Rules/Token/",
+    "tokens": [
+        {
+            "id": "die",
+            "before": "\\b\\d*",
+            "after": "\\d+"
+        }
+    ]
+}

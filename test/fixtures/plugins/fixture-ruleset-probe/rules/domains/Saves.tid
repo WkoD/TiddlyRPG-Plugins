@@ -1,0 +1,21 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Saves
+type: application/json
+
+{
+    "domain": "Saves",
+    "type": "label",
+    "keys": "Rules/Term/",
+    "entries": [
+        {
+            "id": "fortitude",
+            "shortcut": "fort"
+        },
+        {
+            "id": "reflex",
+            "shortcut": "ref"
+        }
+    ]
+}

@@ -1,0 +1,56 @@
+created: 20261009183000000
+modified: 20261009183000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Weight
+type: application/json
+
+{
+    "domain": "Weight",
+    "type": "unit",
+    "keys": "Rules/Unit/",
+    "units": {
+        "lb": {
+            "system": "imperial",
+            "factor": 1
+        },
+        "kg": {
+            "system": "metric",
+            "factor": 1
+        }
+    },
+    "pairs": [
+        [
+            "lb",
+            "kg",
+            0.5
+        ]
+    ],
+    "defaults": [
+        "lb",
+        "kg"
+    ],
+    "kinds": {
+        "weight": {
+            "imperial": "lb",
+            "metric": "kg"
+        }
+    },
+    "display": {
+        "imperial": {
+            "steps": [
+                {
+                    "unit": "lb",
+                    "decimals": 1
+                }
+            ]
+        },
+        "metric": {
+            "steps": [
+                {
+                    "unit": "kg",
+                    "decimals": 1
+                }
+            ]
+        }
+    }
+}

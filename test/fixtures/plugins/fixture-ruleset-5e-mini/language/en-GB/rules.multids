@@ -1,0 +1,51 @@
+created: 20261009183000000
+modified: 20261009183000000
+title: $:/tiddlyrpg/language/en-GB/
+
+Rules/Damage/Extras: extra
+Rules/Damage/Fillers: damage, dmg
+Rules/Damage/Join: plus
+Rules/Damage/Joiners: plus, and
+Rules/Damage/Pattern: $dice$ $qualifiers$ $type$
+Rules/Damage/acid: acid
+Rules/Damage/acid/Phrase: acid damage
+Rules/Damage/bludgeoning: bludgeoning
+Rules/Damage/bludgeoning/Parse: bludgeon
+Rules/Damage/bludgeoning/Phrase: bludgeoning damage
+Rules/Damage/cold: cold
+Rules/Damage/cold/Phrase: cold damage
+Rules/Damage/fire: fire
+Rules/Damage/fire/Phrase: fire damage
+Rules/Damage/piercing: piercing
+Rules/Damage/piercing/Parse: pierce
+Rules/Damage/piercing/Phrase: piercing damage
+Rules/Damage/poison: poison
+Rules/Damage/poison/Phrase: poison damage
+Rules/Damage/slashing: slashing
+Rules/Damage/slashing/Parse: slash
+Rules/Damage/slashing/Phrase: slashing damage
+Rules/System/Name: Fixture 5e mini
+Rules/Term/ac: AC
+Rules/Term/dc: DC
+Rules/Term/gm: GM
+Rules/Term/str: STR
+Rules/Term/str/name: Strength
+Rules/Term/str/save: STR save
+Rules/Term/wis: WIS
+Rules/Term/wis/name: Wisdom
+Rules/Term/wis/save: WIS save
+Rules/Term/xp: XP
+Rules/Token/die: d
+Rules/Unit/System: imperial
+Rules/Unit/cm: cm
+Rules/Unit/ft: ft
+Rules/Unit/ft/Parse: ft., feet, foot
+Rules/Unit/in: in
+Rules/Unit/in/Parse: in., inch, inches
+Rules/Unit/kg: kg
+Rules/Unit/km: km
+Rules/Unit/lb: lb
+Rules/Unit/lb/Parse: lb., lbs, pound, pounds
+Rules/Unit/m: m
+Rules/Unit/mi: mi
+Rules/Unit/mi/Parse: mile, miles

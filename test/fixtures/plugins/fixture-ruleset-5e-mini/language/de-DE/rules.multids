@@ -1,0 +1,51 @@
+created: 20261009183000000
+modified: 20261009183000000
+title: $:/tiddlyrpg/language/de-DE/
+
+Rules/Damage/Extras: zusätzlich, zusätzlichen
+Rules/Damage/Fillers: Schaden
+Rules/Damage/Join: plus
+Rules/Damage/Joiners: plus, und
+Rules/Damage/Pattern: $dice$ $qualifiers$ $type$
+Rules/Damage/acid: Säure
+Rules/Damage/acid/Phrase: Säureschaden
+Rules/Damage/bludgeoning: Wucht
+Rules/Damage/bludgeoning/Parse: Wuchtschadens
+Rules/Damage/bludgeoning/Phrase: Wuchtschaden
+Rules/Damage/cold: Kälte
+Rules/Damage/cold/Phrase: Kälteschaden
+Rules/Damage/fire: Feuer
+Rules/Damage/fire/Phrase: Feuerschaden
+Rules/Damage/piercing: Stich
+Rules/Damage/piercing/Parse: Stichschadens
+Rules/Damage/piercing/Phrase: Stichschaden
+Rules/Damage/poison: Gift
+Rules/Damage/poison/Phrase: Giftschaden
+Rules/Damage/slashing: Hieb
+Rules/Damage/slashing/Parse: Hiebschadens
+Rules/Damage/slashing/Phrase: Hiebschaden
+Rules/System/Name: Fixture 5e mini
+Rules/Term/ac: RK
+Rules/Term/dc: SG
+Rules/Term/gm: SL
+Rules/Term/str: STR
+Rules/Term/str/name: Stärke
+Rules/Term/str/save: STR-Rettungswurf
+Rules/Term/wis: WEI
+Rules/Term/wis/name: Weisheit
+Rules/Term/wis/save: WEI-Rettungswurf
+Rules/Term/xp: EP
+Rules/Token/die: W
+Rules/Unit/System: metric
+Rules/Unit/cm: cm
+Rules/Unit/ft: ft
+Rules/Unit/ft/Parse: Fuß
+Rules/Unit/in: in
+Rules/Unit/in/Parse: Zoll
+Rules/Unit/kg: kg
+Rules/Unit/km: km
+Rules/Unit/lb: lb
+Rules/Unit/lb/Parse: Pfund
+Rules/Unit/m: m
+Rules/Unit/mi: mi
+Rules/Unit/mi/Parse: Meile, Meilen
