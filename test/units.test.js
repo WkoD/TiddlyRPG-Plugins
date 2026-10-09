@@ -1,9 +1,9 @@
 /*
- * Domains of type unit (modules/rules.js, <<unit>>) against fixture-ruleset-5e-mini (Size,
- * Distance, Weight): parsing (labels, written variants, 5etools forms), pairs per domain,
- * default domain and kinds, compound values, display rules, the input language for numbers
- * without unit, the decimal mark of the wiki language, a value already in the display system,
- * what is not understood.
+ * Domains of type unit (modules/rules.js, <<unit>>) against fixture-ruleset-5e-mini (Length -
+ * sizes and distances in one domain - and Weight): parsing (labels, written variants, 5etools
+ * forms), pairs per unit, kinds with their unit and display, the display without kind, compound
+ * values, the input language for numbers without unit, the decimal mark of the wiki language, a
+ * value already in the display system, what is not understood.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -55,9 +55,15 @@ test.describe("shown in en-GB", function() {
 		assert.equal(u("2 kg"), "4 lb");
 	});
 
-	test("a distance from one mile on in miles", function() {
+	test("without kind: feet and inches below 10 ft, whole feet below one mile, then miles", function() {
+		assert.equal(u("1,70 m"), "5 ft 8 in");
 		assert.equal(u("1000 m"), "3333 ft");
 		assert.equal(u("2 km"), "1.3 mi");
+	});
+
+	test("the kind range: whole feet, no inches", function() {
+		assert.equal(u("2 m", "range"), "7 ft");
+		assert.equal(u("2 m"), "6 ft 8 in", "without kind");
 	});
 
 	test("in the display system already: as written, label in the display language", function() {
@@ -78,7 +84,7 @@ test.describe("shown in de-DE", function() {
 		h.setLanguage(wiki, "de-DE");
 	});
 
-	test("pairs per domain: ft -> m 0.3, mi -> km 1.6, lb -> kg 0.5, in -> cm 2.5", function() {
+	test("pairs per unit: ft -> m 0.3, mi -> km 1.6, lb -> kg 0.5, in -> cm 2.5", function() {
 		assert.equal(u("30 ft"), "9 m");
 		assert.equal(u("5 ft"), "1,5 m");
 		assert.equal(u("1 mi"), "1,6 km");
@@ -91,16 +97,21 @@ test.describe("shown in de-DE", function() {
 		assert.equal(u("1 mi"), "1,6 km");
 	});
 
-	test("a size: below 1 m in cm, else m with two decimals", function() {
+	test("without kind: below 1 m in cm, below 1 km in m with two decimals, then km", function() {
 		assert.equal(u("7 ft 7 in"), "2,28 m");
-		assert.equal(u("3 ft", "size"), "90 cm");
-		assert.equal(u("3 ft"), "0,9 m", "without kind a distance");
+		assert.equal(u("3 ft"), "90 cm");
+		assert.equal(u("3 ft", "size"), "90 cm", "the same with the kind size");
 		assert.equal(u("6 ft", "height"), "1,8 m");
+		assert.equal(u("4000 ft"), "1,2 km");
 	});
 
-	test("a compound value belongs to the domain that knows all its units", function() {
-		assert.equal(u("7 ft 7 in"), "2,28 m");
-		assert.equal(u("7 ft"), "2,1 m", "alone, ft is a distance");
+	test("the kind range: m with one decimal, no cm", function() {
+		assert.equal(u("3 ft", "range"), "0,9 m");
+		assert.equal(u("25 ft", "range"), "7,5 m");
+	});
+
+	test("the kind travel: always km", function() {
+		assert.equal(u("3 mi", "travel"), "4,8 km");
 	});
 
 	test("German words are read", function() {
@@ -130,11 +141,12 @@ test.describe("numbers without unit: kind and input language", function() {
 		});
 	});
 
-	test("input per domain: Size in de-DE, the rest in en-GB (like Vandalia)", function() {
-		withRules({"input/mode": "domain", "input/domain/Size": "de-DE", "input/domain/Distance": "en-GB",
+	test("one input language for all lengths: a height and a range both in metric", function() {
+		withRules({"input/mode": "domain", "input/domain/Length": "de-DE",
 			"display/mode": "all", "display/language": "en-GB"}, function() {
 			assert.equal(u("228", "height"), "7 ft 7 in");
-			assert.equal(u("60", "range"), "60 ft");
+			assert.equal(u("60", "range"), "200 ft");
+			assert.equal(u("60 ft", "range"), "60 ft", "an explicit unit for the other one");
 		});
 	});
 

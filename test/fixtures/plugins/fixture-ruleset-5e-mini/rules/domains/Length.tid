@@ -1,0 +1,172 @@
+created: 20261009200000000
+modified: 20261009200000000
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Length
+type: application/json
+
+{
+    "domain": "Length",
+    "type": "unit",
+    "keys": "Rules/Unit/",
+    "units": {
+        "in": {
+            "system": "imperial",
+            "factor": 1
+        },
+        "ft": {
+            "system": "imperial",
+            "factor": 12
+        },
+        "mi": {
+            "system": "imperial",
+            "factor": 63360
+        },
+        "cm": {
+            "system": "metric",
+            "factor": 1
+        },
+        "m": {
+            "system": "metric",
+            "factor": 100
+        },
+        "km": {
+            "system": "metric",
+            "factor": 100000
+        }
+    },
+    "pairs": [
+        [
+            "in",
+            "cm",
+            2.5
+        ],
+        [
+            "ft",
+            "m",
+            0.3
+        ],
+        [
+            "mi",
+            "km",
+            1.6
+        ]
+    ],
+    "defaults": [
+        "in",
+        "ft",
+        "mi",
+        "cm",
+        "m",
+        "km"
+    ],
+    "kinds": {
+        "height": {
+            "unit": {
+                "imperial": "ft",
+                "metric": "cm"
+            }
+        },
+        "size": {
+            "unit": {
+                "imperial": "ft",
+                "metric": "cm"
+            }
+        },
+        "range": {
+            "unit": {
+                "imperial": "ft",
+                "metric": "m"
+            },
+            "display": {
+                "imperial": {
+                    "steps": [
+                        {
+                            "unit": "ft",
+                            "below": 63360
+                        },
+                        {
+                            "unit": "mi",
+                            "decimals": 1
+                        }
+                    ]
+                },
+                "metric": {
+                    "steps": [
+                        {
+                            "unit": "m",
+                            "below": 100000,
+                            "decimals": 1
+                        },
+                        {
+                            "unit": "km",
+                            "decimals": 1
+                        }
+                    ]
+                }
+            }
+        },
+        "travel": {
+            "unit": {
+                "imperial": "mi",
+                "metric": "km"
+            },
+            "display": {
+                "imperial": {
+                    "steps": [
+                        {
+                            "unit": "mi",
+                            "decimals": 1
+                        }
+                    ]
+                },
+                "metric": {
+                    "steps": [
+                        {
+                            "unit": "km",
+                            "decimals": 1
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "display": {
+        "imperial": {
+            "steps": [
+                {
+                    "compound": [
+                        "ft",
+                        "in"
+                    ],
+                    "below": 120
+                },
+                {
+                    "unit": "ft",
+                    "below": 63360
+                },
+                {
+                    "unit": "mi",
+                    "decimals": 1
+                }
+            ]
+        },
+        "metric": {
+            "steps": [
+                {
+                    "unit": "cm",
+                    "below": 100
+                },
+                {
+                    "unit": "m",
+                    "below": 100000,
+                    "decimals": 2
+                },
+                {
+                    "unit": "km",
+                    "decimals": 1
+                }
+            ]
+        }
+    },
+    "example": "228 cm"
+}

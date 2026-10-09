@@ -108,7 +108,7 @@ test.describe("rules language", function() {
 
 	test("the table of the domains: names, languages, examples, — without kinds", function() {
 		var html = tab(RULES_TAB).replace(/>\s+</g, "><");
-		assert.match(html, /<td>Größe<\/td><td>Deutsch[^<]*<\/td><td>Deutsch[^<]*<\/td><td>228 cm → 228 cm<\/td>/);
+		assert.match(html, /<td>Länge<\/td><td>Deutsch[^<]*<\/td><td>Deutsch[^<]*<\/td><td>228 cm → 228 cm<\/td>/);
 		assert.match(html, /<td>Würfel<\/td><td>—<\/td>/);
 		assert.match(html, /<td>Kalender<\/td><td>—<\/td><td>[^<]*<\/td><td>1351-01-31 → Mittwinter 1351<\/td>/);
 		assert.match(html, /<td>Begriffe<\/td><td>—<\/td><td>[^<]*<\/td><td>ac → RK<\/td>/);
@@ -126,7 +126,7 @@ test.describe("rules language", function() {
 		assert.doesNotMatch(tab(RULES_TAB), /\$:\/config\/tiddlyrpg\/rules\/display\/domain/);
 		return withTiddlers({"$:/config/tiddlyrpg/rules/display/mode": "domain"}, function() {
 			var html = tab(RULES_TAB);
-			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 8, "one per domain (8) in the column shown in");
+			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 7, "one per domain (7) in the column shown in");
 		});
 	});
 

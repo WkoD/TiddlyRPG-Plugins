@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261009190000000
+modified: 20261009200000000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -15,16 +15,19 @@ Domain types and their data:
 
   unit     numbers with a unit, converted between systems (e.g. imperial and metric)
     "units":    {"<id>": {"system": "<system>", "factor": <n>}} - factor = size in the base unit
-                of its system in this domain (Size: in 1, ft 12; cm 1, m 100)
+                of its system in this domain (Length: in 1, ft 12, mi 63360; cm 1, m 100)
     "pairs":    [["<unit>", "<unit>", <factor>]] - first unit times factor gives the second; per
-                pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6)
+                pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6);
+                a value converts by the pair of its unit, else by the first pair of its system
     "defaults": ["<unit>"] - units for which this domain applies without a kind
-    "kinds":    {"<kind>": {"<system>": "<unit>"}} - a kind (height, range ...) chooses the domain
-                and the unit of a number without unit, by the system of the input language
-    "display":  {"<system>": rule} - how a value is shown in a system:
-                {"compound": ["ft", "in"]}  whole big units and the rest in small units
-                {"steps": [{"unit": "cm", "below": 100}, {"unit": "m", "decimals": 2}]} - the
-                first step whose "below" (in base units) the value is under, else the last
+    "kinds":    {"<kind>": {"unit": {"<system>": "<unit>"}, "display": {"<system>": rule}}} - a
+                kind (height, range ...) chooses the domain, the unit of a number without unit
+                by the system of the input language, and optionally a display of its own
+    "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a
+                kind without display of its own: {"steps": [step, ...]}, the first step whose
+                "below" (in base units of the system) the value is under, else the last; a step
+                is {"unit": "m", "decimals": 2} or {"compound": ["ft", "in"]} - whole big units
+                and the rest in whole small units
     keys: Rules/Unit/<id> (label), Rules/Unit/<id>/Parse (more words, comma separated),
           Rules/Unit/System (the system of a language: imperial, metric ...)
     A value already in the display system stays as written; only the label is translated.
@@ -211,16 +214,19 @@ function convert(domain,value,unit,target) {
 	return value / units[pair.from].factor * pair.factor * units[pair.to].factor;
 }
 
-// A value in base units of a system as text, by the display rule of the system
-function show(wiki,domain,system,value) {
-	var rule = (domain.display || {})[system],
-		units = domain.units;
-	if(!rule) {
+// A value in base units of a system as text, by the display rule of the kind or of the domain
+function show(wiki,domain,system,value,kind) {
+	var ofKind = kind && domain.kinds && domain.kinds[kind] && domain.kinds[kind].display,
+		rule = (ofKind && ofKind[system]) || (domain.display || {})[system],
+		units = domain.units,
+		steps = rule && rule.steps || [],
+		step = steps.filter(function(s) { return s.below === undefined || value < s.below; })[0] || steps[steps.length - 1];
+	if(!step) {
 		return null;
 	}
-	if(rule.compound) {
-		var big = rule.compound[0],
-			small = rule.compound[1],
+	if(step.compound) {
+		var big = step.compound[0],
+			small = step.compound[1],
 			ratio = Math.round(units[big].factor / units[small].factor),
 			total = Math.round(value / units[small].factor),
 			n = Math.floor(total / ratio),
@@ -233,11 +239,6 @@ function show(wiki,domain,system,value) {
 			parts.push(rest + " " + unitLabel(wiki,domain,small));
 		}
 		return parts.join(" ");
-	}
-	var steps = rule.steps || [],
-		step = steps.filter(function(s) { return s.below === undefined || value < s.below; })[0] || steps[steps.length - 1];
-	if(!step) {
-		return null;
 	}
 	return formatNumber(wiki,value / units[step.unit].factor,step.decimals) + " " + unitLabel(wiki,domain,step.unit);
 }
@@ -255,7 +256,7 @@ exports.unit = function(wiki,text,kind) {
 			return result(text,"Rules/Check/NoUnit",{text: text});
 		}
 		var system = systemOf(wiki,language.rulesLang(wiki,kindDomain.domain,"input")),
-			id = system && kindDomain.kinds[kind][system];
+			id = system && (kindDomain.kinds[kind].unit || {})[system];
 		if(!id) {
 			return result(text,"Rules/Check/NoUnit",{text: text});
 		}
@@ -304,7 +305,7 @@ exports.unit = function(wiki,text,kind) {
 				value += parseNumber(q.number) * domain.units[q.unit].factor;
 			});
 			var converted = convert(domain,value,first,target);
-			shown = converted === null ? null : show(wiki,domain,target,converted);
+			shown = converted === null ? null : show(wiki,domain,target,converted,domain === kindDomain ? kind : null);
 		}
 		if(shown === null) {
 			shown = group.items.map(function(q) {

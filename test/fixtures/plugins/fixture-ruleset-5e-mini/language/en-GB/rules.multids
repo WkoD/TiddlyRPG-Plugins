@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009190000000
+modified: 20261009200000000
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -27,8 +27,7 @@ Rules/Damage/slashing/Phrase: slashing damage
 Rules/Domain/Ability: Abilities
 Rules/Domain/Damage: Damage
 Rules/Domain/Dice: Dice
-Rules/Domain/Distance: Distance
-Rules/Domain/Size: Size
+Rules/Domain/Length: Length
 Rules/Domain/Terms: Terms
 Rules/Domain/Weight: Weight
 Rules/System/Name: Fixture 5e mini

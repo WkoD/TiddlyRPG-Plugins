@@ -42,7 +42,7 @@ test("the probe is the active ruleset, its domains are registered", function() {
 	var domains = language.domains(wiki);
 	assert.deepEqual(Object.keys(domains).filter(function(name) { return name !== "Calendar"; }).sort(),
 		["Bulk", "Conditions", "Damage", "Dice", "Saves", "Traits"]);
-	assert.equal(domains.Size, undefined, "no units");
+	assert.equal(domains.Length, undefined, "no units");
 });
 
 test.describe("de-DE", function() {
@@ -67,7 +67,7 @@ test.describe("de-DE", function() {
 			assert.match(html, /<td>Zustände<\/td><td>—<\/td><td>[^<]*<\/td><td>frightened 2 → verängstigt 2<\/td>/);
 			assert.match(html, /<td>Traglast<\/td>/);
 			assert.match(html, /2d6 fire plus 1d4 persistent bleed → 2W6 Feuerschaden plus 1W4 anhaltender Blutungsschaden/);
-			assert.doesNotMatch(html, /<td>Größe<\/td>/);
+			assert.doesNotMatch(html, /<td>Länge<\/td>/);
 		} finally {
 			wiki.deleteTiddler("$:/state/tiddlyrpg/settings-tab");
 		}
