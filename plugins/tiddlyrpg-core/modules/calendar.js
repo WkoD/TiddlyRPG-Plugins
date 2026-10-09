@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/calendar.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261001095424000
+modified: 20261009181232255
 
 Calendar engine. Knows no particular calendar: the active one is the JSON data tiddler named in
 $:/config/tiddlyrpg/calendar (e.g. $:/tiddlyrpg/calendar/Harptos from tiddlyrpg-setting-forgottenrealms).
@@ -25,7 +25,9 @@ preceding month (Midwinter = 1351-01-31). Leap festivals exist only in leap year
 after the regular festivals of their month.
 
 Display names come from the language keys Calendar/<id>/Month/<month>, .../Epithet/<month>,
-.../Festival/<festival>, .../Era and .../Name; without a key the id is shown.
+.../Festival/<festival>, .../Era and .../Name; without a key the id is shown. They are terms of the
+rules domain Calendar and follow its display language (language.lookupRules, see modules/language.js);
+the texts of the hub and the calculator stay in the wiki language.
 
 \*/
 
@@ -33,7 +35,9 @@ Display names come from the language keys Calendar/<id>/Month/<month>, .../Epith
 
 var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
-var CONFIG = "$:/config/tiddlyrpg/calendar";
+var CONFIG = "$:/config/tiddlyrpg/calendar",
+	// The rules domain of the names (modules/language.js)
+	DOMAIN = "Calendar";
 
 // Mathematical floor division, also for negative numbers
 function floorDiv(a,b) {
@@ -154,16 +158,16 @@ var dateFromNumber = exports.dateFromNumber = function(cal,number) {
 };
 
 function name(wiki,cal,kind,id) {
-	var text = language.lookup(wiki,"Calendar/" + cal.id + "/" + kind + "/" + id);
+	var text = language.lookupRules(wiki,DOMAIN,"Calendar/" + cal.id + "/" + kind + "/" + id);
 	return text === null ? id : text;
 }
 
 exports.era = function(wiki,cal) {
-	return language.lookup(wiki,"Calendar/" + cal.id + "/Era") || "";
+	return language.lookupRules(wiki,DOMAIN,"Calendar/" + cal.id + "/Era") || "";
 };
 
 exports.title = function(wiki,cal) {
-	return language.lookup(wiki,"Calendar/" + cal.id + "/Name") || cal.id;
+	return language.lookupRules(wiki,DOMAIN,"Calendar/" + cal.id + "/Name") || cal.id;
 };
 
 // Label of month/day as [monthLabel, dayText]: "Hammer (01)" plus the day, or for a festival
@@ -195,7 +199,7 @@ exports.table = function(wiki,cal) {
 	var lines = [];
 	for(var m = 0; m < cal.months.length; m++) {
 		var month = cal.months[m],
-			epithet = language.lookup(wiki,"Calendar/" + cal.id + "/Epithet/" + month.id) || "";
+			epithet = language.lookupRules(wiki,DOMAIN,"Calendar/" + cal.id + "/Epithet/" + month.id) || "";
 		lines.push("| " + (m + 1) + " |" + name(wiki,cal,"Month",month.id) + "|" + epithet + "|");
 		$tw.utils.each(month.festivals,function(f) {
 			var label = name(wiki,cal,"Festival",f.id);

@@ -124,6 +124,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     may be missing)
   - `lang/i18n` - display names, tag hook, search, edge labels of the real edges, refresh after
     a language change
+  - `lang/rules-lang` - the rules language: both settings in the three modes, independent,
+    values kept on a mode change, fallback to en-GB, calendar names follow the domain while the
+    texts of the calendar stay in the wiki language, refresh, an own calendar without domain
+    tiddler, the languages with keys
 
   Language mechanics go to `lang/`; plain expected output in one language stays with its topic.
   New check -> the file of its topic; new topic -> new file. A test that changes the wiki
@@ -250,7 +254,8 @@ the tiddler title:
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
   `relationsymmetric`, `relationtypes`, see "Relations"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
-  `trpgplayedby`, see "Views").
+  `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, see "Language
+  system" -> "Rules language").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
   tab "Recent"), see "Views".
@@ -372,6 +377,17 @@ Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or 
 - Known limits: the tag dropdown does not suggest "Ort" (filter hard-wired in
   `$:/core/macros/tag-picker`); sidebar "Open" and link texts without alias show the English
   title; field names in edit mode stay English.
+- **Rules language** (rule in the header of `modules/language.js`, filters `trpgruleslang`,
+  `trpgruleslangs` in `filters/rules.js`): the terms of a rules domain may follow another
+  language than the wiki. Domains are data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` from
+  the active ruleset or setting (fields `domain`, `type`, `keys`, `kinds`); the core knows the
+  types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`), never a domain name. The
+  DM sets "display" and "input" under `$:/config/tiddlyrpg/rules/<set>/...` (modes `wiki`,
+  `all`, `domain`). `lookupRules(wiki,domain,key)` looks a key up in the display language of the
+  domain, then en-GB. Only terms go through it - the calendar names (`calendar.js`), not the
+  texts of hubs, the calculator or the date patterns. A domain without tiddler (an own calendar
+  without setting) follows the mode; in the mode `domain` it gets the wiki language. JS that
+  shows terms refreshes on `$:/config/tiddlyrpg/rules/...` (the timeline does).
 
 ## Calendar engine
 
