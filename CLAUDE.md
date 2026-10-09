@@ -379,8 +379,9 @@ Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or 
   title; field names in edit mode stay English.
 - **Rules language** (rule in the header of `modules/language.js`, filters `trpgruleslang`,
   `trpgruleslangs` in `filters/rules.js`): the terms of a rules domain may follow another
-  language than the wiki. Domains are data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` from
-  the active ruleset or setting (fields `domain`, `type`, `keys`, `kinds`); the core knows the
+  language than the wiki. Domains are JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain`
+  from the active ruleset or setting (`domain`, `type`, `keys` and what the type needs, in the
+  JSON - the field `type` is the content type, `application/json`); the core knows the
   types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`), never a domain name. The
   DM sets "display" and "input" under `$:/config/tiddlyrpg/rules/<set>/...` (modes `wiki`,
   `all`, `domain`). `lookupRules(wiki,domain,key)` looks a key up in the display language of the

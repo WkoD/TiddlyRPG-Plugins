@@ -1,9 +1,11 @@
 created: 20261009181232255
-domain: Calendar
-keys: Calendar/
 modified: 20261009181232255
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Calendar
-type: calendar
+type: application/json
 
-The rules domain of the calendar: names of months, festivals, epithets and the era.
+{
+    "domain": "Calendar",
+    "type": "calendar",
+    "keys": "Calendar/"
+}

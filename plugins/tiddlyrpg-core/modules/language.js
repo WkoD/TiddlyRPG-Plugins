@@ -11,10 +11,12 @@ to en-GB, then to null (callers decide what to show). Single source of the fallb
 wikitext functions trpg.t/trpg.title/trpg.plural wrap the filter operators that call this module.
 
 Rules language: the terms of a rules domain (calendar names, later units, dice, damage, terms,
-coins) may follow another language than the wiki. Domains are data tiddlers tagged
-$:/tags/tiddlyrpg/RulesDomain, brought by the active ruleset or setting, with the fields
-`domain` (its name), `type` (calendar, unit, label, tokens, damage, currency - the core knows
-types, no domain names), optionally `keys` (the prefix of its language keys) and `kinds: yes`.
+coins) may follow another language than the wiki. Domains are JSON data tiddlers
+(type application/json) tagged $:/tags/tiddlyrpg/RulesDomain, brought by the active ruleset or
+setting, with the properties `domain` (its name), `type` (calendar, unit, label, tokens, damage,
+currency - the core knows types, no domain names), optionally `keys` (the prefix of its language
+keys) and whatever its type needs (see modules/rules.js). The type lives in the JSON, not in
+the field `type`, which is the content type of a tiddler.
 Two settings per wiki, each set by the DM in $:/config/tiddlyrpg/rules/<set>/...:
   display   the language a domain is shown in
   input     the language a domain is written in (the unit of numbers without unit)
@@ -79,22 +81,20 @@ exports.title = function(wiki,title) {
 	return title;
 };
 
-// The registered rules domains: {name: {title, domain, type, keys, kinds}}, from the domain
-// tiddlers (shadows of the active ruleset and setting, or real tiddlers)
+// The registered rules domains: {name: data}, the parsed JSON of the domain tiddlers (shadows of
+// the active ruleset and setting, or real tiddlers) plus `title`; unreadable ones are left out
 var domains = exports.domains = function(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-rules-domains",function() {
 		var result = Object.create(null);
 		$tw.utils.each(wiki.filterTiddlers("[all[shadows+tiddlers]tag[" + DOMAIN_TAG + "]sort[]]"),function(title) {
-			var fields = wiki.getTiddler(title).fields,
-				name = (fields.domain || "").trim();
+			var data = wiki.getTiddlerData(title,null),
+				name = data && typeof data.domain === "string" ? data.domain.trim() : "";
 			if(name && !result[name]) {
-				result[name] = {
-					title: title,
-					domain: name,
-					type: (fields.type || "").trim(),
-					keys: fields.keys || "",
-					kinds: fields.kinds === "yes"
-				};
+				data.title = title;
+				data.domain = name;
+				data.type = (data.type || "").toString().trim();
+				data.keys = data.keys || "";
+				result[name] = data;
 			}
 		});
 		return result;
