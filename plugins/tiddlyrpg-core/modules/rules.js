@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261010070618000
+modified: 20261010075834000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -165,6 +165,14 @@ function unitWords(wiki) {
 function systemOf(wiki,code) {
 	return (inLanguage(wiki,code,"Rules/Unit/System") || "").trim() || null;
 }
+
+// The system a unit domain is shown ("display") or written ("input") in, as the label of the wiki
+// language (Settings/Rules/System/<system>, else the id): "metrisch". "" for other domain types.
+exports.systemLabel = function(wiki,name,set) {
+	var domain = language.domains(wiki)[name],
+		system = domain && domain.type === "unit" ? systemOf(wiki,language.rulesLang(wiki,name,set)) : null;
+	return system ? language.lookup(wiki,"Settings/Rules/System/" + system) || system : "";
+};
 
 function displaySystem(wiki,domain) {
 	return systemOf(wiki,language.rulesLang(wiki,domain.domain,"display"));

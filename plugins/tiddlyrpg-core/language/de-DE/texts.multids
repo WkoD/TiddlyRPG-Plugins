@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261010065649000
+modified: 20261010075834000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -29,6 +29,10 @@ Date/Day: $day$.
 Date/DayMonth: $day$. $month$
 Date/Ever: seit jeher
 Date/Invalid: Datum prüfen:
+Date/MonthDay: $month$ $day$
+Date/MonthDay/Day: $day$
+Date/MonthDay/Year: $date$, $year$
+Date/Order: dm
 Date/SectionHint: Abschnitt unbekannt - Nummer angeben, z. B. <<date 3>>
 Date/SectionMissing: Abschnitt $n$ fehlt im Feld date
 Date/Time: $time$ Uhr
@@ -100,6 +104,13 @@ Section/Kind/secret: Sperren
 Section/Kind/spot: Spots
 Settings/Check/Version: $title$ braucht tiddlyrpg-core $required$, dieses Wiki hat $core$
 Settings/Check/VersionFormat: $title$: tiddlyrpg-core-version $required$ - als >=x.y.z schreiben
+Settings/Dates/Caption: Datum
+Settings/Dates/Example: Beispiel:
+Settings/Dates/Hint: Die Reihenfolge von Tag und Monat in Daten wie den Überschriften datierter Abschnitte, der Zeitleiste und der Datumszeile. Die Ereignistabelle behält ihre Spalten für Jahr, Monat und Tag.
+Settings/Dates/Order: Tag und Monat
+Settings/Dates/Order/dm: Tag vor Monat
+Settings/Dates/Order/md: Monat vor Tag
+Settings/Dates/Order/wiki: wie in der Wiki-Sprache
 Settings/Hint: Einstellungen von tiddlyrpg-core für dieses Wiki. Sie werden mit dem Wiki gespeichert und gelten für alle, die es lesen.
 Settings/Problem/NoChoice: Mehrere sind installiert und keins ist gewählt – aktiv ist das erste nach Titel, $1$.
 Settings/Problem/disabled: Festgelegt ist $1$, das ist deaktiviert – aktiv ist $2$.
@@ -111,6 +122,8 @@ Settings/Rules/Example: Beispiel
 Settings/Rules/Hint: In welcher Sprache Regelbegriffe in den Texten geschrieben und den Lesern angezeigt werden – Einheiten, Würfel, Schaden, Begriffe und die Namen des Kalenders. „Geschrieben in“ entscheidet über die Einheit einer Zahl, die ohne Einheit steht.
 Settings/Rules/Set/display: Angezeigt in
 Settings/Rules/Set/input: Geschrieben in
+Settings/Rules/System/imperial: imperial
+Settings/Rules/System/metric: metrisch
 Settings/Rules/WikiLanguage: Wiki-Sprache
 Settings/Ruleset/Caption: Regelwerk und Kampagnenwelt
 Settings/Ruleset/None: keins

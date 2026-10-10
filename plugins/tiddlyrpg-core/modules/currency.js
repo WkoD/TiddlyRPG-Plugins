@@ -3,16 +3,16 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261010070618000
+modified: 20261010075627000
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
-(e.g. $:/tiddlyrpg/currency/Faerun) or by the wiki itself, like the calendar. Without it,
+(e.g. $:/tiddlyrpg/currency/ForgottenRealms) or by the wiki itself, like the calendar. Without it,
 active() returns null: prices are plain numbers, as written.
 
 Data model:
   {
-    "id": "Faerun",
+    "id": "ForgottenRealms",
     "base": "gp",          // optional: the leading coin of the table, else the smallest
     "reference": "gp",     // optional: the coin that matches the price unit of the ruleset
                            // (currency-reference of $:/tiddlyrpg/rules/system), else base

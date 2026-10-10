@@ -1,5 +1,5 @@
 created: 20260706180604000
-modified: 20261010070618000
+modified: 20261010075834000
 title: $:/plugins/tiddlyrpg-core/readme
 
 ! TiddlyRPG Core
@@ -15,7 +15,8 @@ The shared format layer of the TiddlyRPG repo family:
   TiddlyRPG; listed under ControlPanel -> Plugins
 * Calendar engine: dates are formatted and calculated from the calendar data tiddler named in
   `$:/config/tiddlyrpg/calendar` (e.g. Harptos from `tiddlyrpg-setting-forgottenrealms`); without it
-  dates are shown as entered
+  dates are shown as entered; the order of day and month is set under ControlPanel -> Settings ->
+  TiddlyRPG -> Dates
 * Currency engine: prices with coins of the currency named in `$:/config/tiddlyrpg/currency`
   (field `price: 50 gp`), the hub "Currency" with a converter; without a currency prices are
   plain numbers

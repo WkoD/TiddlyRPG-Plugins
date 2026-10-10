@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261010065649000
+modified: 20261010075834000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -29,6 +29,10 @@ Date/Day: $day$
 Date/DayMonth: $day$ $month$
 Date/Ever: time immemorial
 Date/Invalid: Check the date:
+Date/MonthDay: $month$ $day$
+Date/MonthDay/Day: $day$
+Date/MonthDay/Year: $date$, $year$
+Date/Order: dm
 Date/SectionHint: Section unknown - give its number, e.g. <<date 3>>
 Date/SectionMissing: Section $n$ is missing in the date field
 Date/Time: $time$
@@ -100,6 +104,13 @@ Section/Kind/secret: locks
 Section/Kind/spot: spots
 Settings/Check/Version: $title$ needs tiddlyrpg-core $required$, this wiki has $core$
 Settings/Check/VersionFormat: $title$: tiddlyrpg-core-version $required$ - write it as >=x.y.z
+Settings/Dates/Caption: Dates
+Settings/Dates/Example: Example:
+Settings/Dates/Hint: The order of day and month in dates such as the headings of dated sections, the timeline and the date line. The table of events keeps its columns for year, month and day.
+Settings/Dates/Order: Day and month
+Settings/Dates/Order/dm: day before month
+Settings/Dates/Order/md: month before day
+Settings/Dates/Order/wiki: as in the wiki language
 Settings/Hint: Settings of tiddlyrpg-core for this wiki. They are saved with the wiki and apply to everyone who reads it.
 Settings/Problem/NoChoice: Several are installed and none is chosen - active is the first by title, $1$.
 Settings/Problem/disabled: Set is $1$, which is disabled - active is $2$.
@@ -111,6 +122,8 @@ Settings/Rules/Example: Example
 Settings/Rules/Hint: In which language rules terms are written in the texts and shown to the readers - units, dice, damage, terms and the names of the calendar. "Written in" decides the unit of a number written without one.
 Settings/Rules/Set/display: Shown in
 Settings/Rules/Set/input: Written in
+Settings/Rules/System/imperial: imperial
+Settings/Rules/System/metric: metric
 Settings/Rules/WikiLanguage: wiki language
 Settings/Ruleset/Caption: Ruleset and campaign setting
 Settings/Ruleset/None: none

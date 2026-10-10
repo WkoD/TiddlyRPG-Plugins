@@ -1,0 +1,25 @@
+caption: <<trpg.t Settings/Dates/Caption>>
+condition: [{$:/config/tiddlyrpg/calendar}!is[blank]]
+created: 20261010075834000
+list-after: $:/plugins/tiddlyrpg-core/ui/settings-rules
+modified: 20261010075834000
+tags: $:/tags/tiddlyrpg/SettingsTab
+title: $:/plugins/tiddlyrpg-core/ui/settings-dates
+type: text/vnd.tiddlywiki
+
+<!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the order of day and month in dates
+     ($:/config/tiddlyrpg/date/order, modules/dates.js): as the wiki language says (Date/Order,
+     no tiddler or empty), "dm" or "md"; below an example in the calendar of the wiki. Shows only
+     with a calendar - without one dates stay as written. -->
+<$let trpg-disabled={{{ [{$:/status/IsReadOnly}match[yes]then[yes]else[no]] }}}>
+
+<<trpg.t Settings/Dates/Hint>>
+
+''<<trpg.t Settings/Dates/Order>>''
+
+<$radio tiddler="$:/config/tiddlyrpg/date/order" value="" default="" disabled=<<trpg-disabled>>> <<trpg.t Settings/Dates/Order/wiki>></$radio><br>
+<$radio tiddler="$:/config/tiddlyrpg/date/order" value="dm" default="" disabled=<<trpg-disabled>>> <<trpg.t Settings/Dates/Order/dm>></$radio><br>
+<$radio tiddler="$:/config/tiddlyrpg/date/order" value="md" default="" disabled=<<trpg-disabled>>> <<trpg.t Settings/Dates/Order/md>></$radio>
+
+<<trpg.t Settings/Dates/Example>> <<dateformat "1351-01-05">> · <<dateformat "1351-01-05/1351-01-24">> · <<dateformat "1351-01-05/1351-03-24">>
+</$let>

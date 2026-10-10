@@ -38,11 +38,12 @@ function tab(state) {
 	return h.render(wiki, "text/html", "{{" + TAB + "}}");
 }
 
-// Sets tiddlers ({title: text}), waits for the switch, runs fn, restores
+// Sets tiddlers ({title: text}), waits for the switch, runs fn, restores. Only a real tiddler is
+// put back - a shadow (the calendar config of a setting) comes back with its plugin.
 function withTiddlers(values, fn) {
 	var before = {};
 	Object.keys(values).forEach(function(title) {
-		before[title] = wiki.getTiddler(title);
+		before[title] = wiki.tiddlerExists(title) ? wiki.getTiddler(title) : null;
 		h.add(wiki, {title: title, text: values[title]});
 	});
 	var restore = function() {
@@ -108,7 +109,7 @@ test.describe("rules language", function() {
 
 	test("the table of the domains: names, languages, examples, — without kinds", function() {
 		var html = tab(RULES_TAB).replace(/>\s+</g, "><");
-		assert.match(html, /<td>Länge<\/td><td>Deutsch[^<]*<\/td><td>Deutsch[^<]*<\/td><td>228 cm → 228 cm<\/td>/);
+		assert.match(html, /<td>Länge<\/td><td>Deutsch[^<]*<span class="trpg-rules-system"> \(metrisch\)<\/span><\/td><td>Deutsch[^<]*<span class="trpg-rules-system"> \(metrisch\)<\/span><\/td><td>228 cm → 228 cm<\/td>/);
 		assert.match(html, /<td>Würfel<\/td><td>—<\/td>/);
 		assert.match(html, /<td>Kalender<\/td><td>—<\/td><td>[^<]*<\/td><td>1351-01-31 → Mittwinter 1351<\/td>/);
 		assert.match(html, /<td>Begriffe<\/td><td>—<\/td><td>[^<]*<\/td><td>ac → RK<\/td>/);
@@ -119,6 +120,16 @@ test.describe("rules language", function() {
 			var html = tab(RULES_TAB);
 			assert.match(html, /228 cm → 7 ft 7 in/);
 			assert.match(html, /1d8 cold → 1d8 cold damage/);
+		});
+	});
+
+	test("unit domains name their system: weight imperial, length metric per domain", function() {
+		return withTiddlers({"$:/config/tiddlyrpg/rules/display/mode": "domain", "$:/config/tiddlyrpg/rules/display/domain/Weight": "en-GB"}, function() {
+			var html = tab(RULES_TAB).replace(/>\s+</g, "><");
+			assert.match(html, /<td>Gewicht<\/td><td>[^]*?\(metrisch\)<\/span><\/td><td><select[^]*?<\/select><span class="trpg-rules-system"> \(imperial\)<\/span><\/td>/);
+			assert.match(html, /<td>Länge<\/td><td>[^]*?\(metrisch\)<\/span><\/td><td><select[^]*?<\/select><span class="trpg-rules-system"> \(metrisch\)<\/span><\/td>/);
+			assert.doesNotMatch(html, /<td>Würfel<\/td>[^]*?trpg-rules-system[^]*?<td>Länge/, "no system for other domains");
+			assert.equal(h.render(wiki, "text/plain", "<<unit \"10 kg\">> <<unit \"30 ft\">>"), "20 lb 9 m");
 		});
 	});
 
@@ -140,6 +151,26 @@ test.describe("rules language", function() {
 	test("an own calendar without setting is enough", function() {
 		return withTiddlers({"$:/config/tiddlyrpg/ruleset": "none", "$:/config/tiddlyrpg/setting": "none", "$:/config/tiddlyrpg/calendar": "Own"}, function() {
 			assert.match(tab(), />Regelsprache</);
+		});
+	});
+});
+
+test.describe("dates", function() {
+	var DATES_TAB = "$:/plugins/tiddlyrpg-core/ui/settings-dates";
+
+	test("the order of day and month with an example in the calendar of the wiki", function() {
+		var html = tab(DATES_TAB);
+		assert.match(html, />Datum</);
+		assert.equal((html.match(/type="radio"/g) || []).length, 3);
+		assert.match(html, /Beispiel: 5\. Hammer 1351 DR · 5\. – 24\. Hammer 1351 DR/);
+		return withTiddlers({"$:/config/tiddlyrpg/date/order": "md"}, function() {
+			assert.match(tab(DATES_TAB), /Beispiel: Hammer 5, 1351 DR · Hammer 5 – 24, 1351 DR · Hammer 5 – Ches 24, 1351 DR/);
+		});
+	});
+
+	test("shown only with a calendar", function() {
+		return withTiddlers({"$:/config/tiddlyrpg/setting": "none"}, function() {
+			assert.doesNotMatch(tab(), />Datum</);
 		});
 	});
 });

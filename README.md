@@ -15,7 +15,7 @@ plugins from here.
 `tiddlyrpg-core` knows no game system and no world. Content for D&D 5e and the Forgotten Realms
 lives in the separate repo `TiddlyRPG-DnD` (npm `tiddlyrpg-dnd`): the ruleset
 `tiddlyrpg-ruleset-dnd5e2014` (terms of the SRD 5.1) and the campaign setting
-`tiddlyrpg-setting-forgottenrealms` (the Calendar of Harptos, the coins of Faerûn).
+`tiddlyrpg-setting-forgottenrealms` (the Calendar of Harptos, the coins of the Forgotten Realms).
 
 ## Third-party plugins
 
@@ -148,7 +148,8 @@ Each has three modes: the wiki language, one language for all domains, or per do
 (Length, Weight, Dice, Damage, Ability, Terms, Calendar, Currency - whatever the active plugins
 bring). The table shows an example per domain. Lengths and weights are converted between the
 systems with the factors of the ruleset; dice, damage, terms, months and coins are only named
-differently. The hub "Ruleset" shows every term in every language, the column of the language
+differently. For a length or weight the language chooses the system - the table names it
+("metric", "imperial"): weights in English and lengths in German give pounds and metres. The hub "Ruleset" shows every term in every language, the column of the language
 shown is marked.
 
 ## Player characters, views and secrets
@@ -501,16 +502,21 @@ with `(year - start) mod every == 0`, and comes after the regular festivals of i
 The names of months and festivals follow the rules language (domain `Calendar`); description,
 calculator and date patterns stay in the wiki language.
 
+**Order of day and month.** Control Panel -> Settings -> TiddlyRPG -> "Dates": as in the wiki
+language ("5 Flamerule 1351" in English, "5. Flamerule 1351" in German), day before month, or
+month before day ("Flamerule 5, 1351", a span in one month "Flamerule 5 – 24, 1351"). It applies
+to headings, date lines, the timeline and the calculator; the event table keeps its columns.
+
 ## Currency
 
 Like the calendar, the coins are data: the active currency is a JSON data tiddler named in
 `$:/config/tiddlyrpg/currency`, usually brought by the campaign setting
-(`tiddlyrpg-setting-forgottenrealms`: the coins of Faerûn). Without one, prices are plain
-numbers and the hub "Currency" is hidden.
+(`tiddlyrpg-setting-forgottenrealms`: the coins of the Forgotten Realms). Without one, prices are
+plain numbers and the hub "Currency" is hidden.
 
 ```json
 {
-  "id": "Faerun",
+  "id": "ForgottenRealms",
   "base": "gp",
   "reference": "gp",
   "currencies": [

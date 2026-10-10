@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261007170245412
+modified: 20261010075834000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -295,6 +295,41 @@ function monthName(wiki,cal,month) {
 }
 
 /*
+Order of day and month in the long form: $:/config/tiddlyrpg/date/order "dm" ("5. Flamerule 1351")
+or "md" ("Flamerule 5, 1351"); anything else follows Date/Order of the wiki language. The patterns
+come from the language packs: Date/DayMonth and Date/Day for "dm", Date/MonthDay, Date/MonthDay/Day
+and Date/MonthDay/Year ("$date$, $year$" after a day) for "md".
+*/
+var ORDER_CONFIG = exports.ORDER_CONFIG = "$:/config/tiddlyrpg/date/order";
+
+var dateOrder = exports.dateOrder = function(wiki) {
+	var order = (wiki.getTiddlerText(ORDER_CONFIG,"") || "").trim();
+	if(order !== "dm" && order !== "md") {
+		order = (language.t(wiki,"Date/Order") || "").trim() === "md" ? "md" : "dm";
+	}
+	return order;
+};
+
+// "5. Flamerule" / "Flamerule 5"
+function dayAndMonth(wiki,day,month) {
+	return language.format(language.t(wiki,dateOrder(wiki) === "md" ? "Date/MonthDay" : "Date/DayMonth"),{day: day, month: month});
+}
+
+// The day alone, as the start of a range within one month ("5." in "5. – 24. Flamerule") or, in
+// the order "md", as its end ("24" in "Flamerule 5 – 24, 1351")
+function dayAlone(wiki,day) {
+	return language.format(language.t(wiki,dateOrder(wiki) === "md" ? "Date/MonthDay/Day" : "Date/Day"),{day: day});
+}
+
+// A date with its year: "5. Flamerule 1351", "Flamerule 5, 1351" (the comma only after a day)
+function withYear(wiki,date,year,afterDay) {
+	if(!date) {
+		return year;
+	}
+	return afterDay && dateOrder(wiki) === "md" ? language.format(language.t(wiki,"Date/MonthDay/Year"),{date: date, year: year}) : date + " " + year;
+}
+
+/*
 Parts of a point for the short form: {dayMonth, year, time}; dayMonth is "5. Flamerule", a
 festival ("Midsummer"), a month ("Flamerule") or "". Without a calendar the point stays as
 entered (raw).
@@ -309,7 +344,7 @@ function pointParts(wiki,cal,point) {
 			month = md[0].replace(/\s*\(\d+(\/\d+)?\)$/,"");
 		if(md[1]) {
 			parts.day = point.day.toString();
-			parts.dayMonth = language.format(language.t(wiki,"Date/DayMonth"),{day: parts.day, month: month});
+			parts.dayMonth = dayAndMonth(wiki,parts.day,month);
 		} else {
 			parts.dayMonth = month;
 			parts.festival = !!point.day;
@@ -322,11 +357,11 @@ function pointParts(wiki,cal,point) {
 	return parts;
 }
 
-function join(parts,era) {
+function join(wiki,parts,era) {
 	if(parts.raw !== undefined) {
 		return parts.raw;
 	}
-	var text = (parts.dayMonth ? parts.dayMonth + " " : "") + parts.year;
+	var text = withYear(wiki,parts.dayMonth,parts.year,!!parts.day);
 	if(era) {
 		text += " " + era;
 	}
@@ -371,26 +406,30 @@ var formatRange = exports.formatRange = function(wiki,cal,start,end,opts) {
 	}
 	if(typeof start !== "object" || typeof end !== "object") {
 		// An unknown or open side: the other one in full
-		var startText = typeof start === "object" ? join(pointParts(wiki,cal,start),typeof end === "object" ? "" : era) : sideText(wiki,start,true),
-			endText = typeof end === "object" ? join(pointParts(wiki,cal,end),era) : sideText(wiki,end,false);
+		var startText = typeof start === "object" ? join(wiki,pointParts(wiki,cal,start),typeof end === "object" ? "" : era) : sideText(wiki,start,true),
+			endText = typeof end === "object" ? join(wiki,pointParts(wiki,cal,end),era) : sideText(wiki,end,false);
 		return startText + dash + endText;
 	}
 	var s = pointParts(wiki,cal,start),
 		e = pointParts(wiki,cal,end);
 	if(start.text === end.text) {
-		return join(s,era);
+		return join(wiki,s,era);
 	}
 	if(s.raw !== undefined) {
 		return s.raw + dash + e.raw;
 	}
 	if(s.year === e.year && s.month && e.month && !s.time && !e.time) {
-		// Same year: the year only once; same month with days: the month only once
+		// Same year: the year only once; same month with days: the month only once - before the
+		// first day ("5. – 24. Flamerule 1351") or after it ("Flamerule 5 – 24, 1351")
 		if(s.month === e.month && s.day && e.day) {
-			return language.format(language.t(wiki,"Date/Day"),{day: s.day}) + dash + join(e,era);
+			if(dateOrder(wiki) === "md") {
+				return s.dayMonth + dash + join(wiki,{dayMonth: dayAlone(wiki,e.day), day: e.day, year: e.year},era);
+			}
+			return dayAlone(wiki,s.day) + dash + join(wiki,e,era);
 		}
-		return s.dayMonth + dash + join(e,era);
+		return s.dayMonth + dash + join(wiki,e,era);
 	}
-	return join(s,"") + dash + join(e,era);
+	return join(wiki,s,"") + dash + join(wiki,e,era);
 };
 
 // Short form of a section
@@ -427,7 +466,7 @@ exports.formatLong = function(wiki,cal,point) {
 		text = "//" + point.year + (era ? " " + era : "") + "//<br>";
 	if(point.month) {
 		var md = calendar.monthDay(wiki,cal,point.monthText,point.dayText);
-		text += "//" + (md[1] ? language.format(language.t(wiki,"Date/DayMonth"),{day: md[1], month: md[0]}) : md[0]);
+		text += "//" + (md[1] ? dayAndMonth(wiki,md[1],md[0]) : md[0]);
 		if(point.time) {
 			text += " " + language.format(language.t(wiki,"Date/Time"),{time: point.time});
 		}

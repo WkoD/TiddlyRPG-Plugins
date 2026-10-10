@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261010063203140
+modified: 20261010075834000
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -23,6 +23,9 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<name>trpgrulesexample[]]         the example of each input domain as "input → output"
 [<name>trpgrulestable[]]           the table of each input domain for the hub Ruleset (HTML)
 [<name>trpgruleslabel[]]           the display name of each input domain
+[<name>trpgrulessystem[display]]   the unit system each input unit domain is shown (display) or
+                                   written (input) in, as a label of the wiki language
+                                   ("metrisch"); nothing for other domains
 
 \*/
 
@@ -113,6 +116,17 @@ exports.trpgruleslabel = function(source,operator,options) {
 	return each(source,function(name) {
 		return rules.domainLabel(options.wiki,name);
 	});
+};
+
+exports.trpgrulessystem = function(source,operator,options) {
+	var results = [];
+	source(function(tiddler,name) {
+		var label = rules.systemLabel(options.wiki,name,operator.operand === "input" ? "input" : "display");
+		if(label) {
+			results.push(label);
+		}
+	});
+	return results;
 };
 
 exports.trpgrulecheck = function(source,operator,options) {

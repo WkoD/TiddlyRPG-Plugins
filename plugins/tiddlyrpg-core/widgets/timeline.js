@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261009181232255
+modified: 20261010075834000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -106,7 +106,9 @@ var DEFAULT_ZOOM = 2;
 var CONFIG = "$:/config/tiddlyrpg/calendar",
 	// The active ruleset and setting (modules/plugin-types.js) bring calendars and labels; the
 	// currency names the coins of a caption ("<<unit '5 gp'>>")
-	PLUGIN_CONFIGS = ["$:/config/tiddlyrpg/ruleset","$:/config/tiddlyrpg/setting","$:/config/tiddlyrpg/currency"],
+	PLUGIN_CONFIGS = ["$:/config/tiddlyrpg/ruleset","$:/config/tiddlyrpg/setting","$:/config/tiddlyrpg/currency",
+		// The order of day and month in its dates (modules/dates.js)
+		dates.ORDER_CONFIG],
 	// The rules language (modules/language.js) names months and festivals
 	RULES_CONFIG = "$:/config/tiddlyrpg/rules/";
 

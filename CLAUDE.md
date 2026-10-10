@@ -69,7 +69,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
     leap rule
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
-    `datecheck` in de-DE and en-GB, and without a calendar; `datesection`
+    `datecheck` in de-DE and en-GB, and without a calendar; `datesection`; the order month
+    before day
   - `sections` - event head, dated sections `<<date>>` (counting, captions as wikitext with
     relink, rule, hints),
     locations per section, subtitle without modifier, event table (rows and title cells),
@@ -142,8 +143,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain - without code changes
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
-    campaign setting with its hints, the rules language with its table and examples, shown only
-    with domains or an own calendar, disabled inputs in the published copy, version hints
+    campaign setting with its hints, the rules language with its table and examples and the
+    system of the unit domains, shown only with domains or an own calendar, the order of dates
+    with its example, disabled inputs in the published copy, version hints
   - `rules-check` - the hints on rules macros below the title: wiki language, not in the
     published copy, not for a section the view does not see, not for computed parameters
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
@@ -301,7 +303,9 @@ the tiddler title:
   are tagged `$:/tags/tiddlyrpg/SettingsTab` and show when their field `condition` (a filter)
   gives anything - `ui/settings-ruleset` (ruleset and campaign setting, like the theme switcher)
   and `ui/settings-rules` (rules language; operators `trpgrulesdomains`, `trpgrulesdomain`,
-  `trpgrulesexample`). In the published copy the inputs are disabled; no button, no page of its
+  `trpgrulesexample`; a unit domain names the system of its language, `trpgrulessystem`, keys
+  `Settings/Rules/System/<system>`) and `ui/settings-dates` (order of day and month, see
+  "Calendar engine"). In the published copy the inputs are disabled; no button, no page of its
   own.
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
@@ -505,6 +509,14 @@ floor((-1-start)/every)`); for Harptos this equals the former `year*365 + ceil(y
 Without a calendar, `dateformat` shows the date as entered, `eventrows` the raw month/day
 numbers, `dateadd`/`datediff` return nothing, `datecheck` only checks the syntax and the
 `Calendar` hub is hidden from `Information`.
+
+The order of day and month in the text of a date (`dates.dateOrder()`):
+`$:/config/tiddlyrpg/date/order` `dm` ("5. Flamerule 1351") or `md` ("Flamerule 5, 1351",
+the comma only after a day; a range in one month "Flamerule 5 – 24, 1351"), otherwise `Date/Order`
+of the wiki language. The patterns are language keys (`Date/DayMonth`, `Date/Day` for `dm`;
+`Date/MonthDay`, `Date/MonthDay/Day`, `Date/MonthDay/Year` for `md`). Set in ControlPanel ->
+Settings -> TiddlyRPG -> "Dates" (`ui/settings-dates`, shown with a calendar); the timeline
+refreshes on it. The event table keeps its columns.
 
 ## Dates
 

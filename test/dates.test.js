@@ -138,6 +138,30 @@ test.describe("de-DE", function() {
 		assert.equal(f("[[1351-07-01-10:00]dateformat:long[]]"), "//1351 DR//<br>//01. Flamerule (07) 10:00 Uhr//");
 	});
 
+	test("order month before day ($:/config/tiddlyrpg/date/order): a comma after the day", function() {
+		h.add(wiki, {title: "$:/config/tiddlyrpg/date/order", text: "md"});
+		try {
+			assert.equal(f("[[1351-07-05]dateformat:era[]]"), "Flamerule 5, 1351 DR");
+			assert.equal(f("[[1351-07-22/1351-07-24]dateformat[]]"), "Flamerule 22 – 24, 1351");
+			assert.equal(f("[[1351-07-05/1351-11-20]dateformat[]]"), "Flamerule 5 – Uktar 20, 1351");
+			assert.equal(f("[[1350-12-30/1351-01-02]dateformat[]]"), "Nightal 30, 1350 – Hammer 2, 1351");
+			assert.equal(f("[[1351-01-31]dateformat[]]"), "Mittwinter 1351", "a festival has no day");
+			assert.equal(f("[[1351-07]dateformat[]]"), "Flamerule 1351", "a month without day, no comma");
+			assert.equal(f("[[1351-07-01-10:00]dateformat:long[]]"), "//1351 DR//<br>//Flamerule (07) 01 10:00 Uhr//");
+		} finally {
+			wiki.deleteTiddler("$:/config/tiddlyrpg/date/order");
+		}
+	});
+
+	test("order day before month set explicitly: as without config", function() {
+		h.add(wiki, {title: "$:/config/tiddlyrpg/date/order", text: "dm"});
+		try {
+			assert.equal(f("[[1351-07-22/1351-07-24]dateformat[]]"), "22. – 24. Flamerule 1351");
+		} finally {
+			wiki.deleteTiddler("$:/config/tiddlyrpg/date/order");
+		}
+	});
+
 	test("dateadd across Midsummer", function() {
 		assert.equal(f("[[1351-07-30]dateadd[2]]"), "1351-08-01");
 	});

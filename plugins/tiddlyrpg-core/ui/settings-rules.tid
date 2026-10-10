@@ -2,7 +2,7 @@ caption: <<trpg.t Settings/Rules/Caption>>
 condition: [trpgrulesdomains[]] [{$:/config/tiddlyrpg/calendar}!is[blank]]
 created: 20261009190000000
 list-after: $:/plugins/tiddlyrpg-core/ui/settings-ruleset
-modified: 20261009190000000
+modified: 20261010075834000
 tags: $:/tags/tiddlyrpg/SettingsTab
 title: $:/plugins/tiddlyrpg-core/ui/settings-rules
 type: text/vnd.tiddlywiki
@@ -10,8 +10,10 @@ type: text/vnd.tiddlywiki
 <!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the rules language (modules/language.js) - the
      settings "written in" (input) and "shown in" (display), each with its mode; below a table
      of the registered domains: the language each one follows, selectable in the mode "per
-     domain", and an example. Only languages with keys are offered (trpgruleslangs). Shows only
-     with a registered domain or an own calendar (field condition). -->
+     domain", and an example. Only languages with keys are offered (trpgruleslangs). A unit
+     domain names the system that language brings ("metrisch", trpgrulessystem): a German wiki
+     with weights in English shows pounds. Shows only with a registered domain or an own
+     calendar (field condition). -->
 \procedure trpg.langname(code)
 <$text text={{{ [<code>addprefix[$:/languages/]get[description]else<code>] }}}/>
 \end
@@ -44,10 +46,15 @@ type: text/vnd.tiddlywiki
 \whitespace trim
 <%if [<set>match[input]] :filter[<domain>trpgrulesdomain[kinds]match[no]] %>
 —
-<%elseif [<set>addprefix[$:/config/tiddlyrpg/rules/]addsuffix[/mode]get[text]match[domain]] %>
+<%else%>
+<%if [<set>addprefix[$:/config/tiddlyrpg/rules/]addsuffix[/mode]get[text]match[domain]] %>
 <$transclude $variable="trpg.langselect" tiddler={{{ [<set>addprefix[$:/config/tiddlyrpg/rules/]addsuffix[/domain/]addsuffix<domain>] }}} domain=<<domain>>/>
 <%else%>
 <$transclude $variable="trpg.langname" code={{{ [<set>match[input]] :then[trpgruleslang:input<domain>] ~[trpgruleslang:display<domain>] }}}/>
+<%endif%>
+<$list filter="[<domain>trpgrulessystem<set>]" variable="trpg-system">
+<span class="trpg-rules-system"><$text text={{{ [<trpg-system>addprefix[ (]addsuffix[)]] }}}/></span>
+</$list>
 <%endif%>
 \end
 
