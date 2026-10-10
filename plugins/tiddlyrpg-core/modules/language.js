@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261009181232255
+modified: 20261010063203140
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back
@@ -90,10 +90,15 @@ var domains = exports.domains = function(wiki) {
 			var data = wiki.getTiddlerData(title,null),
 				name = data && typeof data.domain === "string" ? data.domain.trim() : "";
 			if(name && !result[name]) {
+				var source = wiki.tiddlerExists(title) ? "" : (wiki.getShadowSource(title) || ""),
+					plugin = source && wiki.getTiddler(source);
 				data.title = title;
 				data.domain = name;
 				data.type = (data.type || "").toString().trim();
 				data.keys = data.keys || "";
+				// The plugin it comes from and its type (ruleset, setting); empty for a real tiddler
+				data.source = source;
+				data.plugintype = plugin ? plugin.fields["plugin-type"] || "" : "";
 				result[name] = data;
 			}
 		});

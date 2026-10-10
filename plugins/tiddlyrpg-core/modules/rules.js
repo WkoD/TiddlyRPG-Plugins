@@ -529,6 +529,126 @@ exports.damage = function(wiki,text) {
 	return result(shown.join(" " + join + " "));
 };
 
+/* The hub "Ruleset" */
+
+// The display name of a domain (Rules/Domain/<name> of the data plugins), else its name
+var domainLabel = exports.domainLabel = function(wiki,name) {
+	return language.lookup(wiki,"Rules/Domain/" + name) || name;
+};
+
+// Whether a global macro, procedure or function of that name exists ($:/tags/Global, the core
+// macros)
+function defined(wiki,name) {
+	var re = new RegExp("^\\\\(?:procedure|define|function|widget)\\s+" + escape(name) + "\\s*\\(","m");
+	return wiki.filterTiddlers("[all[shadows+tiddlers]tag[$:/tags/Global]] [all[shadows+tiddlers]tag[$:/tags/Macro]]").some(function(title) {
+		return re.test(wiki.getTiddlerText(title,""));
+	});
+}
+
+function html(text) {
+	return $tw.utils.htmlEncode(text === null || text === undefined ? "" : text.toString());
+}
+
+// The keys under a prefix in a language: {rest of the key: text}
+function keysIn(wiki,code,prefix) {
+	var result = {},
+		full = PREFIX + code + "/" + prefix;
+	var add = function(tiddler,title) {
+		if(title.indexOf(full) === 0) {
+			result[title.substr(full.length)] = wiki.getTiddlerText(title);
+		}
+	};
+	wiki.each(add);
+	wiki.eachShadow(add);
+	return result;
+}
+
+/*
+The table of a domain for the hub, as HTML: one row per entry, unit or token, a column for the
+shortcut (struck through while no macro of that name exists) and one per language that has keys
+of the domain, the display language marked. Units also list their pairs and kinds. Calendar and
+currency point to their hubs. Empty for an unknown domain.
+*/
+exports.table = function(wiki,name) {
+	var domain = language.domains(wiki)[name];
+	if(!domain) {
+		return "";
+	}
+	if(domain.type === "calendar" || domain.type === "currency") {
+		var hub = domain.type === "calendar" ? "Calendar" : "Currency";
+		return "<p>" + html(language.format(language.t(wiki,"Ruleset/Hub/See"),{hub: language.title(wiki,hub)})) +
+			" <$link to=\"" + hub + "\">" + html(language.title(wiki,hub)) + "</$link></p>";
+	}
+	var codes = language.languages(wiki,domain.keys),
+		shown = language.rulesLang(wiki,name,"display"),
+		cls = function(code) { return code === shown ? " class=\"trpg-rules-shown\"" : ""; },
+		rows = [],
+		hasShortcut = domain.type === "label" || domain.type === "damage";
+	var cell = function(text) { return "<td>" + html(text) + "</td>"; };
+	var row = function(id,shortcut,texts) {
+		var short = "";
+		if(hasShortcut) {
+			short = !shortcut ? "<td></td>" : defined(wiki,shortcut) ? "<td><code>&lt;&lt;" + html(shortcut) + "&gt;&gt;</code></td>" :
+				// The attribute is encoded by the wikitext parser itself
+				"<td><s title=\"" + language.format(language.t(wiki,"Ruleset/Hub/NoShortcut"),{name: shortcut}).replace(/"/g,"'") + "\">&lt;&lt;" + html(shortcut) + "&gt;&gt;</s></td>";
+		}
+		rows.push("<tr><td><code>" + html(id) + "</code></td>" + short + codes.map(function(code,i) {
+			return "<td" + cls(code) + ">" + texts[i] + "</td>";
+		}).join("") + "</tr>");
+	};
+	if(domain.type === "label") {
+		(domain.entries || []).forEach(function(entry) {
+			row(entry.id,entry.shortcut,codes.map(function(code) {
+				var all = keysIn(wiki,code,"Rules/Term/" + entry.id),
+					variants = Object.keys(all).filter(function(k) { return k.charAt(0) === "/"; }).sort();
+				return html(all[""] || "") + variants.map(function(k) {
+					return "<br><small>" + html(k.substr(1)) + ": " + html(all[k]) + "</small>";
+				}).join("");
+			}));
+		});
+	} else if(domain.type === "damage") {
+		(domain.entries || []).forEach(function(entry) {
+			row(entry.id,entry.shortcut,codes.map(function(code) {
+				var key = "Rules/Damage/" + entry.id,
+					phrase = wiki.getTiddlerText(PREFIX + code + "/" + key + "/Phrase");
+				return html(wiki.getTiddlerText(PREFIX + code + "/" + key) || "") + (phrase ? "<br><small>" + html(phrase) + "</small>" : "") +
+					(entry.qualifier ? " <small>(" + html(language.t(wiki,"Ruleset/Hub/Qualifier")) + ")</small>" : "");
+			}));
+		});
+	} else if(domain.type === "tokens") {
+		(domain.tokens || []).forEach(function(token) {
+			row(token.id,null,codes.map(function(code) {
+				return "<code>" + html(wiki.getTiddlerText(PREFIX + code + "/Rules/Token/" + token.id) || "") + "</code>";
+			}));
+		});
+	} else if(domain.type === "unit") {
+		Object.keys(domain.units || {}).forEach(function(id) {
+			row(id,null,codes.map(function(code) {
+				return html(wiki.getTiddlerText(PREFIX + code + "/Rules/Unit/" + id) || "");
+			}));
+		});
+	}
+	var head = "<tr><th>" + html(language.t(wiki,"Ruleset/Hub/Id")) + "</th>" +
+		(hasShortcut ? "<th>" + html(language.t(wiki,"Ruleset/Hub/Shortcut")) + "</th>" : "") +
+		codes.map(function(code) {
+			var name = wiki.getTiddler("$:/languages/" + code) ? wiki.getTiddler("$:/languages/" + code).fields.description || code : code;
+			return "<th" + cls(code) + ">" + html(name) + "</th>";
+		}).join("") + "</tr>";
+	var out = "<table class=\"trpg-rules-hub\">" + head + rows.join("") + "</table>";
+	if(domain.type === "unit") {
+		var pairs = (domain.pairs || []).map(function(p) {
+				return "1 " + unitLabel(wiki,domain,p[0]) + " = " + formatNumber(wiki,p[2],4) + " " + unitLabel(wiki,domain,p[1]);
+			}),
+			kinds = Object.keys(domain.kinds || {}).map(function(kind) {
+				var units = domain.kinds[kind].unit || {};
+				return kind + " (" + Object.keys(units).map(function(s) { return unitLabel(wiki,domain,units[s]); }).join(" / ") + ")";
+			});
+		out += "<p>" + (pairs.length ? html(language.t(wiki,"Ruleset/Hub/Pairs")) + " " + html(pairs.join(", ")) : "") +
+			(kinds.length ? "<br>" + html(language.t(wiki,"Ruleset/Hub/Kinds")) + " " + html(kinds.join(", ")) : "") + "</p>";
+	}
+	return out;
+};
+
 /* Examples */
 
 // The example of a domain ("example" in its JSON) as {input, output}, shown the way its type

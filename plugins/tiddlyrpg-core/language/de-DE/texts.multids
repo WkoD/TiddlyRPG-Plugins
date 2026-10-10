@@ -78,6 +78,16 @@ Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$
 Rules/Mode/all: eine Sprache für alles:
 Rules/Mode/domain: pro Bereich (in der Tabelle)
 Rules/Mode/wiki: die Wiki-Sprache
+Ruleset/Hub/FromSetting: Aus der Kampagnenwelt
+Ruleset/Hub/Id: Id
+Ruleset/Hub/Kinds: Arten:
+Ruleset/Hub/NoShortcut: Noch kein Makro <<$name$>> - <<term $name$>> schreiben
+Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
+Ruleset/Hub/Pairs: Umrechnung:
+Ruleset/Hub/Qualifier: Zusatz
+Ruleset/Hub/See: Namen und ihre Sprache: siehe
+Ruleset/Hub/Setting: Die Begriffe des Regelwerks in jeder Sprache; die markierte Spalte ist die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Regelsprache.
+Ruleset/Hub/Shortcut: Kurzform
 Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden

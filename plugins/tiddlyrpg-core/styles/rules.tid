@@ -1,0 +1,29 @@
+created: 20261010063203140
+modified: 20261010063203140
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/rules
+type: text/css
+
+/* Rules: the tables of the hub Ruleset (modules/rules.js table()) with the column of the display
+   language marked, the table of the rules language in the settings tab, the converter of the hub
+   Currency. Palette colours via --tpc-*. */
+.trpg-rules-hub td,
+.trpg-rules-hub th,
+.trpg-rules-table td,
+.trpg-rules-table th {
+	vertical-align: top;
+}
+.trpg-rules-hub .trpg-rules-shown {
+	background: var(--tpc-tiddler-editor-background, #f8f8f8);
+	font-weight: bold;
+}
+.trpg-rules-hub small {
+	font-weight: normal;
+	color: var(--tpc-muted-foreground, #888);
+}
+.trpg-rules-hub s {
+	color: var(--tpc-muted-foreground, #888);
+}
+.trpg-currency-converter input {
+	width: 12em;
+}

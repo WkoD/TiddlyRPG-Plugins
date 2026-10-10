@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261009190000000
+modified: 20261010063203140
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -21,6 +21,8 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<name>trpgrulesdomain[type]]      a property of each input domain: type, keys, example; kinds
                                    gives yes or no
 [<name>trpgrulesexample[]]         the example of each input domain as "input → output"
+[<name>trpgrulestable[]]           the table of each input domain for the hub Ruleset (HTML)
+[<name>trpgruleslabel[]]           the display name of each input domain
 
 \*/
 
@@ -99,6 +101,18 @@ exports.trpgrulesexample = function(source,operator,options) {
 		}
 	});
 	return results;
+};
+
+exports.trpgrulestable = function(source,operator,options) {
+	return each(source,function(name) {
+		return rules.table(options.wiki,name);
+	});
+};
+
+exports.trpgruleslabel = function(source,operator,options) {
+	return each(source,function(name) {
+		return rules.domainLabel(options.wiki,name);
+	});
 };
 
 exports.trpgrulecheck = function(source,operator,options) {

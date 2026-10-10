@@ -73,6 +73,16 @@ test.describe("de-DE", function() {
 		}
 	});
 
+	test("the hub Ruleset lists its domains, the qualifier and the shortcut fort", function() {
+		var html = h.render(wiki, "text/html", "{{Ruleset}}").replace(/>\s+</g, "><");
+		assert.match(html, /<h2[^>]*>Fixture probe<\/h2>/);
+		assert.match(html, /<h3[^>]*>Zustände<\/h3>/);
+		assert.match(html, /verängstigt \$value\$/);
+		assert.match(html, /<td><code>persistent<\/code><\/td><td><\/td><td class="trpg-rules-shown">anhaltender <small>\(Zusatz\)<\/small><\/td>/);
+		assert.match(html, /<td><code>fortitude<\/code><\/td><td><s[^>]*>&lt;&lt;fort&gt;&gt;<\/s><\/td>/);
+		assert.doesNotMatch(html, />Länge</);
+	});
+
 	test("damage with a qualifier, several parts", function() {
 		assert.equal(f("[<v>trpgdamage[]]", {v: "2d6 fire plus 1d4 persistent bleed"}),
 			"2W6 Feuerschaden plus 1W4 anhaltender Blutungsschaden");
