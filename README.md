@@ -9,11 +9,13 @@ plugins from here.
 
 | Plugin | Folder | Purpose | Origin |
 |---|---|---|---|
-| `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar engine, graph schema, event timeline | own, versioned |
+| `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar, currency and rules engines, graph schema, event timeline | own, versioned |
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
 
-Content for D&D 5e and the Forgotten Realms lives in the separate repo `TiddlyRPG-DnD` (npm
-`tiddlyrpg-dnd`): the setting `tiddlyrpg-setting-forgottenrealms` with the Calendar of Harptos.
+`tiddlyrpg-core` knows no game system and no world. Content for D&D 5e and the Forgotten Realms
+lives in the separate repo `TiddlyRPG-DnD` (npm `tiddlyrpg-dnd`): the ruleset
+`tiddlyrpg-ruleset-dnd5e2014` (terms of the SRD 5.1) and the campaign setting
+`tiddlyrpg-setting-forgottenrealms` (the Calendar of Harptos, the coins of Faerûn).
 
 ## Third-party plugins
 
@@ -40,7 +42,8 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 A small launcher (`scripts/tw.js`) in the wiki builds `TIDDLYWIKI_PLUGIN_PATH` platform
 independently (`path.delimiter`) from all `node_modules/*/plugins`; `tiddlywiki.info` lists the
 plugins by folder name (`tiddlyrpg-core`, `staticfiles`, `graph`, `vis-network`, `relink`, and
-optionally plugins of other packages, e.g. `tiddlyrpg-setting-forgottenrealms` from `tiddlyrpg-dnd`).
+optionally plugins of other packages, e.g. `tiddlyrpg-ruleset-dnd5e2014` and
+`tiddlyrpg-setting-forgottenrealms` from `tiddlyrpg-dnd`).
 
 ## Languages
 
@@ -73,6 +76,80 @@ Keys are tiddlers `$:/tiddlyrpg/language/<code>/<key>`. A language can come as
 Missing keys fall back to en-GB, so a partial translation works. `npm run test-lang` reports
 missing and extra keys per language. If TiddlyWiki has no interface pack for the language, set
 only `$:/language`; the TiddlyWiki interface then stays English, the texts of the plugin follow.
+
+## Rulesets and campaign settings
+
+Content of a game system or a world comes in data plugins of two types (`plugin-type` in
+`plugin.info`):
+
+| Type | Brings | Example |
+|---|---|---|
+| `ruleset` | rules terms: units, dice, damage types, abilities and other terms; the price unit of the system | `tiddlyrpg-ruleset-dnd5e2014` |
+| `setting` | the world: calendar, currency, their names | `tiddlyrpg-setting-forgottenrealms` |
+
+A wiki may install several of each; one of each type is active. ControlPanel -> Settings ->
+TiddlyRPG -> "Ruleset and campaign setting" chooses it (stored in `$:/config/tiddlyrpg/ruleset`
+and `$:/config/tiddlyrpg/setting`, "none" is a choice). Without a choice the only one installed,
+or the first by title, is active. The other plugins of the type are switched off at once, without
+a reload. ControlPanel -> Plugins lists them in the tabs "Rulesets" and "Campaign settings".
+
+**Building another one** needs no code: a folder plugin with `plugin-type`, the dependency on
+`$:/plugins/tiddlyrpg-core` and the core version it needs (`"tiddlyrpg-core-version": ">=2.0.0"`).
+Its terms go into rules domains - JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` -
+and language keys `$:/tiddlyrpg/language/<code>/...`. The domain types (`unit`, `label`, `tokens`,
+`damage`, `calendar`, `currency`) and their data formats are described in the header of
+`modules/rules.js`; `tiddlyrpg-ruleset-dnd5e2014` and the fixture plugins in
+`test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose core
+version is not met.
+
+## Rules terms in the text
+
+Macros write rules terms once and show them in the language the wiki chose (see "Rules
+language"):
+
+```
+                                shown in English          shown in German
+<<unit "228 cm">>               7 ft 7 in                 228 cm
+<<unit 60 range>>               60 ft                     60 m       (a number with a kind, see "Written in")
+<<dice "4d6">>                  4d6                       4W6
+<<damage "1d8 slashing">>       1d8 slashing damage       1W8 Hiebschaden
+<<term wis save>>               WIS save                  WEI-Rettungswurf
+<<unit "3 gp 5 sp">>            3 gp 5 sp                 3 GM 5 SM  (coins of the currency)
+```
+
+(With the data of `tiddlyrpg-ruleset-dnd5e2014` and `tiddlyrpg-setting-forgottenrealms`.) What a
+macro does not understand shows unchanged, with a hint below the title. The words of every
+language are read: `<<damage "1W8 Hieb">>` works as well.
+
+**Shortcuts.** A ruleset or setting may bring shortcuts: `<<wis save>>`, `<<ft 30>>`, `<<gp 50>>`
+stand for `<<term wis save>>`, `<<unit "30 ft">>`, `<<unit "50 gp">>`. The hub "Ruleset" lists
+them. They belong to their plugin: without it (or with another ruleset active) a shortcut shows
+nothing, and the check below reports it - write the long form where a text must work without the
+plugin.
+
+**In headings.** The caption of a dated section is wikitext: `<<date "Fight at <<unit '30
+ft'>>">>` - use the other kind of quotes inside. Links in a caption stay links.
+
+**Unknown macros.** A macro that nothing defines renders nothing, so a typo disappears silently.
+Below the title a hint names it (not in the published copy); `scripts/check-wiki.js` reports it
+as well.
+
+## Rules language
+
+A German wiki may want "WIS" and "ft" from an English rulebook, or "WEI" and "m". ControlPanel ->
+Settings -> TiddlyRPG -> "Rules language" sets two things, independently:
+
+- **Shown in** - the language the readers see rules terms in.
+- **Written in** - the language a number without unit counts in: with "en-GB", `<<unit 60
+  range>>` means 60 ft; with "de-DE" it means 60 m. A number with its unit (`<<unit "228 cm">>`)
+  does not depend on it.
+
+Each has three modes: the wiki language, one language for all domains, or per domain in a table
+(Length, Weight, Dice, Damage, Ability, Terms, Calendar, Currency - whatever the active plugins
+bring). The table shows an example per domain. Lengths and weights are converted between the
+systems with the factors of the ruleset; dice, damage, terms, months and coins are only named
+differently. The hub "Ruleset" shows every term in every language, the column of the language
+shown is marked.
 
 ## Player characters, views and secrets
 
@@ -301,6 +378,11 @@ told by the text - a list field carries every name once.
 **An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/ItemKind`,
 used as a tag next to the base type. Its heading in the hub is its display name.
 
+**Price:** `price: 50 gp` or `price: 3 gp 5 sp` - numbers with coins of the currency (see
+"Currency"), shown as written with the coin labels of the language shown ("50 GM" in German).
+Without a currency a price is a plain number (`price: 50`). A price that does not fit gets a hint
+below the title.
+
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
 body (PDF), not for a secret the active view does not see.
 
@@ -415,5 +497,35 @@ are shown.
 Festival days lie between two months and count as day `days + 1`, `days + 2`, ... of the
 preceding month (Midwinter = `1351-01-31`). A leap festival exists only in leap years, i.e. years
 with `(year - start) mod every == 0`, and comes after the regular festivals of its month.
+
+The names of months and festivals follow the rules language (domain `Calendar`); description,
+calculator and date patterns stay in the wiki language.
+
+## Currency
+
+Like the calendar, the coins are data: the active currency is a JSON data tiddler named in
+`$:/config/tiddlyrpg/currency`, usually brought by the campaign setting
+(`tiddlyrpg-setting-forgottenrealms`: the coins of Faerûn). Without one, prices are plain
+numbers and the hub "Currency" is hidden.
+
+```json
+{
+  "id": "Faerun",
+  "base": "gp",
+  "reference": "gp",
+  "currencies": [
+    { "id": "cp", "value": 1, "shortcut": "cp" },
+    { "id": "sp", "value": 10, "shortcut": "sp" },
+    { "id": "gp", "value": 100, "shortcut": "gp" }
+  ]
+}
+```
+
+`value` is the worth in the smallest coin; `base` leads the table of the hub; `reference` is the
+coin that matches the prices of the ruleset (`currency-reference` of the ruleset, `gp` for D&D
+5e) - the hub says so, and warns if the currency has no such coin. Display names go into
+`$:/tiddlyrpg/language/<code>/Currency/<id>/...` (`Name`, `Unit/<coin>` "gp" / "GM",
+`Coin/<coin>` "gold piece" / "Goldmünze", `Description`). The hub "Currency" shows the
+description, a converter (a price in coins, in any language) and the table with the shortcuts.
 
 Editing and release process of this repo: see `CLAUDE.md`.

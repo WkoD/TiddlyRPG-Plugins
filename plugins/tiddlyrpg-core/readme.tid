@@ -1,5 +1,5 @@
 created: 20260706180604000
-modified: 20261008171437983
+modified: 20261010070618000
 title: $:/plugins/tiddlyrpg-core/readme
 
 ! TiddlyRPG Core
@@ -10,9 +10,22 @@ The shared format layer of the TiddlyRPG repo family:
   view templates, macros, filters, styles and editor snippets (`$:/plugins/tiddlyrpg-core/...`)
 * Language packs: displayed texts come from `$:/tiddlyrpg/language/<code>/...` and follow
   `$:/language`; en-GB and de-DE included, missing keys fall back to en-GB
+* Rulesets and campaign settings: data plugins of the types `ruleset` (rules terms) and
+  `setting` (calendar, currency), one of each active, chosen under ControlPanel -> Settings ->
+  TiddlyRPG; listed under ControlPanel -> Plugins
 * Calendar engine: dates are formatted and calculated from the calendar data tiddler named in
   `$:/config/tiddlyrpg/calendar` (e.g. Harptos from `tiddlyrpg-setting-forgottenrealms`); without it
   dates are shown as entered
+* Currency engine: prices with coins of the currency named in `$:/config/tiddlyrpg/currency`
+  (field `price: 50 gp`), the hub "Currency" with a converter; without a currency prices are
+  plain numbers
+* Rules engine: the macros `<<unit>>`, `<<dice>>`, `<<damage>>` and `<<term>>` show the terms of
+  the active ruleset in the rules language - per wiki, one language for all or per domain,
+  separately for what is shown and what is written (ControlPanel -> Settings -> TiddlyRPG);
+  lengths and weights are converted. Shortcuts such as `<<wis save>>` come with the ruleset; the
+  hub "Ruleset" lists every term in every language
+* Hints below the title on what does not fit: a price without coin, a term or unit the ruleset
+  does not know, a macro that nothing defines (not in the published copy)
 * Functions `trpg.visible` (what the active view sees), `trpg.dead` (deceased/destroyed),
   `trpg.t`, `trpg.title`, `trpg.plural` in `$:/plugins/tiddlyrpg-core/functions`
 * Views: public, a player, or the DM, chosen in the page control "View"; a tiddler tagged
@@ -25,7 +38,8 @@ The shared format layer of the TiddlyRPG repo family:
 * tw5-graph schema (field edge types + graph templates) for the relation graphs
 * Dates: one syntax for all types in the field `date` (sections separated by `,`, spans with
   `/`, `.` unknown, `..` forever); in the body of an event `<<date>>` marks where each
-  section begins, with the date, an optional caption and the locations of that section
+  section begins, with the date, an optional caption (wikitext, also with macros) and the
+  locations of that section
 * Event timeline (widget `trpg-timeline`): the events of a tiddler or of the `Event` hub as an
   interactive vertical timeline in the calendar of the wiki, next to the event table; on a
   tiddler its own dates as a band behind the events

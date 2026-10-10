@@ -1,7 +1,7 @@
 {
   "title": "$:/plugins/tiddlyrpg-core",
   "name": "tiddlyrpg-core",
-  "description": "Format layer for TiddlyRPG: type hubs, view templates, macros, filters, styles, language packs (en-GB, de-DE), calendar engine and tw5-graph schema.",
+  "description": "Format layer for TiddlyRPG: type hubs, view templates, macros, filters, styles, language packs (en-GB, de-DE), calendar, currency and rules engines with the plugin types ruleset and setting, and tw5-graph schema.",
   "author": "WkoD",
   "version": "2.0.0",
   "core-version": ">=5.4.0",

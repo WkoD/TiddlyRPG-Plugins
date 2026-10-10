@@ -370,8 +370,9 @@ other repo.
 
 ## Plugin types ruleset and setting
 
-Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or a `setting`
-(campaign setting: calendar, later currency). Of each type one is active, chosen in
+Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system: rules domains,
+shortcuts, `$:/tiddlyrpg/rules/system`) or a `setting` (campaign setting: calendar, currency).
+Of each type one is active, chosen in
 `$:/config/tiddlyrpg/ruleset` and `.../setting`; the rule lives **once** in
 `modules/plugin-types.js` (`state()`):
 
@@ -385,7 +386,12 @@ Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or 
   its `$:/config/Plugins/Disabled/...` changes, and queues change events for the shadow tiddlers
   that come and go, like `$:/core/modules/startup/plugins.js` - without them nothing that shows
   them refreshes. Change events are dispatched asynchronously: a switch takes effect after the
-  dispatch, tests wait for it.
+  dispatch, tests wait for it. When raising TiddlyWiki, compare the subclass with
+  `$:/core/modules/pluginswitcher.js` and `$:/core/modules/startup/plugins.js` of the new
+  version (`test/plugin-types.test.js` covers the behaviour, not the copy).
+- The choice is made under ControlPanel -> Settings -> TiddlyRPG (`ui/settings-ruleset`); the
+  tabs `ui/controlpanel-rulesets` and `ui/controlpanel-settings` list the plugins under
+  ControlPanel -> Plugins ("Rulesets", "Campaign settings").
 - Data plugins name the core version they need: `"tiddlyrpg-core-version": ">=x.y.z"` in
   `plugin.info`, only this form (`$tw.utils.checkVersions` reads plain `x.y.z`, so `>=` is cut
   off first). `versionProblems()` lists what is not met; `check-wiki.js` reports it.
@@ -895,7 +901,10 @@ its `CLAUDE.md`.)
 1. Change the format -> raise `version` in `plugins/tiddlyrpg-core/plugin.info` (semver:
    patch=fix, minor=new features, major=breaking change). For now all TiddlyRPG repos keep the
    same version to show they fit together: raise `TiddlyRPG-DnD` (its `package.json` and every
-   `plugin.info`) to the same value and release it right after.
+   `plugin.info`) to the same value and release it right after. A breaking change of a contract
+   for data plugins (domain types, data formats, keys) also raises `tiddlyrpg-core-version` of
+   the plugins there, and the dependency of `TiddlyRPG-DnD` on this repo once it has one in its
+   `package.json`.
 2. Raise `version` in `package.json` to the same value.
 3. Run `npm install` -> brings `package-lock.json` to the same version. Do not skip it: otherwise
    the lockfile version drifts permanently.
