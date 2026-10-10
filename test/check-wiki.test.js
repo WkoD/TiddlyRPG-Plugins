@@ -1,8 +1,8 @@
 /*
  * scripts/check-wiki.js against a small wiki folder (written to the temp folder) on what it
  * checks beyond dates: the config of the plugin types ruleset and setting, the tiddlyrpg-core
- * version a plugin needs, the reference coin of the currency, and the plugins of the packages
- * in the wiki's node_modules. The checks
+ * version a plugin needs, the reference coin of the currency, unknown macros and rules macros
+ * not understood, and the plugins of the packages in the wiki's node_modules. The checks
  * of dates and sections before and after the 1.x migration: migrate.test.js.
  */
 var test = require("node:test"),
@@ -51,6 +51,18 @@ test("a clean wiki: no finding, the calendar of the setting applies", function()
 	assert.equal(result.status, 0, result.out);
 	assert.match(result.out, /\(calendar Harptos\)/);
 	assert.match(result.out, /0 errors, 0 warnings, 0 hints/);
+});
+
+test("an unknown macro and a shortcut the ruleset does not understand: warnings", function() {
+	write("tiddlers/Notiz.tid", "title: Notiz\n\nA <<nope>> B, <<wis bogus>>, <<wis save>>, <<gp 5>>.\n");
+	try {
+		var result = check();
+		assert.equal(result.status, 0, result.out);
+		assert.match(result.out, /Notiz\n {2}warning {2}Check the text: <<nope>> is no known macro\n {2}warning {2}Check the text: <<term wis>> has no variant "bogus"\n/);
+		assert.match(result.out, /0 errors, 2 warnings, 0 hints/);
+	} finally {
+		fs.rmSync(path.join(dir, "tiddlers/Notiz.tid"), {force: true});
+	}
 });
 
 test.describe("the config of the plugin types", function() {

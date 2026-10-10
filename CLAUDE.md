@@ -128,7 +128,14 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `plugin-versions` - the core version equals `package.json`; `tiddlyrpg-core-version` met,
     not met, wrong form
   - `check-wiki` - `scripts/check-wiki.js` beyond dates: the config of the plugin types, the
-    core version a plugin needs, plugins from the packages in the wiki's `node_modules`
+    core version a plugin needs, unknown macros and rules macros not understood, plugins from
+    the packages in the wiki's `node_modules`
+  - `macros-check` - unknown macros: the forms of a call, global and local definitions, the
+    variables of the page and view template, wildcards, code and definitions left out, locked
+    sections, data tiddlers and snippets, the hint below the title, the operator
+  - `shortcuts` - shortcuts of the fixtures: data and procedures per plugin, shown like their
+    macro, read by the check of the rules macros, gone without their plugin, struck through in
+    the hubs `Ruleset` and `Currency` without procedure
   - `units`, `dice`, `damage`, `terms` - the domain types `unit`, `tokens`, `damage`, `label` of
     the rules engine against `fixture-ruleset-5e-mini`: parsing in every language, pairs, kinds,
     display rules, input language, the damage grammar, variants, what is not understood
@@ -280,7 +287,7 @@ the tiddler title:
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
   `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgunit`,
   `trpgdice`, `trpgdamage`, `trpgterm`, `trpgrulecheck`, see "Language system" -> "Rules
-  language" and "Rules engine").
+  language" and "Rules engine"), `macros-check.js` (`macrocheck`, see "Unknown macros").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
   tab "Recent"), see "Views".
@@ -303,7 +310,8 @@ the tiddler title:
   `location` (map block: tab "Map" if there is a map image, a spot or a place within, with
   `location/map` - map graph, buttons, spots -, one tab
   per battle map with `location/battlemap`; tab state per location, see "Locations"),
-  `location-path` (path below the title, with the hints of `locationcheck` and `itemcheck`),
+  `location-path` (path below the title, with the hints of `locationcheck`, `itemcheck`,
+  `sectioncheck`, `trpgrulecheck` and `macrocheck`),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs), `secret` (marker of a secret: whom it is for), `player`
@@ -436,6 +444,30 @@ Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or 
   no global macro of that name exists. Domains of the campaign setting stand in a section of
   their own (`language.domains()` knows the plugin of a domain and its type); calendar and
   currency point to their hubs. It shows terms and data of the plugins only, no wiki titles.
+- **Shortcuts** (`rules.shortcuts()`): the data names them - `shortcut` of a label or damage
+  entry, of a unit, of a coin of the active currency. The procedures stand next to the data in
+  the plugin (`$:/plugins/<plugin>/rules/shortcuts`, tag `$:/tags/Global`), each calling the
+  macro it stands for: `\procedure wis(variant) <$transclude $variable="term" id="wis"
+  arg=<<variant>>/>`, `\procedure ft(n,kind)` with `<<unit>>` and `[<n>addsuffix[ ft]]`
+  (procedures do no `$param$` substitution). A test per plugin compares data and procedures.
+  The procedures are shadows of the plugin, so a shortcut is gone with its plugin. `check()`
+  reads a call of a shortcut like the macro it stands for; the hubs `Ruleset` and `Currency`
+  strike through a shortcut without procedure, the tooltip names the macro to write instead
+  (`noShortcut()`).
+
+## Unknown macros
+
+`modules/macros-check.js` (operator `macrocheck`, key `Text/Check/UnknownMacro`): a call
+`<<name>>` that nothing defines renders nothing - a typo or the shortcut of a plugin that is not
+active disappears silently. Reported below the title (editable wiki only) and by
+`check-wiki.js`. Defined is a name that is global (`GlobalImportFilter`, the view template
+import tags, JavaScript macros), set around the call (pragmas, `$set`, `$let`, `$vars`, `$list`,
+`$range`, `$wikify`, `$parameters`) or a variable of the page and view template (the list
+`CONTEXT`, measured with `[variables[]]` in the body of a tiddler in the story; `tv-*`). Inside
+`$importvariables` and the widgets that hand variables to their actions every name counts.
+Calls in code and in definitions are not looked at; calls in a section the active view does not
+see are left out, like the hints of the rules macros. The check over the three wikis found
+nothing to add to the lists.
 
 ## Currency engine
 

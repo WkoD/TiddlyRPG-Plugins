@@ -1,0 +1,10 @@
+created: 20261010070618000
+modified: 20261010070618000
+tags: $:/tags/Global
+title: $:/plugins/fixture-setting-harptos/rules/shortcuts
+type: text/vnd.tiddlywiki
+
+<!-- The shortcuts of the coins: <<gp 50>> is <<unit "50 gp">>. sp has a shortcut in the data but
+     no procedure here, so the tests see one struck through. -->
+\procedure cp(n) <$transclude $variable="unit" value={{{ [<n>addsuffix[ cp]] }}}/>
+\procedure gp(n) <$transclude $variable="unit" value={{{ [<n>addsuffix[ gp]] }}}/>

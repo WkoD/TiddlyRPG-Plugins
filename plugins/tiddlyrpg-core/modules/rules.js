@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261010063203140
+modified: 20261010070618000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -14,8 +14,9 @@ $:/tiddlyrpg/language/<code>/<key>. Parsing accepts the words of every language,
 Domain types and their data:
 
   unit     numbers with a unit, converted between systems (e.g. imperial and metric)
-    "units":    {"<id>": {"system": "<system>", "factor": <n>}} - factor = size in the base unit
-                of its system in this domain (Length: in 1, ft 12, mi 63360; cm 1, m 100)
+    "units":    {"<id>": {"system": "<system>", "factor": <n>, "shortcut": "<name>"}} - factor =
+                size in the base unit of its system in this domain (Length: in 1, ft 12, mi
+                63360; cm 1, m 100); shortcut optional (see shortcuts())
     "pairs":    [["<unit>", "<unit>", <factor>]] - first unit times factor gives the second; per
                 pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6);
                 a value converts by the pair of its unit, else by the first pair of its system
@@ -33,7 +34,7 @@ Domain types and their data:
     A value already in the display system stays as written; only the label is translated.
 
   label    terms shown by id, e.g. abilities, conditions
-    "entries":  [{"id": "<id>", "shortcut": "<name>"}]
+    "entries":  [{"id": "<id>", "shortcut": "<name>"}] - shortcut optional (see shortcuts())
     keys: Rules/Term/<id>, Rules/Term/<id>/<variant>; a label with $value$ takes a number
 
   tokens   single tokens inside expressions, e.g. the die in 1d6 / 1W6, Bulk L
@@ -43,7 +44,7 @@ Domain types and their data:
 
   damage   damage expressions: parts of a calculation (dice, numbers, +/-, an average with the
            dice in brackets), qualifiers and a type; parts joined by "+", "plus", "and"
-    "entries":  [{"id": "<id>"}, {"id": "<id>", "qualifier": true}]
+    "entries":  [{"id": "<id>"}, {"id": "<id>", "qualifier": true}] - "shortcut" optional
     keys: Rules/Damage/<id> (name), Rules/Damage/<id>/Phrase (the type as it reads after the
           dice, "cold damage", "Kälteschaden"), Rules/Damage/<id>/Parse (more words),
           Rules/Damage/Pattern ($dice$ $qualifiers$ $type$), Rules/Damage/Join (between parts),
@@ -529,6 +530,53 @@ exports.damage = function(wiki,text) {
 	return result(shown.join(" " + join + " "));
 };
 
+/* Shortcuts */
+
+/*
+The shortcuts the data names, {name: {kind, id}}: a label entry (kind "term", <<wis save>> is
+<<term wis save>>), a damage entry ("damage", <<fire 1d6>> is <<damage "1d6 fire">>), a unit
+("unit", <<ft 30 range>> is <<unit "30 ft" range>>) and a coin of the active currency ("coin",
+<<gp 50>> is <<unit "50 gp">>). The procedures stand next to the data in their plugin (tag
+$:/tags/Global); the hub strikes through a shortcut without one, the check reads its calls like
+those of the macro it stands for. The first entry of a name wins.
+*/
+var shortcuts = exports.shortcuts = function(wiki) {
+	return wiki.getGlobalCache("tiddlyrpg-rules-shortcuts",function() {
+		var result = Object.create(null);
+		var add = function(name,kind,id) {
+			if(name && !result[name]) {
+				result[name] = {kind: kind, id: id};
+			}
+		};
+		$tw.utils.each(language.domains(wiki),function(domain) {
+			if(domain.type === "label" || domain.type === "damage") {
+				$tw.utils.each(domain.entries,function(entry) {
+					add(entry.shortcut,domain.type === "label" ? "term" : "damage",entry.id);
+				});
+			} else if(domain.type === "unit") {
+				$tw.utils.each(domain.units,function(unit,id) {
+					add(unit.shortcut,"unit",id);
+				});
+			}
+		});
+		var cur = require("$:/plugins/tiddlyrpg-core/modules/currency.js").active(wiki);
+		$tw.utils.each(cur ? cur.coins : [],function(coin) {
+			add(coin.shortcut,"coin",coin.id);
+		});
+		return result;
+	});
+};
+
+// The hint on a shortcut without procedure, naming the macro to write instead
+exports.noShortcut = function(wiki,name) {
+	var shortcut = shortcuts(wiki)[name],
+		long = !shortcut ? "" :
+			shortcut.kind === "term" ? "<<term " + shortcut.id + ">>" :
+			shortcut.kind === "damage" ? "<<damage \"n " + shortcut.id + "\">>" :
+			"<<unit \"n " + shortcut.id + "\">>";
+	return language.format(language.t(wiki,"Ruleset/Hub/NoShortcut"),{name: name, long: long});
+};
+
 /* The hub "Ruleset" */
 
 // The display name of a domain (Rules/Domain/<name> of the data plugins), else its name
@@ -539,10 +587,7 @@ var domainLabel = exports.domainLabel = function(wiki,name) {
 // Whether a global macro, procedure or function of that name exists ($:/tags/Global, the core
 // macros)
 function defined(wiki,name) {
-	var re = new RegExp("^\\\\(?:procedure|define|function|widget)\\s+" + escape(name) + "\\s*\\(","m");
-	return wiki.filterTiddlers("[all[shadows+tiddlers]tag[$:/tags/Global]] [all[shadows+tiddlers]tag[$:/tags/Macro]]").some(function(title) {
-		return re.test(wiki.getTiddlerText(title,""));
-	});
+	return require("$:/plugins/tiddlyrpg-core/modules/macros-check.js").defined(wiki,name);
 }
 
 function html(text) {
@@ -583,14 +628,14 @@ exports.table = function(wiki,name) {
 		shown = language.rulesLang(wiki,name,"display"),
 		cls = function(code) { return code === shown ? " class=\"trpg-rules-shown\"" : ""; },
 		rows = [],
-		hasShortcut = domain.type === "label" || domain.type === "damage";
+		hasShortcut = domain.type === "label" || domain.type === "damage" || domain.type === "unit";
 	var cell = function(text) { return "<td>" + html(text) + "</td>"; };
 	var row = function(id,shortcut,texts) {
 		var short = "";
 		if(hasShortcut) {
 			short = !shortcut ? "<td></td>" : defined(wiki,shortcut) ? "<td><code>&lt;&lt;" + html(shortcut) + "&gt;&gt;</code></td>" :
 				// The attribute is encoded by the wikitext parser itself
-				"<td><s title=\"" + language.format(language.t(wiki,"Ruleset/Hub/NoShortcut"),{name: shortcut}).replace(/"/g,"'") + "\">&lt;&lt;" + html(shortcut) + "&gt;&gt;</s></td>";
+				"<td><s title=\"" + exports.noShortcut(wiki,shortcut).replace(/"/g,"'") + "\">&lt;&lt;" + html(shortcut) + "&gt;&gt;</s></td>";
 		}
 		rows.push("<tr><td><code>" + html(id) + "</code></td>" + short + codes.map(function(code,i) {
 			return "<td" + cls(code) + ">" + texts[i] + "</td>";
@@ -623,7 +668,7 @@ exports.table = function(wiki,name) {
 		});
 	} else if(domain.type === "unit") {
 		Object.keys(domain.units || {}).forEach(function(id) {
-			row(id,null,codes.map(function(code) {
+			row(id,domain.units[id].shortcut,codes.map(function(code) {
 				return html(wiki.getTiddlerText(PREFIX + code + "/Rules/Unit/" + id) || "");
 			}));
 		});
@@ -697,8 +742,35 @@ function params(node,names) {
 	return values;
 }
 
-// The problems of the rules macros in the body of a tiddler: texts in the wiki language. Calls
-// in a section the active view does not see are left out - the hint would show their text.
+// Whether a parameter is computed (null): such a call cannot be checked here
+function computed(p) {
+	return Object.keys(p).some(function(name) { return p[name] === null; });
+}
+
+// The result of a call of a rules macro, or null
+function runMacro(wiki,name,node) {
+	var p = params(node,MACROS[name]);
+	return computed(p) ? null :
+		name === "unit" ? exports.unit(wiki,p.value,p.kind) :
+		name === "dice" ? dice(wiki,p.value) :
+		name === "damage" ? exports.damage(wiki,p.value) :
+		exports.term(wiki,p.id,p.arg);
+}
+
+// The result of a call of a shortcut, as the macro it stands for computes it, or null
+var SHORTCUT_PARAMS = {term: ["variant"], damage: ["dice"], unit: ["n","kind"], coin: ["n"]};
+function runShortcut(wiki,name,node) {
+	var shortcut = shortcuts(wiki)[name],
+		p = shortcut && params(node,SHORTCUT_PARAMS[shortcut.kind]);
+	return !shortcut || computed(p) ? null :
+		shortcut.kind === "term" ? exports.term(wiki,shortcut.id,p.variant) :
+		shortcut.kind === "damage" ? exports.damage(wiki,(p.dice + " " + shortcut.id).trim()) :
+		exports.unit(wiki,(p.n + " " + shortcut.id).trim(),p.kind || "");
+}
+
+// The problems of the rules macros and shortcuts in the body of a tiddler: texts in the wiki
+// language. Calls in a section the active view does not see are left out - the hint would show
+// their text.
 exports.check = function(wiki,title) {
 	var parsed = wiki.parseTiddler(title),
 		hidden = require("$:/plugins/tiddlyrpg-core/modules/sections.js").hiddenRanges(wiki,title),
@@ -711,22 +783,12 @@ exports.check = function(wiki,title) {
 	var walk = function(nodes) {
 		$tw.utils.each(nodes,function(node) {
 			var attrs = node.attributes || {},
-				name = node.type === "transclude" && attrs.$variable && attrs.$variable.value;
-			if(name && MACROS[name] && !inHidden(node)) {
-				var p = params(node,MACROS[name]),
-					values = MACROS[name].map(function(n) { return p[n]; });
-				// Computed parameters cannot be checked here
-				if(values.indexOf(null) === -1) {
-					var r = name === "unit" ? exports.unit(wiki,p.value,p.kind) :
-						name === "dice" ? dice(wiki,p.value) :
-						name === "damage" ? exports.damage(wiki,p.value) :
-						exports.term(wiki,p.id,p.arg);
-					if(r.problem) {
-						var text = language.format(language.t(wiki,r.problem),r.values);
-						if(problems.indexOf(text) === -1) {
-							problems.push(text);
-						}
-					}
+				name = node.type === "transclude" && attrs.$variable && attrs.$variable.value,
+				r = name && !inHidden(node) ? (MACROS[name] ? runMacro(wiki,name,node) : runShortcut(wiki,name,node)) : null;
+			if(r && r.problem) {
+				var text = language.format(language.t(wiki,r.problem),r.values);
+				if(problems.indexOf(text) === -1) {
+					problems.push(text);
 				}
 			}
 			walk(node.children);

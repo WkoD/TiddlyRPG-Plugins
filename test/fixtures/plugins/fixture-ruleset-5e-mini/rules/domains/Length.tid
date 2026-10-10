@@ -1,5 +1,5 @@
 created: 20261009200000000
-modified: 20261009200000000
+modified: 20261010070618000
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Length
 type: application/json
@@ -15,11 +15,13 @@ type: application/json
         },
         "ft": {
             "system": "imperial",
-            "factor": 12
+            "factor": 12,
+            "shortcut": "ft"
         },
         "mi": {
             "system": "imperial",
-            "factor": 63360
+            "factor": 63360,
+            "shortcut": "mi"
         },
         "cm": {
             "system": "metric",

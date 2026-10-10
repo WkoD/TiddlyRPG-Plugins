@@ -73,12 +73,14 @@ test("the column of the display language follows the setting", function() {
 });
 
 test("a shortcut without macro is struck through, with one it is not", function() {
-	assert.match(tableAfter(hub(), "Attribute"), /<s title="Noch kein Makro &lt;&lt;wis&gt;&gt;[^"]*">&lt;&lt;wis&gt;&gt;<\/s>/);
-	h.add(wiki, {title: "Own Shortcut", tags: "$:/tags/Global", text: "\\procedure wis(variant) <<term wis $variant$>>\n"});
+	assert.match(tableAfter(hub(), "Attribute"), /<td><code>&lt;&lt;wis&gt;&gt;<\/code><\/td>/);
+	// The procedures of the fixture overridden by a tiddler that is no global
+	var SHORTCUTS = "$:/plugins/fixture-ruleset-5e-mini/rules/shortcuts";
+	h.add(wiki, {title: SHORTCUTS, text: ""});
 	try {
-		assert.match(tableAfter(hub(), "Attribute"), /<td><code>&lt;&lt;wis&gt;&gt;<\/code><\/td>/);
+		assert.match(tableAfter(hub(), "Attribute"), /<s title="Noch kein Makro &lt;&lt;wis&gt;&gt; – &lt;&lt;term wis&gt;&gt; schreiben">&lt;&lt;wis&gt;&gt;<\/s>/);
 	} finally {
-		wiki.deleteTiddler("Own Shortcut");
+		wiki.deleteTiddler(SHORTCUTS);
 	}
 });
 
@@ -88,7 +90,7 @@ test("damage: name and phrase per language", function() {
 
 test("units: labels, pairs and kinds", function() {
 	var html = hub();
-	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
+	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td><code>&lt;&lt;ft&gt;&gt;<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
 	assert.match(html, /Umrechnung: 1 in = 2,5 cm, 1 ft = 0,3 m, 1 mi = 1,6 km/);
 	assert.match(html, /Arten: height \(ft \/ cm\), size \(ft \/ cm\), range \(ft \/ m\), travel \(mi \/ km\)/);
 });

@@ -24,7 +24,9 @@
  *            character, a kind in the wrong tiddler); a tiddler that asks the view itself
  *            ($:/state/tiddlyrpg/view, trpg.visible - lock with the tag Secret, <<secret>> or
  *            <$secret> instead); a transclusion of a tiddler tagged Secret (it shows to every
- *            view that sees the transcluding tiddler)
+ *            view that sees the transcluding tiddler); a macro nothing defines (it shows
+ *            nothing, modules/macros-check.js); a rules macro or shortcut with a text the
+ *            ruleset does not understand (modules/rules.js)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
  *            heading; text before the first placeholder; an event without date; several
  *            sections or ".." as start of a non-event
@@ -64,6 +66,8 @@ $tw.boot.boot(function() {
 		}
 	};
 	var sections = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/sections.js"),
+		macros = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/macros-check.js"),
+		rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js"),
 		pluginTypes = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/plugin-types.js");
 	// The plugin types ruleset and setting: a config naming a plugin that is not used
 	var PROBLEMS = {
@@ -139,7 +143,7 @@ $tw.boot.boot(function() {
 		if(/\$:\/state\/tiddlyrpg\/view|trpg\.visible|trpgvisible/.test(text)) {
 			add(title, "warning", "asks the view itself - lock with the tag Secret, <<secret>> or <$secret>");
 		}
-		$tw.utils.each(sections.check(wiki, title), function(problem) {
+		$tw.utils.each(sections.check(wiki, title).concat(macros.check(wiki, title), rules.check(wiki, title)), function(problem) {
 			add(title, "warning", problem);
 		});
 		var parsed = wiki.parseTiddler(title);

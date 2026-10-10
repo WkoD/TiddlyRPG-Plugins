@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261010063203140
+modified: 20261010065649000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -81,7 +81,7 @@ Rules/Mode/wiki: die Wiki-Sprache
 Ruleset/Hub/FromSetting: Aus der Kampagnenwelt
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Arten:
-Ruleset/Hub/NoShortcut: Noch kein Makro <<$name$>> - <<term $name$>> schreiben
+Ruleset/Hub/NoShortcut: Noch kein Makro <<$name$>> – $long$ schreiben
 Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
 Ruleset/Hub/Pairs: Umrechnung:
 Ruleset/Hub/Qualifier: Zusatz
@@ -121,6 +121,7 @@ Snippet/OpenItems: Offene Punkte
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden
 Spot/PlaceMissing: Ort „$place$“ gibt es nicht
 TBC/Other: Anderes
+Text/Check/UnknownMacro: Text prüfen: <<$name$>> ist kein bekanntes Makro
 Timeline/Expand: Lücke aufklappen
 Timeline/Gap: $n$ Jahre
 Timeline/Gaps: Lücken stauchen

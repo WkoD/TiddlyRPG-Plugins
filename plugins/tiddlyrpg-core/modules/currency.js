@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261010063203140
+modified: 20261010070618000
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
@@ -16,10 +16,11 @@ Data model:
     "base": "gp",          // optional: the leading coin of the table, else the smallest
     "reference": "gp",     // optional: the coin that matches the price unit of the ruleset
                            // (currency-reference of $:/tiddlyrpg/rules/system), else base
-    "currencies": [ {"id": "cp", "value": 1}, {"id": "sp", "value": 10}, ... ]
+    "currencies": [ {"id": "cp", "value": 1, "shortcut": "cp"}, {"id": "sp", "value": 10}, ... ]
   }
 value is the worth in the smallest coin (a whole number > 0); the order is the order of the
-table.
+table. shortcut (optional) names the shortcut of the coin, <<gp 50>> (modules/rules.js
+shortcuts()).
 
 Language keys Currency/<id>/Name, .../Unit/<coin> (the short label, "gp" / "GM"),
 .../Coin/<coin> (the name, "gold piece" / "Goldmünze"), .../Unit/<coin>/Parse (more words,
@@ -54,7 +55,7 @@ function build(data) {
 	var cur = {id: (data.id || "").toString() || "Currency", coins: [], byId: Object.create(null)};
 	for(var i = 0; i < data.currencies.length; i++) {
 		var raw = data.currencies[i] || {},
-			coin = {id: (raw.id || "").toString(), value: parseInt(raw.value,10)};
+			coin = {id: (raw.id || "").toString(), value: parseInt(raw.value,10), shortcut: raw.shortcut ? raw.shortcut.toString() : ""};
 		if(!coin.id || !(coin.value > 0) || cur.byId[coin.id]) {
 			return null;
 		}
@@ -223,15 +224,27 @@ exports.rulesReference = function(wiki) {
 	return tiddler && tiddler.fields["currency-reference"] ? tiddler.fields["currency-reference"].trim() : "";
 };
 
-// Wikitext table for the hub: name | unit | worth in the leading coin, with a header row in the
+// Wikitext table for the hub: name | unit | worth in the leading coin | shortcut (when a coin has
+// one; struck through without its procedure, like in the hub Ruleset), with a header row in the
 // wiki language
 exports.table = function(wiki,cur) {
 	var base = cur.byId[cur.base],
-		lines = ["|!" + language.t(wiki,"Currency/Coin") + " |!" + language.t(wiki,"Currency/Unit") + " |!" + language.t(wiki,"Currency/Worth") + " |"];
+		macros = require("$:/plugins/tiddlyrpg-core/modules/macros-check.js"),
+		withShortcut = cur.coins.some(function(coin) { return !!coin.shortcut; }),
+		lines = ["|!" + language.t(wiki,"Currency/Coin") + " |!" + language.t(wiki,"Currency/Unit") + " |!" + language.t(wiki,"Currency/Worth") + " |" +
+			(withShortcut ? "!" + language.t(wiki,"Ruleset/Hub/Shortcut") + " |" : "")];
+	var shortcut = function(name) {
+		if(!name) {
+			return " |";
+		}
+		var call = "<code><$text text=\"<<" + name + ">>\"/></code>";
+		return (macros.defined(wiki,name) ? call : "<s title=\"" + require("$:/plugins/tiddlyrpg-core/modules/rules.js").noShortcut(wiki,name).replace(/"/g,"'") + "\">" + call + "</s>") + " |";
+	};
 	cur.coins.forEach(function(coin) {
 		var inBase = Math.round(coin.value / base.value * 10000) / 10000;
 		lines.push("|" + coinName(wiki,cur,coin.id) + " |" + unitLabel(wiki,cur,coin.id) + " |" +
-			require("$:/plugins/tiddlyrpg-core/modules/rules.js").formatNumber(wiki,inBase,4) + " " + unitLabel(wiki,cur,cur.base) + " |");
+			require("$:/plugins/tiddlyrpg-core/modules/rules.js").formatNumber(wiki,inBase,4) + " " + unitLabel(wiki,cur,cur.base) + " |" +
+			(withShortcut ? shortcut(coin.shortcut) : ""));
 	});
 	return lines.join("\n");
 };
