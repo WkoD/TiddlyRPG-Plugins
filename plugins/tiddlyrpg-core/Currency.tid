@@ -1,0 +1,46 @@
+caption: <<trpg.title Currency>>
+created: 20261010063203140
+modified: 20261010063203140
+tags: Information
+title: Currency
+type: text/vnd.tiddlywiki
+
+<!-- Built from the active currency ($:/config/tiddlyrpg/currency, see modules/currency.js):
+     the description (Currency/<id>/Description), a converter and the table of the coins. The
+     coin of the setting that matches the price unit of the ruleset (reference), with a hint if
+     the currency does not have it. -->
+<%if [{$:/config/tiddlyrpg/currency}!is[blank]] %>
+<$let trpg-desc-key={{{ [currency[id]addprefix[Currency/]addsuffix[/Description]] }}}
+	trpg-desc={{{ [<trpg-desc-key>trpgtranslate[]] -[<trpg-desc-key>] }}}
+	trpg-price={{$:/temp/tiddlyrpg/currency!!amount}}
+	trpg-reference={{{ [currency[reference]] }}}
+	trpg-rules={{{ [currency[rulesreference]] }}}
+	trpg-table={{{ [currency[table]] }}}>
+<$let trpg-rules-unit={{{ [<trpg-rules>currencyunit[]] ~[<trpg-rules>] }}}
+	trpg-reference-unit={{{ [<trpg-reference>currencyunit[]] }}}>
+
+<<trpg-desc>>
+
+<%if [currency[referencevalid]match[no]] %>
+<div class="trpg-date-invalid"><$text text={{{ [[Currency/Check/Reference]trpgtranslate[]substitute<trpg-reference>] }}}/></div>
+<%elseif [<trpg-rules>!is[blank]] %>
+<p><$text text={{{ [[Currency/Reference]trpgtranslate[]substitute<trpg-rules-unit>,<trpg-reference-unit>] }}}/></p>
+<%endif%>
+
+!!! <<trpg.t Currency/Converter>>
+<<trpg.t Currency/InputHint>>
+
+<table class="trpg-currency-converter">
+<tr><th><<trpg.t Currency/Amount>></th><td><$edit-text tiddler="$:/temp/tiddlyrpg/currency" field="amount" type="text" placeholder="3 gp 5 sp"/></td></tr>
+<$list filter="[currency[coins]]" variable="trpg-coin">
+<tr><th><$text text={{{ [<trpg-coin>currencycoin[]] }}}/></th><td><$text text={{{ [<trpg-price>priceconvert<trpg-coin>] }}}/></td></tr>
+</$list>
+</table>
+
+!!! <$text text={{{ [currency[title]] }}}/>
+
+<<trpg-table>>
+
+</$let>
+</$let>
+<%endif%>

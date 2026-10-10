@@ -86,9 +86,15 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     open items), a secret presence; the sweep (see "Visibility - check with every change").
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
     `$:/status/IsReadOnly`)
-  - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the hub
-    lists of `Item` and of a category, a category of the campaign, the file of a book (field
-    `data`), colour and image folder through the base type
+  - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the price
+    with the currency of the fixture setting, the hub lists of `Item` and of a category, a
+    category of the campaign, the file of a book (field `data`), colour and image folder
+    through the base type
+  - `currency` - the currency engine against the fixture settings (Faerûn-like, Krynn with
+    steel): parse, format, convert, check, base and reference, without currency, without
+    ruleset, `<<unit>>` with coins (km stays a length), unusable data
+  - `currency-hub` - the hub `Currency`: listed only with a currency, table, converter, the
+    reference coin and its hint
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
     marks in the map tab, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
@@ -257,7 +263,9 @@ the tiddler title:
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`trpgtranslate`, `trpgtitle`, `trpgtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
   `dateended`, `datecheck`, `sectionlinks`, `sectionspots`, `datesection`, `visibledate`,
-  `calendar[...]`), `sections.js` (`hassections`, `sectioncheck`, `sectionbacklinks`,
+  `calendar[...]`), `currency.js` (`priceformat`, `priceconvert`, `pricecheck`, `currency[...]`,
+  `currencyunit`, `currencycoin`, see "Currency engine"), `sections.js` (`hassections`,
+  `sectioncheck`, `sectionbacklinks`,
   `visiblelinks`, `trpgsearch`),
   `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
   `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spotplain`,
@@ -318,7 +326,7 @@ the tiddler title:
   `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
   `texts` (template texts).
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Information, Index, TBC,
+  Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Currency, Information, Index, TBC,
   TBC/Campaign; titles without prefix, tag `Index`; the item categories also tagged
   `$:/tags/tiddlyrpg/ItemKind`, see "Items"): type tags carry the `color` field from which graph nodes,
   tiddler borders and tag pills take their colour; `caption` is `<<trpg.title ...>>`. The hub
@@ -417,6 +425,24 @@ Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system) or 
   `check()` (operator `trpgrulecheck`) gives the hints below the title, in the editable wiki
   only, and leaves out calls in sections the active view does not see (the hint would show their
   text, `sections.hiddenRanges()`). Numbers show with `Number/Decimal` of the wiki language.
+
+## Currency engine
+
+`modules/currency.js` knows no particular coins. `active(wiki)` reads the JSON data tiddler named
+in `$:/config/tiddlyrpg/currency` (cached per tiddler), or returns null; the coins come from the
+campaign setting or from the wiki, like the calendar. Data model, price syntax and the problems:
+module header.
+
+- A price is shown as written; only the unit labels change to the display language of the
+  rules domain of type `currency` (`Currency/<id>/Unit/<coin>`). Nothing is normalised.
+- Units are read in every language, case-insensitive. `<<unit>>` reads coins only when the text
+  holds no length or weight: the German copper piece is "KM", the length "km".
+- `reference` is the coin that matches the price unit of the ruleset (`currency-reference` of
+  `$:/tiddlyrpg/rules/system`): read, checked (hub hint, `check-wiki.js`) and shown, not yet used
+  to convert prices of the ruleset.
+- Without a currency a price is a plain number; with one it needs a coin (`itemcheck`, keys
+  `Item/Check/PriceNoCurrency` and `Item/Check/PriceCurrency`). The hub `Currency` is hidden
+  from `Information` without a currency.
 
 ## Calendar engine
 
@@ -573,7 +599,9 @@ The rules of items live **once** in `filters/item.js` (base type and categories)
   a category hub is `{{ || Item }}`, which then lists only its own items. Behaviour of one
   category hangs on its tag (`viewtemplates/book`, `styles/item`).
 - The hints of `itemcheck` stand below the title (`viewtemplates/location-path`), next to
-  those of `locationcheck`.
+  those of `locationcheck`; they include the check of the price against the currency.
+- The price (field `price`) shows in `viewtemplates/item` through `priceformat` (see "Currency
+  engine"), only for a tiddler the view sees.
 
 ## Relations
 

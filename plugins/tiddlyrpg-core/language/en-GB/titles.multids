@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261007163804094
+modified: 20261010063203140
 title: $:/tiddlyrpg/language/en-GB/Title/
 
 Artifact: Artifact
@@ -7,6 +7,7 @@ Book: Book
 Calendar: Calendar
 Campaign: Campaign
 Consumable: Consumable
+Currency: Currency
 Deity: Deity
 Equipment: Equipment
 Event: Event
@@ -20,4 +21,5 @@ Organisation: Organisation
 Person: Person
 Player: Player
 PlayerLevel: Player Level
+Ruleset: Ruleset
 Secret: Secret

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261009190000000
+modified: 20261010063203140
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -16,6 +16,14 @@ Calendar/WrittenOut: Ausgeschrieben:
 Campaign/OpenTasks: Offene Aufgaben
 ControlPanel/Rulesets/Caption: Regelwerke
 ControlPanel/Settings/Caption: Kampagnenwelten
+Currency/Amount: Betrag
+Currency/Check/Reference: Das Geldsystem nennt $1$ als Münze, die den Preisen des Regelwerks entspricht, hat aber keine solche Münze.
+Currency/Coin: Münze
+Currency/Converter: Umrechner
+Currency/InputHint: Ein Preis in Münzen, z. B. 3 gp 5 sp; jede Münze der Tabelle, in jeder Sprache.
+Currency/Reference: Preise des Regelwerks in $1$ sind hier Preise in $2$.
+Currency/Unit: Kürzel
+Currency/Worth: Wert
 Date/Column: Zeitpunkt
 Date/Day: $day$.
 Date/DayMonth: $day$. $month$
@@ -30,8 +38,9 @@ Event/Event: Ereignis
 Event/Start: (Start)
 Event/Timeline: Zeitstrahl
 Item/Check/NoBase: Gegenstand prüfen: Eine Kategorie wie Buch braucht dazu einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
+Item/Check/PriceCurrency: Preis prüfen: eine Zahl und eine Münze des Geldsystems, z. B. 50 gp - oder eine reine Zahl, wenn das Wiki kein Geldsystem hat
+Item/Check/PriceNoCurrency: Preis prüfen: Er braucht eine Münze des Geldsystems, z. B. 50 gp
 Item/Check/TwoBases: Gegenstand prüfen: Er hat nur einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
-Item/Currency: GP
 Item/Price: Preis:
 Link/SeeAlso: Siehe auch
 Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat einen Besitzer (Feld owner hat mehrere Einträge)

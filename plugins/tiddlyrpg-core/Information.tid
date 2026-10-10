@@ -1,12 +1,14 @@
 caption: <<trpg.title Information>>
 color: #7c7c7c
 created: 20200804121707247
-modified: 20261007163804094
+modified: 20261010063203140
 tags: Index
 title: Information
 type: text/vnd.tiddlywiki
 
-<$list filter="[all[shadows+tiddlers]tag[Information]sort[title]] -[{$:/config/tiddlyrpg/calendar}is[blank]then[Calendar]] :filter[trpg.visible[]]">
+<!-- The tiddlers tagged Information; the hubs Calendar, Currency and Ruleset only when there is a
+     calendar, a currency or an active ruleset. -->
+<$list filter="[all[shadows+tiddlers]tag[Information]sort[title]] -[{$:/config/tiddlyrpg/calendar}is[blank]then[Calendar]] -[{$:/config/tiddlyrpg/currency}is[blank]then[Currency]] -[trpgplugin[ruleset]count[]match[0]then[Ruleset]] :filter[trpg.visible[]]">
 <div class="tc-menu-list-subitem">
 <$link to={{!!title}}><$text text={{{ [<currentTiddler>trpgtitle[]] }}}/></$link>
 </div>

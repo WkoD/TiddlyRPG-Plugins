@@ -40,7 +40,7 @@ function f(text, variables) {
 test("the probe is the active ruleset, its domains are registered", function() {
 	assert.equal(f("[trpgplugin[ruleset]]"), "$:/plugins/fixture-ruleset-probe");
 	var domains = language.domains(wiki);
-	assert.deepEqual(Object.keys(domains).filter(function(name) { return name !== "Calendar"; }).sort(),
+	assert.deepEqual(Object.keys(domains).filter(function(name) { return name !== "Calendar" && name !== "Currency"; }).sort(),
 		["Bulk", "Conditions", "Damage", "Dice", "Saves", "Traits"]);
 	assert.equal(domains.Length, undefined, "no units");
 });

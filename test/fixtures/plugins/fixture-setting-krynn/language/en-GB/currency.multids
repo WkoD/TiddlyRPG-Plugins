@@ -1,0 +1,14 @@
+created: 20261010063203140
+modified: 20261010063203140
+title: $:/tiddlyrpg/language/en-GB/Currency/Krynn/
+
+Name: Coins of Krynn
+Unit/cp: cp
+Unit/sp: sp
+Unit/gp: gp
+Unit/stl: stl
+Coin/cp: copper piece
+Coin/sp: silver piece
+Coin/gp: gold piece
+Coin/stl: steel piece
+Unit/stl/Parse: steel

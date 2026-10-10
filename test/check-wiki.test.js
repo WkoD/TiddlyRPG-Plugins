@@ -1,7 +1,8 @@
 /*
  * scripts/check-wiki.js against a small wiki folder (written to the temp folder) on what it
  * checks beyond dates: the config of the plugin types ruleset and setting, the tiddlyrpg-core
- * version a plugin needs, and the plugins of the packages in the wiki's node_modules. The checks
+ * version a plugin needs, the reference coin of the currency, and the plugins of the packages
+ * in the wiki's node_modules. The checks
  * of dates and sections before and after the 1.x migration: migrate.test.js.
  */
 var test = require("node:test"),
@@ -101,6 +102,21 @@ test.describe("the version a plugin needs", function() {
 		assert.equal(result.status, 1, result.out);
 		assert.match(result.out, /tiddlyrpg-core-version 2\.0\.0 - use the form >=x\.y\.z/);
 	});
+});
+
+test("a currency whose reference is none of its coins is an error", function() {
+	write("tiddlers/Own Coins.json", JSON.stringify({id: "Own", reference: "gp", currencies: [{id: "a", value: 1}, {id: "b", value: 10}]}));
+	write("tiddlers/Own Coins.json.meta", "title: Own Coins\ntype: application/json\n");
+	write("tiddlers/$__config_tiddlyrpg_currency.tid", "title: $:/config/tiddlyrpg/currency\n\nOwn Coins");
+	try {
+		var result = check();
+		assert.equal(result.status, 1, result.out);
+		assert.match(result.out, /Own Coins\n\s+error\s+reference gp is no coin of the currency \(a, b\)/);
+	} finally {
+		["Own Coins.json", "Own Coins.json.meta", "$__config_tiddlyrpg_currency.tid"].forEach(function(file) {
+			fs.rmSync(path.join(dir, "tiddlers", file), {force: true});
+		});
+	}
 });
 
 test("the plugins of the packages in the wiki's node_modules are found", function() {

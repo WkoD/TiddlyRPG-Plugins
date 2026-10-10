@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261009200000000
+modified: 20261010063203140
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -51,7 +51,8 @@ Domain types and their data:
           drop: "plus", "damage", "extra"; comma separated)
     The dice of the calculation follow the tokens domains.
 
-  calendar, currency: see modules/calendar.js and modules/currency.js.
+  calendar, currency: see modules/calendar.js and modules/currency.js. <<unit>> shows coins
+  ("3 gp 5 sp") through the currency when the text holds no length or weight.
 
 Every domain may have "example": an input shown in the settings tab next to its output ("228 cm",
 "1d8 cold", "wis save", a date for a calendar).
@@ -263,8 +264,15 @@ exports.unit = function(wiki,text,kind) {
 		text = text + " " + id;
 	}
 	var unitInfo = unitWords(wiki);
+	// Coins, when no length or weight is written (the German KM is also km): the currency
+	var asPrice = function() {
+		var currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js"),
+			cur = !kind && currency.active(wiki),
+			parsed = cur && currency.parse(wiki,cur,text);
+		return parsed && parsed.amounts.length && !parsed.invalid && !parsed.unknown ? result(currency.format(wiki,cur,text)) : null;
+	};
 	if(!unitInfo.pattern) {
-		return result(text,"Rules/Check/NoRules",{type: "unit"});
+		return asPrice() || result(text,"Rules/Check/NoRules",{type: "unit"});
 	}
 	var re = new RegExp("(\\d+(?:[.,]\\d+)?)\\s*(" + unitInfo.pattern + ")(?![\\p{L}\\d])","giu"),
 		found = [],
@@ -273,7 +281,7 @@ exports.unit = function(wiki,text,kind) {
 		found.push({start: match.index, end: match.index + match[0].length, number: match[1], unit: unitInfo.map[match[2].toLowerCase()]});
 	}
 	if(!found.length) {
-		return result(text,"Rules/Check/Unit",{text: text});
+		return asPrice() || result(text,"Rules/Check/Unit",{text: text});
 	}
 	// Quantities next to each other (only spaces between) that one domain knows are one value
 	var groups = [];
@@ -534,6 +542,7 @@ exports.example = function(wiki,name) {
 	var output;
 	switch(domain.type) {
 		case "unit":
+		case "currency":
 			output = exports.unit(wiki,input).text;
 			break;
 		case "tokens":

@@ -1,0 +1,14 @@
+created: 20261010063203140
+modified: 20261010063203140
+title: $:/tiddlyrpg/language/de-DE/Currency/Krynn/
+
+Name: Münzen von Krynn
+Unit/cp: KM
+Unit/sp: SM
+Unit/gp: GM
+Unit/stl: St
+Coin/cp: Kupfermünze
+Coin/sp: Silbermünze
+Coin/gp: Goldmünze
+Coin/stl: Stahlmünze
+Unit/stl/Parse: Stahl

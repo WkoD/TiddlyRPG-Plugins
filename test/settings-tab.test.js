@@ -126,7 +126,7 @@ test.describe("rules language", function() {
 		assert.doesNotMatch(tab(RULES_TAB), /\$:\/config\/tiddlyrpg\/rules\/display\/domain/);
 		return withTiddlers({"$:/config/tiddlyrpg/rules/display/mode": "domain"}, function() {
 			var html = tab(RULES_TAB);
-			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 7, "one per domain (7) in the column shown in");
+			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 8, "one per domain (8, the currency of the setting included) in the column shown in");
 		});
 	});
 

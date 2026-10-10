@@ -1,0 +1,20 @@
+created: 20261010063203140
+modified: 20261010063203140
+title: $:/tiddlyrpg/language/de-DE/Currency/Faerun/
+
+Name: Münzen von Faerûn
+Unit/cp: KM
+Unit/sp: SM
+Unit/ep: EM
+Unit/gp: GM
+Unit/pp: PM
+Coin/cp: Kupfermünze
+Coin/sp: Silbermünze
+Coin/ep: Elektrummünze
+Coin/gp: Goldmünze
+Coin/pp: Platinmünze
+Unit/cp/Parse: Kupfer
+Unit/sp/Parse: Silber
+Unit/ep/Parse: Elektrum
+Unit/gp/Parse: Gold
+Unit/pp/Parse: Platin

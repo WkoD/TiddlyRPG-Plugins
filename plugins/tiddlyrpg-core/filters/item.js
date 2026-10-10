@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/item.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006154328000
-modified: 20261006154328000
+modified: 20261010063203140
 
 The item rules - the one place of them. An item has one base type and any number of
 categories:
@@ -15,11 +15,16 @@ categories:
 A unique item (Artifact) has one owner or one location, never both (filters/location.js,
 locationcheck); Item and Material may have several of each.
 
+The price (field price) is checked against the active currency (modules/currency.js check()):
+with a currency it needs a unit the currency has; without one it is a plain number.
+
 [<title>itemcheck[]]            language keys of the problems of <title> (Item/Check/...)
 
 \*/
 
 "use strict";
+
+var currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js");
 
 var BASES = ["Artifact","Item","Material"];
 
@@ -46,6 +51,10 @@ exports.itemcheck = function(source,operator,options) {
 		}
 		if(bases.length > 1) {
 			results.push("Item/Check/TwoBases");
+		}
+		var price = t.fields.price && currency.check(wiki,currency.active(wiki),t.fields.price);
+		if(price) {
+			results.push(price);
 		}
 	});
 	return results;

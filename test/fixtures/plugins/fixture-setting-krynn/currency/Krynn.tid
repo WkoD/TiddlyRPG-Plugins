@@ -1,0 +1,28 @@
+created: 20261010063203140
+modified: 20261010063203140
+title: $:/tiddlyrpg/currency/Krynn
+type: application/json
+
+{
+    "id": "Krynn",
+    "base": "stl",
+    "reference": "stl",
+    "currencies": [
+        {
+            "id": "cp",
+            "value": 1
+        },
+        {
+            "id": "sp",
+            "value": 10
+        },
+        {
+            "id": "gp",
+            "value": 50
+        },
+        {
+            "id": "stl",
+            "value": 100
+        }
+    ]
+}

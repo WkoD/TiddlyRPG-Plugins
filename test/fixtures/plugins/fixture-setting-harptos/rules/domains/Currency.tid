@@ -1,0 +1,12 @@
+created: 20261010063203140
+modified: 20261010063203140
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Currency
+type: application/json
+
+{
+    "domain": "Currency",
+    "type": "currency",
+    "keys": "Currency/",
+    "example": "3 gp 5 sp"
+}

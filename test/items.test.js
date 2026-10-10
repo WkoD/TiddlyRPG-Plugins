@@ -1,5 +1,6 @@
 /*
- * Items (filters/item.js): base type and categories, the hints of itemcheck, the hub lists of
+ * Items (filters/item.js): base type and categories, the hints of itemcheck, the price with the
+ * currency of the fixture setting (without currency: currency.test.js), the hub lists of
  * Item and of a category, a category of the campaign, the file of a book (field data) and
  * colour and image folder through the base type. Items at a location: location.test.js.
  */
@@ -85,6 +86,30 @@ test.describe("itemcheck", function() {
 			} finally {
 				wiki.deleteTiddler("$:/status/IsReadOnly");
 			}
+		});
+	});
+});
+
+test.describe("price", function() {
+	test("shown as written with the labels of the display language", function() {
+		withTiddlers([{title: "Trank", tags: "Item Consumable", price: "50 gp"}], function() {
+			assert.match(h.view(wiki, "Trank"), /<b>Preis:<\/b> 50 GM/);
+			assert.deepEqual(f("[[Trank]itemcheck[]]"), []);
+		});
+	});
+
+	test("with a currency a plain number gets a hint", function() {
+		withTiddlers([{title: "Trank", tags: "Item Consumable", price: "50"}], function() {
+			assert.deepEqual(f("[[Trank]itemcheck[]]"), ["Item/Check/PriceNoCurrency"]);
+			assert.match(h.view(wiki, "Trank"), /<b>Preis:<\/b> 50\s/);
+			assert.match(h.view(wiki, "Trank"), /Preis prüfen: Er braucht eine Münze des Geldsystems/);
+		});
+	});
+
+	test("a coin the currency does not have, or a text: a hint", function() {
+		withTiddlers([{title: "Trank", tags: "Item", price: "50 xp"}, {title: "Trank2", tags: "Item", price: "teuer"}], function() {
+			assert.deepEqual(f("[[Trank]itemcheck[]]"), ["Item/Check/PriceCurrency"]);
+			assert.deepEqual(f("[[Trank2]itemcheck[]]"), ["Item/Check/PriceCurrency"]);
 		});
 	});
 });

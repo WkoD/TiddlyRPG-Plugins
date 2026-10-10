@@ -16,7 +16,7 @@
  *            field); filters on the old dead marker (search:date[.]); $:/config/tiddlyrpg/ruleset
  *            or .../setting naming a plugin that is missing, disabled or of another type (another
  *            one is active); a plugin whose tiddlyrpg-core-version the core does not meet or that
- *            is not written ">=x.y.z"
+ *            is not written ">=x.y.z"; a currency whose reference is none of its coins
  *   warning  empty side or section in the field; two placeholders for the same section; a
  *            "---" right before <<date>> (the placeholder draws its own rule); the hints on
  *            sections (modules/sections.js: a short form inside another block, a section in one
@@ -78,6 +78,13 @@ $tw.boot.boot(function() {
 				" - active is " + (state.active || "none"));
 		}
 	});
+	// The currency: the coin that matches the prices of the ruleset must be one of its coins
+	var currency = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/currency.js"),
+		cur = currency.active(wiki);
+	if(cur && !cur.referenceValid) {
+		add(wiki.getTiddlerText("$:/config/tiddlyrpg/currency").trim(), "error", "reference " + cur.reference +
+			" is no coin of the currency (" + cur.coins.map(function(c) { return c.id; }).join(", ") + ")");
+	}
 	$tw.utils.each(pluginTypes.versionProblems(wiki), function(problem) {
 		add(problem.title, "error", problem.problem === "format" ?
 			"tiddlyrpg-core-version " + problem.required + " - use the form >=x.y.z" :
