@@ -8,10 +8,11 @@ var test = require("node:test"),
 	assert = require("node:assert/strict"),
 	h = require("./helpers");
 
-var wiki, timeline;
+var tw, wiki, timeline;
 
 test.before(function() {
 	return h.boot().then(function($tw) {
+		tw = $tw;
 		wiki = $tw.wiki;
 		h.setLanguage(wiki, "de-DE");
 		timeline = h.render(wiki, "text/html", "<$trpg-timeline filter=\"[tag[Event]]\"/>");
@@ -140,6 +141,35 @@ test.describe("sections", function() {
 		details = details.slice(details.indexOf("trpg-tl-details"));
 		assert.match(details, /class="trpg-tl-point-date"[^>]*data-anchor="date-1"[^>]*data-title="Mixed"[^>]*>1351 – 1352</);
 		assert.match(details, /class="trpg-tl-point-date"[^>]*data-anchor="date-2"[^>]*>1356</);
+	});
+
+	test("captions are wikitext, shown as text on the card and in the tooltip; $5$ as written", function() {
+		var feet = h.filter(wiki, "[[30 ft]trpgunit[]]").join();
+		assert.notEqual(feet, "30 ft");
+		h.add(wiki, {title: "Captions", tags: "Event", date: "1351-07-01, 1351-07-11, 1351-07-21",
+			text: "<<date \"Sturz aus <<unit '30 ft'>>\">>\n\n<<date \"Nach [[Baile]]\">>\n\n<<date \"Lohn $5$\">>"});
+		try {
+			var html = draw("[[Captions]]"),
+				details = html.slice(html.indexOf("trpg-tl-details"));
+			assert.ok(details.indexOf('<span class="trpg-tl-caption">Sturz aus ' + feet + "</span>") !== -1, details);
+			assert.match(details, /<span class="trpg-tl-caption">Nach Baile<\/span>/);
+			assert.match(details, /<span class="trpg-tl-caption">Lohn \$5\$<\/span>/);
+			assert.ok(html.indexOf("<title>1. Flamerule 1351 – Sturz aus " + feet + "</title>") !== -1, html.match(/<title>[^<]*<\/title>/g).join());
+			assert.match(html, /<title>11\. Flamerule 1351 – Nach Baile<\/title>/);
+		} finally {
+			wiki.deleteTiddler("Captions");
+		}
+	});
+
+	test("redrawn when the rules language, the ruleset, the setting or the currency changes", function() {
+		var root = wiki.makeWidget(wiki.parseText("text/vnd.tiddlywiki", "<$trpg-timeline filter=\"[[Points]]\"/>"));
+		root.render(tw.fakeDocument.createElement("div"), null);
+		assert.equal(root.refresh({"Unrelated": {modified: true}}), false);
+		["$:/config/tiddlyrpg/rules/display/mode", "$:/config/tiddlyrpg/ruleset", "$:/config/tiddlyrpg/setting", "$:/config/tiddlyrpg/currency"].forEach(function(title) {
+			var changed = {};
+			changed[title] = {modified: true};
+			assert.equal(root.refresh(changed), true, title);
+		});
 	});
 });
 

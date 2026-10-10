@@ -60,6 +60,53 @@ test("no paragraph around a section heading", function() {
 	assert.doesNotMatch(html, /<p>(<hr class="trpg-date-rule">)?<div class="trpg-date-heading"/);
 });
 
+test.describe("a caption is inline wikitext", function() {
+	var feet;
+
+	test.before(function() {
+		feet = h.filter(wiki, "[[30 ft]trpgunit[]]").join();
+		h.add(wiki, {title: "Brücke", tags: "Event", date: "1351-07-05, 1351-07-09, 1351-07-11, 1351-07-12",
+			text: "<<date \"Kampf auf <<unit '30 ft'>>\">>\n\nZuerst.\n\n<<date \"Treffen in [[Alt Ort]]\">>\n\nDann.\n\n<<date 3 \"Preis $5$ bei [[Alt Ort]]\">>\n\nLetzt.\n\n<$date n=\"4\" label=\"Rückkehr nach [[Alt Ort]]\">\n\nZuletzt.\n\n</$date>\n"});
+		h.add(wiki, {title: "Alt Ort", tags: "Location"});
+	});
+
+	test.after(function() {
+		wiki.deleteTiddler("Brücke");
+		wiki.deleteTiddler("Alt Ort");
+		wiki.deleteTiddler("Neuer Ort");
+	});
+
+	test("a macro in the caption shows its result in the display language", function() {
+		assert.notEqual(feet, "30 ft");
+		assert.equal(headings(body("Brücke"))[0], "5. Flamerule 1351 DR – Kampf auf " + feet);
+	});
+
+	test("a link in the caption is a link, $5$ stays as written", function() {
+		var html = body("Brücke");
+		assert.match(html, /class="trpg-date-label"> – Treffen in <a[^>]*>Alt Ort<\/a><\/span>/);
+		assert.equal(headings(html)[2], "11. Flamerule 1351 DR – Preis $5$ bei Alt Ort");
+	});
+
+	test("a link in the caption is not promoted: no backlink, no location of the section", function() {
+		assert.equal(h.filter(wiki, "[[Alt Ort]backlinks[]]").indexOf("Brücke"), -1);
+		assert.equal(h.filter(wiki, "[[Brücke]sectionlinks[2]]").join(), "");
+	});
+
+	test("event table: the caption with its macro", function() {
+		var table = h.render(wiki, "text/html", "<$let trpg-events=\"[[Brücke]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
+		assert.ok(table.indexOf("Brücke</a> – Kampf auf " + feet) !== -1, table);
+	});
+
+	test("relink: a renamed title in a caption, alone or after the number, and in <$date label>", function() {
+		wiki.renameTiddler("Alt Ort", "Neuer Ort");
+		var text = wiki.getTiddler("Brücke").fields.text;
+		assert.match(text, /<<date "Treffen in \[\[Neuer Ort\]\]">>/);
+		assert.match(text, /<<date 3 "Preis \$5\$ bei \[\[Neuer Ort\]\]">>/);
+		assert.match(text, /<\$date n="4" label="Rückkehr nach \[\[Neuer Ort\]\]">/);
+		assert.doesNotMatch(text, /Alt Ort/);
+	});
+});
+
 test("locations per section; DM notes skipped", function() {
 	assert.equal(h.filter(wiki, "[[Schild]sectionlinks[1]]").join(), "Baile");
 	assert.equal(h.filter(wiki, "[[Schild]sectionlinks[3]]").join(), "Baile");

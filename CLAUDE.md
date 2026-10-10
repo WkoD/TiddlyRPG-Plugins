@@ -70,7 +70,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     leap rule
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
     `datecheck` in de-DE and en-GB, and without a calendar; `datesection`
-  - `sections` - event head, dated sections `<<date>>` (counting, captions, rule, hints),
+  - `sections` - event head, dated sections `<<date>>` (counting, captions as wikitext with
+    relink, rule, hints),
     locations per section, subtitle without modifier, event table (rows and title cells),
     jump marks and the wrapper `trpg-jump`
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-wiki.js` against fixtures in a
@@ -107,7 +108,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
     timeline, span, pills, `datesection`, spots and map tab, search, backlinks
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
-    the band of the tiddler itself, the section lines as links
+    the band of the tiddler itself, the section lines as links, captions with macros, refresh
+    on the rules and plugin configs
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
     label), the relation list forward and back, included types, symmetric types, family,
@@ -487,6 +489,14 @@ mind when changing it:
   another text (a transcluded snippet) there is no match: then only an explicit number works,
   otherwise a visible hint. The edit preview works because the draft has the same text and
   date.
+- The caption of a section is inline wikitext: `<<date "Fight at <<unit '30 ft'>>">>` (other
+  quotes inside). The heading transcludes it (`functions.tid`), the event table puts it into
+  its wikitext row, the timeline renders it as plain text for card and tooltip
+  (`TimelineWidget.caption()`, only a caption with `<`, `[` or `{`; `$5$` stays as written).
+  A link in a caption is no TiddlyWiki link (no backlink, not in `sectionlinks`), like a spot
+  name; renaming works through the relink configuration of `date` - `label` and `n` (the
+  short form `<<date "Caption">>` hands the caption to `n` by position) and the attribute
+  `label` of `<$date>`. Search and jump marks keep the stored text.
 - `sectionAt()` (operator `datesection`) finds the section a date falls into by overlap of
   their days: of several the narrowest wins, on a tie the first; "."/".." are open sides. It
   never falls back to "the section before" - a jump to the whole event is better than one to

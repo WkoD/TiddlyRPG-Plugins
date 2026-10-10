@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261009183000000
+modified: 20261010065649000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -137,7 +137,8 @@ type: text/vnd.tiddlywiki
      the locations of the section. widgets/date.js finds out which section it is. Without any
      date in the field the heading is "????" (with the era). The heading is the jump mark
      "date-<n>" (data-trpg-anchor, modules/anchor-jump.js) - not at the very start of the body:
-     there a jump would only hide the title, the plain navigation already shows the section. -->
+     there a jump would only hide the title, the plain navigation already shows the section. The
+     caption is inline wikitext: <<date "Fight at <<unit '30 ft'>>">> (other quotes inside). -->
 \procedure date(n,label)
 \whitespace trim
 <$trpg-date n=<<n>> label=<<label>>>
@@ -154,7 +155,7 @@ type: text/vnd.tiddlywiki
 <%if [<trpg-text>is[blank]] %>
 <div class="trpg-date-invalid" data-trpg-anchor=<<trpg-anchor>>><$text text={{{ [[Date/SectionMissing]trpgtranslate[]search-replace[$n$],<trpg-section>] }}}/></div>
 <%else%>
-<div class="trpg-date-heading" data-trpg-anchor=<<trpg-anchor>>><$text text=<<trpg-text>>/><$text text=<<trpg-era>>/><%if [<trpg-label>!is[blank]] %><span class="trpg-date-label"><$text text={{{ [<trpg-label>addprefix[ – ]] }}}/></span><%endif%></div>
+<div class="trpg-date-heading" data-trpg-anchor=<<trpg-anchor>>><$text text=<<trpg-text>>/><$text text=<<trpg-era>>/><%if [<trpg-label>!is[blank]] %><span class="trpg-date-label"><$text text=" – "/><$transclude $variable="trpg-label" $mode="inline"/></span><%endif%></div>
 <%endif%>
 <$transclude $variable="trpg.places" section=<<trpg-section>>/>
 

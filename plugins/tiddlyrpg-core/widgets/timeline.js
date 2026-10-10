@@ -104,8 +104,9 @@ var ZOOM = [0,30,90,270,810,2430,7290];
 var DEFAULT_ZOOM = 2;
 
 var CONFIG = "$:/config/tiddlyrpg/calendar",
-	// The active ruleset and setting (modules/plugin-types.js) bring calendars and labels
-	PLUGIN_CONFIGS = ["$:/config/tiddlyrpg/ruleset","$:/config/tiddlyrpg/setting"],
+	// The active ruleset and setting (modules/plugin-types.js) bring calendars and labels; the
+	// currency names the coins of a caption ("<<unit '5 gp'>>")
+	PLUGIN_CONFIGS = ["$:/config/tiddlyrpg/ruleset","$:/config/tiddlyrpg/setting","$:/config/tiddlyrpg/currency"],
 	// The rules language (modules/language.js) names months and festivals
 	RULES_CONFIG = "$:/config/tiddlyrpg/rules/";
 
@@ -189,6 +190,21 @@ TimelineWidget.prototype.refresh = function(changedTiddlers) {
 
 /* ---------- Data ---------- */
 
+// The caption of a section as plain text: it is wikitext like the heading in the body
+// (<<date "Fight at <<unit '30 ft'>>">>), rendered in the scope of the widget with the event as
+// currentTiddler. Only a caption with "<", "[" or "{" is rendered, every other one stays as it is
+// (also "$5$").
+TimelineWidget.prototype.caption = function(text,title) {
+	if(!/[<\[{]/.test(text)) {
+		return text;
+	}
+	return this.wiki.renderText("text/plain","text/vnd.tiddlywiki",text,{
+		parseAsInline: true,
+		parentWidget: this,
+		variables: {currentTiddler: title}
+	}).trim();
+};
+
 function monthName(wiki,C,m) {
 	return calendar.monthDay(wiki,C.cal,m.toString(),"")[0].replace(/\s*\(\d+(\/\d+)?\)$/,"");
 }
@@ -254,7 +270,8 @@ function sideLabel(wiki,cal,side,isStart) {
 TimelineWidget.prototype.collect = function() {
 	// Colours are read anew with every render (refreshSelf)
 	this.colours = Object.create(null);
-	var wiki = this.wiki,
+	var self = this,
+		wiki = this.wiki,
 		C = dates.scale(wiki),
 		events = [],
 		undated = [],
@@ -289,7 +306,7 @@ TimelineWidget.prototype.collect = function() {
 				return;
 			}
 			s.text = dates.formatSection(wiki,C.cal,section);
-			s.label = labels[i + 1] || "";
+			s.label = self.caption(labels[i + 1] || "",title);
 			secs.push(s);
 		});
 		ev.secs = secs;

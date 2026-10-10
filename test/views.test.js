@@ -297,8 +297,10 @@ test.describe("sweep", function() {
 			{title: "Qx7 Fest", tags: "Event Secret", date: "1399-02-01", text: "At [[Baile]]."},
 			{title: "Sweep Bund", tags: "Organisation", location: "Baile [[Qx7 Ort]]", bond: "[[Qx7 Akte]]", text: "A league."},
 			{title: "Sweep Burg", tags: "Location", location: "Baile", text: "A castle.\n\n<<spot \"Hof\">>\n\nOpen.\n\n<<secret>><<spot \"Qx7 Kammer\">>\n\nQx7 room."},
+			// The caption of the locked section holds a rules macro: heading, timeline (card and
+			// tooltip) and event table render it, none of them in the public view
 			{title: "Sweep Treffen", tags: "Event Frigg [[Qx7 Akte]]", date: "1351-08-01, 1399-01-01",
-				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
+				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			// A locked item with a price (and the hint on it)
 			{title: "Qx7 Klinge", tags: "Item Secret", price: "1399 Qx7"},
 			// Rules macros in a locked section: their text and the hint on what is not understood
@@ -371,7 +373,7 @@ test.describe("sweep", function() {
 
 	test("the DM: every secret shows, so the sweep reaches them", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
-		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "1399 Qx7", YEAR].forEach(function(word) {
+		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});
