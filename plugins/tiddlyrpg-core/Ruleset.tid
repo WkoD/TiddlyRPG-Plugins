@@ -1,13 +1,12 @@
 caption: <<trpg.title Ruleset>>
 created: 20261010063203140
-modified: 20261011175213295
+modified: 20261011180604762
 tags: Information
 title: Ruleset
 type: text/vnd.tiddlywiki
 
 <!-- The terms of the active ruleset (modules/rules.js, table()): its name, then per rules domain
-     of the group ruleset a table - id, one column per language, the display language marked;
-     units with their pairs and kinds. The domains of the campaign setting are in the hub
+     of the group ruleset a table - id and the term in the language it is shown in; units with their pairs and kinds. The domains of the campaign setting are in the hub
      CampaignSetting. Hidden from Information without ruleset. -->
 <%if [trpgplugin[ruleset]] %>
 

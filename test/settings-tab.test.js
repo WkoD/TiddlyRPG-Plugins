@@ -143,7 +143,7 @@ test.describe("ruleset options", function() {
 	});
 
 	test("a link to the hub Ruleset above the language", function() {
-		assert.match(tab(RULES_TAB), /Alle Begriffe in jeder Sprache: <a[^>]*href="#Ruleset"[^>]*>Regelwerk<\/a>[^]*>Sprache<\/h2>/);
+		assert.match(tab(RULES_TAB), /Alle Begriffe: <a[^>]*href="#Ruleset"[^>]*>Regelwerk<\/a>[^]*>Sprache<\/h2>/);
 	});
 
 	test("the table of the domains of the ruleset only: names, languages, examples", function() {
@@ -210,7 +210,7 @@ test.describe("campaign setting options", function() {
 	});
 
 	test("a link to the hub CampaignSetting above the language, only with a setting", function() {
-		assert.match(tab(SETTING_TAB), /Alle Namen in jeder Sprache: <a[^>]*href="#CampaignSetting"[^>]*>Kampagnenwelt<\/a>[^]*>Sprache<\/h2>/);
+		assert.match(tab(SETTING_TAB), /Alle Namen: <a[^>]*href="#CampaignSetting"[^>]*>Kampagnenwelt<\/a>[^]*>Sprache<\/h2>/);
 		return withTiddlers({"$:/config/tiddlyrpg/setting": "none", "$:/config/tiddlyrpg/calendar": "Own"}, function() {
 			var html = tab(SETTING_TAB);
 			assert.match(html, />Sprache<\/h2>/);

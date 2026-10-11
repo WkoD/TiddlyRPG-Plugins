@@ -1,18 +1,19 @@
 caption: <<trpg.title Calendar>>
 created: 20181002134333437
-modified: 20261002082222000
+modified: 20261011180604762
 tags: Information
 title: Calendar
 type: text/vnd.tiddlywiki
 
 <!-- Built from the active calendar ($:/config/tiddlyrpg/calendar, see modules/calendar.js).
-     Description and name come from the language keys Calendar/<id>/Description and .../Name. -->
+     Description and name come from the language keys Calendar/<id>/Description and .../Name.
+     The inputs of the calculators are read only in their result cells: a variable around the
+     inputs would render them anew on every key and lose the focus. -->
 <%if [{$:/config/tiddlyrpg/calendar}!is[blank]] %>
 <$let trpg-desc-key={{{ [calendar[id]addprefix[Calendar/]addsuffix[/Description]] }}}
 	trpg-desc={{{ [<trpg-desc-key>trpgtranslate[]] -[<trpg-desc-key>] }}}
 	trpg-hint={{{ [[Calendar/InputHint]trpgtranslate[]] }}}
-	trpg-table={{{ [calendar[table]] }}}
-	trpg-result={{{ [{$:/temp/tiddlyrpg/calendar!!calc_date}dateadd{$:/temp/tiddlyrpg/calendar!!calc_day}] }}}>
+	trpg-table={{{ [calendar[table]] }}}>
 
 <<trpg-desc>>
 
@@ -21,8 +22,8 @@ type: text/vnd.tiddlywiki
 
 |!<<trpg.t Calendar/Date>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_date" type="text"/> |
 |!<<trpg.t Calendar/ExtraDays>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_day" type="text"/> |
-|!<<trpg.t Calendar/Result>> | <$text text=<<trpg-result>>/> |
-|!<<trpg.t Calendar/WrittenOut>> | <$let trpg-long={{{ [<trpg-result>!is[blank]dateformat:long[]] }}}><<trpg-long>></$let> |
+|!<<trpg.t Calendar/Result>> | <$text text={{{ [{$:/temp/tiddlyrpg/calendar!!calc_date}dateadd{$:/temp/tiddlyrpg/calendar!!calc_day}] }}}/> |
+|!<<trpg.t Calendar/WrittenOut>> | <$text text={{{ [{$:/temp/tiddlyrpg/calendar!!calc_date}dateadd{$:/temp/tiddlyrpg/calendar!!calc_day}!is[blank]dateformat:long[]] }}}/> |
 
 !!! <<trpg.t Calendar/DaysBetween>>
 |!<<trpg.t Calendar/From>> | <$edit-text tiddler="$:/temp/tiddlyrpg/calendar" field="calc_from" type="text"/> |

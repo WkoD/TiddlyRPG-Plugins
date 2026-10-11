@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011175213295
+modified: 20261011180604762
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -90,7 +90,7 @@ Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> Tid
 Ruleset/Hub/Pairs: Umrechnung:
 Ruleset/Hub/Qualifier: Zusatz
 Ruleset/Hub/See: Namen und ihre Sprache: siehe
-Ruleset/Hub/Setting: Die Begriffe des Regelwerks in jeder Sprache; die markierte Spalte ist die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Regelwerk Einstellungen.
+Ruleset/Hub/Setting: Die Begriffe des Regelwerks in der Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Regelwerk Einstellungen.
 Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
@@ -130,10 +130,10 @@ Settings/Ruleset/Ruleset: Regelwerk
 Settings/Ruleset/Setting: Kampagnenwelt
 Settings/RulesetOptions/Caption: Regelwerk Einstellungen
 Settings/RulesetOptions/Hint: Einstellungen des aktiven Regelwerks für dieses Wiki: in welcher Sprache seine Begriffe den Lesern angezeigt werden – Einheiten, Würfel, Schaden und Begriffe. Gelesen werden Texte in jeder Sprache.
-Settings/RulesetOptions/Hub: Alle Begriffe in jeder Sprache:
+Settings/RulesetOptions/Hub: Alle Begriffe:
 Settings/SettingOptions/Caption: Kampagnenwelt Einstellungen
 Settings/SettingOptions/Hint: Einstellungen der Kampagnenwelt für dieses Wiki: in welcher Sprache die Namen des Kalenders und der Münzen angezeigt werden, und die Reihenfolge von Tag und Monat in Daten.
-Settings/SettingOptions/Hub: Alle Namen in jeder Sprache:
+Settings/SettingOptions/Hub: Alle Namen:
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden

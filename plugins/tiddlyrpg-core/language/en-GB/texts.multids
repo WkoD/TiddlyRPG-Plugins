@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011175213295
+modified: 20261011180604762
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -90,7 +90,7 @@ Ruleset/Hub/None: No ruleset is active (ControlPanel -> Settings -> TiddlyRPG).
 Ruleset/Hub/Pairs: Conversion:
 Ruleset/Hub/Qualifier: qualifier
 Ruleset/Hub/See: Names and their language: see
-Ruleset/Hub/Setting: The terms of the ruleset in every language; the marked column is the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Ruleset options.
+Ruleset/Hub/Setting: The terms of the ruleset in the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Ruleset options.
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
@@ -130,10 +130,10 @@ Settings/Ruleset/Ruleset: Ruleset
 Settings/Ruleset/Setting: Campaign setting
 Settings/RulesetOptions/Caption: Ruleset options
 Settings/RulesetOptions/Hint: Settings of the active ruleset for this wiki: in which language its terms are shown to the readers - units, dice, damage and terms. Texts are read in every language.
-Settings/RulesetOptions/Hub: All terms in every language:
+Settings/RulesetOptions/Hub: All terms:
 Settings/SettingOptions/Caption: Campaign setting options
 Settings/SettingOptions/Hint: Settings of the campaign setting for this wiki: in which language the names of the calendar and the coins are shown, and the order of day and month in dates.
-Settings/SettingOptions/Hub: All names in every language:
+Settings/SettingOptions/Hub: All names:
 Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
 Spot/Missing: Spot "$spot$" not found at $place$

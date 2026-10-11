@@ -1,6 +1,6 @@
 caption: <<trpg.title Currency>>
 created: 20261010063203140
-modified: 20261010063203140
+modified: 20261011180604762
 tags: Information
 title: Currency
 type: text/vnd.tiddlywiki
@@ -8,11 +8,11 @@ type: text/vnd.tiddlywiki
 <!-- Built from the active currency ($:/config/tiddlyrpg/currency, see modules/currency.js):
      the description (Currency/<id>/Description), a converter and the table of the coins. The
      coin of the setting that matches the price unit of the ruleset (reference), with a hint if
-     the currency does not have it. -->
+     the currency does not have it. The amount of the converter is read only in its result cells:
+     a variable around the input would render the input anew on every key and lose the focus. -->
 <%if [{$:/config/tiddlyrpg/currency}!is[blank]] %>
 <$let trpg-desc-key={{{ [currency[id]addprefix[Currency/]addsuffix[/Description]] }}}
 	trpg-desc={{{ [<trpg-desc-key>trpgtranslate[]] -[<trpg-desc-key>] }}}
-	trpg-price={{$:/temp/tiddlyrpg/currency!!amount}}
 	trpg-reference={{{ [currency[reference]] }}}
 	trpg-rules={{{ [currency[rulesreference]] }}}
 	trpg-table={{{ [currency[table]] }}}>
@@ -33,7 +33,7 @@ type: text/vnd.tiddlywiki
 <table class="trpg-currency-converter">
 <tr><th><<trpg.t Currency/Amount>></th><td><$edit-text tiddler="$:/temp/tiddlyrpg/currency" field="amount" type="text" placeholder="3 gp 5 sp"/></td></tr>
 <$list filter="[currency[coins]]" variable="trpg-coin">
-<tr><th><$text text={{{ [<trpg-coin>currencycoin[]] }}}/></th><td><$text text={{{ [<trpg-price>priceconvert<trpg-coin>] }}}/></td></tr>
+<tr><th><$text text={{{ [<trpg-coin>currencycoin[]] }}}/></th><td><$text text={{{ [{$:/temp/tiddlyrpg/currency!!amount}priceconvert<trpg-coin>] }}}/></td></tr>
 </$list>
 </table>
 

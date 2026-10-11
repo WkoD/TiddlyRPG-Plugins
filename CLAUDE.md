@@ -98,8 +98,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `currency-hub` - the hub `Currency`: listed only with a currency, table, converter, the
     reference coin and its hint
   - `ruleset-hub` - the hubs `Ruleset` and `CampaignSetting`: each listed only with its plugin,
-    a table per domain of its group with the display language marked, variants, phrases, units
-    with pairs and kinds, tokens; calendar and currency pointing to their hubs
+    a table per domain of its group in its display language (en-GB for a missing key), variants,
+    phrases, units with pairs and kinds, tokens; calendar and currency pointing to their hubs
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
     marks in the map tab, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
@@ -461,8 +461,9 @@ Of each type one is active, chosen in
 - **Hubs `Ruleset` and `CampaignSetting`** (`Ruleset.tid`, `CampaignSetting.tid`, each hidden
   from `Information` without its plugin): the name (`Rules/System/Name`, `Setting/Name` of the
   plugin), then per domain of the group (`trpgrulesdomains[ruleset|setting]`) the HTML table of
-  `rules.table()` (operator `trpgrulestable`) - every language that has keys of the domain, the
-  display language marked (`styles/rules`); calendar and currency point to their hubs. The
+  `rules.table()` (operator `trpgrulestable`) - the column of the display language of the domain
+  (a key missing there in en-GB, like `lookupRules()`): the current state, not every language;
+  calendar and currency point to their hubs. The
   settings tabs of the two groups link to them. They show terms and data of the plugins only,
   no wiki titles.
 

@@ -145,8 +145,8 @@ Lengths and weights are converted between the systems with the factors of the ru
 damage, terms, months and coins are only named differently. For a length or weight the language
 chooses the system - the table names it ("metric", "imperial"): weights in English and lengths in
 German give pounds and metres. The hubs "Ruleset" and "CampaignSetting" (both under
-`Information`, each only while its plugin is active) show every term and name in every language,
-the column of the language shown is marked; the settings tabs link to them.
+`Information`, each only while its plugin is active) show every term and name in the language it
+is shown in; the settings tabs link to them.
 
 The settings are tiddlers of the wiki: `$:/config/tiddlyrpg/rules/<ruleset|setting>/` with
 `mode` (`wiki`, `all`, `domain`), `language` and `domain/<name>`.

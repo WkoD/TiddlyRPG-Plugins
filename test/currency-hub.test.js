@@ -79,3 +79,9 @@ test("a reference that is no coin of the currency: a hint", function() {
 		wiki.deleteTiddler(title);
 	}
 });
+
+test("the converter keeps its input while typing: the field is not rendered anew", function() {
+	var result = h.typeInto(wiki, "Currency", {title: "$:/temp/tiddlyrpg/currency", amount: "3 gp"});
+	assert.ok(result.kept, "the same input field after a change of the amount");
+	assert.match(result.text, /30/, "the result follows");
+});

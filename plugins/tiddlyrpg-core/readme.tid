@@ -1,5 +1,5 @@
 created: 20260706180604000
-modified: 20261011175213295
+modified: 20261011180604762
 title: $:/plugins/tiddlyrpg-core/readme
 
 ! TiddlyRPG Core
@@ -24,7 +24,7 @@ The shared format layer of the TiddlyRPG repo family:
   the active ruleset in the rules language - the wiki language, one language for all or per
   domain, for the ruleset and the campaign setting apart (ControlPanel -> Settings ->
   TiddlyRPG); texts are read in every language; lengths and weights are converted; the hubs
-  "Ruleset" and "CampaignSetting" list every term and name in every language
+  "Ruleset" and "CampaignSetting" list every term and name in the language it is shown in
 * Hints below the title on what does not fit: a price without coin, a term or unit the ruleset
   does not know, a macro that nothing defines (not in the published copy)
 * Functions `trpg.visible` (what the active view sees), `trpg.dead` (deceased/destroyed),

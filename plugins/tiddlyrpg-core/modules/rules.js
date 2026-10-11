@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261011173657380
+modified: 20261011180604762
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -569,9 +569,10 @@ function keysIn(wiki,code,prefix) {
 }
 
 /*
-The table of a domain for the hub, as HTML: one row per entry, unit or token and a column per
-language that has keys of the domain, the display language marked. Units also list their pairs
-and kinds. Calendar and currency point to their hubs. Empty for an unknown domain.
+The table of a domain for the hub, as HTML: one row per entry, unit or token, and the column of
+the language the domain is shown in (rulesLang; a key missing there in en-GB, like
+lookupRules). Units also list their pairs and kinds. Calendar and currency point to their hubs.
+Empty for an unknown domain.
 */
 exports.table = function(wiki,name) {
 	var domain = language.domains(wiki)[name];
@@ -583,53 +584,42 @@ exports.table = function(wiki,name) {
 		return "<p>" + html(language.format(language.t(wiki,"Ruleset/Hub/See"),{hub: language.title(wiki,hub)})) +
 			" <$link to=\"" + hub + "\">" + html(language.title(wiki,hub)) + "</$link></p>";
 	}
-	var codes = language.languages(wiki,domain.keys),
-		shown = language.rulesLang(wiki,name),
-		cls = function(code) { return code === shown ? " class=\"trpg-rules-shown\"" : ""; },
+	var code = language.rulesLang(wiki,name),
 		rows = [];
-	var cell = function(text) { return "<td>" + html(text) + "</td>"; };
-	var row = function(id,texts) {
-		rows.push("<tr><td><code>" + html(id) + "</code></td>" + codes.map(function(code,i) {
-			return "<td" + cls(code) + ">" + texts[i] + "</td>";
-		}).join("") + "</tr>");
+	var text = function(key) {
+		return wiki.getTiddlerText(PREFIX + code + "/" + key) || wiki.getTiddlerText(PREFIX + BASE + "/" + key) || "";
+	};
+	var row = function(id,shown) {
+		rows.push("<tr><td><code>" + html(id) + "</code></td><td>" + shown + "</td></tr>");
 	};
 	if(domain.type === "label") {
 		(domain.entries || []).forEach(function(entry) {
-			row(entry.id,codes.map(function(code) {
-				var all = keysIn(wiki,code,"Rules/Term/" + entry.id),
-					variants = Object.keys(all).filter(function(k) { return k.charAt(0) === "/"; }).sort();
-				return html(all[""] || "") + variants.map(function(k) {
-					return "<br><small>" + html(k.substr(1)) + ": " + html(all[k]) + "</small>";
-				}).join("");
-			}));
+			var prefix = "Rules/Term/" + entry.id,
+				all = $tw.utils.extend(keysIn(wiki,BASE,prefix),keysIn(wiki,code,prefix)),
+				variants = Object.keys(all).filter(function(k) { return k.charAt(0) === "/"; }).sort();
+			row(entry.id,html(all[""] || "") + variants.map(function(k) {
+				return "<br><small>" + html(k.substr(1)) + ": " + html(all[k]) + "</small>";
+			}).join(""));
 		});
 	} else if(domain.type === "damage") {
 		(domain.entries || []).forEach(function(entry) {
-			row(entry.id,codes.map(function(code) {
-				var key = "Rules/Damage/" + entry.id,
-					phrase = wiki.getTiddlerText(PREFIX + code + "/" + key + "/Phrase");
-				return html(wiki.getTiddlerText(PREFIX + code + "/" + key) || "") + (phrase ? "<br><small>" + html(phrase) + "</small>" : "") +
-					(entry.qualifier ? " <small>(" + html(language.t(wiki,"Ruleset/Hub/Qualifier")) + ")</small>" : "");
-			}));
+			var key = "Rules/Damage/" + entry.id,
+				phrase = text(key + "/Phrase");
+			row(entry.id,html(text(key)) + (phrase ? "<br><small>" + html(phrase) + "</small>" : "") +
+				(entry.qualifier ? " <small>(" + html(language.t(wiki,"Ruleset/Hub/Qualifier")) + ")</small>" : ""));
 		});
 	} else if(domain.type === "tokens") {
 		(domain.tokens || []).forEach(function(token) {
-			row(token.id,codes.map(function(code) {
-				return "<code>" + html(wiki.getTiddlerText(PREFIX + code + "/Rules/Token/" + token.id) || "") + "</code>";
-			}));
+			row(token.id,"<code>" + html(text("Rules/Token/" + token.id)) + "</code>");
 		});
 	} else if(domain.type === "unit") {
 		Object.keys(domain.units || {}).forEach(function(id) {
-			row(id,codes.map(function(code) {
-				return html(wiki.getTiddlerText(PREFIX + code + "/Rules/Unit/" + id) || "");
-			}));
+			row(id,html(text("Rules/Unit/" + id)));
 		});
 	}
-	var head = "<tr><th>" + html(language.t(wiki,"Ruleset/Hub/Id")) + "</th>" +
-		codes.map(function(code) {
-			var name = wiki.getTiddler("$:/languages/" + code) ? wiki.getTiddler("$:/languages/" + code).fields.description || code : code;
-			return "<th" + cls(code) + ">" + html(name) + "</th>";
-		}).join("") + "</tr>";
+	var pack = wiki.getTiddler("$:/languages/" + code),
+		head = "<tr><th>" + html(language.t(wiki,"Ruleset/Hub/Id")) + "</th><th>" +
+			html(pack ? pack.fields.description || code : code) + "</th></tr>";
 	var out = "<table class=\"trpg-rules-hub\">" + head + rows.join("") + "</table>";
 	if(domain.type === "unit") {
 		var pairs = (domain.pairs || []).map(function(p) {

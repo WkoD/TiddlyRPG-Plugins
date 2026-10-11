@@ -78,7 +78,7 @@ test.describe("de-DE", function() {
 		assert.match(html, /<h2[^>]*>Fixture probe<\/h2>/);
 		assert.match(html, /<h3[^>]*>Zustände<\/h3>/);
 		assert.match(html, /verängstigt \$value\$/);
-		assert.match(html, /<td><code>persistent<\/code><\/td><td class="trpg-rules-shown">anhaltender <small>\(Zusatz\)<\/small><\/td>/);
+		assert.match(html, /<td><code>persistent<\/code><\/td><td>anhaltender <small>\(Zusatz\)<\/small><\/td>/);
 		assert.match(html, /<td><code>fortitude<\/code><\/td>/);
 		assert.doesNotMatch(html, />Länge</);
 	});

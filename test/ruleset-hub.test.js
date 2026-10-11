@@ -2,8 +2,8 @@
  * The hubs "Ruleset" (Ruleset.tid) and "CampaignSetting" (CampaignSetting.tid), both through
  * modules/rules.js table(): in the list of Information only with an active ruleset or campaign
  * setting, each on its own; the name of the system or setting; one table per domain of its group
- * with id and a column per language, the display language marked; variants and phrases; units
- * with pairs and kinds; calendar and currency pointing to their hubs.
+ * with id and the column of the display language only; variants and phrases; units with pairs
+ * and kinds; calendar and currency pointing to their hubs.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -54,18 +54,21 @@ test("not listed without ruleset, even with a campaign setting", function() {
 	});
 });
 
-test("a label domain: id, a column per language, variants", function() {
+test("a label domain: id and the display language only, variants", function() {
 	var table = tableAfter(hub(), "Attribute");
-	assert.match(table, /<th>Id<\/th><th class="trpg-rules-shown">Deutsch \(Deutschland\)<\/th><th>English \(British\)<\/th>/);
-	assert.match(table, /<td><code>wis<\/code><\/td>/);
-	assert.match(table, /<td class="trpg-rules-shown">WEI<br><small>name: Weisheit<\/small><br><small>save: WEI-Rettungswurf<\/small><\/td><td>WIS/);
+	assert.match(table, /<tr><th>Id<\/th><th>Deutsch \(Deutschland\)<\/th><\/tr>/);
+	assert.match(table, /<td><code>wis<\/code><\/td><td>WEI<br><small>name: Weisheit<\/small><br><small>save: WEI-Rettungswurf<\/small><\/td><\/tr>/);
+	assert.doesNotMatch(table, /English|WIS/);
 });
 
-test("the column of the display language follows the setting", function() {
+test("the column follows the setting: English for all", function() {
 	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/mode", text: "all"});
 	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/language", text: "en-GB"});
 	try {
-		assert.match(tableAfter(hub(), "Attribute"), /<th>Deutsch \(Deutschland\)<\/th><th class="trpg-rules-shown">English \(British\)<\/th>/);
+		var table = tableAfter(hub(), "Attribute");
+		assert.match(table, /<tr><th>Id<\/th><th>English \(British\)<\/th><\/tr>/);
+		assert.match(table, /<td><code>wis<\/code><\/td><td>WIS<br>/);
+		assert.doesNotMatch(table, /Deutsch|WEI/);
 	} finally {
 		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/mode");
 		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/language");
@@ -73,18 +76,18 @@ test("the column of the display language follows the setting", function() {
 });
 
 test("damage: name and phrase per language", function() {
-	assert.match(tableAfter(hub(), "Schaden"), /<td class="trpg-rules-shown">Kälte<br><small>Kälteschaden<\/small><\/td><td>cold<br><small>cold damage<\/small><\/td>/);
+	assert.match(tableAfter(hub(), "Schaden"), /<td>Kälte<br><small>Kälteschaden<\/small><\/td><\/tr>/);
 });
 
 test("units: labels, pairs and kinds", function() {
 	var html = hub();
-	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
+	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td>ft<\/td><\/tr>/);
 	assert.match(html, /Umrechnung: 1 in = 2,5 cm, 1 ft = 0,3 m, 1 mi = 1,6 km/);
 	assert.match(html, /Arten: range, distance, size/);
 });
 
 test("tokens: the token per language", function() {
-	assert.match(tableAfter(hub(), "Würfel"), /<td><code>die<\/code><\/td><td class="trpg-rules-shown"><code>W<\/code><\/td><td><code>d<\/code><\/td>/);
+	assert.match(tableAfter(hub(), "Würfel"), /<td><code>die<\/code><\/td><td><code>W<\/code><\/td><\/tr>/);
 });
 
 test("no domain of the campaign setting in the hub Ruleset", function() {
