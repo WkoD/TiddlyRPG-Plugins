@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261010075834000
+modified: 20261011154416000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -90,7 +90,7 @@ Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> Tid
 Ruleset/Hub/Pairs: Umrechnung:
 Ruleset/Hub/Qualifier: Zusatz
 Ruleset/Hub/See: Namen und ihre Sprache: siehe
-Ruleset/Hub/Setting: Die Begriffe des Regelwerks in jeder Sprache; die markierte Spalte ist die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Regelsprache.
+Ruleset/Hub/Setting: Die Begriffe des Regelwerks in jeder Sprache; die markierte Spalte ist die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Regelwerk Einstellungen.
 Ruleset/Hub/Shortcut: Kurzform
 Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
@@ -119,7 +119,6 @@ Settings/Problem/type: Festgelegt ist $1$, das ist kein Plugin dieses Typs – a
 Settings/Rules/Caption: Regelsprache
 Settings/Rules/Domain: Bereich
 Settings/Rules/Example: Beispiel
-Settings/Rules/Hint: In welcher Sprache Regelbegriffe in den Texten geschrieben und den Lesern angezeigt werden – Einheiten, Würfel, Schaden, Begriffe und die Namen des Kalenders. „Geschrieben in“ entscheidet über die Einheit einer Zahl, die ohne Einheit steht.
 Settings/Rules/Set/display: Angezeigt in
 Settings/Rules/Set/input: Geschrieben in
 Settings/Rules/System/imperial: imperial
@@ -127,8 +126,14 @@ Settings/Rules/System/metric: metrisch
 Settings/Rules/WikiLanguage: Wiki-Sprache
 Settings/Ruleset/Caption: Regelwerk und Kampagnenwelt
 Settings/Ruleset/None: keins
+Settings/Ruleset/OwnCalendar: Das Wiki hat einen eigenen Kalender ($1$). Ein Wechsel der Kampagnenwelt ändert ihn nicht.
+Settings/Ruleset/OwnCurrency: Das Wiki hat ein eigenes Geldsystem ($2$). Ein Wechsel der Kampagnenwelt ändert es nicht.
 Settings/Ruleset/Ruleset: Regelwerk
 Settings/Ruleset/Setting: Kampagnenwelt
+Settings/RulesetOptions/Caption: Regelwerk Einstellungen
+Settings/RulesetOptions/Hint: Einstellungen des aktiven Regelwerks für dieses Wiki. In welcher Sprache seine Begriffe in den Texten geschrieben und den Lesern angezeigt werden – Einheiten, Würfel, Schaden und Begriffe. „Geschrieben in“ entscheidet über die Einheit einer Zahl, die ohne Einheit steht.
+Settings/SettingOptions/Caption: Kampagnenwelt Einstellungen
+Settings/SettingOptions/Hint: Einstellungen der Kampagnenwelt für dieses Wiki: in welcher Sprache die Namen des Kalenders und der Münzen angezeigt werden, und die Reihenfolge von Tag und Monat in Daten.
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden

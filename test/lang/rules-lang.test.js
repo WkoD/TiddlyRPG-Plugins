@@ -3,7 +3,9 @@
  * setting as domain: the two settings "display" and "input" in their three modes, independent of
  * each other; values kept when the mode changes; the fallback to en-GB; names follow the domain
  * while the texts of the calendar stay in the wiki language; an own calendar without domain
- * tiddler; the languages with keys. The wiki language is de-DE.
+ * tiddler; the groups ruleset and setting, each with settings of its own; the languages with
+ * keys. The wiki language is de-DE. The calendar belongs to the group setting, so its settings
+ * are $:/config/tiddlyrpg/rules/setting/...
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -11,7 +13,7 @@ var test = require("node:test"),
 
 var $tw, wiki, language;
 
-var RULES = "$:/config/tiddlyrpg/rules/";
+var RULES = "$:/config/tiddlyrpg/rules/setting/";
 
 test.before(function() {
 	return h.boot().then(function(tw) {
@@ -184,6 +186,54 @@ test.describe("an own calendar without setting", function() {
 	test("in the mode domain it keeps the wiki language", function() {
 		withRules({"display/mode": "domain", "display/domain/Calendar": "en-GB"}, function() {
 			assert.equal(f("[[0001-01-31]dateformat[]]"), "Fest 1");
+		});
+	});
+});
+
+test.describe("ruleset and setting set apart", function() {
+	var CONFIG = "$:/config/tiddlyrpg/rules/";
+
+	function withConfig(values, fn) {
+		Object.keys(values).forEach(function(key) {
+			wiki.addTiddler(new $tw.Tiddler({title: CONFIG + key, text: values[key]}));
+		});
+		try {
+			return fn();
+		} finally {
+			Object.keys(values).forEach(function(key) {
+				wiki.deleteTiddler(CONFIG + key);
+			});
+		}
+	}
+
+	test("the group of a domain: the type of its plugin", function() {
+		assert.equal(f("[[Ability]trpgrulesgroup[]]"), "ruleset");
+		assert.equal(f("[[Length]trpgrulesgroup[]]"), "ruleset");
+		assert.equal(f("[[Calendar]trpgrulesgroup[]]"), "setting");
+		assert.equal(f("[[Currency]trpgrulesgroup[]]"), "setting");
+		assert.equal(f("[[Volume]trpgrulesgroup[]]"), "setting", "a domain without domain tiddler");
+		assert.equal(f("[trpgrulesdomains[setting]]"), "Calendar Currency");
+		assert.match(f("[trpgrulesdomains[ruleset]]"), /^Ability Damage Dice Length Terms Weight$/);
+	});
+
+	test("a domain tiddler of the wiki: calendar and currency to the setting, the rest to the ruleset", function() {
+		h.add(wiki, {title: "Own Domain Volume", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json", text: JSON.stringify({domain: "Volume", type: "unit", units: {}})});
+		try {
+			assert.equal(f("[[Volume]trpgrulesgroup[]]"), "ruleset");
+		} finally {
+			wiki.deleteTiddler("Own Domain Volume");
+		}
+	});
+
+	test("the setting of one group leaves the other alone", function() {
+		withConfig({"ruleset/display/mode": "all", "ruleset/display/language": "en-GB"}, function() {
+			assert.equal(f("[trpgruleslang[Damage]]"), "en-GB");
+			assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
+			assert.equal(f("[[1351-01-31]dateformat[]]"), "Mittwinter 1351");
+		});
+		withConfig({"setting/display/mode": "all", "setting/display/language": "en-GB"}, function() {
+			assert.equal(f("[trpgruleslang[Damage]]"), "de-DE");
+			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
 		});
 	});
 });

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261010063203140
+modified: 20261011154416000
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back
@@ -17,14 +17,17 @@ setting, with the properties `domain` (its name), `type` (calendar, unit, label,
 currency - the core knows types, no domain names), optionally `keys` (the prefix of its language
 keys) and whatever its type needs (see modules/rules.js). The type lives in the JSON, not in
 the field `type`, which is the content type of a tiddler.
-Two settings per wiki, each set by the DM in $:/config/tiddlyrpg/rules/<set>/...:
+Every domain belongs to a group, set apart from the other: "ruleset" (the domains of the
+ruleset) or "setting" (those of the campaign setting; a domain without domain tiddler, an own
+calendar or currency, belongs here too) - domainGroup(). Per group two settings, each set by the
+DM in $:/config/tiddlyrpg/rules/<group>/<set>/...:
   display   the language a domain is shown in
   input     the language a domain is written in (the unit of numbers without unit)
 each with a mode (.../<set>/mode): "wiki" (default, also without tiddler) - the wiki language;
-"all" - .../<set>/language for every domain; "domain" - .../<set>/domain/<domain> per domain,
-empty for the wiki language. Values of the other modes stay when the mode changes. A domain
-without domain tiddler (an own calendar without setting) follows the mode like any other; in
-the mode "domain" it gets the wiki language, as there is nothing to set for it.
+"all" - .../<set>/language for every domain of the group; "domain" - .../<set>/domain/<domain>
+per domain, empty for the wiki language. Values of the other modes stay when the mode changes. A
+domain without domain tiddler follows the mode like any other; in the mode "domain" it gets the
+wiki language, as there is nothing to set for it.
 
 \*/
 
@@ -110,14 +113,29 @@ function config(wiki,title) {
 	return (wiki.getTiddlerText(RULES + title) || "").trim();
 }
 
+// The group of a domain, "ruleset" or "setting": the type of the plugin it comes from; for a
+// domain tiddler of the wiki itself calendar and currency belong to the setting, every other type
+// to the ruleset; a domain without domain tiddler to the setting
+var domainGroup = exports.domainGroup = function(wiki,name) {
+	var domain = domains(wiki)[name];
+	if(!domain) {
+		return "setting";
+	}
+	if(domain.plugintype === "ruleset" || domain.plugintype === "setting") {
+		return domain.plugintype;
+	}
+	return domain.type === "calendar" || domain.type === "currency" ? "setting" : "ruleset";
+};
+
 // The language code a domain follows in a set ("display" or "input"), see the header
 var rulesLang = exports.rulesLang = function(wiki,domain,set) {
-	var mode = config(wiki,set + "/mode") || "wiki";
+	var base = domainGroup(wiki,domain) + "/" + set,
+		mode = config(wiki,base + "/mode") || "wiki";
 	if(mode === "all") {
-		return config(wiki,set + "/language") || lang(wiki);
+		return config(wiki,base + "/language") || lang(wiki);
 	}
 	if(mode === "domain" && domains(wiki)[domain]) {
-		return config(wiki,set + "/domain/" + domain) || lang(wiki);
+		return config(wiki,base + "/domain/" + domain) || lang(wiki);
 	}
 	return lang(wiki);
 };

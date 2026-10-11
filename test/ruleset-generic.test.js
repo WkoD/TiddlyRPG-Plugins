@@ -61,10 +61,11 @@ test.describe("de-DE", function() {
 	});
 
 	test("the tab rules language lists its domains with their examples", function() {
-		h.add(wiki, {title: "$:/state/tiddlyrpg/settings-tab", text: "$:/plugins/tiddlyrpg-core/ui/settings-rules"});
+		h.add(wiki, {title: "$:/state/tiddlyrpg/settings-tab", text: "$:/plugins/tiddlyrpg-core/ui/settings-ruleset-options"});
 		try {
 			var html = h.render(wiki, "text/html", "{{$:/plugins/tiddlyrpg-core/ui/controlpanel-tiddlyrpg}}").replace(/>\s+</g, "><");
-			assert.match(html, /<td>Zustände<\/td><td>—<\/td><td>[^<]*<\/td><td>frightened 2 → verängstigt 2<\/td>/);
+			assert.match(html, /<td>Zustände<\/td><td>[^<]*<\/td><td>frightened 2 → verängstigt 2<\/td>/);
+			assert.doesNotMatch(html, /<strong>Geschrieben in<\/strong>|<th>Geschrieben in<\/th>/, "no unit domain: nothing is written without unit");
 			assert.match(html, /<td>Traglast<\/td>/);
 			assert.match(html, /2d6 fire plus 1d4 persistent bleed → 2W6 Feuerschaden plus 1W4 anhaltender Blutungsschaden/);
 			assert.doesNotMatch(html, /<td>Länge<\/td>/);

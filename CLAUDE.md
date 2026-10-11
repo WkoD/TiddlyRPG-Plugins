@@ -143,9 +143,11 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain - without code changes
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
-    campaign setting with its hints, the rules language with its table and examples and the
-    system of the unit domains, shown only with domains or an own calendar, the order of dates
-    with its example, disabled inputs in the published copy, version hints
+    campaign setting with its hints, the whole row as click target, the note on an own calendar
+    or currency (and that it wins over the setting); "Ruleset options" (rules language of the
+    ruleset, its table with the system of the unit domains, shown with a ruleset); "Campaign
+    setting options" (shown in only, its domains, the order of dates, shown with a setting or
+    an own calendar); disabled inputs in the published copy, version hints
   - `rules-check` - the hints on rules macros below the title: wiki language, not in the
     published copy, not for a section the view does not see, not for computed parameters
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
@@ -157,7 +159,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `lang/rules-lang` - the rules language: both settings in the three modes, independent,
     values kept on a mode change, fallback to en-GB, calendar names follow the domain while the
     texts of the calendar stay in the wiki language, refresh, an own calendar without domain
-    tiddler, the languages with keys
+    tiddler, the groups ruleset and setting with settings of their own, the languages with keys
 
   Language mechanics go to `lang/`; plain expected output in one language stays with its topic.
   New check -> the file of its topic; new topic -> new file. A test that changes the wiki
@@ -301,12 +303,17 @@ the tiddler title:
   `ui/controlpanel-rulesets` and `ui/controlpanel-settings` under ControlPanel -> Plugins.
 - **Settings tab** `ui/controlpanel-tiddlyrpg` (ControlPanel -> Settings -> TiddlyRPG): its tabs
   are tagged `$:/tags/tiddlyrpg/SettingsTab` and show when their field `condition` (a filter)
-  gives anything - `ui/settings-ruleset` (ruleset and campaign setting, like the theme switcher)
-  and `ui/settings-rules` (rules language; operators `trpgrulesdomains`, `trpgrulesdomain`,
+  gives anything - `ui/settings-ruleset` (the choice of ruleset and campaign setting, like the
+  theme switcher, the button filling the row; a note when the wiki has its own calendar or
+  currency, whose real config tiddler wins over the shadow of a setting),
+  `ui/settings-ruleset-options` (with a ruleset: the rules language of the group `ruleset`) and
+  `ui/settings-setting-options` (with a setting or an own calendar or currency: the rules
+  language of the group `setting`, shown in only unless one of its domains has kinds, and the
+  order of day and month, see "Calendar engine"). Both take their procedures from
+  `ui/settings-rules` (`\import`; operators `trpgrulesdomains` with a group, `trpgrulesdomain`,
   `trpgrulesexample`; a unit domain names the system of its language, `trpgrulessystem`, keys
-  `Settings/Rules/System/<system>`) and `ui/settings-dates` (order of day and month, see
-  "Calendar engine"). In the published copy the inputs are disabled; no button, no page of its
-  own.
+  `Settings/Rules/System/<system>`). In the published copy the inputs are disabled; no button,
+  no page of its own.
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
@@ -431,9 +438,13 @@ Of each type one is active, chosen in
   language than the wiki. Domains are JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain`
   from the active ruleset or setting (`domain`, `type`, `keys` and what the type needs, in the
   JSON - the field `type` is the content type, `application/json`); the core knows the
-  types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`), never a domain name. The
-  DM sets "display" and "input" under `$:/config/tiddlyrpg/rules/<set>/...` (modes `wiki`,
-  `all`, `domain`). `lookupRules(wiki,domain,key)` looks a key up in the display language of the
+  types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`), never a domain name. A
+  domain belongs to a group, `ruleset` or `setting` (`domainGroup()`, operator
+  `trpgrulesgroup`: the type of its plugin; a domain without tiddler belongs to the setting),
+  and each group has settings of its own: the DM sets "display" and "input" under
+  `$:/config/tiddlyrpg/rules/<group>/<set>/...` (modes `wiki`, `all`, `domain`), so the ruleset
+  in English does not turn the month names English. `lookupRules(wiki,domain,key)` looks a key
+  up in the display language of the
   domain, then en-GB. Only terms go through it - the calendar names (`calendar.js`), not the
   texts of hubs, the calculator or the date patterns. A domain without tiddler (an own calendar
   without setting) follows the mode; in the mode `domain` it gets the wiki language. JS that
@@ -515,7 +526,8 @@ The order of day and month in the text of a date (`dates.dateOrder()`):
 the comma only after a day; a range in one month "Flamerule 5 – 24, 1351"), otherwise `Date/Order`
 of the wiki language. The patterns are language keys (`Date/DayMonth`, `Date/Day` for `dm`;
 `Date/MonthDay`, `Date/MonthDay/Day`, `Date/MonthDay/Year` for `md`). Set in ControlPanel ->
-Settings -> TiddlyRPG -> "Dates" (`ui/settings-dates`, shown with a calendar); the timeline
+Settings -> TiddlyRPG -> "Campaign setting options" (`ui/settings-setting-options`, with a
+calendar); the timeline
 refreshes on it. The event table keeps its columns.
 
 ## Dates

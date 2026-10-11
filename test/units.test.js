@@ -11,7 +11,7 @@ var test = require("node:test"),
 
 var $tw, wiki;
 
-var RULES = "$:/config/tiddlyrpg/rules/";
+var RULES = "$:/config/tiddlyrpg/rules/ruleset/";
 
 test.before(function() {
 	return h.boot().then(function(tw) {

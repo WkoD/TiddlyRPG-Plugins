@@ -1,7 +1,7 @@
 caption: <<trpg.t Settings/Ruleset/Caption>>
 condition: [[yes]]
 created: 20261009190000000
-modified: 20261009190000000
+modified: 20261011154416000
 tags: $:/tags/tiddlyrpg/SettingsTab
 title: $:/plugins/tiddlyrpg-core/ui/settings-ruleset
 type: text/vnd.tiddlywiki
@@ -10,7 +10,7 @@ type: text/vnd.tiddlywiki
      setting (modules/plugin-types.js), like the theme switcher of the core: the active plugin is
      marked chosen, also without config; a click writes $:/config/tiddlyrpg/<type>, "none" too.
      Hints when the config names no usable plugin and when several are installed and none is
-     chosen. -->
+     chosen. The button fills the whole row like the link of the theme switcher (styles/rules). -->
 \procedure trpg.typechooser(type)
 \whitespace trim
 <$let trpg-active={{{ [trpgplugin<type>] }}}
@@ -23,13 +23,13 @@ type: text/vnd.tiddlywiki
 <div class="tc-chooser trpg-chooser" role="listbox">
 <$list filter="[trpgplugins<type>]" variable="trpg-plugin">
 <div class={{{ [<trpg-plugin>match<trpg-active>then[tc-chooser-item tc-chosen]else[tc-chooser-item]] }}}>
-<$button set=<<trpg-config>> setTo=<<trpg-plugin>> class="tc-btn-invisible" disabled=<<trpg-disabled>>>
+<$button set=<<trpg-config>> setTo=<<trpg-plugin>> class="tc-btn-invisible" role="option" aria-selected={{{ [<trpg-plugin>match<trpg-active>then[true]else[false]] }}} disabled=<<trpg-disabled>>>
 ''<$view tiddler=<<trpg-plugin>> field="name" format="text"/>''&#32;<$view tiddler=<<trpg-plugin>> field="description" format="text"/>
 </$button>
 </div>
 </$list>
 <div class={{{ [<trpg-active>is[blank]then[tc-chooser-item tc-chosen]else[tc-chooser-item]] }}}>
-<$button set=<<trpg-config>> setTo="none" class="tc-btn-invisible" disabled=<<trpg-disabled>>>''<<trpg-none>>''</$button>
+<$button set=<<trpg-config>> setTo="none" class="tc-btn-invisible" role="option" aria-selected={{{ [<trpg-active>is[blank]then[true]else[false]] }}} disabled=<<trpg-disabled>>>''<<trpg-none>>''</$button>
 </div>
 </div>
 <$list filter="[trpgplugin:problem<type>]" variable="trpg-problem">
@@ -49,3 +49,9 @@ type: text/vnd.tiddlywiki
 !! <<trpg.t Settings/Ruleset/Setting>>
 
 <<trpg.typechooser setting>>
+
+<!-- An own calendar or currency: its config is a real tiddler of the wiki, which wins over the
+     shadow a campaign setting brings - switching the setting does not change it -->
+<$list filter="[[calendar]] [[currency]] :filter[addprefix[$:/config/tiddlyrpg/]is[tiddler]get[text]!is[blank]]" variable="trpg-kind">
+<div class="trpg-settings-note"><$text text={{{ [<trpg-kind>titlecase[]addprefix[Settings/Ruleset/Own]trpgtranslate[]substitute{$:/config/tiddlyrpg/calendar},{$:/config/tiddlyrpg/currency}] }}}/></div>
+</$list>

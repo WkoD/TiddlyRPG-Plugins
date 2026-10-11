@@ -62,13 +62,13 @@ test("a label domain: id, shortcut, a column per language, variants", function()
 });
 
 test("the column of the display language follows the setting", function() {
-	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/display/mode", text: "all"});
-	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/display/language", text: "en-GB"});
+	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/display/mode", text: "all"});
+	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/display/language", text: "en-GB"});
 	try {
 		assert.match(tableAfter(hub(), "Attribute"), /<th>Deutsch \(Deutschland\)<\/th><th class="trpg-rules-shown">English \(British\)<\/th>/);
 	} finally {
-		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/display/mode");
-		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/display/language");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/display/mode");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/display/language");
 	}
 });
 

@@ -1,5 +1,5 @@
 created: 20261010063203140
-modified: 20261010063203140
+modified: 20261011154416000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/rules
 type: text/css
@@ -26,4 +26,31 @@ type: text/css
 }
 .trpg-currency-converter input {
 	width: 12em;
+}
+/* The choice of ruleset and campaign setting (ui/settings-ruleset): the button fills the row of
+   the chooser like the link of the core theme switcher, so a click anywhere in it chooses */
+.trpg-chooser .tc-chooser-item > button {
+	display: block;
+	width: 100%;
+	padding: 0;
+	text-align: start;
+	color: inherit;
+	font: inherit;
+	line-height: inherit;
+}
+.trpg-chooser .tc-chosen > button {
+	cursor: default;
+}
+.trpg-chooser .tc-chosen > button:before {
+	margin-inline-start: -10px;
+	position: relative;
+	content: "» ";
+}
+.trpg-chooser .tc-chooser-item > button[disabled] {
+	cursor: default;
+}
+/* A note below the choice: an own calendar or currency of the wiki */
+.trpg-settings-note {
+	margin-top: 0.5em;
+	color: var(--tpc-muted-foreground, #666);
 }

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261010075834000
+modified: 20261011154416000
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -17,7 +17,9 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<id>trpgterm<arg>]                each input id as term, with a variant or value
 [<title>trpgrulecheck[]]           the problems of the rules macros in the body of each input
                                    tiddler (texts in the wiki language)
-[trpgrulesdomains[]]               the names of the registered rules domains, sorted
+[trpgrulesdomains[]]               the names of the registered rules domains, sorted; with an
+[trpgrulesdomains[ruleset]]        operand only those of that group (ruleset, setting)
+[<name>trpgrulesgroup[]]           the group of each input domain: ruleset or setting
 [<name>trpgrulesdomain[type]]      a property of each input domain: type, keys, example; kinds
                                    gives yes or no
 [<name>trpgrulesexample[]]         the example of each input domain as "input → output"
@@ -76,7 +78,16 @@ exports.trpgterm = function(source,operator,options) {
 };
 
 exports.trpgrulesdomains = function(source,operator,options) {
-	return Object.keys(language.domains(options.wiki)).sort();
+	var wiki = options.wiki;
+	return Object.keys(language.domains(wiki)).filter(function(name) {
+		return !operator.operand || language.domainGroup(wiki,name) === operator.operand;
+	}).sort();
+};
+
+exports.trpgrulesgroup = function(source,operator,options) {
+	return each(source,function(name) {
+		return language.domainGroup(options.wiki,name);
+	});
 };
 
 exports.trpgrulesdomain = function(source,operator,options) {

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261010075834000
+modified: 20261011154416000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -90,7 +90,7 @@ Ruleset/Hub/None: No ruleset is active (ControlPanel -> Settings -> TiddlyRPG).
 Ruleset/Hub/Pairs: Conversion:
 Ruleset/Hub/Qualifier: qualifier
 Ruleset/Hub/See: Names and their language: see
-Ruleset/Hub/Setting: The terms of the ruleset in every language; the marked column is the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Rules language.
+Ruleset/Hub/Setting: The terms of the ruleset in every language; the marked column is the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Ruleset options.
 Ruleset/Hub/Shortcut: Shortcut
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
@@ -119,7 +119,6 @@ Settings/Problem/type: Set is $1$, which is no plugin of this type - active is $
 Settings/Rules/Caption: Rules language
 Settings/Rules/Domain: Domain
 Settings/Rules/Example: Example
-Settings/Rules/Hint: In which language rules terms are written in the texts and shown to the readers - units, dice, damage, terms and the names of the calendar. "Written in" decides the unit of a number written without one.
 Settings/Rules/Set/display: Shown in
 Settings/Rules/Set/input: Written in
 Settings/Rules/System/imperial: imperial
@@ -127,8 +126,14 @@ Settings/Rules/System/metric: metric
 Settings/Rules/WikiLanguage: wiki language
 Settings/Ruleset/Caption: Ruleset and campaign setting
 Settings/Ruleset/None: none
+Settings/Ruleset/OwnCalendar: The wiki has its own calendar ($1$). Switching the campaign setting does not change it.
+Settings/Ruleset/OwnCurrency: The wiki has its own currency ($2$). Switching the campaign setting does not change it.
 Settings/Ruleset/Ruleset: Ruleset
 Settings/Ruleset/Setting: Campaign setting
+Settings/RulesetOptions/Caption: Ruleset options
+Settings/RulesetOptions/Hint: Settings of the active ruleset for this wiki. In which language its terms are written in the texts and shown to the readers - units, dice, damage and terms. "Written in" decides the unit of a number written without one.
+Settings/SettingOptions/Caption: Campaign setting options
+Settings/SettingOptions/Hint: Settings of the campaign setting for this wiki: in which language the names of the calendar and the coins are shown, and the order of day and month in dates.
 Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
 Spot/Missing: Spot "$spot$" not found at $place$

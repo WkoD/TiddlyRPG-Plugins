@@ -136,21 +136,29 @@ as well.
 
 ## Rules language
 
-A German wiki may want "WIS" and "ft" from an English rulebook, or "WEI" and "m". ControlPanel ->
-Settings -> TiddlyRPG -> "Rules language" sets two things, independently:
+A German wiki may want "WIS" and "ft" from an English rulebook, or "WEI" and "m". The ruleset
+and the campaign setting each have their own rules language: ControlPanel -> Settings ->
+TiddlyRPG -> "Ruleset options" for units, dice, damage and terms, "Campaign setting options"
+for the names of months and coins - English rules with German month names are two settings.
+Each sets two things, independently:
 
 - **Shown in** - the language the readers see rules terms in.
 - **Written in** - the language a number without unit counts in: with "en-GB", `<<unit 60
   range>>` means 60 ft; with "de-DE" it means 60 m. A number with its unit (`<<unit "228 cm">>`)
   does not depend on it.
 
-Each has three modes: the wiki language, one language for all domains, or per domain in a table
-(Length, Weight, Dice, Damage, Ability, Terms, Calendar, Currency - whatever the active plugins
-bring). The table shows an example per domain. Lengths and weights are converted between the
-systems with the factors of the ruleset; dice, damage, terms, months and coins are only named
-differently. For a length or weight the language chooses the system - the table names it
-("metric", "imperial"): weights in English and lengths in German give pounds and metres. The hub "Ruleset" shows every term in every language, the column of the language
-shown is marked.
+Each has three modes: the wiki language, one language for all its domains, or per domain in a
+table (for the ruleset Length, Weight, Dice, Damage, Ability, Terms; for the setting Calendar
+and Currency - whatever the active plugins bring). The table shows an example per domain. The
+campaign setting has no "written in": calendar and coins read no number without unit. Lengths
+and weights are converted between the systems with the factors of the ruleset; dice, damage,
+terms, months and coins are only named differently. For a length or weight the language chooses
+the system - the table names it ("metric", "imperial"): weights in English and lengths in German
+give pounds and metres. The hub "Ruleset" shows every term in every language, the column of the
+language shown is marked.
+
+The settings are tiddlers of the wiki: `$:/config/tiddlyrpg/rules/<ruleset|setting>/<display|input>/`
+with `mode` (`wiki`, `all`, `domain`), `language` and `domain/<name>`.
 
 ## Player characters, views and secrets
 
@@ -502,7 +510,8 @@ with `(year - start) mod every == 0`, and comes after the regular festivals of i
 The names of months and festivals follow the rules language (domain `Calendar`); description,
 calculator and date patterns stay in the wiki language.
 
-**Order of day and month.** Control Panel -> Settings -> TiddlyRPG -> "Dates": as in the wiki
+**Order of day and month.** Control Panel -> Settings -> TiddlyRPG -> "Campaign setting
+options": as in the wiki
 language ("5 Flamerule 1351" in English, "5. Flamerule 1351" in German), day before month, or
 month before day ("Flamerule 5, 1351", a span in one month "Flamerule 5 – 24, 1351"). It applies
 to headings, date lines, the timeline and the calculator; the event table keeps its columns.

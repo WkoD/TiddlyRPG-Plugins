@@ -165,7 +165,7 @@ test.describe("sections", function() {
 		var root = wiki.makeWidget(wiki.parseText("text/vnd.tiddlywiki", "<$trpg-timeline filter=\"[[Points]]\"/>"));
 		root.render(tw.fakeDocument.createElement("div"), null);
 		assert.equal(root.refresh({"Unrelated": {modified: true}}), false);
-		["$:/config/tiddlyrpg/rules/display/mode", "$:/config/tiddlyrpg/ruleset", "$:/config/tiddlyrpg/setting", "$:/config/tiddlyrpg/currency"].forEach(function(title) {
+		["$:/config/tiddlyrpg/rules/ruleset/display/mode", "$:/config/tiddlyrpg/rules/setting/display/mode", "$:/config/tiddlyrpg/ruleset", "$:/config/tiddlyrpg/setting", "$:/config/tiddlyrpg/currency"].forEach(function(title) {
 			var changed = {};
 			changed[title] = {modified: true};
 			assert.equal(root.refresh(changed), true, title);
