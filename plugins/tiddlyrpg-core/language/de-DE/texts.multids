@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011154416000
+modified: 20261011160301000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -116,7 +116,7 @@ Settings/Problem/NoChoice: Mehrere sind installiert und keins ist gewählt – a
 Settings/Problem/disabled: Festgelegt ist $1$, das ist deaktiviert – aktiv ist $2$.
 Settings/Problem/missing: Festgelegt ist $1$, das ist nicht installiert – aktiv ist $2$.
 Settings/Problem/type: Festgelegt ist $1$, das ist kein Plugin dieses Typs – aktiv ist $2$.
-Settings/Rules/Caption: Regelsprache
+Settings/Rules/Caption: Sprache
 Settings/Rules/Domain: Bereich
 Settings/Rules/Example: Beispiel
 Settings/Rules/Set/display: Angezeigt in

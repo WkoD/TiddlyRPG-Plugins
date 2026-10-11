@@ -133,7 +133,7 @@ test.describe("ruleset options", function() {
 	test("the two settings with their modes and the languages with keys", function() {
 		var html = tab(RULES_TAB);
 		assert.match(html, />Regelwerk Einstellungen</);
-		assert.match(html, /Regelsprache[^]*Geschrieben in[^]*Angezeigt in/);
+		assert.match(html, />Sprache<\/h2>[^]*Geschrieben in[^]*Angezeigt in/);
 		assert.equal((html.match(/type="radio"/g) || []).length, 6, "three modes per setting");
 		assert.equal((html.match(/pro Bereich \(in der Tabelle\)/g) || []).length, 2);
 		assert.match(html, /<option value="de-DE">/);
