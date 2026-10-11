@@ -80,13 +80,13 @@ test.describe("coins in the style of Faerûn", function() {
 	});
 
 	test("the display language of the domain Currency", function() {
-		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/setting/display/mode", text: "domain"});
-		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/setting/display/domain/Currency", text: "en-GB"});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/setting/mode", text: "domain"});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/setting/domain/Currency", text: "en-GB"});
 		try {
 			assert.equal(price("3 GM 5 SM"), "3 gp 5 sp");
 		} finally {
-			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/setting/display/mode");
-			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/setting/display/domain/Currency");
+			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/setting/mode");
+			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/setting/domain/Currency");
 		}
 	});
 

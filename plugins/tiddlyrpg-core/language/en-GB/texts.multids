@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011160301000
+modified: 20261011160657000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -75,7 +75,7 @@ Rules/Check/Damage: Check the text: "$text$" in <<damage>> is no known damage wo
 Rules/Check/DamageType: Check the text: <<damage "$text$">> names no damage type
 Rules/Check/Kind: Check the text: <<unit>> knows no kind "$kind$"
 Rules/Check/NoRules: Check the text: <<$type$>> needs a ruleset that knows it
-Rules/Check/NoUnit: Check the text: <<unit $text$>> needs a unit or a kind
+Rules/Check/NoUnit: Check the text: <<unit $text$>> needs a unit
 Rules/Check/Term: Check the text: <<term>> knows no "$id$"
 Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
 Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
@@ -120,7 +120,6 @@ Settings/Rules/Caption: Language
 Settings/Rules/Domain: Domain
 Settings/Rules/Example: Example
 Settings/Rules/Set/display: Shown in
-Settings/Rules/Set/input: Written in
 Settings/Rules/System/imperial: imperial
 Settings/Rules/System/metric: metric
 Settings/Rules/WikiLanguage: wiki language
@@ -131,7 +130,7 @@ Settings/Ruleset/OwnCurrency: The wiki has its own currency ($2$). Switching the
 Settings/Ruleset/Ruleset: Ruleset
 Settings/Ruleset/Setting: Campaign setting
 Settings/RulesetOptions/Caption: Ruleset options
-Settings/RulesetOptions/Hint: Settings of the active ruleset for this wiki. In which language its terms are written in the texts and shown to the readers - units, dice, damage and terms. "Written in" decides the unit of a number written without one.
+Settings/RulesetOptions/Hint: Settings of the active ruleset for this wiki: in which language its terms are shown to the readers - units, dice, damage and terms. Texts are read in every language.
 Settings/SettingOptions/Caption: Campaign setting options
 Settings/SettingOptions/Hint: Settings of the campaign setting for this wiki: in which language the names of the calendar and the coins are shown, and the order of day and month in dates.
 Snippet/DateSection: Dated Section

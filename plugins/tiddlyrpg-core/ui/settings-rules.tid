@@ -1,16 +1,16 @@
 created: 20261009190000000
-modified: 20261011154416000
+modified: 20261011160657000
 title: $:/plugins/tiddlyrpg-core/ui/settings-rules
 type: text/vnd.tiddlywiki
 
 <!-- The rules language of a group of domains (modules/language.js), shared by the tabs
      ui/settings-ruleset-options (group ruleset) and ui/settings-setting-options (group setting)
-     through \import: the settings "written in" (input) and "shown in" (display), each with its
-     mode, stored in $:/config/tiddlyrpg/rules/<group>/<set>/...; the table of the domains of the
-     group: the language each one follows, selectable in the mode "per domain", and an example.
-     Only languages with keys are offered (trpgruleslangs). A unit domain names the system that
-     language brings ("metrisch", trpgrulessystem): weights in English show pounds. The caller
-     sets trpg-disabled (yes in the published copy). -->
+     through \import: the language the domains are shown in with its mode, stored in
+     $:/config/tiddlyrpg/rules/<group>/...; the table of the domains of the group: the language
+     each one follows, selectable in the mode "per domain", and an example. Only languages with
+     keys are offered (trpgruleslangs). A unit domain names the system that language brings
+     ("metrisch", trpgrulessystem): weights in English show pounds. The caller sets
+     trpg-disabled (yes in the published copy). -->
 \procedure trpg.langname(code)
 <$text text={{{ [<code>addprefix[$:/languages/]get[description]else<code>] }}}/>
 \end
@@ -25,57 +25,40 @@ type: text/vnd.tiddlywiki
 </$select>
 \end
 
-\procedure trpg.rulesset(group,set)
-<$let trpg-base={{{ [<group>addprefix[$:/config/tiddlyrpg/rules/]addsuffix[/]addsuffix<set>] }}}
+\procedure trpg.rulescell(group,domain)
+\whitespace trim
+<$let trpg-base={{{ [<group>addprefix[$:/config/tiddlyrpg/rules/]] }}}>
+<%if [<trpg-base>addsuffix[/mode]get[text]match[domain]] %>
+<$transclude $variable="trpg.langselect" tiddler={{{ [<trpg-base>addsuffix[/domain/]addsuffix<domain>] }}} domain=<<domain>>/>
+<%else%>
+<$transclude $variable="trpg.langname" code={{{ [trpgruleslang<domain>] }}}/>
+<%endif%>
+<$list filter="[<domain>trpgrulessystem[]]" variable="trpg-system">
+<span class="trpg-rules-system"><$text text={{{ [<trpg-system>addprefix[ (]addsuffix[)]] }}}/></span>
+</$list>
+</$let>
+\end
+
+<!-- The language of a group with its mode and the table of its domains -->
+\procedure trpg.ruleslanguage(group)
+<$let trpg-base={{{ [<group>addprefix[$:/config/tiddlyrpg/rules/]] }}}
 	trpg-mode={{{ [<trpg-base>addsuffix[/mode]] }}}>
 <div class="trpg-rules-set">
 
-''<$text text={{{ [<set>addprefix[Settings/Rules/Set/]trpgtranslate[]] }}}/>''
+''<<trpg.t Settings/Rules/Set/display>>''
 
 <$radio tiddler=<<trpg-mode>> value="wiki" default="wiki" disabled=<<trpg-disabled>>> <<trpg.t Rules/Mode/wiki>></$radio><br>
 <$radio tiddler=<<trpg-mode>> value="all" default="wiki" disabled=<<trpg-disabled>>> <<trpg.t Rules/Mode/all>></$radio>&#32;<$transclude $variable="trpg.langselect" tiddler={{{ [<trpg-base>addsuffix[/language]] }}}/><br>
 <$radio tiddler=<<trpg-mode>> value="domain" default="wiki" disabled=<<trpg-disabled>>> <<trpg.t Rules/Mode/domain>></$radio>
 </div>
-</$let>
-\end
-
-\procedure trpg.rulescell(group,set,domain)
-\whitespace trim
-<$let trpg-base={{{ [<group>addprefix[$:/config/tiddlyrpg/rules/]addsuffix[/]addsuffix<set>] }}}>
-<%if [<set>match[input]] :filter[<domain>trpgrulesdomain[kinds]match[no]] %>
-—
-<%else%>
-<%if [<trpg-base>addsuffix[/mode]get[text]match[domain]] %>
-<$transclude $variable="trpg.langselect" tiddler={{{ [<trpg-base>addsuffix[/domain/]addsuffix<domain>] }}} domain=<<domain>>/>
-<%else%>
-<$transclude $variable="trpg.langname" code={{{ [<set>match[input]] :then[trpgruleslang:input<domain>] ~[trpgruleslang:display<domain>] }}}/>
-<%endif%>
-<$list filter="[<domain>trpgrulessystem<set>]" variable="trpg-system">
-<span class="trpg-rules-system"><$text text={{{ [<trpg-system>addprefix[ (]addsuffix[)]] }}}/></span>
-</$list>
-<%endif%>
-</$let>
-\end
-
-<!-- Both settings of a group (written in only if a domain of the group reads numbers without
-     unit) and the table of its domains -->
-\procedure trpg.ruleslanguage(group)
-<$let trpg-input={{{ [trpgrulesdomains<group>] :filter[trpgrulesdomain[kinds]match[yes]] +[first[]then[yes]else[no]] }}}>
-
-<%if [<trpg-input>match[yes]] %>
-<$transclude $variable="trpg.rulesset" group=<<group>> set="input"/>
-<%endif%>
-
-<$transclude $variable="trpg.rulesset" group=<<group>> set="display"/>
 
 <%if [trpgrulesdomains<group>first[]] %>
 <table class="trpg-rules-table">
-<tr><th><<trpg.t Settings/Rules/Domain>></th><%if [<trpg-input>match[yes]] %><th><<trpg.t Settings/Rules/Set/input>></th><%endif%><th><<trpg.t Settings/Rules/Set/display>></th><th><<trpg.t Settings/Rules/Example>></th></tr>
+<tr><th><<trpg.t Settings/Rules/Domain>></th><th><<trpg.t Settings/Rules/Set/display>></th><th><<trpg.t Settings/Rules/Example>></th></tr>
 <$list filter="[trpgrulesdomains<group>]" variable="trpg-domain">
 <tr>
 <td><$text text={{{ [<trpg-domain>addprefix[Rules/Domain/]trpgtranslate[]removeprefix[Rules/Domain/]] ~[<trpg-domain>addprefix[Rules/Domain/]trpgtranslate[]] }}}/></td>
-<%if [<trpg-input>match[yes]] %><td><$transclude $variable="trpg.rulescell" group=<<group>> set="input" domain=<<trpg-domain>>/></td><%endif%>
-<td><$transclude $variable="trpg.rulescell" group=<<group>> set="display" domain=<<trpg-domain>>/></td>
+<td><$transclude $variable="trpg.rulescell" group=<<group>> domain=<<trpg-domain>>/></td>
 <td><$text text={{{ [<trpg-domain>trpgrulesexample[]else[—]] }}}/></td>
 </tr>
 </$list>

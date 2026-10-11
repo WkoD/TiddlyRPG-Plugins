@@ -130,29 +130,31 @@ test.describe("ruleset and campaign setting", function() {
 });
 
 test.describe("ruleset options", function() {
-	test("the two settings with their modes and the languages with keys", function() {
+	test("the language shown with its modes and the languages with keys; nothing about writing", function() {
 		var html = tab(RULES_TAB);
 		assert.match(html, />Regelwerk Einstellungen</);
-		assert.match(html, />Sprache<\/h2>[^]*Geschrieben in[^]*Angezeigt in/);
-		assert.equal((html.match(/type="radio"/g) || []).length, 6, "three modes per setting");
-		assert.equal((html.match(/pro Bereich \(in der Tabelle\)/g) || []).length, 2);
+		assert.match(html, />Sprache<\/h2>[^]*<strong>Angezeigt in<\/strong>/);
+		assert.doesNotMatch(html, /Geschrieben in/);
+		assert.equal((html.match(/type="radio"/g) || []).length, 3, "three modes");
+		assert.equal((html.match(/pro Bereich \(in der Tabelle\)/g) || []).length, 1);
 		assert.match(html, /<option value="de-DE">/);
 		assert.match(html, /<option value="en-GB">/);
 		assert.doesNotMatch(html, /<option value="fr-FR">/);
 	});
 
-	test("the table of the domains of the ruleset only: names, languages, examples, — without kinds", function() {
+	test("the table of the domains of the ruleset only: names, languages, examples", function() {
 		var html = tab(RULES_TAB).replace(/>\s+</g, "><");
-		assert.match(html, /<td>Länge<\/td><td>Deutsch[^<]*<span class="trpg-rules-system"> \(metrisch\)<\/span><\/td><td>Deutsch[^<]*<span class="trpg-rules-system"> \(metrisch\)<\/span><\/td><td>228 cm → 228 cm<\/td>/);
-		assert.match(html, /<td>Würfel<\/td><td>—<\/td>/);
-		assert.match(html, /<td>Begriffe<\/td><td>—<\/td><td>[^<]*<\/td><td>ac → RK<\/td>/);
+		assert.match(html, /<tr><th>Bereich<\/th><th>Angezeigt in<\/th><th>Beispiel<\/th><\/tr>/);
+		assert.match(html, /<td>Länge<\/td><td>Deutsch[^<]*<span class="trpg-rules-system"> \(metrisch\)<\/span><\/td><td>228 cm → 228 cm<\/td>/);
+		assert.match(html, /<td>Würfel<\/td><td>Deutsch[^<]*<\/td><td>4d6 → 4W6<\/td>/);
+		assert.match(html, /<td>Begriffe<\/td><td>[^<]*<\/td><td>ac → RK<\/td>/);
 		assert.doesNotMatch(html, /<td>Kalender<\/td>|<td>Währung<\/td>/);
 	});
 
 	test("the examples follow the setting of the ruleset", function() {
 		var values = {};
-		values[RULESET_RULES + "display/mode"] = "all";
-		values[RULESET_RULES + "display/language"] = "en-GB";
+		values[RULESET_RULES + "mode"] = "all";
+		values[RULESET_RULES + "language"] = "en-GB";
 		return withTiddlers(values, function() {
 			var html = tab(RULES_TAB);
 			assert.match(html, /228 cm → 7 ft 7 in/);
@@ -163,21 +165,21 @@ test.describe("ruleset options", function() {
 
 	test("unit domains name their system: weight imperial, length metric per domain", function() {
 		var values = {};
-		values[RULESET_RULES + "display/mode"] = "domain";
-		values[RULESET_RULES + "display/domain/Weight"] = "en-GB";
+		values[RULESET_RULES + "mode"] = "domain";
+		values[RULESET_RULES + "domain/Weight"] = "en-GB";
 		return withTiddlers(values, function() {
 			var html = tab(RULES_TAB).replace(/>\s+</g, "><");
-			assert.match(html, /<td>Gewicht<\/td><td>[^]*?\(metrisch\)<\/span><\/td><td><select[^]*?<\/select><span class="trpg-rules-system"> \(imperial\)<\/span><\/td>/);
-			assert.match(html, /<td>Länge<\/td><td>[^]*?\(metrisch\)<\/span><\/td><td><select[^]*?<\/select><span class="trpg-rules-system"> \(metrisch\)<\/span><\/td>/);
+			assert.match(html, /<td>Gewicht<\/td><td><select[^]*?<\/select><span class="trpg-rules-system"> \(imperial\)<\/span><\/td>/);
+			assert.match(html, /<td>Länge<\/td><td><select[^]*?<\/select><span class="trpg-rules-system"> \(metrisch\)<\/span><\/td>/);
 			assert.doesNotMatch(html, /<td>Würfel<\/td>[^]*?trpg-rules-system[^]*?<td>Länge/, "no system for other domains");
 			assert.equal(h.render(wiki, "text/plain", "<<unit \"10 kg\">> <<unit \"30 ft\">>"), "20 lb 9 m");
 		});
 	});
 
 	test("selects in the table only in the mode per domain", function() {
-		assert.doesNotMatch(tab(RULES_TAB), /\$:\/config\/tiddlyrpg\/rules\/ruleset\/display\/domain/);
+		assert.doesNotMatch(tab(RULES_TAB).replace(/>\s+</g, "><"), /<td><select/);
 		var values = {};
-		values[RULESET_RULES + "display/mode"] = "domain";
+		values[RULESET_RULES + "mode"] = "domain";
 		return withTiddlers(values, function() {
 			var html = tab(RULES_TAB);
 			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 6, "one per domain of the ruleset in the column shown in");
@@ -194,10 +196,9 @@ test.describe("ruleset options", function() {
 });
 
 test.describe("campaign setting options", function() {
-	test("the rules language of the setting: shown in only, its domains", function() {
+	test("the language of the setting, its domains", function() {
 		var html = tab(SETTING_TAB).replace(/>\s+</g, "><");
 		assert.match(html, />Kampagnenwelt Einstellungen</);
-		assert.doesNotMatch(html, /<strong>Geschrieben in<\/strong>|<th>Geschrieben in<\/th>/, "calendar and coins read no number without unit");
 		assert.equal((html.match(/pro Bereich \(in der Tabelle\)/g) || []).length, 1);
 		assert.match(html, /<td>Kalender<\/td><td>Deutsch[^<]*<\/td><td>1351-01-31 → Mittwinter 1351<\/td>/);
 		assert.match(html, /<td>Währung<\/td>/);
@@ -206,8 +207,8 @@ test.describe("campaign setting options", function() {
 
 	test("its own settings: the names of the calendar in English, the ruleset untouched", function() {
 		var values = {};
-		values[SETTING_RULES + "display/mode"] = "all";
-		values[SETTING_RULES + "display/language"] = "en-GB";
+		values[SETTING_RULES + "mode"] = "all";
+		values[SETTING_RULES + "language"] = "en-GB";
 		return withTiddlers(values, function() {
 			assert.match(tab(SETTING_TAB), /1351-01-31 → Midwinter 1351/);
 			assert.match(tab(RULES_TAB), /1d8 cold → 1W8 Kälteschaden/);

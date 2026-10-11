@@ -52,13 +52,13 @@ test.describe("en-GB and the rules language", function() {
 	});
 
 	test("the display language of the domain, not of the wiki", function() {
-		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/display/mode", text: "domain"});
-		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/display/domain/Dice", text: "de-DE"});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/mode", text: "domain"});
+		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/domain/Dice", text: "de-DE"});
 		try {
 			assert.equal(d("4d6"), "4W6");
 		} finally {
-			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/display/mode");
-			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/display/domain/Dice");
+			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/mode");
+			wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/domain/Dice");
 		}
 	});
 });

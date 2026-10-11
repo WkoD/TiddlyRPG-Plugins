@@ -110,7 +110,7 @@ language"):
 ```
                                 shown in English          shown in German
 <<unit "228 cm">>               7 ft 7 in                 228 cm
-<<unit 60 range>>               60 ft                     60 m       (a number with a kind, see "Written in")
+<<unit "25 ft" range>>          25 ft                     7,5 m      (a kind: range, travel)
 <<dice "4d6">>                  4d6                       4W6
 <<damage "1d8 slashing">>       1d8 slashing damage       1W8 Hiebschaden
 <<term wis save>>               WIS save                  WEI-Rettungswurf
@@ -119,7 +119,9 @@ language"):
 
 (With the data of `tiddlyrpg-ruleset-dnd5e2014` and `tiddlyrpg-setting-forgottenrealms`.) What a
 macro does not understand shows unchanged, with a hint below the title. The words of every
-language are read: `<<damage "1W8 Hieb">>` works as well.
+language are read: `<<damage "1W8 Hieb">>` works as well. A number always carries its unit
+(`<<unit 60>>` is not read, also not with a kind): what a text means never depends on a setting.
+A kind only chooses how a value is shown, e.g. a range in whole feet.
 
 **Shortcuts.** A ruleset or setting may bring shortcuts: `<<wis save>>`, `<<ft 30>>`, `<<gp 50>>`
 stand for `<<term wis save>>`, `<<unit "30 ft">>`, `<<unit "50 gp">>`. The hub "Ruleset" lists
@@ -137,28 +139,22 @@ as well.
 ## Rules language
 
 A German wiki may want "WIS" and "ft" from an English rulebook, or "WEI" and "m". The ruleset
-and the campaign setting each have their own rules language: ControlPanel -> Settings ->
-TiddlyRPG -> "Ruleset options" for units, dice, damage and terms, "Campaign setting options"
-for the names of months and coins - English rules with German month names are two settings.
-Each sets two things, independently:
-
-- **Shown in** - the language the readers see rules terms in.
-- **Written in** - the language a number without unit counts in: with "en-GB", `<<unit 60
-  range>>` means 60 ft; with "de-DE" it means 60 m. A number with its unit (`<<unit "228 cm">>`)
-  does not depend on it.
+and the campaign setting each have their own setting for the language rules terms are shown in:
+ControlPanel -> Settings -> TiddlyRPG -> "Ruleset options" for units, dice, damage and terms,
+"Campaign setting options" for the names of months and coins - English rules with German month
+names are two settings. Texts are read in every language, whatever is set.
 
 Each has three modes: the wiki language, one language for all its domains, or per domain in a
 table (for the ruleset Length, Weight, Dice, Damage, Ability, Terms; for the setting Calendar
-and Currency - whatever the active plugins bring). The table shows an example per domain. The
-campaign setting has no "written in": calendar and coins read no number without unit. Lengths
-and weights are converted between the systems with the factors of the ruleset; dice, damage,
-terms, months and coins are only named differently. For a length or weight the language chooses
-the system - the table names it ("metric", "imperial"): weights in English and lengths in German
-give pounds and metres. The hub "Ruleset" shows every term in every language, the column of the
-language shown is marked.
+and Currency - whatever the active plugins bring). The table shows an example per domain.
+Lengths and weights are converted between the systems with the factors of the ruleset; dice,
+damage, terms, months and coins are only named differently. For a length or weight the language
+chooses the system - the table names it ("metric", "imperial"): weights in English and lengths in
+German give pounds and metres. The hub "Ruleset" shows every term in every language, the column
+of the language shown is marked.
 
-The settings are tiddlers of the wiki: `$:/config/tiddlyrpg/rules/<ruleset|setting>/<display|input>/`
-with `mode` (`wiki`, `all`, `domain`), `language` and `domain/<name>`.
+The settings are tiddlers of the wiki: `$:/config/tiddlyrpg/rules/<ruleset|setting>/` with
+`mode` (`wiki`, `all`, `domain`), `language` and `domain/<name>`.
 
 ## Player characters, views and secrets
 

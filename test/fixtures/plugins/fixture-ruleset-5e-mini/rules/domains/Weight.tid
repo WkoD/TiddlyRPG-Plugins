@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261010070618000
+modified: 20261011160657000
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Weight
 type: application/json
@@ -30,14 +30,6 @@ type: application/json
         "lb",
         "kg"
     ],
-    "kinds": {
-        "weight": {
-            "unit": {
-                "imperial": "lb",
-                "metric": "kg"
-            }
-        }
-    },
     "display": {
         "imperial": {
             "steps": [

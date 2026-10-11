@@ -3,12 +3,11 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261011154416000
+modified: 20261011160657000
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
-[trpgruleslang[Calendar]]          the language code the domain is shown in (suffix display, the
-[trpgruleslang:input[Calendar]]    default) or written in (suffix input)
+[trpgruleslang[Calendar]]          the language code the domain is shown in
 [trpgruleslangs[]]                 the language codes that have keys, sorted
 [trpgruleslangs[Calendar]]         those with keys of the domain (its keys prefix; all without it)
 [<value>trpgunit<kind>]            each input as <<unit>> shows it: "228 cm" -> "7 ft 7 in"
@@ -25,9 +24,8 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<name>trpgrulesexample[]]         the example of each input domain as "input → output"
 [<name>trpgrulestable[]]           the table of each input domain for the hub Ruleset (HTML)
 [<name>trpgruleslabel[]]           the display name of each input domain
-[<name>trpgrulessystem[display]]   the unit system each input unit domain is shown (display) or
-                                   written (input) in, as a label of the wiki language
-                                   ("metrisch"); nothing for other domains
+[<name>trpgrulessystem[]]          the unit system each input unit domain is shown in, as a label
+                                   of the wiki language ("metrisch"); nothing for other domains
 
 \*/
 
@@ -37,7 +35,7 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js");
 
 exports.trpgruleslang = function(source,operator,options) {
-	return [language.rulesLang(options.wiki,operator.operand,operator.suffix || "display")];
+	return [language.rulesLang(options.wiki,operator.operand)];
 };
 
 exports.trpgruleslangs = function(source,operator,options) {
@@ -132,7 +130,7 @@ exports.trpgruleslabel = function(source,operator,options) {
 exports.trpgrulessystem = function(source,operator,options) {
 	var results = [];
 	source(function(tiddler,name) {
-		var label = rules.systemLabel(options.wiki,name,operator.operand === "input" ? "input" : "display");
+		var label = rules.systemLabel(options.wiki,name);
 		if(label) {
 			results.push(label);
 		}

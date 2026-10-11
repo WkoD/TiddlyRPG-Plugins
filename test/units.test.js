@@ -1,9 +1,9 @@
 /*
  * Domains of type unit (modules/rules.js, <<unit>>) against fixture-ruleset-5e-mini (Length -
  * sizes and distances in one domain - and Weight): parsing (labels, written variants, 5etools
- * forms), pairs per unit, kinds with their unit and display, the display without kind, compound
- * values, the input language for numbers without unit, the decimal mark of the wiki language, a
- * value already in the display system, what is not understood.
+ * forms), pairs per unit, kinds with their display, the display without kind, compound values,
+ * the decimal mark of the wiki language, a value already in the display system, what is not
+ * understood - a number without unit among it, also with a kind.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -100,8 +100,7 @@ test.describe("shown in de-DE", function() {
 	test("without kind: below 1 m in cm, below 1 km in m with two decimals, then km", function() {
 		assert.equal(u("7 ft 7 in"), "2,28 m");
 		assert.equal(u("3 ft"), "90 cm");
-		assert.equal(u("3 ft", "size"), "90 cm", "the same with the kind size");
-		assert.equal(u("6 ft", "height"), "1,8 m");
+		assert.equal(u("6 ft"), "1,8 m");
 		assert.equal(u("4000 ft"), "1,2 km");
 	});
 
@@ -120,44 +119,17 @@ test.describe("shown in de-DE", function() {
 	});
 
 	test("as written in the display system, with the decimal mark of the wiki language", function() {
-		assert.equal(u("1,52 m", "height"), "1,52 m");
-		assert.equal(u("1.52 m", "height"), "1,52 m");
+		assert.equal(u("1,52 m"), "1,52 m");
+		assert.equal(u("1.52 m"), "1,52 m");
 		assert.equal(u("228 cm"), "228 cm");
 	});
-});
 
-test.describe("numbers without unit: kind and input language", function() {
-	test.before(function() {
-		h.setLanguage(wiki, "de-DE");
-	});
-
-	test("the kind chooses the domain, the input language the unit", function() {
-		assert.equal(u("228", "height"), "228 cm");
-		assert.equal(u("60", "range"), "60 m");
-		withRules({"input/mode": "all", "input/language": "en-GB"}, function() {
-			assert.equal(u("60", "range"), "18 m");
-			assert.equal(u("30", "travel"), "48 km");
-			assert.equal(u("3", "weight"), "1,5 kg");
+	test("shown in English per domain: a range in feet, a weight in pounds", function() {
+		withRules({"mode": "all", "language": "en-GB"}, function() {
+			assert.equal(u("18 m", "range"), "60 ft");
+			assert.equal(u("60 ft", "range"), "60 ft");
+			assert.equal(u("1,5 kg"), "3 lb");
 		});
-	});
-
-	test("one input language for all lengths: a height and a range both in metric", function() {
-		withRules({"input/mode": "domain", "input/domain/Length": "de-DE",
-			"display/mode": "all", "display/language": "en-GB"}, function() {
-			assert.equal(u("228", "height"), "7 ft 7 in");
-			assert.equal(u("60", "range"), "200 ft");
-			assert.equal(u("60 ft", "range"), "60 ft", "an explicit unit for the other one");
-		});
-	});
-
-	test("an explicit unit wins over the input language", function() {
-		withRules({"input/mode": "all", "input/language": "en-GB"}, function() {
-			assert.equal(u("228 cm", "height"), "228 cm");
-		});
-	});
-
-	test("the decimal mark of the input language is read", function() {
-		assert.equal(u("1,52", "height"), "1,52 cm");
 	});
 });
 
@@ -175,8 +147,11 @@ test.describe("what is not understood", function() {
 		assert.equal(r.problem, "Rules/Check/Unit");
 	});
 
-	test("a number without unit and kind, an unknown kind", function() {
+	test("a number without unit, also with a kind; an unknown kind", function() {
 		assert.equal(rules.unit(wiki, "228").problem, "Rules/Check/NoUnit");
+		assert.equal(rules.unit(wiki, "60", "range").problem, "Rules/Check/NoUnit", "the kind gives no unit");
+		assert.equal(rules.unit(wiki, "60", "range").text, "60");
+		assert.equal(rules.unit(wiki, "228 cm", "height").problem, "Rules/Check/Kind", "height is no kind any more");
 		assert.equal(rules.unit(wiki, "228", "girth").problem, "Rules/Check/Kind");
 		assert.equal(rules.unit(wiki, "228", "girth").text, "228");
 	});

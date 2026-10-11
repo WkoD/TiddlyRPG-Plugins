@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011160301000
+modified: 20261011160657000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -75,7 +75,7 @@ Rules/Check/Damage: Text prüfen: „$text$“ in <<damage>> ist kein bekanntes 
 Rules/Check/DamageType: Text prüfen: <<damage "$text$">> nennt keine Schadensart
 Rules/Check/Kind: Text prüfen: <<unit>> kennt keine Art „$kind$“
 Rules/Check/NoRules: Text prüfen: <<$type$>> braucht ein Regelwerk, das es kennt
-Rules/Check/NoUnit: Text prüfen: <<unit $text$>> braucht eine Einheit oder eine Art
+Rules/Check/NoUnit: Text prüfen: <<unit $text$>> braucht eine Einheit
 Rules/Check/Term: Text prüfen: <<term>> kennt kein „$id$“
 Rules/Check/Unit: Text prüfen: keine bekannte Einheit in <<unit "$text$">>
 Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$“
@@ -120,7 +120,6 @@ Settings/Rules/Caption: Sprache
 Settings/Rules/Domain: Bereich
 Settings/Rules/Example: Beispiel
 Settings/Rules/Set/display: Angezeigt in
-Settings/Rules/Set/input: Geschrieben in
 Settings/Rules/System/imperial: imperial
 Settings/Rules/System/metric: metrisch
 Settings/Rules/WikiLanguage: Wiki-Sprache
@@ -131,7 +130,7 @@ Settings/Ruleset/OwnCurrency: Das Wiki hat ein eigenes Geldsystem ($2$). Ein Wec
 Settings/Ruleset/Ruleset: Regelwerk
 Settings/Ruleset/Setting: Kampagnenwelt
 Settings/RulesetOptions/Caption: Regelwerk Einstellungen
-Settings/RulesetOptions/Hint: Einstellungen des aktiven Regelwerks für dieses Wiki. In welcher Sprache seine Begriffe in den Texten geschrieben und den Lesern angezeigt werden – Einheiten, Würfel, Schaden und Begriffe. „Geschrieben in“ entscheidet über die Einheit einer Zahl, die ohne Einheit steht.
+Settings/RulesetOptions/Hint: Einstellungen des aktiven Regelwerks für dieses Wiki: in welcher Sprache seine Begriffe den Lesern angezeigt werden – Einheiten, Würfel, Schaden und Begriffe. Gelesen werden Texte in jeder Sprache.
 Settings/SettingOptions/Caption: Kampagnenwelt Einstellungen
 Settings/SettingOptions/Hint: Einstellungen der Kampagnenwelt für dieses Wiki: in welcher Sprache die Namen des Kalenders und der Münzen angezeigt werden, und die Reihenfolge von Tag und Monat in Daten.
 Snippet/DateSection: Abschnitt mit Datum

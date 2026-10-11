@@ -1,7 +1,7 @@
 /*
  * The rules language (modules/language.js, filters/rules.js) with the calendar of the fixture
- * setting as domain: the two settings "display" and "input" in their three modes, independent of
- * each other; values kept when the mode changes; the fallback to en-GB; names follow the domain
+ * setting as domain: the language shown in its three modes; values kept when the mode changes;
+ * the fallback to en-GB; names follow the domain
  * while the texts of the calendar stay in the wiki language; an own calendar without domain
  * tiddler; the groups ruleset and setting, each with settings of its own; the languages with
  * keys. The wiki language is de-DE. The calendar belongs to the group setting, so its settings
@@ -43,56 +43,48 @@ function withRules(values, fn) {
 }
 
 test.describe("modes", function() {
-	test("wiki (default): the wiki language, for both settings", function() {
+	test("wiki (default): the wiki language", function() {
 		assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
-		assert.equal(f("[trpgruleslang:input[Calendar]]"), "de-DE");
-		withRules({"display/mode": "wiki", "display/language": "en-GB"}, function() {
+		withRules({"mode": "wiki", "language": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
 		});
 	});
 
 	test("all: one language for every domain", function() {
-		withRules({"display/mode": "all", "display/language": "en-GB"}, function() {
+		withRules({"mode": "all", "language": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
 			assert.equal(f("[trpgruleslang[Volume]]"), "en-GB", "also an unregistered domain");
 		});
 	});
 
 	test("all without language: the wiki language", function() {
-		withRules({"display/mode": "all"}, function() {
+		withRules({"mode": "all"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
 		});
 	});
 
 	test("domain: per domain, empty for the wiki language", function() {
-		withRules({"display/mode": "domain", "display/domain/Calendar": "en-GB"}, function() {
+		withRules({"mode": "domain", "domain/Calendar": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
 		});
-		withRules({"display/mode": "domain", "display/domain/Calendar": ""}, function() {
+		withRules({"mode": "domain", "domain/Calendar": ""}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
 		});
 	});
 
 	test("domain: an unregistered domain gets the wiki language", function() {
-		withRules({"display/mode": "domain", "display/domain/Volume": "en-GB"}, function() {
+		withRules({"mode": "domain", "domain/Volume": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Volume]]"), "de-DE");
 		});
 	});
 
-	test("the two settings are independent", function() {
-		withRules({"display/mode": "all", "display/language": "en-GB", "input/mode": "domain", "input/domain/Calendar": "de-DE"}, function() {
-			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
-			assert.equal(f("[trpgruleslang:input[Calendar]]"), "de-DE");
-		});
-	});
-
 	test("values of the other modes stay when the mode changes", function() {
-		withRules({"display/mode": "all", "display/language": "en-GB", "display/domain/Calendar": "de-DE"}, function() {
+		withRules({"mode": "all", "language": "en-GB", "domain/Calendar": "de-DE"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
-			wiki.addTiddler(new $tw.Tiddler({title: RULES + "display/mode", text: "domain"}));
+			wiki.addTiddler(new $tw.Tiddler({title: RULES + "mode", text: "domain"}));
 			assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
-			assert.equal(wiki.getTiddlerText(RULES + "display/language"), "en-GB");
-			wiki.addTiddler(new $tw.Tiddler({title: RULES + "display/mode", text: "all"}));
+			assert.equal(wiki.getTiddlerText(RULES + "language"), "en-GB");
+			wiki.addTiddler(new $tw.Tiddler({title: RULES + "mode", text: "all"}));
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
 		});
 	});
@@ -107,7 +99,7 @@ test.describe("the calendar as domain", function() {
 
 	test("names follow the display language of the domain", function() {
 		assert.equal(f("[[1351-01-31]dateformat[]]"), "Mittwinter 1351");
-		withRules({"display/mode": "all", "display/language": "en-GB"}, function() {
+		withRules({"mode": "all", "language": "en-GB"}, function() {
 			assert.equal(f("[[1351-01-31]dateformat[]]"), "Midwinter 1351");
 			assert.equal(f("[calendar[title]]"), "Calendar of Harptos");
 		});
@@ -115,7 +107,7 @@ test.describe("the calendar as domain", function() {
 	});
 
 	test("the texts of the calendar stay in the wiki language", function() {
-		withRules({"display/mode": "all", "display/language": "en-GB"}, function() {
+		withRules({"mode": "all", "language": "en-GB"}, function() {
 			var body = h.body(wiki, "Calendar");
 			assert.match(body, /Rechner/);
 			assert.match(body, /Calendar of Harptos/);
@@ -125,7 +117,7 @@ test.describe("the calendar as domain", function() {
 
 	test("a missing key falls back to en-GB", function() {
 		// Month names exist only in en-GB (names.multids)
-		withRules({"display/mode": "all", "display/language": "fr-FR"}, function() {
+		withRules({"mode": "all", "language": "fr-FR"}, function() {
 			assert.equal(f("[[1351-07-05]dateformat[]]"), "5. Flamerule 1351");
 			assert.equal(f("[[1351-01-31]dateformat[]]"), "Midwinter 1351");
 		});
@@ -137,9 +129,9 @@ test.describe("the calendar as domain", function() {
 		widget.render(container, null);
 		assert.equal(container.textContent, "Mittwinter 1351");
 		var changes = {};
-		changes[RULES + "display/mode"] = {modified: true};
-		changes[RULES + "display/language"] = {modified: true};
-		withRules({"display/mode": "all", "display/language": "en-GB"}, function() {
+		changes[RULES + "mode"] = {modified: true};
+		changes[RULES + "language"] = {modified: true};
+		withRules({"mode": "all", "language": "en-GB"}, function() {
 			widget.refresh(changes);
 			assert.equal(container.textContent, "Midwinter 1351");
 		});
@@ -178,13 +170,13 @@ test.describe("an own calendar without setting", function() {
 	});
 
 	test("the mode all applies to it", function() {
-		withRules({"display/mode": "all", "display/language": "en-GB"}, function() {
+		withRules({"mode": "all", "language": "en-GB"}, function() {
 			assert.equal(f("[[0001-01-31]dateformat[]]"), "Feast 1");
 		});
 	});
 
 	test("in the mode domain it keeps the wiki language", function() {
-		withRules({"display/mode": "domain", "display/domain/Calendar": "en-GB"}, function() {
+		withRules({"mode": "domain", "domain/Calendar": "en-GB"}, function() {
 			assert.equal(f("[[0001-01-31]dateformat[]]"), "Fest 1");
 		});
 	});
@@ -226,12 +218,12 @@ test.describe("ruleset and setting set apart", function() {
 	});
 
 	test("the setting of one group leaves the other alone", function() {
-		withConfig({"ruleset/display/mode": "all", "ruleset/display/language": "en-GB"}, function() {
+		withConfig({"ruleset/mode": "all", "ruleset/language": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Damage]]"), "en-GB");
 			assert.equal(f("[trpgruleslang[Calendar]]"), "de-DE");
 			assert.equal(f("[[1351-01-31]dateformat[]]"), "Mittwinter 1351");
 		});
-		withConfig({"setting/display/mode": "all", "setting/display/language": "en-GB"}, function() {
+		withConfig({"setting/mode": "all", "setting/language": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Damage]]"), "de-DE");
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
 		});

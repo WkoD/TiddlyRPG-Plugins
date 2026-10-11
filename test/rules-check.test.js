@@ -41,7 +41,7 @@ test("one hint per problem, in the wiki language", function() {
 	withTiddler({title: "Fehler", text: "<<unit \"3 cubits\">> <<unit 5>> <<term xyz>> <<term wis check>> <<damage \"1d4 + Rage\">> <<damage \"1d6\">> <<term xyz>>"}, function() {
 		assert.deepEqual(check("Fehler"), [
 			"Text prüfen: keine bekannte Einheit in <<unit \"3 cubits\">>",
-			"Text prüfen: <<unit 5>> braucht eine Einheit oder eine Art",
+			"Text prüfen: <<unit 5>> braucht eine Einheit",
 			"Text prüfen: <<term>> kennt kein „xyz“",
 			"Text prüfen: <<term wis>> hat keine Variante „check“",
 			"Text prüfen: „Rage“ in <<damage>> ist kein bekanntes Schadenswort",

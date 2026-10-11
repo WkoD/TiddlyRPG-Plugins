@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261011154416000
+modified: 20261011160657000
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back
@@ -19,15 +19,13 @@ keys) and whatever its type needs (see modules/rules.js). The type lives in the 
 the field `type`, which is the content type of a tiddler.
 Every domain belongs to a group, set apart from the other: "ruleset" (the domains of the
 ruleset) or "setting" (those of the campaign setting; a domain without domain tiddler, an own
-calendar or currency, belongs here too) - domainGroup(). Per group two settings, each set by the
-DM in $:/config/tiddlyrpg/rules/<group>/<set>/...:
-  display   the language a domain is shown in
-  input     the language a domain is written in (the unit of numbers without unit)
-each with a mode (.../<set>/mode): "wiki" (default, also without tiddler) - the wiki language;
-"all" - .../<set>/language for every domain of the group; "domain" - .../<set>/domain/<domain>
-per domain, empty for the wiki language. Values of the other modes stay when the mode changes. A
-domain without domain tiddler follows the mode like any other; in the mode "domain" it gets the
-wiki language, as there is nothing to set for it.
+calendar or currency, belongs here too) - domainGroup(). Per group the DM sets the language its
+domains are shown in, $:/config/tiddlyrpg/rules/<group>/...: a mode (.../mode) "wiki" (default,
+also without tiddler) - the wiki language; "all" - .../language for every domain of the group;
+"domain" - .../domain/<domain> per domain, empty for the wiki language. Values of the other modes
+stay when the mode changes. A domain without domain tiddler follows the mode like any other; in
+the mode "domain" it gets the wiki language, as there is nothing to set for it. What is written
+is read in every language and carries its unit, so no setting decides how a text is read.
 
 \*/
 
@@ -127,9 +125,9 @@ var domainGroup = exports.domainGroup = function(wiki,name) {
 	return domain.type === "calendar" || domain.type === "currency" ? "setting" : "ruleset";
 };
 
-// The language code a domain follows in a set ("display" or "input"), see the header
-var rulesLang = exports.rulesLang = function(wiki,domain,set) {
-	var base = domainGroup(wiki,domain) + "/" + set,
+// The language code a domain is shown in, see the header
+var rulesLang = exports.rulesLang = function(wiki,domain) {
+	var base = domainGroup(wiki,domain),
 		mode = config(wiki,base + "/mode") || "wiki";
 	if(mode === "all") {
 		return config(wiki,base + "/language") || lang(wiki);
@@ -142,7 +140,7 @@ var rulesLang = exports.rulesLang = function(wiki,domain,set) {
 
 // Translation of a key of a domain in its display language, then en-GB, or null
 exports.lookupRules = function(wiki,domain,key) {
-	var codes = [rulesLang(wiki,domain,"display")];
+	var codes = [rulesLang(wiki,domain)];
 	if(codes[0] !== BASE) {
 		codes.push(BASE);
 	}

@@ -139,7 +139,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the hubs `Ruleset` and `Currency` without procedure
   - `units`, `dice`, `damage`, `terms` - the domain types `unit`, `tokens`, `damage`, `label` of
     the rules engine against `fixture-ruleset-5e-mini`: parsing in every language, pairs, kinds,
-    display rules, input language, the damage grammar, variants, what is not understood
+    display rules, the damage grammar, variants, what is not understood (a number without unit,
+    also with a kind)
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain - without code changes
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
@@ -308,8 +309,7 @@ the tiddler title:
   currency, whose real config tiddler wins over the shadow of a setting),
   `ui/settings-ruleset-options` (with a ruleset: the rules language of the group `ruleset`) and
   `ui/settings-setting-options` (with a setting or an own calendar or currency: the rules
-  language of the group `setting`, shown in only unless one of its domains has kinds, and the
-  order of day and month, see "Calendar engine"). Both take their procedures from
+  language of the group `setting` and the order of day and month, see "Calendar engine"). Both take their procedures from
   `ui/settings-rules` (`\import`; operators `trpgrulesdomains` with a group, `trpgrulesdomain`,
   `trpgrulesexample`; a unit domain names the system of its language, `trpgrulessystem`, keys
   `Settings/Rules/System/<system>`). In the published copy the inputs are disabled; no button,
@@ -441,9 +441,11 @@ Of each type one is active, chosen in
   types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`), never a domain name. A
   domain belongs to a group, `ruleset` or `setting` (`domainGroup()`, operator
   `trpgrulesgroup`: the type of its plugin; a domain without tiddler belongs to the setting),
-  and each group has settings of its own: the DM sets "display" and "input" under
-  `$:/config/tiddlyrpg/rules/<group>/<set>/...` (modes `wiki`, `all`, `domain`), so the ruleset
-  in English does not turn the month names English. `lookupRules(wiki,domain,key)` looks a key
+  and each group has a setting of its own: the DM sets the language shown under
+  `$:/config/tiddlyrpg/rules/<group>/...` (modes `wiki`, `all`, `domain`), so the ruleset in
+  English does not turn the month names English. Nothing decides how a text is read: words of
+  every language are read, and a number needs its unit (`<<unit 60 range>>` gives a hint; a kind
+  only chooses the display). `lookupRules(wiki,domain,key)` looks a key
   up in the display language of the
   domain, then en-GB. Only terms go through it - the calendar names (`calendar.js`), not the
   texts of hubs, the calculator or the date patterns. A domain without tiddler (an own calendar

@@ -62,13 +62,13 @@ test("a label domain: id, shortcut, a column per language, variants", function()
 });
 
 test("the column of the display language follows the setting", function() {
-	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/display/mode", text: "all"});
-	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/display/language", text: "en-GB"});
+	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/mode", text: "all"});
+	h.add(wiki, {title: "$:/config/tiddlyrpg/rules/ruleset/language", text: "en-GB"});
 	try {
 		assert.match(tableAfter(hub(), "Attribute"), /<th>Deutsch \(Deutschland\)<\/th><th class="trpg-rules-shown">English \(British\)<\/th>/);
 	} finally {
-		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/display/mode");
-		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/display/language");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/mode");
+		wiki.deleteTiddler("$:/config/tiddlyrpg/rules/ruleset/language");
 	}
 });
 
@@ -92,7 +92,7 @@ test("units: labels, pairs and kinds", function() {
 	var html = hub();
 	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td><code>&lt;&lt;ft&gt;&gt;<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
 	assert.match(html, /Umrechnung: 1 in = 2,5 cm, 1 ft = 0,3 m, 1 mi = 1,6 km/);
-	assert.match(html, /Arten: height \(ft \/ cm\), size \(ft \/ cm\), range \(ft \/ m\), travel \(mi \/ km\)/);
+	assert.match(html, /Arten: range, travel/);
 });
 
 test("tokens: the token per language", function() {

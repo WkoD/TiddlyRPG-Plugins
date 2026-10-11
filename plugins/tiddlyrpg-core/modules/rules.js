@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261010075834000
+modified: 20261011160657000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -21,9 +21,9 @@ Domain types and their data:
                 pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6);
                 a value converts by the pair of its unit, else by the first pair of its system
     "defaults": ["<unit>"] - units for which this domain applies without a kind
-    "kinds":    {"<kind>": {"unit": {"<system>": "<unit>"}, "display": {"<system>": rule}}} - a
-                kind (height, range ...) chooses the domain, the unit of a number without unit
-                by the system of the input language, and optionally a display of its own
+    "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, travel ...) chooses
+                the domain and optionally a display of its own; the value still carries its unit
+                (<<unit "60 ft" range>>, <<ft 60 range>>) - a number without unit is not read
     "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a
                 kind without display of its own: {"steps": [step, ...]}, the first step whose
                 "below" (in base units of the system) the value is under, else the last; a step
@@ -166,16 +166,16 @@ function systemOf(wiki,code) {
 	return (inLanguage(wiki,code,"Rules/Unit/System") || "").trim() || null;
 }
 
-// The system a unit domain is shown ("display") or written ("input") in, as the label of the wiki
-// language (Settings/Rules/System/<system>, else the id): "metrisch". "" for other domain types.
-exports.systemLabel = function(wiki,name,set) {
+// The system a unit domain is shown in, as the label of the wiki language
+// (Settings/Rules/System/<system>, else the id): "metrisch". "" for other domain types.
+exports.systemLabel = function(wiki,name) {
 	var domain = language.domains(wiki)[name],
-		system = domain && domain.type === "unit" ? systemOf(wiki,language.rulesLang(wiki,name,set)) : null;
+		system = domain && domain.type === "unit" ? systemOf(wiki,language.rulesLang(wiki,name)) : null;
 	return system ? language.lookup(wiki,"Settings/Rules/System/" + system) || system : "";
 };
 
 function displaySystem(wiki,domain) {
-	return systemOf(wiki,language.rulesLang(wiki,domain.domain,"display"));
+	return systemOf(wiki,language.rulesLang(wiki,domain.domain));
 }
 
 function unitLabel(wiki,domain,id) {
@@ -253,7 +253,8 @@ function show(wiki,domain,system,value,kind) {
 	return formatNumber(wiki,value / units[step.unit].factor,step.decimals) + " " + unitLabel(wiki,domain,step.unit);
 }
 
-// <<unit value kind>>: "228 cm", "30 ft., fly 50 ft.", "7 ft 7 in", or a number with a kind
+// <<unit value kind>>: "228 cm", "30 ft., fly 50 ft.", "7 ft 7 in"; a kind chooses the display.
+// A number without unit is not read: what a text means does not depend on a setting.
 exports.unit = function(wiki,text,kind) {
 	text = (text || "").toString().trim();
 	kind = (kind || "").trim();
@@ -262,15 +263,7 @@ exports.unit = function(wiki,text,kind) {
 		return result(text,"Rules/Check/Kind",{kind: kind});
 	}
 	if(/^\d+(?:[.,]\d+)?$/.test(text)) {
-		if(!kindDomain) {
-			return result(text,"Rules/Check/NoUnit",{text: text});
-		}
-		var system = systemOf(wiki,language.rulesLang(wiki,kindDomain.domain,"input")),
-			id = system && (kindDomain.kinds[kind].unit || {})[system];
-		if(!id) {
-			return result(text,"Rules/Check/NoUnit",{text: text});
-		}
-		text = text + " " + id;
+		return result(text,"Rules/Check/NoUnit",{text: text});
 	}
 	var unitInfo = unitWords(wiki);
 	// Coins, when no length or weight is written (the German KM is also km): the currency
@@ -633,7 +626,7 @@ exports.table = function(wiki,name) {
 			" <$link to=\"" + hub + "\">" + html(language.title(wiki,hub)) + "</$link></p>";
 	}
 	var codes = language.languages(wiki,domain.keys),
-		shown = language.rulesLang(wiki,name,"display"),
+		shown = language.rulesLang(wiki,name),
 		cls = function(code) { return code === shown ? " class=\"trpg-rules-shown\"" : ""; },
 		rows = [],
 		hasShortcut = domain.type === "label" || domain.type === "damage" || domain.type === "unit";
@@ -692,10 +685,7 @@ exports.table = function(wiki,name) {
 		var pairs = (domain.pairs || []).map(function(p) {
 				return "1 " + unitLabel(wiki,domain,p[0]) + " = " + formatNumber(wiki,p[2],4) + " " + unitLabel(wiki,domain,p[1]);
 			}),
-			kinds = Object.keys(domain.kinds || {}).map(function(kind) {
-				var units = domain.kinds[kind].unit || {};
-				return kind + " (" + Object.keys(units).map(function(s) { return unitLabel(wiki,domain,units[s]); }).join(" / ") + ")";
-			});
+			kinds = Object.keys(domain.kinds || {});
 		out += "<p>" + (pairs.length ? html(language.t(wiki,"Ruleset/Hub/Pairs")) + " " + html(pairs.join(", ")) : "") +
 			(kinds.length ? "<br>" + html(language.t(wiki,"Ruleset/Hub/Kinds")) + " " + html(kinds.join(", ")) : "") + "</p>";
 	}
