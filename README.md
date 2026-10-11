@@ -13,10 +13,11 @@ plugins from here.
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
 
 <!-- wiki -->
-`tiddlyrpg-core` knows no game system and no world. Content for D&D 5e and the Forgotten Realms
-lives in the separate repo `TiddlyRPG-DnD` (npm `tiddlyrpg-dnd`): the ruleset
-`tiddlyrpg-ruleset-dnd5e2014` (terms of the SRD 5.1) and the campaign setting
-`tiddlyrpg-setting-forgottenrealms` (the Calendar of Harptos, the coins of the Forgotten Realms).
+`tiddlyrpg-core` is the format layer of a campaign wiki for tabletop role-playing games: hubs for
+persons, locations, organisations, events and items, relations with their graphs, in-world dates
+with a timeline, maps of locations, views for the DM and the players with secrets, and language
+packs (en-GB, de-DE). Its engines for calendar, currency and rules terms read their data from
+data plugins of the types `ruleset` and `setting` (see "Rulesets and campaign settings").
 <!-- /wiki -->
 
 ## Third-party plugins
@@ -44,8 +45,7 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 A small launcher (`scripts/tw.js`) in the wiki builds `TIDDLYWIKI_PLUGIN_PATH` platform
 independently (`path.delimiter`) from all `node_modules/*/plugins`; `tiddlywiki.info` lists the
 plugins by folder name (`tiddlyrpg-core`, `staticfiles`, `graph`, `vis-network`, `relink`, and
-optionally plugins of other packages, e.g. `tiddlyrpg-ruleset-dnd5e2014` and
-`tiddlyrpg-setting-forgottenrealms` from `tiddlyrpg-dnd`).
+optionally plugins of other packages, e.g. a ruleset and a campaign setting).
 
 <!-- wiki -->
 ## Languages
@@ -85,10 +85,10 @@ only `$:/language`; the TiddlyWiki interface then stays English, the texts of th
 Content of a game system or a world comes in data plugins of two types (`plugin-type` in
 `plugin.info`):
 
-| Type | Brings | Example |
-|---|---|---|
-| `ruleset` | rules terms: units, dice, damage types, abilities and other terms; the price unit of the system | `tiddlyrpg-ruleset-dnd5e2014` |
-| `setting` | the world: calendar, currency, their names | `tiddlyrpg-setting-forgottenrealms` |
+| Type | Brings |
+|---|---|
+| `ruleset` | rules terms: units, dice, damage types, abilities and other terms; the price unit of the system |
+| `setting` | the world: calendar, currency, their names |
 
 A wiki may install several of each; one of each type is active. ControlPanel -> Settings ->
 TiddlyRPG -> "Ruleset and campaign setting" chooses it (stored in `$:/config/tiddlyrpg/ruleset`
@@ -101,8 +101,7 @@ a reload. ControlPanel -> Plugins lists them in the tabs "Rulesets" and "Campaig
 Its terms go into rules domains - JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` -
 and language keys `$:/tiddlyrpg/language/<code>/...`. The domain types (`unit`, `label`, `tokens`,
 `damage`, `calendar`, `currency`) and their data formats are described in the header of
-`modules/rules.js`; `tiddlyrpg-ruleset-dnd5e2014` and the fixture plugins in
-`test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose core
+`modules/rules.js`; the fixture plugins in `test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose core
 version is not met.
 
 ## Rules terms in the text
@@ -115,14 +114,14 @@ language"):
 <<unit "228 cm">>               7 ft 7 in                 228 cm
 <<unit "25 ft" range>>          25 ft                     7,5 m      (kinds: range, distance, size)
 <<dice "4d6">>                  4d6                       4W6
-<<damage "1d8 slashing">>       1d8 slashing damage       1W8 Hiebschaden
-<<term wis save>>               WIS save                  WEI-Rettungswurf
-<<unit "3 gp 5 sp">>            3 gp 5 sp                 3 GM 5 SM  (coins of the currency)
+<<damage "2d6 fire">>           2d6 fire damage           2W6 Feuerschaden
+<<term hp>>                     HP                        LP
+<<unit "3 cr 5 sh">>            3 cr 5 sh                 3 Kr 5 Sch  (coins of the currency)
 ```
 
-(With the data of `tiddlyrpg-ruleset-dnd5e2014` and `tiddlyrpg-setting-forgottenrealms`.) What a
-macro does not understand shows unchanged, with a hint below the title. The words of every
-language are read: `<<damage "1W8 Hieb">>` works as well. A number always carries its unit
+(With the data of a ruleset and a campaign setting that name these terms in English and
+German.) What a macro does not understand shows unchanged, with a hint below the title. The
+words of every language are read: `<<damage "2W6 Feuer">>` works as well. A number always carries its unit
 (`<<unit 60>>` is not read, also not with a kind): what a text means never depends on a setting.
 A kind only chooses how a value is shown, e.g. a range in whole feet.
 
@@ -135,7 +134,7 @@ as well.
 
 ## Rules language
 
-A German wiki may want "WIS" and "ft" from an English rulebook, or "WEI" and "m". The ruleset
+A German wiki may want "HP" and "ft" from an English rulebook, or "LP" and "m". The ruleset
 and the campaign setting each have their own setting for the language rules terms are shown in:
 ControlPanel -> Settings -> TiddlyRPG -> "Ruleset options" for units, dice, damage and terms,
 "Campaign setting options" for the names of months and coins - English rules with German month
@@ -253,13 +252,13 @@ relation list show the way back by themselves.
 | | `under` | `under: Tyria`, `under: [[Haus Kemri]]` | answers to | Answers to / Subordinates |
 | | `former` | `former: Guild` (person), `former: Grum` (item) | formerly with | Formerly with / Former |
 | family | `parent` | `parent: [[Sven Sigra]]` (the child) | child of | Parents / Children |
-| | `ancestor` | `ancestor: Balor` (over several generations) | descendant of | Ancestors / Descendants |
+| | `ancestor` | `ancestor: Ulfgar` (over several generations) | descendant of | Ancestors / Descendants |
 | | `spouse` | `spouse: Ragna` (both ends) | Spouse | Spouse |
 | | `sibling` | `sibling: Bjorn` (both ends) | Sibling | Siblings |
 | | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
-| | `patron` | `patron: Helm` | worships | Patron / Followers |
+| | `patron` | `patron: Sola` | worships | Patron / Followers |
 | things | `creator` | `creator: Corelei` (the item) | made by | Creator / Created |
 | | `owner` | `owner: Balseth` | owned by | Owner / Possessions |
 | | `component` | `component: Löwengras` (the potion) | contains | Components / Part of |
@@ -296,8 +295,8 @@ location - tags carry no meaning for places.
 | Item, material | `location: Briarwood Riganwald` | where it lies or is found (several, all equal); an item may have several owners as well |
 
 A location has one parent: the location that has it as a spot, otherwise its field `location`.
-Below the title every tiddler shows the path of its parents ("Materielle Ebene › Andu Falas ›
-Königreich von Vandalia"); a hint appears for a cycle, a spot of two locations, a person with
+Below the title every tiddler shows the path of its parents ("Andu Falas › Königreich von
+Vandalia › Baile"); a hint appears for a cycle, a spot of two locations, a person with
 two locations, an artifact with an owner and a location and the like (not in the published
 copy). The event list of a location also contains the events of every place within it. Its
 graph shows the places within it; one with people, items or a leader starts folded ("▸ Baile")
@@ -317,7 +316,7 @@ the place and who is there stay visible, but it has no parent and is missing amo
 <<spot "Schloss Baile">>
 Text of the spot, up to the next spot.
 
-<<spot "Tempel von [[Chauntea]]">>              links in the name stay links
+<<spot "Tempel von [[Sola]]">>                  links in the name stay links
 <<spot "Anwesen" "Haus Kemri">>                  joined to another tiddler than the name says
 <<spot "Lagerhaus" battlemap:"a.jpg, b.jpg">>    with battle maps
 ```
@@ -332,7 +331,7 @@ spots; the spots and their texts appear in the tab "Map". The block form
 
 ```
 <<spotlink "Baile" "Schloss Baile">>
-<<spotlink "Miehall" "[[Trunkenen Eulenbären|Zum Trunkenen Eulenbären]]">>   text|spot
+<<spotlink "Miehall" "[[Grauen Esel|Zum Grauen Esel]]">>   text|spot
 ```
 
 The link opens the location at its map tab and scrolls to the spot (a spot joined to a tiddler
@@ -381,8 +380,8 @@ told by the text - a list field carries every name once.
 **An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/ItemKind`,
 used as a tag next to the base type. Its heading in the hub is its display name.
 
-**Price:** `price: 50 gp` or `price: 3 gp 5 sp` - numbers with coins of the currency (see
-"Currency"), shown as written with the coin labels of the language shown ("50 GM" in German).
+**Price:** `price: 50 cr` or `price: 3 cr 5 sh` - numbers with coins of the currency (see
+"Currency"), shown as written with the coin labels of the language shown ("50 Kr" in German).
 Without a currency a price is a plain number (`price: 50`). A price that does not fit gets a hint
 below the title.
 
@@ -481,34 +480,30 @@ then reports what is left to decide or fix by hand. Both have a header with the 
 
 ## Calendar
 
-`tiddlyrpg-core` contains a calendar engine but no calendar. The active calendar is a JSON data
-tiddler named in `$:/config/tiddlyrpg/calendar`. Without one, dates are shown as entered
-(`1350-03-12`), and the calculator on the `Calendar` hub is hidden.
+The calendar engine of `tiddlyrpg-core` calculates with the calendar of the wiki: a JSON data
+tiddler named in `$:/config/tiddlyrpg/calendar`, usually brought by the campaign setting or
+written in the wiki. Without one, dates are shown as entered (`1350-03-12`), and the calculator
+on the `Calendar` hub is hidden.
 
-**Forgotten Realms:** add the package `tiddlyrpg-dnd` (repo `TiddlyRPG-DnD`) to the wiki and
-`"tiddlyrpg-setting-forgottenrealms"` to the plugins in `tiddlywiki.info`. It
-brings the Calendar of Harptos (`$:/tiddlyrpg/calendar/Harptos`), activates it and adds the names
-in en-GB and de-DE (month names and DR only in en-GB, they are proper names).
-
-**Own calendar:** copy `$:/tiddlyrpg/calendar/Harptos` into the wiki under a new title, change
-`id`, months, days, festivals and leap rule, and point `$:/config/tiddlyrpg/calendar` to it.
-Display names go into `$:/tiddlyrpg/language/<code>/Calendar/<id>/...` (`Name`, `Era`,
-`Month/<month>`, `Epithet/<month>`, `Festival/<festival>`, `Description`); without them the ids
-are shown.
+**Own calendar:** a data tiddler under a title of its own with `id`, months, days, festivals and
+leap rule, and `$:/config/tiddlyrpg/calendar` pointing to it (it wins over the calendar of a
+campaign setting). Display names go into `$:/tiddlyrpg/language/<code>/Calendar/<id>/...`
+(`Name`, `Era`, `Month/<month>`, `Epithet/<month>`, `Festival/<festival>`, `Description`);
+without them the ids are shown.
 
 ```json
 {
-  "id": "Harptos",
+  "id": "Example",
   "leap": { "every": 4, "start": 0 },
   "months": [
-    { "id": "Hammer", "days": 30, "festivals": [ { "id": "Midwinter" } ] },
-    { "id": "Flamerule", "days": 30, "festivals": [ { "id": "Midsummer" }, { "id": "Shieldmeet", "leap": true } ] }
+    { "id": "Frost", "days": 30, "festivals": [ { "id": "Longnight" } ] },
+    { "id": "Bloom", "days": 30, "festivals": [ { "id": "Highsun" }, { "id": "Starfall", "leap": true } ] }
   ]
 }
 ```
 
 Festival days lie between two months and count as day `days + 1`, `days + 2`, ... of the
-preceding month (Midwinter = `1351-01-31`). A leap festival exists only in leap years, i.e. years
+preceding month (Longnight = `1351-01-31`). A leap festival exists only in leap years, i.e. years
 with `(year - start) mod every == 0`, and comes after the regular festivals of its month.
 
 The names of months and festivals follow the rules language (domain `Calendar`); description,
@@ -516,35 +511,34 @@ calculator and date patterns stay in the wiki language.
 
 **Order of day and month.** Control Panel -> Settings -> TiddlyRPG -> "Campaign setting
 options": as in the wiki
-language ("5 Flamerule 1351" in English, "5. Flamerule 1351" in German), day before month, or
-month before day ("Flamerule 5, 1351", a span in one month "Flamerule 5 – 24, 1351"). It applies
+language ("5 Bloom 1351" in English, "5. Bloom 1351" in German), day before month, or month
+before day ("Bloom 5, 1351", a span in one month "Bloom 5 – 24, 1351"). It applies
 to headings, date lines, the timeline and the calculator; the event table keeps its columns.
 
 ## Currency
 
 Like the calendar, the coins are data: the active currency is a JSON data tiddler named in
-`$:/config/tiddlyrpg/currency`, usually brought by the campaign setting
-(`tiddlyrpg-setting-forgottenrealms`: the coins of the Forgotten Realms). Without one, prices are
-plain numbers and the hub "Currency" is hidden.
+`$:/config/tiddlyrpg/currency`, usually brought by the campaign setting or written in the wiki.
+Without one, prices are plain numbers and the hub "Currency" is hidden.
 
 ```json
 {
-  "id": "ForgottenRealms",
-  "base": "gp",
-  "reference": "gp",
+  "id": "Example",
+  "base": "cr",
+  "reference": "cr",
   "currencies": [
-    { "id": "cp", "value": 1 },
-    { "id": "sp", "value": 10 },
-    { "id": "gp", "value": 100 }
+    { "id": "p", "value": 1 },
+    { "id": "sh", "value": 12 },
+    { "id": "cr", "value": 240 }
   ]
 }
 ```
 
 `value` is the worth in the smallest coin; `base` leads the table of the hub; `reference` is the
-coin that matches the prices of the ruleset (`currency-reference` of the ruleset, `gp` for D&D
-5e) - the hub says so, and warns if the currency has no such coin. Display names go into
-`$:/tiddlyrpg/language/<code>/Currency/<id>/...` (`Name`, `Unit/<coin>` "gp" / "GM",
-`Coin/<coin>` "gold piece" / "Goldmünze", `Description`). The hub "Currency" shows the
+coin that matches the prices of the ruleset (`currency-reference` of the ruleset) - the hub says
+so, and warns if the currency has no such coin. Display names go into
+`$:/tiddlyrpg/language/<code>/Currency/<id>/...` (`Name`, `Unit/<coin>` "cr" / "Kr",
+`Coin/<coin>` "crown" / "Krone", `Description`). The hub "Currency" shows the
 description, a converter (a price in coins, in any language) and the table of the coins.
 
 ## Licenses in the wiki

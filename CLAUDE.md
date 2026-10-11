@@ -10,7 +10,8 @@ Plugin bundle for the `TiddlyRPG` repo family. Contents and how wikis use it: se
 
 - **CLAUDE.md** (here): development support - rules, conventions, editing and release workflow.
 - **README.md**: what the project is and how it is used in `TiddlyRPG` and other wikis, including
-  languages and calendar.
+  languages and calendar. It describes what this repo is and offers - not what it is not, and
+  not what other repos contain.
 
 Sort new content accordingly instead of duplicating it. (Same split in the wiki repos,
 maintained canonically in `TiddlyRPG`.) The marked part of the README.md is also the tab
