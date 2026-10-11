@@ -1,0 +1,63 @@
+caption: <<trpg.t ControlPanel/License/Caption>>
+created: 20261011205315000
+list-after: $:/core/ui/ControlPanel/Plugins
+modified: 20261011205315000
+tags: $:/tags/ControlPanel
+title: $:/plugins/tiddlyrpg-core/ui/controlpanel-license
+type: text/vnd.tiddlywiki
+
+<!-- Tab of the ControlPanel: the license of the content of the wiki and of every plugin, also in
+     the published copy.
+     The wiki: $:/tiddlyrpg/license/notice (the part of its README.md between the marker lines
+     "wiki" and "/wiki", type text/x-tiddlyrpg-markdown, see modules/markdown.js) and
+     $:/tiddlyrpg/license (its LICENSE), both loaded by tiddlers/license/tiddlywiki.files of the
+     wiki repo.
+     A plugin: its tab <plugin>/license; a plugin of TiddlyWiki without one: the copyright of
+     TiddlyWiki; another one: the name from $:/config/tiddlyrpg/licenses (JSON, plugin title ->
+     license). Not listed: server-only plugins (not in the published copy) and the plugin types
+     info and import of the core. -->
+\procedure trpg-license-cell(plugin)
+<%if [<plugin>addsuffix[/license]is[shadow]] [<plugin>addsuffix[/license]is[tiddler]] %>
+<$link to={{{ [<plugin>addsuffix[/license]] }}}><<trpg.t ControlPanel/License/Show>></$link>
+<%elseif [<plugin>match[$:/core]] [<plugin>prefix[$:/plugins/tiddlywiki/]] [<plugin>prefix[$:/themes/tiddlywiki/]] [<plugin>prefix[$:/languages/]] %>
+<$link to="$:/core/copyright.txt"><<trpg.t ControlPanel/License/TiddlyWiki>></$link>
+<%elseif [[$:/config/tiddlyrpg/licenses]getindex<plugin>] %>
+<$text text={{{ [[$:/config/tiddlyrpg/licenses]getindex<plugin>] }}}/>
+<%else%>
+<<trpg.t ControlPanel/License/Unknown>>
+<%endif%>
+\end
+
+!! <<trpg.t ControlPanel/License/Wiki>>
+
+<%if [[$:/tiddlyrpg/license/notice]is[tiddler]] [[$:/tiddlyrpg/license]is[tiddler]] %>
+<$transclude $tiddler="$:/tiddlyrpg/license/notice" $mode="block"/>
+<%if [[$:/tiddlyrpg/license]is[tiddler]] %>
+<details class="trpg-license-text"><summary><<trpg.t ControlPanel/License/FullText>></summary>
+
+<$transclude $tiddler="$:/tiddlyrpg/license" $mode="block"/>
+
+</details>
+<%endif%>
+<%else%>
+<<trpg.t ControlPanel/License/WikiNone>>
+<%endif%>
+
+!! <<trpg.t ControlPanel/License/Plugins>>
+
+<table class="trpg-license-plugins">
+<tr>
+<th><<trpg.t ControlPanel/License/Plugin>></th>
+<th><<trpg.t ControlPanel/License/Version>></th>
+<th><<trpg.t ControlPanel/License/Author>></th>
+<th><<trpg.t ControlPanel/License/License>></th>
+</tr>
+<$list filter="[all[shadows+tiddlers]has[plugin-type]!plugin-type[info]!plugin-type[import]!has[draft.of]!field:platform[server]sort[title]]" variable="plugin">
+<tr>
+<td><$link to=<<plugin>>><$text text={{{ [<plugin>get[name]else<plugin>] }}}/></$link></td>
+<td><$text text={{{ [<plugin>get[version]] }}}/></td>
+<td><$text text={{{ [<plugin>get[author]] }}}/></td>
+<td><$transclude $variable="trpg-license-cell" plugin=<<plugin>>/></td>
+</tr>
+</$list>
+</table>

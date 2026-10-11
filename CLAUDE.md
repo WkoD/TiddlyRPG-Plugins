@@ -13,7 +13,9 @@ Plugin bundle for the `TiddlyRPG` repo family. Contents and how wikis use it: se
   languages and calendar.
 
 Sort new content accordingly instead of duplicating it. (Same split in the wiki repos,
-maintained canonically in `TiddlyRPG`.)
+maintained canonically in `TiddlyRPG`.) The marked part of the README.md is also the tab
+"readme" of `tiddlyrpg-core` in the wiki, and `LICENSE` its tab "license" - see "Readme and
+license of a plugin".
 
 ## Visibility - check with every change
 
@@ -85,7 +87,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     former characters), the default view, the choices, campaign events through player
     characters, the page control, the page class, the marker of a secret, the `Player` hub, and
     every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs,
-    open items), a secret presence; the sweep (see "Visibility - check with every change").
+    open items), a secret presence; the sweep (see "Visibility - check with every change"; it
+    also renders ControlPanel -> License).
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
     `$:/status/IsReadOnly`)
   - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the price
@@ -129,8 +132,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `plugin-versions` - the core version equals `package.json`; `tiddlyrpg-core-version` met,
     not met, wrong form
   - `check-wiki` - `scripts/check-wiki.js` beyond dates: the config of the plugin types, the
-    core version a plugin needs, unknown macros and rules macros not understood, plugins from
-    the packages in the wiki's `node_modules`
+    core version a plugin needs, unknown macros and rules macros not understood, the field
+    `link`, plugins from the packages in the wiki's `node_modules`
+  - `markdown` - the content type `text/x-tiddlyrpg-markdown` (`modules/markdown.js`): the
+    markers, what of Markdown it reads, that nothing becomes wikitext, the real `README.md` as
+    the tab "readme"
+  - `licenses` - the tabs "readme" and "license" of the plugins of this repo, ControlPanel ->
+    License (the wiki, every plugin, both views, de-DE), the line of the field `source`
   - `macros-check` - unknown macros: the forms of a call, global and local definitions, the
     variables of the page and view template, wildcards, code and definitions left out, locked
     sections, data tiddlers and snippets, the hint below the title, the operator
@@ -250,7 +258,8 @@ the tiddler title:
   references), `relations.js` (see "Relations": the relation types, their axes, what a type
   shows and draws, labels), `anchor-jump.js`
   (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
-  lock, campaign events).
+  lock, campaign events), `markdown.js` (Markdown of a README as wikitext, see "Readme and
+  license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`).
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
@@ -296,6 +305,9 @@ the tiddler title:
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`). `startup/plugin-types.js`: the switchers of the
   plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting").
+- **Licenses**: `ui/controlpanel-license` (ControlPanel -> License, `$:/tags/ControlPanel`)
+  and `config/licenses` (`$:/config/tiddlyrpg/licenses`), see "Readme and license of a plugin";
+  `files/tiddlywiki.files` loads `README.md` and `LICENSE` of the repo as the tabs.
 - **Plugin types** (`modules/plugin-types.js`, `filters/plugin-types.js`: `trpgplugins`,
   `trpgplugin` with the suffixes `configured` and `problem`, `trpgversionhints`), the tabs
   `ui/controlpanel-rulesets` and `ui/controlpanel-settings` under ControlPanel -> Plugins.
@@ -314,7 +326,8 @@ the tiddler title:
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
-  references; contents `event-list/timeline` + `event-list/list`), `item`, `link`,
+  references; contents `event-list/timeline` + `event-list/list`), `item`, `source` (the
+  field `source`: where the images come from, "Source: …" below the body),
   `location` (map block: tab "Map" if there is a map image, a spot or a place within, with
   `location/map` - map graph, buttons, spots -, one tab
   per battle map with `location/battlemap`; tab state per location, see "Locations"),
@@ -375,6 +388,43 @@ The fixture plugin `fixture-setting-harptos` (`test/fixtures/plugins`) contains 
 `language/<code>/` with `Calendar/Harptos/...` - a copy of the data of
 `tiddlyrpg-setting-forgottenrealms` in the repo `TiddlyRPG-DnD`, so the engine tests need no
 other repo.
+
+## Readme and license of a plugin
+
+The texts of a plugin's tabs "readme" and "license" live **once**, in the files of its repo -
+never copied into the plugin folder. Every plugin (here and in other repos of the family, e.g.
+`TiddlyRPG-DnD`) is built the same way:
+
+- `plugins/<name>/files/tiddlywiki.files` loads files of the repo root (paths
+  `../../../README.md`, `../../../LICENSE`; TiddlyWiki resolves them from the folder of the
+  file, as its own plugins load their `LICENSE`):
+  - `LICENSE` -> `$:/plugins/<name>/license`, `type: text/plain` - the tab itself, or for a
+    plugin with a notice of its own (see below) `$:/plugins/<name>/license/text`;
+  - `README.md` -> `$:/plugins/<name>/readme`, `type: text/x-tiddlyrpg-markdown`; one of several
+    plugins of a repo adds `"prefix": "<!-- wiki-select <name> -->\n"` (example:
+    `TiddlyRPG-DnD`, which also takes the notice of its license tab from the README).
+
+  Tiddlers from files carry no `created`/`modified`.
+- `plugin.info`: `"list": "readme license"` (`staticfiles`: `license` only).
+- The parser (`modules/markdown.js`, `parsers/markdown.js`) shows only the marked part of the
+  README: the lines `<!-- wiki -->` ... `<!-- /wiki -->` (several parts are joined), or for one
+  plugin of several `<!-- wiki NAME -->` ... `<!-- /wiki -->` (a part for several:
+  `<!-- wiki NAME1 NAME2 -->`), chosen by the prefix `wiki-select NAME`; without markers the
+  whole file. Keep the setup of the repo (npm, CI)
+  outside the markers. It reads the Markdown the READMEs use (header of the module) and makes
+  nothing wikitext: no link to a tiddler, no macro, no transclusion - write the README in that
+  Markdown only; `test/markdown.test.js` checks the README of this repo.
+- A plugin with a notice of its own (an attribution, the Fan Content Policy) has `license.tid` in
+  wikitext: the notice (`$:/plugins/<name>/license/notice`, a named README section loaded like
+  the readme) and `{{$:/plugins/<name>/license/text}}`.
+- ControlPanel -> License (`ui/controlpanel-license`) lists every plugin with its tab
+  `<plugin>/license`; a plugin of TiddlyWiki without one points to `$:/core/copyright.txt`;
+  another one without a tab needs an entry in `$:/config/tiddlyrpg/licenses` (JSON, plugin title
+  -> license name; today `flibbles/graph`), otherwise it shows "not stated". Above the plugins
+  the license of the wiki itself: `$:/tiddlyrpg/license` (its `LICENSE`) and
+  `$:/tiddlyrpg/license/notice` (its README section), loaded by
+  `tiddlers/license/tiddlywiki.files` of the wiki repo (see the `CLAUDE.md` of `TiddlyRPG`).
+- The license of this repo: MIT (`LICENSE`, `"license"` in `package.json`).
 
 ## Plugin types ruleset and setting
 

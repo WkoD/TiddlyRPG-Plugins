@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011180604762
+modified: 20261011205315000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -16,6 +16,18 @@ Calendar/WrittenOut: Written out:
 Campaign/OpenTasks: Open Tasks
 CampaignSetting/Hub/None: No campaign setting is active (ControlPanel -> Settings -> TiddlyRPG).
 CampaignSetting/Hub/Setting: The names of the campaign setting and the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Campaign setting options.
+ControlPanel/License/Author: Author
+ControlPanel/License/Caption: License
+ControlPanel/License/FullText: Full text
+ControlPanel/License/License: License
+ControlPanel/License/Plugin: Plugin
+ControlPanel/License/Plugins: Plugins
+ControlPanel/License/Show: show
+ControlPanel/License/TiddlyWiki: TiddlyWiki (BSD-3-Clause)
+ControlPanel/License/Unknown: not stated
+ControlPanel/License/Version: Version
+ControlPanel/License/Wiki: Content of this wiki
+ControlPanel/License/WikiNone: The wiki names no license for its content.
 ControlPanel/Rulesets/Caption: Rulesets
 ControlPanel/Settings/Caption: Campaign settings
 Currency/Amount: Amount
@@ -48,7 +60,6 @@ Item/Check/PriceCurrency: Check the price: a number and a coin of the currency, 
 Item/Check/PriceNoCurrency: Check the price: it needs a coin of the currency, e.g. 50 gp
 Item/Check/TwoBases: Check the item: it has one base type only: Artifact (unique), Item (several) or Material
 Item/Price: Price:
-Link/SeeAlso: See also
 Location/Check/ArtifactOwners: Check the location: an artifact is unique and has one owner (field owner has several entries)
 Location/Check/ArtifactTwice: Check the location: an artifact is unique and lies in one place only (field location has several entries)
 Location/Check/Cycle: Check the location: its parents form a cycle
@@ -136,6 +147,7 @@ Settings/SettingOptions/Hint: Settings of the campaign setting for this wiki: in
 Settings/SettingOptions/Hub: All names:
 Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
+Source/Label: Source:
 Spot/Missing: Spot "$spot$" not found at $place$
 Spot/PlaceMissing: Location "$place$" does not exist
 TBC/Other: Other

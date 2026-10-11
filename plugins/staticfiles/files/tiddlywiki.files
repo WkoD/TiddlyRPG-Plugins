@@ -1,0 +1,11 @@
+{
+	"tiddlers": [
+		{
+			"file": "../../../LICENSE",
+			"fields": {
+				"title": "$:/plugins/staticfiles/license",
+				"type": "text/plain"
+			}
+		}
+	]
+}

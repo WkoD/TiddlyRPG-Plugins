@@ -2,8 +2,8 @@
  * scripts/check-wiki.js against a small wiki folder (written to the temp folder) on what it
  * checks beyond dates: the config of the plugin types ruleset and setting, the tiddlyrpg-core
  * version a plugin needs, the reference coin of the currency, unknown macros and rules macros
- * not understood, and the plugins of the packages in the wiki's node_modules. The checks
- * of dates and sections before and after the 1.x migration: migrate.test.js.
+ * not understood, the field link, and the plugins of the packages in the wiki's node_modules.
+ * The checks of dates and sections before and after the 1.x migration: migrate.test.js.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -62,6 +62,17 @@ test("an unknown macro and a rules macro the ruleset does not understand: warnin
 		assert.match(result.out, /0 errors, 2 warnings, 0 hints/);
 	} finally {
 		fs.rmSync(path.join(dir, "tiddlers/Notiz.tid"), {force: true});
+	}
+});
+
+test("the field link: a warning, it is shown no more", function() {
+	write("tiddlers/Baile.tid", "title: Baile\ntags: Location\nlink: https://example.org/baile\n\nTown.\n");
+	try {
+		var result = check();
+		assert.equal(result.status, 0, result.out);
+		assert.match(result.out, /Baile\n {2}warning {2}the field link is no longer shown - where the images come from goes into the field source\n/);
+	} finally {
+		fs.rmSync(path.join(dir, "tiddlers/Baile.tid"), {force: true});
 	}
 });
 

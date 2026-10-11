@@ -12,10 +12,12 @@ plugins from here.
 | `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar, currency and rules engines, graph schema, event timeline | own, versioned |
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
 
+<!-- wiki -->
 `tiddlyrpg-core` knows no game system and no world. Content for D&D 5e and the Forgotten Realms
 lives in the separate repo `TiddlyRPG-DnD` (npm `tiddlyrpg-dnd`): the ruleset
 `tiddlyrpg-ruleset-dnd5e2014` (terms of the SRD 5.1) and the campaign setting
 `tiddlyrpg-setting-forgottenrealms` (the Calendar of Harptos, the coins of the Forgotten Realms).
+<!-- /wiki -->
 
 ## Third-party plugins
 
@@ -45,6 +47,7 @@ plugins by folder name (`tiddlyrpg-core`, `staticfiles`, `graph`, `vis-network`,
 optionally plugins of other packages, e.g. `tiddlyrpg-ruleset-dnd5e2014` and
 `tiddlyrpg-setting-forgottenrealms` from `tiddlyrpg-dnd`).
 
+<!-- wiki -->
 ## Languages
 
 Everything `tiddlyrpg-core` displays comes from language packs. The internal names (tags, fields,
@@ -390,6 +393,16 @@ body (PDF), not for a secret the active view does not see.
 `Artifact` (unique) or `Item` (several copies) as well. A book whose body ends in
 `<embed ... src="data/book/<file>">` gets the field `data` instead.
 
+## Images and sources
+
+`image: Baile.jpg` shows an image from `images/<folder>/` (the folder of the type, e.g.
+`location`) below the body; several are separated by commas. Maps and battle maps of a location:
+see "Locations".
+
+**Source:** `source` is free text (wikitext) shown below a tiddler as "Source: …" - where its
+images come from: a link, the author, a license, several of them. It is shown to the views that
+see the tiddler; a link in it to another tiddler shows to them as well, whatever that tiddler is.
+
 ## Dates
 
 The field `date` holds the in-world dates of a tiddler, in one syntax for all types:
@@ -533,5 +546,18 @@ coin that matches the prices of the ruleset (`currency-reference` of the ruleset
 `$:/tiddlyrpg/language/<code>/Currency/<id>/...` (`Name`, `Unit/<coin>` "gp" / "GM",
 `Coin/<coin>` "gold piece" / "Goldmünze", `Description`). The hub "Currency" shows the
 description, a converter (a price in coins, in any language) and the table of the coins.
+
+## Licenses in the wiki
+
+ControlPanel -> License shows the license of the content of the wiki and lists every plugin with
+its license. The wiki repo provides its part as files (see the `CLAUDE.md` of `TiddlyRPG`): its
+`LICENSE` and the part of its `README.md` between the lines `<!-- wiki -->` and `<!-- /wiki -->`,
+e.g. a notice that the content is fan content. The tabs "readme" and "license" of the plugins come
+from the files of their repos in the same way.
+<!-- /wiki -->
+
+## License
+
+MIT, see `LICENSE`.
 
 Editing and release process of this repo: see `CLAUDE.md`.

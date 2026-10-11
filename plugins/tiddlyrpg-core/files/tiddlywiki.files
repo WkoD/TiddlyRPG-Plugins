@@ -1,0 +1,18 @@
+{
+	"tiddlers": [
+		{
+			"file": "../../../README.md",
+			"fields": {
+				"title": "$:/plugins/tiddlyrpg-core/readme",
+				"type": "text/x-tiddlyrpg-markdown"
+			}
+		},
+		{
+			"file": "../../../LICENSE",
+			"fields": {
+				"title": "$:/plugins/tiddlyrpg-core/license",
+				"type": "text/plain"
+			}
+		}
+	]
+}

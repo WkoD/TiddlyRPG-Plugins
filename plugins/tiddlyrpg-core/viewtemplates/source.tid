@@ -1,0 +1,18 @@
+created: 20200308095626026
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/event-list
+modified: 20261011205315000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/source
+type: text/vnd.tiddlywiki
+
+<!-- The field source: free wikitext on where the images of the tiddler come from (a link, the
+     author, a license), below the body, for the views that see the tiddler. -->
+<$reveal type="nomatch" stateTitle=<<folded-state>> text="hide" tag="div" retain="yes" animate="yes">
+<%if [<currentTiddler>trpg.visible[]] %>
+<div class="tc-subtitle">
+<$list filter="[all[current]has:field[source]]">
+<<trpg.t Source/Label>> <$transclude field="source"/>
+</$list>
+</div>
+<%endif%>
+</$reveal>

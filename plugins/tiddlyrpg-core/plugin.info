@@ -6,6 +6,6 @@
   "version": "2.0.0",
   "core-version": ">=5.4.0",
   "plugin-type": "plugin",
-  "list": "readme",
+  "list": "readme license",
   "plugin-priority": "2"
 }

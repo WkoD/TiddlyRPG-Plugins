@@ -1,0 +1,8 @@
+created: 20261011205315000
+modified: 20261011205315000
+title: $:/config/tiddlyrpg/licenses
+type: application/json
+
+{
+	"$:/plugins/flibbles/graph": "BSD-3-Clause"
+}

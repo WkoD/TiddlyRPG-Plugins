@@ -286,7 +286,7 @@ test.describe("places that list titles", function() {
 // Every secret below carries the word Qx7 (and its dates the year 1399): in its title, its text,
 // the name of a spot or the caption of a section. The sweep renders whatever a reader can reach
 // - every tiddler and hub through the view template with each tab, its graphs, the search, the
-// sidebar - and in the public view none of it may hold the word. A new feature is covered once
+// sidebar, ControlPanel -> License - and in the public view none of it may hold the word. A new feature is covered once
 // its output is part of the view template; a new kind of secret needs a fixture here.
 test.describe("sweep", function() {
 	var WORD = "Qx7",
@@ -303,6 +303,8 @@ test.describe("sweep", function() {
 				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			// A locked item with a price (and the hint on it)
 			{title: "Qx7 Klinge", tags: "Item Secret", price: "1399 Qx7"},
+			// The source of the images of a locked tiddler (field source)
+			{title: "Qx7 Karte", tags: "Location Secret", location: "Baile", source: "Qx7src"},
 			// Rules macros in a locked section: their text and the hint on what is not understood
 			{title: "Sweep Regeln", tags: "Location", location: "Baile",
 				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>."},
@@ -357,6 +359,7 @@ test.describe("sweep", function() {
 			});
 			out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/sidebar\" $mode=\"block\"/>"))});
 			out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/sidebar-recent}}")});
+			out.push({where: "ControlPanel License", text: seen(h.render(wiki, "text/html", "{{$:/plugins/tiddlyrpg-core/ui/controlpanel-license}}"))});
 			return out;
 		});
 	}
@@ -373,7 +376,7 @@ test.describe("sweep", function() {
 
 	test("the DM: every secret shows, so the sweep reaches them", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
-		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", YEAR].forEach(function(word) {
+		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

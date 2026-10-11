@@ -26,7 +26,8 @@
  *            <$secret> instead); a transclusion of a tiddler tagged Secret (it shows to every
  *            view that sees the transcluding tiddler); a macro nothing defines (it shows
  *            nothing, modules/macros-check.js); a rules macro with a text the
- *            ruleset does not understand (modules/rules.js)
+ *            ruleset does not understand (modules/rules.js); the field link (shown no more, the
+ *            source of the images goes into the field source)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
  *            heading; text before the first placeholder; an event without date; several
  *            sections or ".." as start of a non-event
@@ -139,6 +140,9 @@ $tw.boot.boot(function() {
 		}
 		if(/search:date\[\.\]/.test(JSON.stringify(fields))) {
 			add(title, "error", "filter on the old dead marker search:date[.] - use trpg.dead[]");
+		}
+		if(fields.link !== undefined) {
+			add(title, "warning", "the field link is no longer shown - where the images come from goes into the field source");
 		}
 		if(/\$:\/state\/tiddlyrpg\/view|trpg\.visible|trpgvisible/.test(text)) {
 			add(title, "warning", "asks the view itself - lock with the tag Secret, <<secret>> or <$secret>");
