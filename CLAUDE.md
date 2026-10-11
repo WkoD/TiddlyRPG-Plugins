@@ -98,8 +98,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `currency-hub` - the hub `Currency`: listed only with a currency, table, converter, the
     reference coin and its hint
   - `ruleset-hub` - the hub `Ruleset`: listed only with a ruleset, a table per domain with the
-    display language marked, variants, phrases, units with pairs and kinds, tokens, shortcuts
-    struck through without macro, the domains of the setting in their own section
+    display language marked, variants, phrases, units with pairs and kinds, tokens, the domains
+    of the setting in their own section
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
     marks in the map tab, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
@@ -134,9 +134,6 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `macros-check` - unknown macros: the forms of a call, global and local definitions, the
     variables of the page and view template, wildcards, code and definitions left out, locked
     sections, data tiddlers and snippets, the hint below the title, the operator
-  - `shortcuts` - shortcuts of the fixtures: data and procedures per plugin, shown like their
-    macro, read by the check of the rules macros, gone without their plugin, struck through in
-    the hubs `Ruleset` and `Currency` without procedure
   - `units`, `dice`, `damage`, `terms` - the domain types `unit`, `tokens`, `damage`, `label` of
     the rules engine against `fixture-ruleset-5e-mini`: parsing in every language, pairs, kinds,
     display rules, the damage grammar, variants, what is not understood (a number without unit,
@@ -382,7 +379,7 @@ other repo.
 ## Plugin types ruleset and setting
 
 Data plugins of other repos (`TiddlyRPG-DnD`) are a `ruleset` (rules system: rules domains,
-shortcuts, `$:/tiddlyrpg/rules/system`) or a `setting` (campaign setting: calendar, currency).
+`$:/tiddlyrpg/rules/system`) or a `setting` (campaign setting: calendar, currency).
 Of each type one is active, chosen in
 `$:/config/tiddlyrpg/ruleset` and `.../setting`; the rule lives **once** in
 `modules/plugin-types.js` (`state()`):
@@ -463,29 +460,18 @@ Of each type one is active, chosen in
   text, `sections.hiddenRanges()`). Numbers show with `Number/Decimal` of the wiki language.
 - **Hub `Ruleset`** (`Ruleset.tid`, hidden from `Information` without ruleset): per domain the
   HTML table of `rules.table()` (operator `trpgrulestable`) - every language that has keys of
-  the domain, the display language marked (`styles/rules`), the shortcut struck through while
-  no global macro of that name exists. Domains of the campaign setting stand in a section of
-  their own (`language.domains()` knows the plugin of a domain and its type); calendar and
-  currency point to their hubs. It shows terms and data of the plugins only, no wiki titles.
-- **Shortcuts** (`rules.shortcuts()`): the data names them - `shortcut` of a label or damage
-  entry, of a unit, of a coin of the active currency. The procedures stand next to the data in
-  the plugin (`$:/plugins/<plugin>/rules/shortcuts`, tag `$:/tags/Global`), each calling the
-  macro it stands for: `\procedure wis(variant) <$transclude $variable="term" id="wis"
-  arg=<<variant>>/>`, `\procedure ft(n,kind)` with `<<unit>>` and `[<n>addsuffix[ ft]]`
-  (procedures do no `$param$` substitution). A test per plugin compares data and procedures.
-  The procedures are shadows of the plugin, so a shortcut is gone with its plugin. `check()`
-  reads a call of a shortcut like the macro it stands for; the hubs `Ruleset` and `Currency`
-  strike through a shortcut without procedure, the tooltip names the macro to write instead
-  (`noShortcut()`).
+  the domain, the display language marked (`styles/rules`). Domains of the campaign setting
+  stand in a section of their own (`language.domains()` knows the plugin of a domain and its
+  type); calendar and currency point to their hubs. It shows terms and data of the plugins only,
+  no wiki titles.
 
 ## Unknown macros
 
 `modules/macros-check.js` (operator `macrocheck`, key `Text/Check/UnknownMacro`): a call
-`<<name>>` that nothing defines renders nothing - a typo or the shortcut of a plugin that is not
-active disappears silently. Reported below the title (editable wiki only) and by
-`check-wiki.js`. Defined is a name that is global (`GlobalImportFilter`, the view template
-import tags, JavaScript macros), set around the call (pragmas, `$set`, `$let`, `$vars`, `$list`,
-`$range`, `$wikify`, `$parameters`) or a variable of the page and view template (the list
+`<<name>>` that nothing defines renders nothing - a typo disappears silently. Reported below the
+title (editable wiki only) and by `check-wiki.js`. Defined is a name that is global
+(`GlobalImportFilter`, the view template import tags, JavaScript macros), set around the call
+(pragmas, `$set`, `$let`, `$vars`, `$list`, `$range`, `$wikify`, `$parameters`) or a variable of the page and view template (the list
 `CONTEXT`, measured with `[variables[]]` in the body of a tiddler in the story; `tv-*`). Inside
 `$importvariables` and the widgets that hand variables to their actions every name counts.
 Calls in code and in definitions are not looked at; calls in a section the active view does not

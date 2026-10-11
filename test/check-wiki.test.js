@@ -53,8 +53,8 @@ test("a clean wiki: no finding, the calendar of the setting applies", function()
 	assert.match(result.out, /0 errors, 0 warnings, 0 hints/);
 });
 
-test("an unknown macro and a shortcut the ruleset does not understand: warnings", function() {
-	write("tiddlers/Notiz.tid", "title: Notiz\n\nA <<nope>> B, <<wis bogus>>, <<wis save>>, <<gp 5>>.\n");
+test("an unknown macro and a rules macro the ruleset does not understand: warnings", function() {
+	write("tiddlers/Notiz.tid", "title: Notiz\n\nA <<nope>> B, <<term wis bogus>>, <<term wis save>>, <<unit \"5 gp\">>.\n");
 	try {
 		var result = check();
 		assert.equal(result.status, 0, result.out);

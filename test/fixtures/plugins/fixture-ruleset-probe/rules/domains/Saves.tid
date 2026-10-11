@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009190000000
+modified: 20261011172757439
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Saves
 type: application/json
@@ -10,12 +10,10 @@ type: application/json
     "keys": "Rules/Term/",
     "entries": [
         {
-            "id": "fortitude",
-            "shortcut": "fort"
+            "id": "fortitude"
         },
         {
-            "id": "reflex",
-            "shortcut": "ref"
+            "id": "reflex"
         }
     ],
     "example": "fortitude"

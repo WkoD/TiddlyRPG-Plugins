@@ -123,12 +123,6 @@ language are read: `<<damage "1W8 Hieb">>` works as well. A number always carrie
 (`<<unit 60>>` is not read, also not with a kind): what a text means never depends on a setting.
 A kind only chooses how a value is shown, e.g. a range in whole feet.
 
-**Shortcuts.** A ruleset or setting may bring shortcuts: `<<wis save>>`, `<<ft 30>>`, `<<gp 50>>`
-stand for `<<term wis save>>`, `<<unit "30 ft">>`, `<<unit "50 gp">>`. The hub "Ruleset" lists
-them. They belong to their plugin: without it (or with another ruleset active) a shortcut shows
-nothing, and the check below reports it - write the long form where a text must work without the
-plugin.
-
 **In headings.** The caption of a dated section is wikitext: `<<date "Fight at <<unit '30
 ft'>>">>` - use the other kind of quotes inside. Links in a caption stay links.
 
@@ -525,9 +519,9 @@ plain numbers and the hub "Currency" is hidden.
   "base": "gp",
   "reference": "gp",
   "currencies": [
-    { "id": "cp", "value": 1, "shortcut": "cp" },
-    { "id": "sp", "value": 10, "shortcut": "sp" },
-    { "id": "gp", "value": 100, "shortcut": "gp" }
+    { "id": "cp", "value": 1 },
+    { "id": "sp", "value": 10 },
+    { "id": "gp", "value": 100 }
   ]
 }
 ```
@@ -537,6 +531,6 @@ coin that matches the prices of the ruleset (`currency-reference` of the ruleset
 5e) - the hub says so, and warns if the currency has no such coin. Display names go into
 `$:/tiddlyrpg/language/<code>/Currency/<id>/...` (`Name`, `Unit/<coin>` "gp" / "GM",
 `Coin/<coin>` "gold piece" / "Goldmünze", `Description`). The hub "Currency" shows the
-description, a converter (a price in coins, in any language) and the table with the shortcuts.
+description, a converter (a price in coins, in any language) and the table of the coins.
 
 Editing and release process of this repo: see `CLAUDE.md`.

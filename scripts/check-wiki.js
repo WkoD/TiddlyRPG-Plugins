@@ -25,7 +25,7 @@
  *            ($:/state/tiddlyrpg/view, trpg.visible - lock with the tag Secret, <<secret>> or
  *            <$secret> instead); a transclusion of a tiddler tagged Secret (it shows to every
  *            view that sees the transcluding tiddler); a macro nothing defines (it shows
- *            nothing, modules/macros-check.js); a rules macro or shortcut with a text the
+ *            nothing, modules/macros-check.js); a rules macro with a text the
  *            ruleset does not understand (modules/rules.js)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
  *            heading; text before the first placeholder; an event without date; several

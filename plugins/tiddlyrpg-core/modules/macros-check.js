@@ -3,12 +3,12 @@ title: $:/plugins/tiddlyrpg-core/modules/macros-check.js
 type: application/javascript
 module-type: library
 created: 20261010065649000
-modified: 20261010065649000
+modified: 20261011172757439
 
 Check for unknown macros: a call <<name>> (also <$transclude $variable="name">, <$macrocall
 $name="name"> and <<name>> as an attribute value) in the body of a tiddler whose name nothing
-defines. Without a definition TiddlyWiki renders nothing, "A <<wis>> B" reads "A  B" - a typo or
-a shortcut of a plugin that is not active disappears silently.
+defines. Without a definition TiddlyWiki renders nothing, "A <<wis>> B" reads "A  B" - a typo
+disappears silently.
 
 Defined is a name that is
   - global: a definition (\procedure, \define, \function, \widget) in a tiddler of the global
@@ -69,10 +69,6 @@ var globals = exports.globals = function(wiki) {
 	});
 };
 
-// Whether a global definition of <name> exists (the hub strikes through a shortcut without one)
-exports.defined = function(wiki,name) {
-	return !!globals(wiki)[name];
-};
 
 function attr(node,name) {
 	var a = node.attributes && node.attributes[name];

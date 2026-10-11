@@ -1,9 +1,9 @@
 /*
  * The hub "Ruleset" (Ruleset.tid, modules/rules.js table()): in the list of Information only with
- * an active ruleset; the name of the system; one table per domain of the ruleset with id,
- * shortcut and a column per language, the display language marked; variants and phrases; units
- * with pairs and kinds; a shortcut without macro struck through; the domains of the campaign
- * setting in a section of their own, calendar and currency pointing to their hubs.
+ * an active ruleset; the name of the system; one table per domain of the ruleset with id and a
+ * column per language, the display language marked; variants and phrases; units with pairs and
+ * kinds; the domains of the campaign setting in a section of their own, calendar and currency
+ * pointing to their hubs.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -54,9 +54,9 @@ test("not listed without ruleset, even with a campaign setting", function() {
 	});
 });
 
-test("a label domain: id, shortcut, a column per language, variants", function() {
+test("a label domain: id, a column per language, variants", function() {
 	var table = tableAfter(hub(), "Attribute");
-	assert.match(table, /<th>Id<\/th><th>Kurzform<\/th><th class="trpg-rules-shown">Deutsch \(Deutschland\)<\/th><th>English \(British\)<\/th>/);
+	assert.match(table, /<th>Id<\/th><th class="trpg-rules-shown">Deutsch \(Deutschland\)<\/th><th>English \(British\)<\/th>/);
 	assert.match(table, /<td><code>wis<\/code><\/td>/);
 	assert.match(table, /<td class="trpg-rules-shown">WEI<br><small>name: Weisheit<\/small><br><small>save: WEI-Rettungswurf<\/small><\/td><td>WIS/);
 });
@@ -72,25 +72,13 @@ test("the column of the display language follows the setting", function() {
 	}
 });
 
-test("a shortcut without macro is struck through, with one it is not", function() {
-	assert.match(tableAfter(hub(), "Attribute"), /<td><code>&lt;&lt;wis&gt;&gt;<\/code><\/td>/);
-	// The procedures of the fixture overridden by a tiddler that is no global
-	var SHORTCUTS = "$:/plugins/fixture-ruleset-5e-mini/rules/shortcuts";
-	h.add(wiki, {title: SHORTCUTS, text: ""});
-	try {
-		assert.match(tableAfter(hub(), "Attribute"), /<s title="Noch kein Makro &lt;&lt;wis&gt;&gt; – &lt;&lt;term wis&gt;&gt; schreiben">&lt;&lt;wis&gt;&gt;<\/s>/);
-	} finally {
-		wiki.deleteTiddler(SHORTCUTS);
-	}
-});
-
 test("damage: name and phrase per language", function() {
 	assert.match(tableAfter(hub(), "Schaden"), /<td class="trpg-rules-shown">Kälte<br><small>Kälteschaden<\/small><\/td><td>cold<br><small>cold damage<\/small><\/td>/);
 });
 
 test("units: labels, pairs and kinds", function() {
 	var html = hub();
-	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td><code>&lt;&lt;ft&gt;&gt;<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
+	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
 	assert.match(html, /Umrechnung: 1 in = 2,5 cm, 1 ft = 0,3 m, 1 mi = 1,6 km/);
 	assert.match(html, /Arten: range, travel/);
 });

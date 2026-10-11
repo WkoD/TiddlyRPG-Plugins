@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011160657000
+modified: 20261011172757439
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -85,13 +85,11 @@ Rules/Mode/wiki: the wiki language
 Ruleset/Hub/FromSetting: From the campaign setting
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Kinds:
-Ruleset/Hub/NoShortcut: No macro <<$name$>> yet - write $long$
 Ruleset/Hub/None: No ruleset is active (ControlPanel -> Settings -> TiddlyRPG).
 Ruleset/Hub/Pairs: Conversion:
 Ruleset/Hub/Qualifier: qualifier
 Ruleset/Hub/See: Names and their language: see
 Ruleset/Hub/Setting: The terms of the ruleset in every language; the marked column is the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Ruleset options.
-Ruleset/Hub/Shortcut: Shortcut
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
