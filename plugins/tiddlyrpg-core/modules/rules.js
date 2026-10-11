@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261011172757439
+modified: 20261011173657380
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -20,7 +20,7 @@ Domain types and their data:
                 pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6);
                 a value converts by the pair of its unit, else by the first pair of its system
     "defaults": ["<unit>"] - units for which this domain applies without a kind
-    "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, travel ...) chooses
+    "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, distance, size ...) chooses
                 the domain and optionally a display of its own; the value still carries its unit
                 (<<unit "60 ft" range>>) - a number without unit is not read
     "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a

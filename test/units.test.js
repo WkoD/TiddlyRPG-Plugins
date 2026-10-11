@@ -66,6 +66,11 @@ test.describe("shown in en-GB", function() {
 		assert.equal(u("2 m"), "6 ft 8 in", "without kind");
 	});
 
+	test("the kind size: feet and inches below 10 ft, then feet, never miles", function() {
+		assert.equal(u("2 m", "size"), "6 ft 8 in");
+		assert.equal(u("2 km", "size"), "6600 ft", "by the pair km -> mi");
+	});
+
 	test("in the display system already: as written, label in the display language", function() {
 		assert.equal(u("30 feet"), "30 ft");
 		assert.equal(u("7 ft 7 in"), "7 ft 7 in");
@@ -109,8 +114,14 @@ test.describe("shown in de-DE", function() {
 		assert.equal(u("25 ft", "range"), "7,5 m");
 	});
 
-	test("the kind travel: always km", function() {
-		assert.equal(u("3 mi", "travel"), "4,8 km");
+	test("the kind distance: always km", function() {
+		assert.equal(u("3 mi", "distance"), "4,8 km");
+	});
+
+	test("the kind size: cm below 1 m, then m with two decimals, never km", function() {
+		assert.equal(u("3 ft", "size"), "90 cm");
+		assert.equal(u("7 ft 7 in", "size"), "2,28 m");
+		assert.equal(u("4000 ft", "size"), "1200 m");
 	});
 
 	test("German words are read", function() {

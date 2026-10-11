@@ -110,7 +110,7 @@ language"):
 ```
                                 shown in English          shown in German
 <<unit "228 cm">>               7 ft 7 in                 228 cm
-<<unit "25 ft" range>>          25 ft                     7,5 m      (a kind: range, travel)
+<<unit "25 ft" range>>          25 ft                     7,5 m      (kinds: range, distance, size)
 <<dice "4d6">>                  4d6                       4W6
 <<damage "1d8 slashing">>       1d8 slashing damage       1W8 Hiebschaden
 <<term wis save>>               WIS save                  WEI-Rettungswurf

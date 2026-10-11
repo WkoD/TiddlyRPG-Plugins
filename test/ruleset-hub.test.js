@@ -80,7 +80,7 @@ test("units: labels, pairs and kinds", function() {
 	var html = hub();
 	assert.match(tableAfter(html, "Länge"), /<td><code>ft<\/code><\/td><td class="trpg-rules-shown">ft<\/td><td>ft<\/td>/);
 	assert.match(html, /Umrechnung: 1 in = 2,5 cm, 1 ft = 0,3 m, 1 mi = 1,6 km/);
-	assert.match(html, /Arten: range, travel/);
+	assert.match(html, /Arten: range, distance, size/);
 });
 
 test("tokens: the token per language", function() {

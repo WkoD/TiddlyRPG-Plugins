@@ -1,5 +1,5 @@
 created: 20261009200000000
-modified: 20261011172757439
+modified: 20261011173657380
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Length
 type: application/json
@@ -89,7 +89,7 @@ type: application/json
                 }
             }
         },
-        "travel": {
+        "distance": {
             "display": {
                 "imperial": {
                     "steps": [
@@ -104,6 +104,36 @@ type: application/json
                         {
                             "unit": "km",
                             "decimals": 1
+                        }
+                    ]
+                }
+            }
+        },
+        "size": {
+            "display": {
+                "imperial": {
+                    "steps": [
+                        {
+                            "compound": [
+                                "ft",
+                                "in"
+                            ],
+                            "below": 120
+                        },
+                        {
+                            "unit": "ft"
+                        }
+                    ]
+                },
+                "metric": {
+                    "steps": [
+                        {
+                            "unit": "cm",
+                            "below": 100
+                        },
+                        {
+                            "unit": "m",
+                            "decimals": 2
                         }
                     ]
                 }
