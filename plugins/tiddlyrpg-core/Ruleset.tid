@@ -1,38 +1,27 @@
 caption: <<trpg.title Ruleset>>
 created: 20261010063203140
-modified: 20261011172757439
+modified: 20261011175213295
 tags: Information
 title: Ruleset
 type: text/vnd.tiddlywiki
 
 <!-- The terms of the active ruleset (modules/rules.js, table()): its name, then per rules domain
-     a table - id, one column per language, the display language marked; units with
-     their pairs and kinds. The domains of the campaign setting in a section of their own; its
-     calendar and currency point to their hubs. Hidden from Information without ruleset. -->
+     of the group ruleset a table - id, one column per language, the display language marked;
+     units with their pairs and kinds. The domains of the campaign setting are in the hub
+     CampaignSetting. Hidden from Information without ruleset. -->
 <%if [trpgplugin[ruleset]] %>
 
 !! <$text text={{{ [[Rules/System/Name]trpgtranslate[]] }}}/>
 
 <<trpg.t Ruleset/Hub/Setting>>
 
-<$list filter="[trpgrulesdomains[]] :filter[trpgrulesdomain[plugintype]!match[setting]]" variable="trpg-domain">
+<$list filter="[trpgrulesdomains[ruleset]]" variable="trpg-domain">
 
 !!! <$text text={{{ [<trpg-domain>trpgruleslabel[]] }}}/>
 
 <$let trpg-table={{{ [<trpg-domain>trpgrulestable[]] }}}><<trpg-table>></$let>
 </$list>
 
-<%if [trpgrulesdomains[]] :filter[trpgrulesdomain[plugintype]match[setting]] %>
-
-!! <<trpg.t Ruleset/Hub/FromSetting>>
-
-<$list filter="[trpgrulesdomains[]] :filter[trpgrulesdomain[plugintype]match[setting]]" variable="trpg-domain">
-
-!!! <$text text={{{ [<trpg-domain>trpgruleslabel[]] }}}/>
-
-<$let trpg-table={{{ [<trpg-domain>trpgrulestable[]] }}}><<trpg-table>></$let>
-</$list>
-<%endif%>
 <%else%>
 
 <<trpg.t Ruleset/Hub/None>>

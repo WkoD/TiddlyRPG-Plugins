@@ -2,7 +2,7 @@ caption: <<trpg.t Settings/SettingOptions/Caption>>
 condition: [trpgplugin[setting]] [{$:/config/tiddlyrpg/calendar}!is[blank]] [{$:/config/tiddlyrpg/currency}!is[blank]]
 created: 20261011154416000
 list-after: $:/plugins/tiddlyrpg-core/ui/settings-ruleset-options
-modified: 20261011154416000
+modified: 20261011175213295
 tags: $:/tags/tiddlyrpg/SettingsTab
 title: $:/plugins/tiddlyrpg-core/ui/settings-setting-options
 type: text/vnd.tiddlywiki
@@ -10,12 +10,17 @@ type: text/vnd.tiddlywiki
 <!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the settings of the campaign setting - the
      rules language of its domains (ui/settings-rules, group setting: calendar and currency names)
      and, with a calendar, the order of day and month in dates ($:/config/tiddlyrpg/date/order,
-     modules/dates.js: as the wiki language says, "dm" or "md") with an example. Shows while a
-     campaign setting is active, and with an own calendar or currency of the wiki. -->
+     modules/dates.js: as the wiki language says, "dm" or "md") with an example; with a campaign
+     setting a link to the hub CampaignSetting on top. Shows while a campaign setting is active,
+     and with an own calendar or currency of the wiki. -->
 \import [[$:/plugins/tiddlyrpg-core/ui/settings-rules]]
 <$let trpg-disabled={{{ [{$:/status/IsReadOnly}match[yes]then[yes]else[no]] }}}>
 
 <<trpg.t Settings/SettingOptions/Hint>>
+<%if [trpgplugin[setting]] %>
+
+<<trpg.t Settings/SettingOptions/Hub>> <$link to="CampaignSetting"><$text text={{{ [[CampaignSetting]trpgtitle[]] }}}/></$link>
+<%endif%>
 
 !! <<trpg.t Settings/Rules/Caption>>
 

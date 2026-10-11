@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011172757439
+modified: 20261011175213295
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -14,6 +14,8 @@ Calendar/Result: Ergebnis:
 Calendar/To: Bis:
 Calendar/WrittenOut: Ausgeschrieben:
 Campaign/OpenTasks: Offene Aufgaben
+CampaignSetting/Hub/None: Keine Kampagnenwelt ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
+CampaignSetting/Hub/Setting: Die Namen der Kampagnenwelt und die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Kampagnenwelt Einstellungen.
 ControlPanel/Rulesets/Caption: Regelwerke
 ControlPanel/Settings/Caption: Kampagnenwelten
 Currency/Amount: Betrag
@@ -82,7 +84,6 @@ Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$
 Rules/Mode/all: eine Sprache für alles:
 Rules/Mode/domain: pro Bereich (in der Tabelle)
 Rules/Mode/wiki: die Wiki-Sprache
-Ruleset/Hub/FromSetting: Aus der Kampagnenwelt
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Arten:
 Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
@@ -129,8 +130,10 @@ Settings/Ruleset/Ruleset: Regelwerk
 Settings/Ruleset/Setting: Kampagnenwelt
 Settings/RulesetOptions/Caption: Regelwerk Einstellungen
 Settings/RulesetOptions/Hint: Einstellungen des aktiven Regelwerks für dieses Wiki: in welcher Sprache seine Begriffe den Lesern angezeigt werden – Einheiten, Würfel, Schaden und Begriffe. Gelesen werden Texte in jeder Sprache.
+Settings/RulesetOptions/Hub: Alle Begriffe in jeder Sprache:
 Settings/SettingOptions/Caption: Kampagnenwelt Einstellungen
 Settings/SettingOptions/Hint: Einstellungen der Kampagnenwelt für dieses Wiki: in welcher Sprache die Namen des Kalenders und der Münzen angezeigt werden, und die Reihenfolge von Tag und Monat in Daten.
+Settings/SettingOptions/Hub: Alle Namen in jeder Sprache:
 Snippet/DateSection: Abschnitt mit Datum
 Snippet/OpenItems: Offene Punkte
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden

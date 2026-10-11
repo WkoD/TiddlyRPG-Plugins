@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011172757439
+modified: 20261011175213295
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -14,6 +14,8 @@ Calendar/Result: Result:
 Calendar/To: To:
 Calendar/WrittenOut: Written out:
 Campaign/OpenTasks: Open Tasks
+CampaignSetting/Hub/None: No campaign setting is active (ControlPanel -> Settings -> TiddlyRPG).
+CampaignSetting/Hub/Setting: The names of the campaign setting and the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Campaign setting options.
 ControlPanel/Rulesets/Caption: Rulesets
 ControlPanel/Settings/Caption: Campaign settings
 Currency/Amount: Amount
@@ -82,7 +84,6 @@ Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
 Rules/Mode/all: one language for all:
 Rules/Mode/domain: per domain (in the table)
 Rules/Mode/wiki: the wiki language
-Ruleset/Hub/FromSetting: From the campaign setting
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Kinds:
 Ruleset/Hub/None: No ruleset is active (ControlPanel -> Settings -> TiddlyRPG).
@@ -129,8 +130,10 @@ Settings/Ruleset/Ruleset: Ruleset
 Settings/Ruleset/Setting: Campaign setting
 Settings/RulesetOptions/Caption: Ruleset options
 Settings/RulesetOptions/Hint: Settings of the active ruleset for this wiki: in which language its terms are shown to the readers - units, dice, damage and terms. Texts are read in every language.
+Settings/RulesetOptions/Hub: All terms in every language:
 Settings/SettingOptions/Caption: Campaign setting options
 Settings/SettingOptions/Hint: Settings of the campaign setting for this wiki: in which language the names of the calendar and the coins are shown, and the order of day and month in dates.
+Settings/SettingOptions/Hub: All names in every language:
 Snippet/DateSection: Dated Section
 Snippet/OpenItems: Open Items
 Spot/Missing: Spot "$spot$" not found at $place$

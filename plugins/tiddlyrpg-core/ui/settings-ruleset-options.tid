@@ -2,18 +2,20 @@ caption: <<trpg.t Settings/RulesetOptions/Caption>>
 condition: [trpgplugin[ruleset]]
 created: 20261011154416000
 list-after: $:/plugins/tiddlyrpg-core/ui/settings-ruleset
-modified: 20261011154416000
+modified: 20261011175213295
 tags: $:/tags/tiddlyrpg/SettingsTab
 title: $:/plugins/tiddlyrpg-core/ui/settings-ruleset-options
 type: text/vnd.tiddlywiki
 
 <!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the settings of the active ruleset - the rules
-     language of its domains (ui/settings-rules, group ruleset). Shows only while a ruleset is
-     active. -->
+     language of its domains (ui/settings-rules, group ruleset), below a link to the hub Ruleset.
+     Shows only while a ruleset is active. -->
 \import [[$:/plugins/tiddlyrpg-core/ui/settings-rules]]
 <$let trpg-disabled={{{ [{$:/status/IsReadOnly}match[yes]then[yes]else[no]] }}}>
 
 <<trpg.t Settings/RulesetOptions/Hint>>
+
+<<trpg.t Settings/RulesetOptions/Hub>> <$link to="Ruleset"><$text text={{{ [[Ruleset]trpgtitle[]] }}}/></$link>
 
 !! <<trpg.t Settings/Rules/Caption>>
 

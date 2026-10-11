@@ -20,9 +20,11 @@ Domain types and their data:
                 pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6);
                 a value converts by the pair of its unit, else by the first pair of its system
     "defaults": ["<unit>"] - units for which this domain applies without a kind
-    "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, distance, size ...) chooses
-                the domain and optionally a display of its own; the value still carries its unit
-                (<<unit "60 ft" range>>) - a number without unit is not read
+    "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, distance, size ...)
+                chooses the domain and optionally a display of its own; the value still carries
+                its unit (<<unit "60 ft" range>>) - a number without unit is not read. Where the
+                display of the kind would show a value that is not 0 as 0 (30 ft as distance:
+                "0 km"), the display of the domain applies
     "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a
                 kind without display of its own: {"steps": [step, ...]}, the first step whose
                 "below" (in base units of the system) the value is under, else the last; a step
@@ -208,7 +210,9 @@ function domainOfKind(wiki,kind) {
 	return byType(wiki,"unit").filter(function(d) { return d.kinds && d.kinds[kind]; })[0] || null;
 }
 
-// A value in base units of the source system converted to base units of the target system
+// A value in base units of the source system converted to base units of the target system, cut
+// to 12 significant digits: 70 in / 12 * 0.3 m is 174.99999999999997 cm in floating point, which
+// would show as 1,7 m with one decimal and miss the step "below 100" at 99.99999 cm
 function convert(domain,value,unit,target) {
 	var units = domain.units,
 		source = units[unit].system,
@@ -220,13 +224,15 @@ function convert(domain,value,unit,target) {
 	if(!pair) {
 		return null;
 	}
-	return value / units[pair.from].factor * pair.factor * units[pair.to].factor;
+	return Number((value / units[pair.from].factor * pair.factor * units[pair.to].factor).toPrecision(12));
 }
 
-// A value in base units of a system as text, by the display rule of the kind or of the domain
+// A value in base units of a system as text, by the display rule of the kind or of the domain. A
+// value that is not 0 never shows as 0: then the rule of the domain applies.
 function show(wiki,domain,system,value,kind) {
 	var ofKind = kind && domain.kinds && domain.kinds[kind] && domain.kinds[kind].display,
-		rule = (ofKind && ofKind[system]) || (domain.display || {})[system],
+		byKind = !!(ofKind && ofKind[system]),
+		rule = byKind ? ofKind[system] : (domain.display || {})[system],
 		units = domain.units,
 		steps = rule && rule.steps || [],
 		step = steps.filter(function(s) { return s.below === undefined || value < s.below; })[0] || steps[steps.length - 1];
@@ -241,6 +247,9 @@ function show(wiki,domain,system,value,kind) {
 			n = Math.floor(total / ratio),
 			rest = total - n * ratio,
 			parts = [];
+		if(!total && value && byKind) {
+			return show(wiki,domain,system,value,null);
+		}
 		if(n) {
 			parts.push(n + " " + unitLabel(wiki,domain,big));
 		}
@@ -249,7 +258,11 @@ function show(wiki,domain,system,value,kind) {
 		}
 		return parts.join(" ");
 	}
-	return formatNumber(wiki,value / units[step.unit].factor,step.decimals) + " " + unitLabel(wiki,domain,step.unit);
+	var amount = formatNumber(wiki,value / units[step.unit].factor,step.decimals);
+	if(value && byKind && parseFloat(amount.replace(",",".")) === 0) {
+		return show(wiki,domain,system,value,null);
+	}
+	return amount + " " + unitLabel(wiki,domain,step.unit);
 }
 
 // <<unit value kind>>: "228 cm", "30 ft., fly 50 ft.", "7 ft 7 in"; a kind chooses the display.

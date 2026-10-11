@@ -1,0 +1,30 @@
+caption: <<trpg.title CampaignSetting>>
+created: 20261011175213295
+modified: 20261011175213295
+tags: Information
+title: CampaignSetting
+type: text/vnd.tiddlywiki
+
+<!-- The names of the active campaign setting (modules/rules.js, table()): its name (language key
+     Setting/Name of the setting, left out without it), then per rules domain of the group
+     setting a table like in the hub Ruleset; its calendar and currency point to their hubs.
+     Hidden from Information without campaign setting. -->
+<%if [trpgplugin[setting]] %>
+
+<$list filter="[[Setting/Name]trpgtranslate[]!match[Setting/Name]]" variable="trpg-name">
+
+!! <$text text=<<trpg-name>>/>
+</$list>
+
+<<trpg.t CampaignSetting/Hub/Setting>>
+
+<$list filter="[trpgrulesdomains[setting]]" variable="trpg-domain">
+
+!!! <$text text={{{ [<trpg-domain>trpgruleslabel[]] }}}/>
+
+<$let trpg-table={{{ [<trpg-domain>trpgrulestable[]] }}}><<trpg-table>></$let>
+</$list>
+<%else%>
+
+<<trpg.t CampaignSetting/Hub/None>>
+<%endif%>

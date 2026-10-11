@@ -142,6 +142,10 @@ test.describe("ruleset options", function() {
 		assert.doesNotMatch(html, /<option value="fr-FR">/);
 	});
 
+	test("a link to the hub Ruleset above the language", function() {
+		assert.match(tab(RULES_TAB), /Alle Begriffe in jeder Sprache: <a[^>]*href="#Ruleset"[^>]*>Regelwerk<\/a>[^]*>Sprache<\/h2>/);
+	});
+
 	test("the table of the domains of the ruleset only: names, languages, examples", function() {
 		var html = tab(RULES_TAB).replace(/>\s+</g, "><");
 		assert.match(html, /<tr><th>Bereich<\/th><th>Angezeigt in<\/th><th>Beispiel<\/th><\/tr>/);
@@ -203,6 +207,15 @@ test.describe("campaign setting options", function() {
 		assert.match(html, /<td>Kalender<\/td><td>Deutsch[^<]*<\/td><td>1351-01-31 → Mittwinter 1351<\/td>/);
 		assert.match(html, /<td>Währung<\/td>/);
 		assert.doesNotMatch(html, /<td>Länge<\/td>/);
+	});
+
+	test("a link to the hub CampaignSetting above the language, only with a setting", function() {
+		assert.match(tab(SETTING_TAB), /Alle Namen in jeder Sprache: <a[^>]*href="#CampaignSetting"[^>]*>Kampagnenwelt<\/a>[^]*>Sprache<\/h2>/);
+		return withTiddlers({"$:/config/tiddlyrpg/setting": "none", "$:/config/tiddlyrpg/calendar": "Own"}, function() {
+			var html = tab(SETTING_TAB);
+			assert.match(html, />Sprache<\/h2>/);
+			assert.doesNotMatch(html, /href="#CampaignSetting"/);
+		});
 	});
 
 	test("its own settings: the names of the calendar in English, the ruleset untouched", function() {

@@ -66,6 +66,10 @@ test.describe("shown in en-GB", function() {
 		assert.equal(u("2 m"), "6 ft 8 in", "without kind");
 	});
 
+	test("a value that is not 0 never shows as 0: 9 m as distance is 30 ft", function() {
+		assert.equal(u("9 m", "distance"), "30 ft");
+	});
+
 	test("the kind size: feet and inches below 10 ft, then feet, never miles", function() {
 		assert.equal(u("2 m", "size"), "6 ft 8 in");
 		assert.equal(u("2 km", "size"), "6600 ft", "by the pair km -> mi");
@@ -116,6 +120,16 @@ test.describe("shown in de-DE", function() {
 
 	test("the kind distance: always km", function() {
 		assert.equal(u("3 mi", "distance"), "4,8 km");
+	});
+
+	test("a value that is not 0 never shows as 0: then the display of the domain", function() {
+		assert.equal(u("30 ft", "distance"), "9 m");
+		assert.equal(u("3 in", "distance"), "8 cm");
+	});
+
+	test("no floating point remainder: 5 ft 10 in is 175 cm, as range 1,8 m", function() {
+		assert.equal(u("5 ft 10 in", "range"), "1,8 m");
+		assert.equal(u("5 ft 10 in"), "1,75 m");
 	});
 
 	test("the kind size: cm below 1 m, then m with two decimals, never km", function() {

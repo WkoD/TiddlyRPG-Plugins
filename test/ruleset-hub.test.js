@@ -1,9 +1,9 @@
 /*
- * The hub "Ruleset" (Ruleset.tid, modules/rules.js table()): in the list of Information only with
- * an active ruleset; the name of the system; one table per domain of the ruleset with id and a
- * column per language, the display language marked; variants and phrases; units with pairs and
- * kinds; the domains of the campaign setting in a section of their own, calendar and currency
- * pointing to their hubs.
+ * The hubs "Ruleset" (Ruleset.tid) and "CampaignSetting" (CampaignSetting.tid), both through
+ * modules/rules.js table(): in the list of Information only with an active ruleset or campaign
+ * setting, each on its own; the name of the system or setting; one table per domain of its group
+ * with id and a column per language, the display language marked; variants and phrases; units
+ * with pairs and kinds; calendar and currency pointing to their hubs.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -26,8 +26,8 @@ test.before(function() {
 	});
 });
 
-function hub() {
-	return h.render(wiki, "text/html", "{{Ruleset}}").replace(/>\s+</g, "><");
+function hub(title) {
+	return h.render(wiki, "text/html", "{{" + (title || "Ruleset") + "}}").replace(/>\s+</g, "><");
 }
 
 // The HTML of the table that follows a heading
@@ -87,10 +87,45 @@ test("tokens: the token per language", function() {
 	assert.match(tableAfter(hub(), "Würfel"), /<td><code>die<\/code><\/td><td class="trpg-rules-shown"><code>W<\/code><\/td><td><code>d<\/code><\/td>/);
 });
 
-test("the domains of the campaign setting in a section of their own, pointing to their hubs", function() {
-	var html = hub(),
-		section = html.slice(html.indexOf("Aus der Kampagnenwelt"));
-	assert.ok(html.indexOf("Aus der Kampagnenwelt") > html.indexOf(">Gewicht</h3>"));
-	assert.match(section, /Namen und ihre Sprache: siehe <a[^>]*href="#Calendar"[^>]*>Kalender<\/a>/);
-	assert.match(section, /href="#Currency"[^>]*>Währung<\/a>/);
+test("no domain of the campaign setting in the hub Ruleset", function() {
+	var html = hub();
+	assert.doesNotMatch(html, />Kalender<\/h3>/);
+	assert.doesNotMatch(html, /href="#Currency"/);
+});
+
+test.describe("the hub CampaignSetting", function() {
+	test("in the list of Information with the setting, its name on top, calendar and currency pointing to their hubs", function() {
+		assert.match(h.body(wiki, "Information"), /Kampagnenwelt/);
+		var html = hub("CampaignSetting");
+		assert.match(html, /<h2[^>]*>Fixture Harptos<\/h2>/);
+		assert.match(html, /Die Namen der Kampagnenwelt/);
+		assert.match(html, /<h3[^>]*>Kalender<\/h3>(<p>)+Namen und ihre Sprache: siehe <a[^>]*href="#Calendar"[^>]*>Kalender<\/a>/);
+		assert.match(html, /href="#Currency"[^>]*>Währung<\/a>/);
+		assert.doesNotMatch(html, />Länge<\/h3>/);
+	});
+
+	test("without setting: not listed, the hub Ruleset still is", function() {
+		h.add(wiki, {title: "$:/config/tiddlyrpg/setting", text: "none"});
+		return settle().then(function() {
+			var information = h.body(wiki, "Information");
+			assert.doesNotMatch(information, /Kampagnenwelt/);
+			assert.match(information, /Regelwerk/);
+			assert.match(hub("CampaignSetting"), /Keine Kampagnenwelt ist aktiv/);
+			assert.match(hub(), /<h2[^>]*>Fixture 5e mini<\/h2>/);
+		}).finally(function() {
+			wiki.deleteTiddler("$:/config/tiddlyrpg/setting");
+			return settle();
+		});
+	});
+
+	test("without ruleset: still listed with its domains", function() {
+		h.add(wiki, {title: "$:/config/tiddlyrpg/ruleset", text: "none"});
+		return settle().then(function() {
+			assert.match(h.body(wiki, "Information"), /Kampagnenwelt/);
+			assert.match(hub("CampaignSetting"), /<h3[^>]*>Währung<\/h3>/);
+		}).finally(function() {
+			wiki.deleteTiddler("$:/config/tiddlyrpg/ruleset");
+			return settle();
+		});
+	});
 });
