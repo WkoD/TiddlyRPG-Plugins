@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261008174407692
+modified: 20261014185321000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/view
 type: text/vnd.tiddlywiki
@@ -77,9 +77,6 @@ a.trpg-player-card {
 a.trpg-player-card:hover {
 	background: <<colour tiddler-editor-background>>;
 	text-decoration: none;
-}
-.trpg-player-portrait img ~ img {
-	display: none;
 }
 .trpg-player-portrait img {
 	width: 9em;

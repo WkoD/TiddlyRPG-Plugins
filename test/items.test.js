@@ -179,7 +179,7 @@ test.describe("base type", function() {
 
 	test("image folder item", function() {
 		withTiddlers([{title: "Pictured", tags: "Item Book", image: "Pictured.png"}], function() {
-			assert.ok(h.render(wiki, "text/html", "<<image Pictured>>").indexOf("src=\"images/item/Pictured.png\"") !== -1);
+			assert.ok(h.render(wiki, "text/html", "<<image>>", {currentTiddler: "Pictured"}).indexOf("src=\"images/item/Pictured.png\"") !== -1);
 		});
 	});
 });

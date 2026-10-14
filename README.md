@@ -401,6 +401,11 @@ body (PDF), not for a secret the active view does not see.
 commas and show as tabs named after the files (`image: Vogel.png, Hirsch.jpg` gives
 `[Vogel] [Hirsch]`). Maps of a location and images of a spot: see "Locations".
 
+**Images in a text:** `<<image "Aufbruch.png">>` shows a file from the image folder of the
+tiddler's type, `<<image "a.png, b.png">>` several as tabs, `folder:"event"` takes another
+folder of `images/`. Not as `<img src="images/...">`: `scripts/check-wiki.js` finds a missing
+file only in `<<image>>`.
+
 **Source:** `source` is free text (wikitext) shown below a tiddler as "Source: …" - where its
 images come from: a link, the author, a license, several of them. It is shown to the views that
 see the tiddler; a link in it to another tiddler shows to them as well, whatever that tiddler is.

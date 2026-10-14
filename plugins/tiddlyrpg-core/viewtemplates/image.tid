@@ -1,6 +1,6 @@
 created: 20200308095241245
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/activity
-modified: 20261014180236000
+modified: 20261014185321000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/image
 type: text/vnd.tiddlywiki
@@ -9,7 +9,7 @@ type: text/vnd.tiddlywiki
 <%if [<currentTiddler>trpg.visible[]] %>
 <$list filter="[all[current]has:field[image]]">
 <br>
-<$transclude $variable="trpg.images" entries="[<currentTiddler>imagetabs[]]" state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/image-tab/]] }}}/>
+<<image>>
 </$list>
 <%endif%>
 </$reveal>

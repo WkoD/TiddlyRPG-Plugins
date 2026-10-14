@@ -308,7 +308,7 @@ test.describe("sweep", function() {
 				image: "Qx7a.jpg, Qx7b.jpg", map: "Qx7m1.jpg, Qx7m2.jpg"},
 			// Rules macros in a locked section: their text and the hint on what is not understood
 			{title: "Sweep Regeln", tags: "Location", location: "Baile",
-				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>."},
+				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>.\n\n<<image \"Qx7pic.png, Qx7pic2.png\">>"},
 			{title: "$:/graph/Sweep", type: "application/json", text: "{}",
 				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[!is[system]]", "edges.functions": "links"}
 		],
@@ -378,7 +378,7 @@ test.describe("sweep", function() {
 	test("the DM: every secret shows, so the sweep reaches them", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
-			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", YEAR].forEach(function(word) {
+			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

@@ -381,19 +381,19 @@ test.describe("de-DE", function() {
 			well = town.indexOf("<span>Well</span>"),
 			shaft = town.indexOf("<span>Well shaft</span>");
 		assert.ok(heading !== -1 && heading < well && well < shaft && shaft < town.indexOf("Deep and dark"), town);
-		assert.ok(town.indexOf('href="images/location/Well.jpg"') !== -1, town);
+		assert.ok(town.indexOf('src="images/location/Well.jpg"') !== -1, town);
 	});
 
 	test("spot with one image: no tabs", function() {
 		var town = h.view(wiki, "Town"),
 			temple = town.slice(town.indexOf('data-trpg-anchor="spot-tempel-von-chauntea"'));
-		assert.ok(temple.indexOf('href="images/location/Temple.jpg"') !== -1 && temple.indexOf("<span>Temple</span>") === -1, temple);
+		assert.ok(temple.indexOf('src="images/location/Temple.jpg"') !== -1 && temple.indexOf("<span>Temple</span>") === -1, temple);
 	});
 
 	test("a spot joined to a tiddler: its images show there, not at the location", function() {
 		var town = h.view(wiki, "Town");
 		assert.ok(town.indexOf("Tavern.jpg") === -1 && town.indexOf("Guild house.jpg") === -1, town);
-		assert.ok(h.view(wiki, "Tavern").indexOf('href="images/location/Tavern.jpg"') !== -1);
+		assert.ok(h.view(wiki, "Tavern").indexOf('src="images/location/Tavern.jpg"') !== -1);
 	});
 
 	test("the field image: one without tabs, several as tabs named after the files", function() {
@@ -406,12 +406,38 @@ test.describe("de-DE", function() {
 		try {
 			var one = h.view(wiki, "Pic One"),
 				two = h.view(wiki, "Pic Two");
-			assert.ok(one.indexOf('href="images/person/Face.jpg"') !== -1 && one.indexOf("<span>Face</span>") === -1, one);
+			assert.ok(one.indexOf('src="images/person/Face.jpg"') !== -1 && one.indexOf('href="images/') === -1 && one.indexOf("<span>Face</span>") === -1, one);
 			assert.ok(two.indexOf("<span>Front</span>") !== -1 && two.indexOf("<span>Front</span>") < two.indexOf("<span>Side view</span>"), two);
-			assert.ok(two.indexOf('href="images/person/Front.png"') !== -1 && two.indexOf("Side%20view.png") === -1, two);
-			assert.ok(h.view(wiki, "Pic Info").indexOf('href="images/information/Note.png"') !== -1);
+			assert.ok(two.indexOf('src="images/person/Front.png"') !== -1 && two.indexOf("Side view.png") === -1, two);
+			assert.ok(h.view(wiki, "Pic Info").indexOf('src="images/information/Note.png"') !== -1);
 		} finally {
 			added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		}
+	});
+
+	test("<<image>> in a text: the folder of the type, folder: for another, tabs of its own per call", function() {
+		h.add(wiki, {title: "Pic Event", tags: "Event", date: "1351",
+			text: "<<date>>\n\n<<image \"Shot.png\">>\n\n<<image \"One.png, Two.png\" folder:\"map\">>\n\n<<image \"Three.png, Four.png\">>"});
+		try {
+			var html = h.view(wiki, "Pic Event");
+			assert.ok(html.indexOf('src="images/event/Shot.png"') !== -1 && html.indexOf('href="images/event/') === -1, html);
+			assert.ok(html.indexOf('href="images/map/One.png"') !== -1, html);
+			assert.ok(html.indexOf("<span>One</span>") !== -1 && html.indexOf("<span>Three</span>") !== -1, html);
+			assert.ok(html.indexOf('src="images/event/Three.png"') !== -1 && html.indexOf("Four.png") === -1, html);
+		} finally {
+			wiki.deleteTiddler("Pic Event");
+		}
+	});
+
+	test("player cards: the first image only, without tabs and without a link to the file", function() {
+		h.add(wiki, {title: "Pic Player", tags: "Player", player: "Pia", image: "P one.png, P two.png"});
+		try {
+			var hub = h.view(wiki, "Player"),
+				card = hub.slice(hub.indexOf('href="#Pic%20Player"'));
+			assert.ok(card.indexOf('src="images/player/P one.png"') !== -1 && hub.indexOf("P two.png") === -1, hub);
+			assert.ok(hub.indexOf("<span>P one</span>") === -1 && hub.indexOf('href="images/player/') === -1, hub);
+		} finally {
+			wiki.deleteTiddler("Pic Player");
 		}
 	});
 

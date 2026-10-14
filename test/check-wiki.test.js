@@ -87,6 +87,8 @@ test("images and maps: a missing file, battlemap left over, images at a joined s
 	write("tiddlers/Hafen.tid", "title: Hafen\ntags: Location\nmap: Hafen.jpg, Kampf.jpg\nimage: Ufer.jpg\nbattlemap: Alt.jpg\n\n" +
 		"<<spot \"Steg\" image:\"Steg.jpg, Boot.jpg\" map:\"Plan.jpg\">>\n\nWooden.\n\n<<spot \"Kneipe\" image:\"Kneipe.jpg\">>\n\nA tavern.\n\n<<spot \"Alt\" battlemap:\"X.jpg\">>\n\nOld.\n");
 	write("tiddlers/Kneipe.tid", "title: Kneipe\ntags: Location\n\nThe tavern.\n");
+	write("tiddlers/Ankunft.tid", "title: Ankunft\ntags: Event\ndate: 1351-07-02\n\n<<date>>\n\n<<image \"Fehlt.png\">> <<image \"Hafen.jpg\" folder:\"map\">>\n");
+	write("tiddlers/Lose Notiz.tid", "title: Lose Notiz\n\n<<image \"Bild.png\">>\n");
 	try {
 		var result = check();
 		assert.equal(result.status, 0, result.out);
@@ -97,13 +99,15 @@ test("images and maps: a missing file, battlemap left over, images at a joined s
 			"warning  the parameter battlemap of a spot is no longer shown - battle maps go into map",
 			"warning  image of spot Steg: images/location/Boot.jpg does not exist",
 			"warning  map of spot Steg: images/map/Plan.jpg does not exist",
-			"hint  spot Kneipe is joined to Kneipe - its images and maps show there, set them in that tiddler"
+			"hint  spot Kneipe is joined to Kneipe - its images and maps show there, set them in that tiddler",
+			"warning  <<image>>: images/event/Fehlt.png does not exist",
+			"warning  <<image \"Bild.png\">> in a tiddler without type: name the folder (folder:\"event\")"
 		].forEach(function(line) {
 			assert.ok(result.out.indexOf(line) !== -1, line + "\n" + result.out);
 		});
 		assert.doesNotMatch(result.out, /Hafen\.jpg does not exist|Steg\.jpg does not exist/);
 	} finally {
-		["images/map/Hafen.jpg", "images/location/Steg.jpg", "tiddlers/Hafen.tid", "tiddlers/Kneipe.tid"].forEach(function(file) {
+		["images/map/Hafen.jpg", "images/location/Steg.jpg", "tiddlers/Hafen.tid", "tiddlers/Kneipe.tid", "tiddlers/Ankunft.tid", "tiddlers/Lose Notiz.tid"].forEach(function(file) {
 			fs.rmSync(path.join(dir, file), {force: true});
 		});
 	}

@@ -250,8 +250,9 @@ the tiddler title:
   event, years of existence of the other types), `trpg.datecheck` (hint on a date that cannot
   be read, not in the published copy), `spot` (heading of a spot with its jump mark),
   `spotlink` (reference to a spot, with `trpg.spotjump` and the hint `trpg.spotcheck`),
-  `secret` (a lock, draws nothing itself, see "Sections") and `trpg.locationpath` (path of
-  parent locations below the title, see "Locations").
+  `secret` (a lock, draws nothing itself, see "Sections"), `image` (images in a text or of a
+  tiddler, with `trpg.images` and `trpg.image`, see "Locations") and `trpg.locationpath` (path
+  of parent locations below the title, see "Locations").
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
@@ -283,9 +284,6 @@ the tiddler title:
   `sections.js`: `trpg-body` (the transclude widget with the parse tree prepared section by
   section; `$only`, `$omit`, `$name`, `$marker`), `trpg-section` (one short section, made by
   `trpg-body`) and the block forms `date`, `spot`, `secret` - see "Sections".
-- **Macros** (`macros/*`): `image` (the images of the `image` field one below the other, folder
-  from the type tag through `modules/images.js`; for the cards of the `Player` hub - the view
-  template shows them as tabs, `trpg.images`).
 - **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`trpgtranslate`, `trpgtitle`, `trpgtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
@@ -686,8 +684,12 @@ only call their operators.
   `$omit="spot"`); the spots show below the maps (`trpg-body` `$only="spot"`), the text of one
   in the tooltip of its dot (`$name`, `$marker="no"`).
 - Images and maps (`modules/images.js`, filters `imagetabs`, `maptabs`, `imagelist`, procedure
-  `trpg.images`): one entry shows on its own, two or more as tabs labelled with the file name
-  without extension. The field `image` of every type (folder by type tag, `Information` in
+  `trpg.images`, procedure `image`): one entry shows on its own, two or more as tabs labelled
+  with the file name without extension; a click opens the file only for a map. `<<image>>`
+  shows the field `image` of the current tiddler (the view template `image` calls it),
+  `<<image "a.png, b.png">>` files in a text, in the image folder of the tiddler's type,
+  `folder:"event"` in another one; each call has a tab state of its own. The cards of the
+  `Player` hub take the first image only, without tabs and link (`Player.tid`). The field `image` of every type (folder by type tag, `Information` in
   `images/information/`), the field `map` of a location (`images/map/`; the first one carries
   the graph, every further one is a tab with the image only; ids `map`, `map-<n>`), and a spot
   without a tiddler of its own: `<<spot "Name" image:"a.jpg" map:"b.jpg">>` (images in
@@ -696,7 +698,8 @@ only call their operators.
   tooltip on the map (`trpg-spot-media="no"`). Tab states
   `$:/state/tiddlyrpg-core/image-tab/<title>` and `.../spot-tab/<location>/<spot>`. There are no
   battle maps of their own any more: they are maps; `scripts/check-wiki.js` warns about a
-  `battlemap` left over and about files that are not in `images/`.
+  `battlemap` left over, about files that are not in `images/` (also of `<<image>>`) and about
+  `<<image "…">>` without `folder:` in a tiddler without type.
 - Map (`graph/templates/trpg-map`): background the first file of the field `map`, drawn by
   `graph/map-fit.js` always 600 units wide (graph property `trpgMapImage`, not the `background`
   of tw5-vis-network, which draws in image pixels and shrinks nodes and labels on a large
@@ -737,7 +740,7 @@ The rules of items live **once** in `filters/item.js` (base type and categories)
 
 - Base types `Artifact` (unique), `Item` (several), `Material`; one per item. Everything that
   tells the item types apart (colour in the graph templates, `multitag` lists of `activity` and
-  `relations`, the image folder in `macros/image.js`) names only these three - a category never
+  `relations`, the image folder in `modules/images.js`) names only these three - a category never
   stands alone.
 - Categories are hubs tagged `$:/tags/tiddlyrpg/ItemKind` (`Book`, `Consumable`, `Equipment` from
   here, more from a campaign). They need no code: the hub `Item` reads them from the tag, and

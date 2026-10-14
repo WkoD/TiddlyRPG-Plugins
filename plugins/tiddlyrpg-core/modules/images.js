@@ -3,10 +3,10 @@ title: $:/plugins/tiddlyrpg-core/modules/images.js
 type: application/javascript
 module-type: library
 created: 20261014180236000
-modified: 20261014180236000
+modified: 20261014185800000
 
 Images and maps of a tiddler or a spot - the one place of these rules. Used by the image filters
-(filters/images.js), the macro image (macros/image.js) and scripts/check-wiki.js.
+(filters/images.js), the procedure image (functions.tid) and scripts/check-wiki.js.
 
   image: a.jpg, b.jpg          field image of every type, in images/<folder>/ by the type tag
   map: a.jpg, b.jpg            field map of a location, in images/map/; the first one carries

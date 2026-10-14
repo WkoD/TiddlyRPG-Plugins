@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014180236000
+modified: 20261014185321000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -208,7 +208,7 @@ type: text/vnd.tiddlywiki
 
 <!-- Images or maps of a tiddler or spot (filters/images.js): <entries> is a filter giving the
      entries as JSON {id, label, path}. One shows on its own, two or more as tabs labelled with
-     the file names (tab state <state>). A click opens the file. -->
+     the file names (tab state <state>). A click on a map opens the file (trpg.image). -->
 \procedure trpg.images(entries,state)
 \whitespace trim
 <$let trpg-n={{{ [subfilter<entries>count[]] }}}>
@@ -229,12 +229,37 @@ type: text/vnd.tiddlywiki
 </$let>
 \end
 
-<!-- One image or map: scaled to the width, a click opens the file -->
+<!-- One image or map, scaled to the width; a click on a map (images/map/) opens the file -->
 \procedure trpg.image(entry)
 \whitespace trim
 <$let trpg-path={{{ [<entry>jsonget[path]] }}}>
-<div class="trpg-image"><a href={{{ [<trpg-path>encodeuri[]] }}} target="_blank" rel="noopener noreferrer"><$image source=<<trpg-path>>/></a></div>
+<div class="trpg-image">
+<%if [<trpg-path>prefix[images/map/]] %>
+<a href={{{ [<trpg-path>encodeuri[]] }}} target="_blank" rel="noopener noreferrer"><$image source=<<trpg-path>>/></a>
+<%else%>
+<$image source=<<trpg-path>>/>
+<%endif%>
+</div>
 </$let>
+\end
+
+<!-- Images in a text or of a tiddler (filters/images.js): <<image>> the field image of the
+     current tiddler (the view template shows it), <<image "a.png, b.png">> files in the image
+     folder of its type, folder:"event" in another folder of images/. One shows on its own, two
+     or more as tabs named after the files; every call has a tab state of its own. -->
+\procedure image(files,folder)
+\whitespace trim
+<%if [<files>!is[blank]] %>
+<$let trpg-folder={{{ [<folder>!is[blank]] ~[<currentTiddler>imagefolder[]] }}}>
+<$transclude $variable="trpg.images"
+	entries="[<files>imagelist<trpg-folder>]"
+	state={{{ [<files>addprefix[/]addprefix<currentTiddler>addprefix[$:/state/tiddlyrpg-core/image-tab/]] }}}/>
+</$let>
+<%else%>
+<$transclude $variable="trpg.images"
+	entries="[<currentTiddler>imagetabs[]]"
+	state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/image-tab/]] }}}/>
+<%endif%>
 \end
 
 <!-- A reference to a spot: <<spotlink "Baile" "Schloss Baile">> or

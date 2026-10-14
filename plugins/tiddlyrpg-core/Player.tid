@@ -1,19 +1,20 @@
 caption: <<trpg.title Player>>
 color: #005500
 created: 20200209100237010
-modified: 20261007163804094
+modified: 20261014185321000
 tags: Index
 title: Player
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<!-- The player characters as cards with portrait, name and player: the active ones (tag
+<!-- The player characters as cards with portrait (the first image of the field image, without
+     tabs), name and player: the active ones (tag
      Player), below them those someone played before (any other tiddler with a field player).
      Which view the wiki shows is chosen in the page controls (ui/view-switcher). -->
 \procedure trpg.playercard()
 \whitespace trim
 <$link to=<<currentTiddler>> class={{{ [<currentTiddler>trpg.dead[]then[trpg-player-card trpg-dead]else[trpg-player-card]] }}}>
-<span class="trpg-player-portrait"><$transclude $variable="image" title=<<currentTiddler>>/></span>
+<span class="trpg-player-portrait"><$list filter="[<currentTiddler>imagetabs[]first[]jsonget[path]]" variable="trpg-path"><$image source=<<trpg-path>>/></$list></span>
 <span class="trpg-player-name"><$text text={{{ [<currentTiddler>get[caption]else<currentTiddler>] }}}/></span>
 <span class="trpg-player-of"><$text text={{{ [<currentTiddler>get[player]] }}}/></span>
 </$link>

@@ -28,7 +28,8 @@
  *            nothing, modules/macros-check.js); a rules macro with a text the
  *            ruleset does not understand (modules/rules.js); the field link (shown no more, the
  *            source of the images goes into the field source); an image or map that is not in
- *            images/ (fields image and map, the parameters image and map of a spot); battlemap
+ *            images/ (fields image and map, the parameters image and map of a spot, the files of
+ *            <<image>>), <<image "...">> without folder in a tiddler without type; battlemap
  *            as a field or a parameter of a spot (shown no more, battle maps go into map)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
  *            heading; text before the first placeholder; an event without date; a phase
@@ -140,6 +141,29 @@ $tw.boot.boot(function() {
 		if(/<<spot\s[^>]*battlemap\s*:|<\$spot\s[^>]*battlemap\s*=/.test(fields.text || "")) {
 			add(title, "warning", "the parameter battlemap of a spot is no longer shown - battle maps go into map");
 		}
+		// <<image "a.png, b.png" folder:"event">> and <$transclude $variable="image" files=...>
+		var calls = function(nodes) {
+			$tw.utils.each(nodes, function(node) {
+				var attrs = node.attributes || {},
+					variable = node.type === "transclude" && attrs["$variable"];
+				if(variable && variable.value === "image") {
+					var list = attrs["0"] || attrs.files,
+						dir = attrs.folder ? attrs.folder.value : folder;
+					if(list && list.type === "string" && list.value.trim()) {
+						if(dir) {
+							missing(list.value, dir, "<<image>>");
+						} else {
+							add(title, "warning", "<<image \"" + list.value + "\">> in a tiddler without type: name the folder (folder:\"event\")");
+						}
+					}
+				}
+				if(node.children) {
+					calls(node.children);
+				}
+			});
+		};
+		var tree = wiki.parseTiddler(title);
+		calls(tree ? tree.tree : []);
 		if(!tiddler.hasTag("Location")) {
 			return;
 		}
