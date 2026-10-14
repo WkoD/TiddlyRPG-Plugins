@@ -66,7 +66,7 @@ test.describe("a caption is inline wikitext", function() {
 	test.before(function() {
 		feet = h.filter(wiki, "[[30 ft]trpgunit[]]").join();
 		h.add(wiki, {title: "Brücke", tags: "Event", date: "1351-07-05, 1351-07-09, 1351-07-11, 1351-07-12",
-			text: "<<date label:\"Kampf auf <<unit '30 ft'>>\">>\n\nZuerst.\n\n<<date label:\"Treffen in [[Alt Ort]]\">>\n\nDann.\n\n<<date 3 label:\"Preis $5$ bei [[Alt Ort]]\">>\n\nLetzt.\n\n<$date n=\"4\" label=\"Rückkehr nach [[Alt Ort]]\">\n\nZuletzt.\n\n</$date>\n"});
+			text: "<<date label:\"Kampf auf <<unit '30 ft'>>\">>\n\nZuerst.\n\n<<date label:\"Treffen in [[Alt Ort]]\">>\n\nDann.\n\n<<date 3 label:\"Preis $5$ bei [[Alt Ort]]\">>\n\nLetzt.\n\n<$date section=\"4\" label=\"Rückkehr nach [[Alt Ort]]\">\n\nZuletzt.\n\n</$date>\n"});
 		h.add(wiki, {title: "Alt Ort", tags: "Location"});
 	});
 
@@ -102,7 +102,7 @@ test.describe("a caption is inline wikitext", function() {
 		var text = wiki.getTiddler("Brücke").fields.text;
 		assert.match(text, /<<date label:"Treffen in \[\[Neuer Ort\]\]">>/);
 		assert.match(text, /<<date 3 label:"Preis \$5\$ bei \[\[Neuer Ort\]\]">>/);
-		assert.match(text, /<\$date n="4" label="Rückkehr nach \[\[Neuer Ort\]\]">/);
+		assert.match(text, /<\$date section="4" label="Rückkehr nach \[\[Neuer Ort\]\]">/);
 		assert.doesNotMatch(text, /Alt Ort/);
 	});
 });

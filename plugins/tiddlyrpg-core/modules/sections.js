@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261014194538000
+modified: 20261014195324000
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -12,7 +12,7 @@ date, spot and secret (widgets/sections.js), and the filters of filters/sections
 Every kind of section has a short and a block form:
 
   <<date>>  <<date 3 label:"Caption">>              short: runs to the next marker on the same level
-  <$date n="3" label="Caption">...</$date>    block: runs to its closing tag
+  <$date section="3" label="Caption">...</$date>    block: runs to its closing tag
 
   date    dated section of an event (tag Event): number and caption, see modules/dates.js
   spot    spot of a location (tag Location): name, joined tiddler, battle maps, see
@@ -88,12 +88,12 @@ exports.kind = function(name) {
 register("date",{
 	types: ["Event"],
 	// <<date>>, <<date 3>>, <<date label:"Caption">>, <<date 3 label:"Caption">>;
-	// <$date n="3" label="Caption">. The caption is named only: a text by position is no
+	// <$date section="3" label="Caption">. The caption is named only: a text by position is no
 	// caption but a hint (bad, sections.check)
 	params: function(node) {
 		var first = attribute(node,"0"),
 			second = attribute(node,"1"),
-			n = attribute(node,"n"),
+			n = attribute(node,"section"),
 			label = attribute(node,"label"),
 			bad = "";
 		if(first !== undefined && n === undefined) {
@@ -393,7 +393,7 @@ var read = exports.read = function(wiki,title) {
 			if(node.type === "link" && attribute(node,"to")) {
 				links.push({to: attribute(node,"to"), section: section, frame: false});
 			} else if(node.type === "transclude" && attribute(node,"$variable") === "spotlink" && node.start !== undefined) {
-				var place = attribute(node,"place"),
+				var place = attribute(node,"location"),
 					spec = attribute(node,"spot");
 				spotlinks.push({place: (place === undefined ? attribute(node,"0") || "" : place).trim(), spec: spec === undefined ? attribute(node,"1") || "" : spec, start: node.start, section: section});
 			}

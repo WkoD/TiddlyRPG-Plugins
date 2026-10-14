@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/date.js
 type: application/javascript
 module-type: widget
 created: 20261002082222000
-modified: 20261014192337000
+modified: 20261014195324000
 
 Works out which section of the date field a <<date>> placeholder stands for (procedure "date" in
 functions.tid) and sets for its content:
@@ -12,7 +12,7 @@ functions.tid) and sets for its content:
   trpg-label    caption
   trpg-first    "yes" if only whitespace or pragmas stand before the placeholder (no rule then)
 
-<$trpg-date n=<<n>> label=<<label>>> ... </$trpg-date>
+<$trpg-date section=<<section>> label=<<label>>> ... </$trpg-date>
 
 The placeholder is found by its position: the transclude widget of the <<date>> call carries
 the parse tree node with its start offset, and modules/dates.js reads the same offsets from the
@@ -55,7 +55,7 @@ DateWidget.prototype.callNode = function() {
 
 DateWidget.prototype.execute = function() {
 	var title = this.getVariable("currentTiddler"),
-		n = this.getAttribute("n","").trim(),
+		n = this.getAttribute("section","").trim(),
 		label = this.getAttribute("label","").trim(),
 		node = this.callNode(),
 		section = "",
@@ -84,7 +84,7 @@ DateWidget.prototype.execute = function() {
 
 DateWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes();
-	if(changedAttributes.n || changedAttributes.label || changedTiddlers[this.getVariable("currentTiddler")]) {
+	if(changedAttributes.section || changedAttributes.label || changedTiddlers[this.getVariable("currentTiddler")]) {
 		this.refreshSelf();
 		return true;
 	}

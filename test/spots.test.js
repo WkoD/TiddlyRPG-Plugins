@@ -137,6 +137,19 @@ test.describe("spotlink", function() {
 		body = h.render(wiki, "text/html", "<$transclude $tiddler=\"Well Night\" mode=\"block\"/>", {currentTiddler: "Well Night", storyTiddler: "Well Night"});
 	});
 
+	test("named: location: and spot:, relink renames the location", function() {
+		h.add(wiki, {title: "Hafenort", tags: "Location", text: "Port.\n\n<<spot \"Kai\">>\n\nThe quay."});
+		h.add(wiki, {title: "Anlegen", tags: "Event", date: "1351", text: "<<date>>\n\nAt <<spotlink location:\"Hafenort\" spot:\"Kai\">>."});
+		try {
+			assert.deepEqual(f("[[Hafenort]spotlinked[]]"), ["Anlegen"]);
+			assert.ok(h.view(wiki, "Anlegen").indexOf("Kai (Hafenort)") !== -1);
+			wiki.renameTiddler("Hafenort", "Neuhafen");
+			assert.ok(wiki.getTiddler("Anlegen").fields.text.indexOf("<<spotlink location:\"Neuhafen\" spot:\"Kai\">>") !== -1, wiki.getTiddler("Anlegen").fields.text);
+		} finally {
+			["Hafenort", "Neuhafen", "Anlegen"].forEach(function(title) { wiki.deleteTiddler(title); });
+		}
+	});
+
 	test("link text before |, link to the location", function() {
 		assert.match(body, /<a class="tc-tiddlylink tc-tiddlylink-resolves" href="#Town">old well<\/a>/);
 	});

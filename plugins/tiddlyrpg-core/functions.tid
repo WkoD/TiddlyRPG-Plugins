@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014194538000
+modified: 20261014195324000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -148,9 +148,9 @@ type: text/vnd.tiddlywiki
      "date-<n>" (data-trpg-anchor, modules/anchor-jump.js) - not at the very start of the body:
      there a jump would only hide the title, the plain navigation already shows the section. The
      caption is inline wikitext: <<date label:"Fight at <<unit '30 ft'>>">> (other quotes inside). -->
-\procedure date(n,label)
+\procedure date(section,label)
 \whitespace trim
-<$trpg-date n=<<n>> label=<<label>>>
+<$trpg-date section=<<section>> label=<<label>>>
 
 <%if [<trpg-section>is[blank]] %>
 <div class="trpg-date-invalid"><$text text={{{ [[Date/SectionHint]trpgtranslate[]] }}}/></div>
@@ -267,12 +267,12 @@ type: text/vnd.tiddlywiki
      "|", spot after it). A spot joined to a tiddler opens that tiddler, any other spot the
      location at the spot; a spot or location that does not exist gives a hint for the editor
      (not in the published copy). The section pills (trpg.places) show it as well. -->
-\procedure spotlink(place,spot)
+\procedure spotlink(location,spot)
 \whitespace trim
 <$let trpg-spot={{{ [<spot>spotref:spot[]] }}}
 	trpg-text={{{ [<spot>spotref:text[]] }}}>
-<$transclude $variable="trpg.spotjump" place=<<place>> spot=<<trpg-spot>>><$text text=<<trpg-text>>/></$transclude>
-<$transclude $variable="trpg.spotcheck" place=<<place>> spot=<<trpg-spot>>/>
+<$transclude $variable="trpg.spotjump" place=<<location>> spot=<<trpg-spot>>><$text text=<<trpg-text>>/></$transclude>
+<$transclude $variable="trpg.spotcheck" place=<<location>> spot=<<trpg-spot>>/>
 </$let>
 \end
 

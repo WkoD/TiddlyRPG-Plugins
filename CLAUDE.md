@@ -612,9 +612,11 @@ mind when changing it:
 - Parameters of the macros of the wikis: the required ones by position, the optional ones
   named, each called after what it holds: `<<date 3 label:"…">>`, `<<spot "Name"
   tiddler:"…" image:"…" map:"…">>`, `<<image "a.png" folder:"…">>`, `<<unit "60 ft"
-  kind:"range">>`, `<<term wis variant:"save">>`, `<<term frightened value:2>>`. The block form
-  `<$spot>` has the same names as attributes; Relink knows `spot` `name`/`tiddler` as macro
-  parameters and as attributes of `<$spot>`.
+  kind:"range">>`, `<<term wis variant:"save">>`, `<<term frightened value:2>>`. Named by
+  position, but with the names of what they hold: `date` `section`/`label`, `spotlink`
+  `location`/`spot`. The block forms `<$date>` and `<$spot>` have the same names as attributes;
+  Relink knows `spot` `name`/`tiddler` as macro parameters and as attributes of `<$spot>`, and
+  `spotlink` `location`/`spot`.
 - `sectionAt()` (operator `datesection`) finds the section a date falls into by overlap of
   their days: of several the narrowest wins, on a tie the first; "."/".." are open sides. It
   never falls back to "the section before" - a jump to the whole event is better than one to

@@ -215,7 +215,7 @@ with the same rules. Each has a short form, which runs to the next marker on the
 a block form with an end of its own:
 
 ```
-<$date n="3" label="The ritual">
+<$date section="3" label="The ritual">
 
 Text of the section.
 
@@ -470,7 +470,7 @@ span as a bar; the event table one row per point in time (a span: its start and 
 event in one title cell across all its rows as long as no other event lies in between, and the
 caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`, the
 "open items" snippet) are not counted as locations. The block form `<$date>…</$date>` (with
-`n` and `label`) is a section with an end of its own; see "Sections in the text".
+`section` and `label`) is a section with an end of its own; see "Sections in the text".
 
 **Jumping to a section.** A click on an event in the table, or on a section line of the
 selected card in the timeline, opens the event at that section. A section at the very start of

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261014194538000
+modified: 20261014195324000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -35,7 +35,7 @@ scripts/migrate-dates.js converts it.
 
 Dated sections of a body: <<date>> stands for the next section of the date field, <<date 3>>
 for section 3 (the following ones count on from there), <<date label:"Caption">> or
-<<date 3 label:"Caption">> add a caption; <$date n="3" label="Caption">...</$date> is the block form.
+<<date 3 label:"Caption">> add a caption; <$date section="3" label="Caption">...</$date> is the block form.
 sections() takes them from the model of the body (modules/sections.js), together with the links
 of each section; text before the first dated section is section 0. hidden() and visibleField()
 leave out what the active view does not see.

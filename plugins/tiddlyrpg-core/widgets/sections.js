@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261014192337000
+modified: 20261014195324000
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -16,7 +16,7 @@ Rendering of the sections of a body (modules/sections.js).
 <$trpg-section key="..." kind="date">...</$trpg-section>
   made by sections.transform(), not written by hand: one short section.
 
-<$date n="3" label="Caption">...</$date>      block form of a dated section
+<$date section="3" label="Caption">...</$date>      block form of a dated section
 <$spot name="Name" tiddler="Tiddler" image="a.jpg" map="b.jpg">...</$spot>    block form of a spot
 <$secret for="Theren Actia">...</$secret>     locks what it encloses
 
@@ -160,7 +160,7 @@ SectionWidget.prototype.execute = function() {
 
 // The attributes of a block passed on to the procedure of its heading
 var HEADINGS = {
-	date: ["n","label"],
+	date: ["section","label"],
 	spot: ["name","tiddler","image","map"]
 };
 
