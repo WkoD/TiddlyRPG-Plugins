@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014201354000
+modified: 20261014202808000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -48,8 +48,8 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- Rules terms in the display language of their domain (modules/rules.js, filters/rules.js):
-     <<unit "228 cm">>, <<unit 60 kind:"range">>, <<dice "4d6">>, <<damage "1d8 slashing">>,
-     <<term wis variant:"save">>, <<term frightened 2>>. Filtered attributes, so that they recompute when
+     <<unit "228 cm">>, <<unit "60 ft" kind:"range">>, <<dice "4d6">>, <<damage "1d8 slashing">>,
+     <<term wis variant:"save">>, <<term frightened value:2>>. Filtered attributes, so that they recompute when
      the rules language changes. What is not understood shows unchanged; the hint stands below
      the title (trpgrulecheck). -->
 \procedure unit(value,kind)
