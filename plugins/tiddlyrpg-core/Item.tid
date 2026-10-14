@@ -11,7 +11,7 @@ type: text/vnd.tiddlywiki
 \procedure trpg.items(filter)
 <$list filter="[subfilter<filter>] :filter[trpg.visible[]]">
 <div class="tc-menu-list-subitem">
-<<deadlink title={{!!title}} style="~~">>
+<<trpg.link title={{!!title}}>>
 </div>
 </$list>
 \end

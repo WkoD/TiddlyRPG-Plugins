@@ -8,6 +8,6 @@ type: text/vnd.tiddlywiki
 
 <$list filter="[tag[Organisation]] :filter[trpg.visible[]] +[sort[title]]">
 <div class="tc-menu-list-subitem">
-<<deadlink title={{!!title}} style="~~">>
+<<trpg.link title={{!!title}}>>
 </div>
 </$list>

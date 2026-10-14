@@ -127,6 +127,54 @@ test.describe("without calendar", function() {
 	});
 });
 
+test.describe("trpg.link", function() {
+	var added = [
+		{title: "Link Alive", tags: "Person", date: "1300"},
+		{title: "Link Event", tags: "Event", date: "1300/1301"},
+		{title: "$:/link/system", date: "1300/1301"},
+		{title: "Link ]] odd|title", tags: "Person", date: "1300/1301"}
+	];
+
+	test.before(function() {
+		added.forEach(function(fields) {
+			h.add(wiki, fields);
+		});
+	});
+
+	test.after(function() {
+		added.forEach(function(fields) {
+			wiki.deleteTiddler(fields.title);
+		});
+	});
+
+	function link(title) {
+		return h.render(wiki, "text/html", "<$transclude $variable=\"trpg.link\" title=<<t>>/>", {t: title});
+	}
+
+	test("dead: struck through by the class", function() {
+		var html = link("Grum");
+		assert.match(html, /<a class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum<\/a>/);
+		assert.ok(html.indexOf("<strike>") === -1 && html.indexOf("<s>") === -1, html);
+	});
+
+	test("alive, an event that ended, a system tiddler, a missing tiddler: no class", function() {
+		["Link Alive", "Link Event", "$:/link/system", "Link Missing"].forEach(function(title) {
+			assert.ok(link(title).indexOf("trpg-dead-link") === -1, title);
+		});
+	});
+
+	test("a title with ]] and | stays one link", function() {
+		var html = link("Link ]] odd|title");
+		assert.equal((html.match(/<a /g) || []).length, 1, html);
+		assert.ok(html.indexOf(">Link ]] odd|title</a>") !== -1 && html.indexOf("trpg-dead-link") !== -1, html);
+	});
+
+	test("type hub and relation list strike the dead through", function() {
+		assert.match(h.view(wiki, "Person"), /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
+		assert.match(h.view(wiki, "Insel Avalon"), /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
+	});
+});
+
 // Colour of a tiddler through the TiddlerColourFilter cascade
 function colour(title) {
 	return wiki.filterTiddlers("[[" + title + "]] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]]").join();

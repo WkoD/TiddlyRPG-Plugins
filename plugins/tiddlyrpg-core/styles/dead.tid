@@ -1,5 +1,5 @@
 created: 20200209132938109
-modified: 20261001095424000
+modified: 20261014162944000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/dead
 type: text/css
@@ -9,4 +9,14 @@ type: text/css
    palettes. */
 .trpg-dead {
 background-color: color-mix(in srgb, var(--tpc-muted-foreground) 50%, var(--tpc-tiddler-background));
+}
+
+/* A link to a deceased/destroyed tiddler (procedure trpg.link): struck through, on hover
+   underlined as well - the core sets text-decoration on a.tc-tiddlylink:hover. */
+a.tc-tiddlylink.trpg-dead-link {
+text-decoration: line-through;
+}
+
+a.tc-tiddlylink.trpg-dead-link:hover {
+text-decoration: line-through underline;
 }

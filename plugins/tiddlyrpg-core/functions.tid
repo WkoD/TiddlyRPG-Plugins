@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261010065649000
+modified: 20261014162944000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -16,6 +16,14 @@ type: text/vnd.tiddlywiki
 <!-- Deceased/destroyed: the date field ends (last section a range with an end other than
      "..", modules/dates.js). Events excluded - their sections are points and spans in time. -->
 \function trpg.dead() [!is[system]!tag[Event]] :filter[get[date]dateended[]]
+
+<!-- Link to a tiddler, struck through when it is deceased/destroyed (trpg.dead; class
+     trpg-dead-link, stylesheet styles/dead). Used by the type hubs, the relation list and the
+     path below the title. -->
+\procedure trpg.link(title)
+\whitespace trim
+<$link to=<<title>> class={{{ [<title>trpg.dead[]then[trpg-dead-link]] }}}/>
+\end
 
 <!-- Language system (modules/language.js): translation of a key, display name of a title,
      plural of a type. Missing keys fall back to en-GB, then to the key/title itself. -->
@@ -228,13 +236,13 @@ type: text/vnd.tiddlywiki
 <$list filter="[enlist<trpg-lines>]" variable="trpg-line">
 <$let trpg-path={{{ [<trpg-line>locationpath[]] [<currentTiddler>!tag[Location]then<trpg-line>] +[!is[blank]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
 <%if [enlist<trpg-path>first[]] %>
-<div class="trpg-location-path"><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep">›</span><%endif%><$macrocall $name="deadlink" title=<<trpg-step>> style="~~"/></$list></div>
+<div class="trpg-location-path"><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep">›</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list></div>
 <%endif%>
 </$let>
 </$list>
 <$let trpg-rules={{{ [<currentTiddler>get[leader]enlist-input[]tag[Location]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
 <%if [enlist<trpg-rules>first[]] %>
-<div class="trpg-location-path trpg-location-rules"><$text text={{{ [[Relations/Rules]trpgtranslate[]addsuffix[: ]] }}}/><$list filter="[enlist<trpg-rules>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep trpg-location-path-comma">,</span><%endif%><$macrocall $name="deadlink" title=<<trpg-step>> style="~~"/></$list></div>
+<div class="trpg-location-path trpg-location-rules"><$text text={{{ [[Relations/Rules]trpgtranslate[]addsuffix[: ]] }}}/><$list filter="[enlist<trpg-rules>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep trpg-location-path-comma">,</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list></div>
 <%endif%>
 </$let>
 <$list filter="[<currentTiddler>locationcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="trpg-key">

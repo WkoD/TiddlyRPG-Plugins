@@ -15,20 +15,20 @@ type: text/vnd.tiddlywiki
 <%if [(hits)] %>
 <h3 class="trpg-relations-group"><$text text=<<label>>/></h3>
 <$list filter="[(hits)]">
-<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">></div>
+<div class="tc-menu-list-subitem"><<trpg.link title={{!!title}}>></div>
 </$list>
 <%endif%>
 \end
 
 \procedure trpg.tree.entry(place,sub)
 \whitespace trim
-<<deadlink title=<<sub>> style="~~">><%if [<sub>spotowner[]match<place>] %><span class="trpg-via"><$text text={{{ [[Relations/Spot]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%>
+<$transclude $variable="trpg.link" title=<<sub>>/><%if [<sub>spotowner[]match<place>] %><span class="trpg-via"><$text text={{{ [[Relations/Spot]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%>
 \end
 
 \procedure trpg.tree(place,depth)
 \whitespace trim
 <$list filter="[trpg.here<place>]">
-<div class="tc-menu-list-subitem"><<deadlink title={{!!title}} style="~~">><%if [<currentTiddler>get[leader]enlist-input[]match<place>] %><span class="trpg-via"><$text text={{{ [[Edge/rules]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%></div>
+<div class="tc-menu-list-subitem"><<trpg.link title={{!!title}}>><%if [<currentTiddler>get[leader]enlist-input[]match<place>] %><span class="trpg-via"><$text text={{{ [[Edge/rules]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%></div>
 </$list>
 <%if [<depth>compare:number:lt[10]] %>
 <$list filter="[trpg.within<place>]" variable="trpg-sub">

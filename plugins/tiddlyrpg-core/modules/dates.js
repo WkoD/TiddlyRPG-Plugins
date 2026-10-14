@@ -3,11 +3,11 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261010075834000
+modified: 20261014162944000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
-(widgets/timeline.js), the section placeholder (widgets/date.js) and the deadlink macro.
+(widgets/timeline.js) and the section placeholder (widgets/date.js).
 
 Syntax of the date field (whitespace is ignored everywhere, "1351,1352" = "1351, 1352"):
 

@@ -238,9 +238,9 @@ plugin-scoped under `$:/plugins/tiddlyrpg-core/<category>/<name>` (files in subf
 name, `kebab-case`). Macros are called by their `exports.name` (e.g. `<<image>>`), independent of
 the tiddler title:
 
-- **Functions and procedures** (`functions`, tag `$:/tags/Global`): `trpg.visible`, `trpg.dead`
-  (see "Functions & cascades"), `trpg.t`, `trpg.title`, `trpg.plural` (language system), the
-  procedures `dateformat`, `dateadd`, `datediff` (calendar), `unit`, `dice`, `damage`, `term`
+- **Functions and procedures** (`functions`, tag `$:/tags/Global`): `trpg.visible`, `trpg.dead`,
+  `trpg.link` (see "Functions & cascades"), `trpg.t`, `trpg.title`, `trpg.plural` (language
+  system), the procedures `dateformat`, `dateadd`, `datediff` (calendar), `unit`, `dice`, `damage`, `term`
   (rules engine), `date` (dated section in a body,
   with `widgets/date.js`), `trpg.places` (location pills of a section, with the pills of
   `<<spotlink>>` via `trpg.spotpill`), `trpg.dateline` (date line below the tags: span of an
@@ -253,7 +253,7 @@ the tiddler title:
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
   from the model of `sections.js` - the one place of these rules, used by the date filters,
-  `eventrows`, the timeline, `trpg-date` and `deadlink`), `sections.js` (see "Sections": the
+  `eventrows`, the timeline and `trpg-date`), `sections.js` (see "Sections": the
   sections of a body, their kinds, locks and rendering), `spots.js` (see "Locations": spots and
   `<<spotlink>>` from the model of `sections.js`, plain names, the index of owners and
   references), `relations.js` (see "Relations": the relation types, their axes, what a type
@@ -282,7 +282,7 @@ the tiddler title:
   `trpg-body`) and the block forms `date`, `spot`, `secret` - see "Sections".
 - **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
   from the type tag, several images comma separated; battle maps as a link to the file),
-  `subtiddler` (renders `<title>/<sub>` sub-tiddlers), `deadlink`.
+  `subtiddler` (renders `<title>/<sub>` sub-tiddlers).
 - **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`trpgtranslate`, `trpgtitle`, `trpgtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
@@ -832,8 +832,11 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
   tiddlers the view does not see. A change of the rule happens only in the module.
 - **`trpg.dead`** - deceased/destroyed: the `date` field ends (last section a span whose end is
   not `..`, operator `dateended`), **events excluded**. Used by `config/class-dead` (class
-  `trpg-dead`, stylesheet `styles/dead`), the graph templates and the atlas views of the
-  wikis; `deadlink.js` reads the same rule from `modules/dates.js`.
+  `trpg-dead`, stylesheet `styles/dead`), the graph templates, the atlas views of the
+  wikis and `trpg.link`.
+- **`trpg.link`** - a link to a tiddler, struck through when `trpg.dead` holds (class
+  `trpg-dead-link`, stylesheet `styles/dead`). The type hubs, the relation list and the path
+  below the title (`trpg.locationpath`) list their titles with it.
 
 More cascade entries instead of core overrides:
 
