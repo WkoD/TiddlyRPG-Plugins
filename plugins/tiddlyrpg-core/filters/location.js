@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261008062202000
+modified: 20261014201354000
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -25,6 +25,11 @@ owner or one location; items and materials may have several of each.
 [<title>occupants[]]            persons, players, organisations, deities and items whose
                                 location is <title> or (below, only through spots) a part of it;
                                 who leads a location (field leader) is there too
+[<title>locationgroups[]]       where <title> is, for the path below the title: the places of its
+                                field location and the locations it leads (field leader), grouped
+                                by their parents; each group as JSON {"path": parents, "places":
+                                places}, both title lists. A location: one group of its parents.
+                                Places and parents the active view does not see are left out.
 [<title>locationcheck[]]        language keys of the problems of <title> (Location/Check/...)
 
 \*/
@@ -184,6 +189,50 @@ function hiddenParent(wiki,child,parent) {
 	}
 	return own === null || own.some(function(player) { return above.indexOf(player) === -1; });
 }
+
+exports.locationgroups = function(source,operator,options) {
+	var wiki = options.wiki,
+		results = [];
+	var seen = function(title) {
+		return visibility.visible(wiki,title);
+	};
+	source(function(tiddler,title) {
+		tiddler = wiki.getTiddler(title);
+		if(!tiddler) {
+			return;
+		}
+		var groups = [],
+			byKey = Object.create(null),
+			places = [];
+		if(tiddler.hasTag("Location")) {
+			var parents = path(wiki,title).path.filter(seen);
+			if(parents.length) {
+				groups.push({path: parents, places: []});
+			}
+		} else {
+			$tw.utils.parseStringArray(tiddler.fields.location || "").concat(
+				$tw.utils.parseStringArray(tiddler.fields.leader || "").filter(function(t) { return isLocation(wiki,t); })
+			).forEach(function(place) {
+				if(place && places.indexOf(place) === -1 && seen(place)) {
+					places.push(place);
+				}
+			});
+			$tw.utils.each(places,function(place) {
+				var parents = path(wiki,place).path.filter(seen),
+					key = parents.join("\u0000");
+				if(!byKey[key]) {
+					byKey[key] = {path: parents, places: []};
+					groups.push(byKey[key]);
+				}
+				byKey[key].places.push(place);
+			});
+		}
+		$tw.utils.each(groups,function(group) {
+			results.push(JSON.stringify({path: $tw.utils.stringifyList(group.path), places: $tw.utils.stringifyList(group.places)}));
+		});
+	});
+	return results;
+};
 
 exports.locationcheck = function(source,operator,options) {
 	var wiki = options.wiki,

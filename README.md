@@ -287,7 +287,7 @@ location - tags carry no meaning for places.
 | Where | Field / syntax | Meaning |
 |---|---|---|
 | Person, player, deity | `location: Baile` | where they are most likely found - the most precise place that is still true; someone who moves around gets the region (one entry) |
-| Organisation | `location: [[Cair Di]] Baile` | the places where it sits or is present (several, all equal) |
+| Organisation | `location: [[Cair Di]] Baile` | the places where it sits or is present (several, all equal); below the title one line per parent path: `… › Königreich von Vandalia › Cair Di, Baile` |
 | Location | `location: [[Königreich von Vandalia]]` | lies in ("liegt in"): a place of its own within a larger one |
 | Location | `<<spot "Tavern">>` in the body of Baile | part of ("Teil von"): the tavern is a part of Baile - who is in the tavern is found in Baile |
 | Organisation, person | `leader: Baile` | leads or controls the location ("Controls") and is present there - no `location` to the same place needed |

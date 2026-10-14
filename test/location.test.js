@@ -235,10 +235,39 @@ test.describe("de-DE", function() {
 		assert.ok(path.indexOf(">Kingdom<") !== -1 && path.indexOf(">Town<") === -1, path);
 	});
 
-	test("organisation: one path line per location, and the locations it rules", function() {
-		var guild = h.view(wiki, "Guild");
-		assert.equal((guild.match(/class="trpg-location-path"/g) || []).length, 2);
-		assert.match(guild, /class="trpg-location-path trpg-location-rules">Kontrolliert: /);
+	// The lines below the title as text: "A › B › C, D"
+	function pathLines(html) {
+		return (html.match(/<div class="trpg-location-path">.*?<\/div>/g) || []).map(function(line) {
+			return line.replace(/<[^>]+>/g, "").replace(/›/g, " › ").replace(/,/g, ", ");
+		});
+	}
+
+	test("organisation: location and the locations it leads in one, grouped by their parents", function() {
+		assert.deepEqual(pathLines(h.view(wiki, "Guild")), ["Continent › Kingdom › Town", "Continent › Kingdom"]);
+		assert.ok(h.view(wiki, "Guild").indexOf("trpg-location-rules") === -1);
+		h.add(wiki, {title: "Market Guild", tags: "Organisation", location: "Town Neighbour", leader: "Tavern"});
+		try {
+			assert.deepEqual(pathLines(h.view(wiki, "Market Guild")), ["Continent › Kingdom › Town, Neighbour", "Continent › Kingdom › Town › Tavern"]);
+		} finally {
+			wiki.deleteTiddler("Market Guild");
+		}
+	});
+
+	test("grouped path: a location shows its parents without a separator at the end", function() {
+		assert.deepEqual(pathLines(h.view(wiki, "Town")), ["Continent › Kingdom"]);
+	});
+
+	test("grouped path: a place the view does not see leaves its line, a line of only such places goes", function() {
+		h.add(wiki, {title: "Hidden Hall", tags: "Location Secret", location: "Kingdom"});
+		h.add(wiki, {title: "Hidden Den", tags: "Location Secret", location: "Continent"});
+		h.add(wiki, {title: "Mixed Guild", tags: "Organisation", location: "Town [[Hidden Hall]] [[Hidden Den]]"});
+		try {
+			var pub = h.inView(wiki, "public", function() { return pathLines(h.view(wiki, "Mixed Guild")); });
+			assert.deepEqual(pub, ["Continent › Kingdom › Town"]);
+			assert.deepEqual(pathLines(h.view(wiki, "Mixed Guild")), ["Continent › Kingdom › Town, Hidden Hall", "Continent › Hidden Den"]);
+		} finally {
+			["Hidden Hall", "Hidden Den", "Mixed Guild"].forEach(function(title) { wiki.deleteTiddler(title); });
+		}
 	});
 
 	test("hint for the editor", function() {
@@ -517,9 +546,8 @@ test.describe("en-GB", function() {
 		});
 	});
 
-	test("en path hint and rules", function() {
+	test("en path hint", function() {
 		assert.ok(h.view(wiki, "Wanderer").indexOf("Check the location: a person has one location") !== -1);
-		assert.match(h.view(wiki, "Guild"), /trpg-location-rules">Controls: /);
 	});
 });
 

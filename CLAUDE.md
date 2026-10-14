@@ -251,8 +251,8 @@ the tiddler title:
   be read, not in the published copy), `spot` (heading of a spot with its jump mark),
   `spotlink` (reference to a spot, with `trpg.spotjump` and the hint `trpg.spotcheck`),
   `secret` (a lock, draws nothing itself, see "Sections"), `image` (images in a text or of a
-  tiddler, with `trpg.images` and `trpg.image`, see "Locations") and `trpg.locationpath` (path
-  of parent locations below the title, see "Locations").
+  tiddler, with `trpg.images` and `trpg.image`, see "Locations") and `trpg.locationpath` (where
+  a tiddler is, below its title, see "Locations").
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
@@ -292,7 +292,7 @@ the tiddler title:
   `currencyunit`, `currencycoin`, see "Currency engine"), `sections.js` (`hassections`,
   `sectioncheck`, `sectionbacklinks`,
   `visiblelinks`, `trpgsearch`),
-  `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
+  `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`,
   `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
@@ -670,9 +670,14 @@ only call their operators.
   items and materials may have several locations; persons one, artifacts one owner or one
   location (`locationcheck` reports more, or both). Items are occupants like everyone else:
   in the tree of the relation list and for the folding in the ego graph.
+- The path below the title (`trpg.locationpath`, filter `locationgroups`): for a location its
+  parents; for every other type the places of `location` and the locations of `leader`
+  together, one line per parent path, the places of a line comma separated ("Materielle
+  Ebene › Andu Falas › Königreich von Vandalia › Cair Di, Golwyn"). It says where a tiddler is,
+  not how it is tied to a place - that stays in the relation list.
 - Secret presence: an entry of `location` that points to a `Secret` location is missing in the
-  views that do not see it - its whole line of `trpg.locationpath` (the path above it would tell
-  where it lies), and the occupant among the places above, since the walk of `occupants` only
+  views that do not see it - in `trpg.locationpath` the place, and its line if no other place
+  is left in it (the path above it would tell where it lies), and the occupant among the places above, since the walk of `occupants` only
   goes through spots and the lists filter with `trpg.visible`. A locked spot joined to a location
   hides only where it lies (`spots.ownsVisibly`: no parent, not among the children). Test:
   `views.test.js` ("secret presence").

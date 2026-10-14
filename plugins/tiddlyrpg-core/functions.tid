@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014195324000
+modified: 20261014201354000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -289,28 +289,24 @@ type: text/vnd.tiddlywiki
 <%endif%>
 \end
 
-<!-- The parents of a tiddler as a path below its title: "Materielle Ebene › Andu Falas ›
-     Königreich von Vandalia" for a location, its location(s) at the end for persons and the
-     like (one line per entry), "Kontrolliert: …" for locations it leads; with the hints of
-     locationcheck (not in the published copy). What the view does not see is left out: an
-     entry it does not see with its whole line, else the line would tell where it lies. -->
+<!-- Where a tiddler is, as a path below its title (filter locationgroups): "Materielle Ebene ›
+     Andu Falas › Königreich von Vandalia" for a location; for persons, organisations and the
+     like the places of their field location and the locations they lead (field leader), one
+     line per parent path, the places of a line comma separated ("… › Königreich von Vandalia ›
+     Cair Di, Golwyn"); with the hints of locationcheck (not in the published copy). What the
+     view does not see is left out: a place it does not see, and a line if no place of it is
+     left - else the line would tell where it lies. -->
 \procedure trpg.locationpath()
 \whitespace trim
-<$let trpg-lines={{{ [<currentTiddler>tag[Location]then<currentTiddler>] ~[<currentTiddler>get[location]enlist-input[]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
-<$list filter="[enlist<trpg-lines>]" variable="trpg-line">
-<$let trpg-path={{{ [<trpg-line>locationpath[]] [<currentTiddler>!tag[Location]then<trpg-line>] +[!is[blank]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
-<%if [enlist<trpg-path>first[]] %>
-<div class="trpg-location-path"><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep">›</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list></div>
-<%endif%>
+<$list filter="[<currentTiddler>locationgroups[]]" variable="trpg-group">
+<$let trpg-path={{{ [<trpg-group>jsonget[path]] }}}
+	trpg-places={{{ [<trpg-group>jsonget[places]] }}}
+	trpg-paths={{{ [enlist<trpg-path>count[]] }}}
+	trpg-count={{{ [enlist<trpg-places>count[]] }}}>
+<div class="trpg-location-path"><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep">›</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list><%if [<trpg-paths>compare:number:gt[0]] :filter[<trpg-count>compare:number:gt[0]] %><span class="trpg-location-path-sep">›</span><%endif%><$list filter="[enlist<trpg-places>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep trpg-location-path-comma">,</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list></div>
 </$let>
 </$list>
-<$let trpg-rules={{{ [<currentTiddler>get[leader]enlist-input[]tag[Location]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
-<%if [enlist<trpg-rules>first[]] %>
-<div class="trpg-location-path trpg-location-rules"><$text text={{{ [[Relations/Rules]trpgtranslate[]addsuffix[: ]] }}}/><$list filter="[enlist<trpg-rules>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep trpg-location-path-comma">,</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list></div>
-<%endif%>
-</$let>
 <$list filter="[<currentTiddler>locationcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="trpg-key">
 <div class="trpg-date-invalid"><$text text={{{ [<trpg-key>trpgtranslate[]] }}}/></div>
 </$list>
-</$let>
 \end

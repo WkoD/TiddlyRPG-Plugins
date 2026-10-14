@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261014192337000
+modified: 20261014201354000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -82,7 +82,6 @@ Player/Former: Frühere Figuren
 Player/Player: Spieler:
 Relations/Graph: Graph
 Relations/List: Liste
-Relations/Rules: Kontrolliert
 Relations/Spot: Spot
 Rules/Check/Damage: Text prüfen: „$text$“ in <<damage>> ist kein bekanntes Schadenswort
 Rules/Check/DamageType: Text prüfen: <<damage "$text$">> nennt keine Schadensart
