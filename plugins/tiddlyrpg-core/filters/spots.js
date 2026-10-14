@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/spots.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261007170245412
+modified: 20261014180236000
 
 Filter operators on the spots of a location and the references to them (modules/spots.js).
 
@@ -20,12 +20,6 @@ Filter operators on the spots of a location and the references to them (modules/
 [<title>spotowner[]]          the locations that have <title> as a joined spot the view sees
 [<place>spotlinked[]]         the tiddlers that reference a spot of <place> with a <<spotlink>>
                               the view sees
-[<title>maptabs[]]            the battle map tabs of a location, as JSON
-                              {"id", "label", "file", "spot"}: first the battle maps of the
-                              field battlemap, then per spot those of its parameter and of the
-                              field battlemap of the tiddler it is joined to. The label is the
-                              location, with a spot its plain name; a number only if there is
-                              more than one map with the same label.
 
 \*/
 
@@ -113,42 +107,6 @@ exports.spotlinked = function(source,operator,options) {
 			if(results.indexOf(title) === -1 && spots.linksVisibly(wiki,title,place)) {
 				results.push(title);
 			}
-		});
-	});
-};
-
-exports.maptabs = function(source,operator,options) {
-	var wiki = options.wiki;
-	return each(source,function(title,results) {
-		var tiddler = wiki.getTiddler(title),
-			groups = [];
-		if(!tiddler) {
-			return;
-		}
-		groups.push({label: title, spot: "", files: spots.files(tiddler.fields.battlemap), key: "battlemap"});
-		$tw.utils.each(spots.visibleSpots(wiki,title),function(spot) {
-			var files = spots.files(spot.battlemap),
-				target = spots.targetOf(wiki,spot),
-				joined = target && target !== title ? wiki.getTiddler(target) : null;
-			if(joined) {
-				$tw.utils.each(spots.files(joined.fields.battlemap),function(file) {
-					if(files.indexOf(file) === -1) {
-						files.push(file);
-					}
-				});
-			}
-			groups.push({label: title + " " + spot.plain, spot: spot.plain, files: files, key: spots.anchor(spot.name).replace(/^spot-/,"battlemap-")});
-		});
-		$tw.utils.each(groups,function(group) {
-			$tw.utils.each(group.files,function(file,i) {
-				var numbered = group.files.length > 1;
-				results.push(JSON.stringify({
-					id: group.key + (numbered ? "-" + (i + 1) : ""),
-					label: group.label + (numbered ? " " + (i + 1) : ""),
-					file: file,
-					spot: group.spot
-				}));
-			});
 		});
 	});
 };

@@ -82,8 +82,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     temp folder
   - `location` - parents and places within (`filters/location.js`), occupants (items too), the
     checks of `locationcheck` (artifacts too), the path below the title, the relation list of a
-    location, the events of the places within, map tabs (map and battle maps, labels and order),
-    map buttons, event history, the lock, person view
+    location, the events of the places within, the maps (one without tabs, several as tabs named
+    after their files, the first with the graph), the spots below them with their images and
+    maps (not for a joined spot, not in the tooltip), the field image (tabs from two images on,
+    folder by type), map buttons, event history, the lock, person view
   - `views` - the rule of `trpg.visible` in every view (public, a player, the DM; active and
     former characters), the default view, the choices, campaign events through player
     characters, the page control, the page class, the marker of a secret, the `Player` hub, and
@@ -106,12 +108,12 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     phrases, units with pairs and kinds, tokens; calendar and currency pointing to their hubs
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
-    marks in the map tab, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
+    marks below the maps, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
     location, the events referencing a place
   - `text-sections` - the sections of a body (`modules/sections.js`, `widgets/sections.js`):
     short and block forms, numbering over both, nesting (with a kind registered in the test),
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
-    timeline, span, pills, `datesection`, spots and map tab, search, backlinks
+    timeline, span, pills, `datesection`, spots and the map, search, backlinks
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
     the band of the tiddler itself (one per phase, apart), the section lines as links, captions
     with macros, refresh
@@ -281,9 +283,10 @@ the tiddler title:
   `sections.js`: `trpg-body` (the transclude widget with the parse tree prepared section by
   section; `$only`, `$omit`, `$name`, `$marker`), `trpg-section` (one short section, made by
   `trpg-body`) and the block forms `date`, `spot`, `secret` - see "Sections".
-- **Macros** (`macros/*`): `image` (resolves the `image` field against `images/<folder>/`, folder
-  from the type tag, several images comma separated; battle maps as a link to the file),
-  `subtiddler` (renders `<title>/<sub>` sub-tiddlers).
+- **Macros** (`macros/*`): `image` (the images of the `image` field one below the other, folder
+  from the type tag through `modules/images.js`; for sub-tiddlers and the cards of the `Player`
+  hub - the view template shows them as tabs, `trpg.images`), `subtiddler` (renders
+  `<title>/<sub>` sub-tiddlers).
 - **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`trpgtranslate`, `trpgtitle`, `trpgtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
@@ -294,7 +297,8 @@ the tiddler title:
   `visiblelinks`, `trpgsearch`),
   `location.js` (`locationparent`, `locationpath`, `sublocations`, `occupants`,
   `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spotplain`,
-  `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`, `maptabs`),
+  `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
+  `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
   `relationsymmetric`, `relationtypes`, see "Relations"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
@@ -330,9 +334,10 @@ the tiddler title:
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
   references; contents `event-list/timeline` + `event-list/list`), `item`, `source` (the
   field `source`: where the images come from, "Source: …" below the body),
-  `location` (map block: tab "Map" if there is a map image, a spot or a place within, with
-  `location/map` - map graph, buttons, spots -, one tab
-  per battle map with `location/battlemap`; tab state per location, see "Locations"),
+  `location` (map block if there is a map, a spot or a place within: the first map with
+  `location/map` - map graph, buttons -, every further map as a tab of its own, tabs only from
+  two maps on; tab state per location; below it the spots, see "Locations"), `image` (the
+  field `image` through `trpg.images`: one image on its own, several as tabs),
   `location-path` (path below the title, with the hints of `locationcheck`, `itemcheck`,
   `sectioncheck`, `trpgrulecheck` and `macrocheck`),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
@@ -342,11 +347,11 @@ the tiddler title:
   and `body-filter-sections` (cascade, see below).
 - **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `date-section`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
-  rules, battle map width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
+  rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   dated sections, location pills), `location` (path, spot pills, spots, map buttons; static
   CSS, `type: text/css`) and `view` (bar of the view, page control, marker of a secret, cards
   of the `Player` hub; wikitext for the colour of `Player`).
-  **Templates** `templates/image`, `templates/body-locked`, `templates/body-sections` (body of
+  **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/title-translated`,
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
@@ -637,7 +642,8 @@ from wikitext right after `$action-navigate` comes before the refresh that shows
   that template. A mark inside a tab of `grouped-tabs` only exists while that tab is active:
   the jump sets the tab state first (`trpg-jump` attributes `tabstate`/`tab`). That needs an
   `explicitState` the caller can compute - the map tabs of a location use
-  `$:/state/tiddlyrpg-core/location-tab/<title>`.
+  `$:/state/tiddlyrpg-core/location-tab/<title>`; the spots stand below the maps, outside any
+  tab.
 - `action-trpg-jump` serves places without a link (a node of a graph). tw5-graph hands a node
   event to every enclosing `$properties` too, so an enclosing default action (open the node)
   must leave out nodes that are no tiddlers.
@@ -672,15 +678,27 @@ only call their operators.
   the model of the body. They are no TiddlyWiki links: no backlinks, not in "Missing"; renaming
   works through the relink configuration of the macro parameters.
 - A spot the view does not see (locked, or joined to a tiddler it does not see) is left out by
-  `spots.visibleSpots()`: the operators `spots`, `spottargets`, `maptabs`, the children and the
+  `spots.visibleSpots()`: the operators `spots`, `spottargets`, the children and the
   parent of a location (`filters/location.js`), `spotowner` and `spotlinked`.
 - `spots.index()` (global cache, whatever the view): which locations have a tiddler as spot
   (`spotowner`), which tiddlers reference a place with `<<spotlink>>` (`spotlinked`, used by the
   event list); the operators filter it by the view.
 - The body of a location shows its text without the spots (`templates/body-sections`,
-  `$omit="spot"`); the spots show in the tab "Map" below the map graph (`trpg-body`
-  `$only="spot"`), the text of one in the tooltip of its dot (`$name`, `$marker="no"`).
-- Map (`graph/templates/trpg-map`): background `images/map/<field map>`, drawn by
+  `$omit="spot"`); the spots show below the maps (`trpg-body` `$only="spot"`), the text of one
+  in the tooltip of its dot (`$name`, `$marker="no"`).
+- Images and maps (`modules/images.js`, filters `imagetabs`, `maptabs`, `imagelist`, procedure
+  `trpg.images`): one entry shows on its own, two or more as tabs labelled with the file name
+  without extension. The field `image` of every type (folder by type tag, `Information` in
+  `images/information/`), the field `map` of a location (`images/map/`; the first one carries
+  the graph, every further one is a tab with the image only; ids `map`, `map-<n>`), and a spot
+  without a tiddler of its own: `<<spot "Name" image:"a.jpg" map:"b.jpg">>` (images in
+  `images/location/`, maps in `images/map/`), tabs below its heading, its text below them. A
+  spot joined to a tiddler shows nothing of it - that tiddler shows its own images; nor does the
+  tooltip on the map (`trpg-spot-media="no"`). Tab states
+  `$:/state/tiddlyrpg-core/image-tab/<title>` and `.../spot-tab/<location>/<spot>`. There are no
+  battle maps of their own any more: they are maps; `scripts/check-wiki.js` warns about a
+  `battlemap` left over and about files that are not in `images/`.
+- Map (`graph/templates/trpg-map`): background the first file of the field `map`, drawn by
   `graph/map-fit.js` always 600 units wide (graph property `trpgMapImage`, not the `background`
   of tw5-vis-network, which draws in image pixels and shrinks nodes and labels on a large
   image); without the field an empty canvas. Fixed nodes are the places lying in the location

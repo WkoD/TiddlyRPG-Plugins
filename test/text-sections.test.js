@@ -150,8 +150,8 @@ test.describe("locks in the text", function() {
 		assert.deepEqual(map("player:Max"), ["Kai", "Markt"]);
 	});
 
-	test("a locked spot: not on the map, its text not in the tab", function() {
-		var tab = "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/map\" mode=\"block\"/>",
+	test("a locked spot: not on the map, its text not below it", function() {
+		var tab = "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location\" mode=\"block\"/>",
 			pub = inView("public", function() { return h.render(wiki, "text/html", tab, {currentTiddler: "Hafen"}); });
 		assert.ok(pub.indexOf("Am Wasser.") !== -1 && pub.indexOf("Verborgen.") === -1 && pub.indexOf("Odos Stand") === -1, pub);
 		assert.ok(inView("player:Max", function() { return h.render(wiki, "text/html", tab, {currentTiddler: "Hafen"}); }).indexOf("Odos Stand") !== -1);

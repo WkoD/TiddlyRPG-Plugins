@@ -81,6 +81,34 @@ test("phases of a non-event: a death before the return is fine, a phase without 
 	}
 });
 
+test("images and maps: a missing file, battlemap left over, images at a joined spot", function() {
+	write("images/map/Hafen.jpg", "");
+	write("images/location/Steg.jpg", "");
+	write("tiddlers/Hafen.tid", "title: Hafen\ntags: Location\nmap: Hafen.jpg, Kampf.jpg\nimage: Ufer.jpg\nbattlemap: Alt.jpg\n\n" +
+		"<<spot \"Steg\" image:\"Steg.jpg, Boot.jpg\" map:\"Plan.jpg\">>\n\nWooden.\n\n<<spot \"Kneipe\" image:\"Kneipe.jpg\">>\n\nA tavern.\n\n<<spot \"Alt\" battlemap:\"X.jpg\">>\n\nOld.\n");
+	write("tiddlers/Kneipe.tid", "title: Kneipe\ntags: Location\n\nThe tavern.\n");
+	try {
+		var result = check();
+		assert.equal(result.status, 0, result.out);
+		[
+			"warning  map: images/map/Kampf.jpg does not exist",
+			"warning  image: images/location/Ufer.jpg does not exist",
+			"warning  the field battlemap is no longer shown - battle maps go into the field map",
+			"warning  the parameter battlemap of a spot is no longer shown - battle maps go into map",
+			"warning  image of spot Steg: images/location/Boot.jpg does not exist",
+			"warning  map of spot Steg: images/map/Plan.jpg does not exist",
+			"hint  spot Kneipe is joined to Kneipe - its images and maps show there, set them in that tiddler"
+		].forEach(function(line) {
+			assert.ok(result.out.indexOf(line) !== -1, line + "\n" + result.out);
+		});
+		assert.doesNotMatch(result.out, /Hafen\.jpg does not exist|Steg\.jpg does not exist/);
+	} finally {
+		["images/map/Hafen.jpg", "images/location/Steg.jpg", "tiddlers/Hafen.tid", "tiddlers/Kneipe.tid"].forEach(function(file) {
+			fs.rmSync(path.join(dir, file), {force: true});
+		});
+	}
+});
+
 test("the field link: a warning, it is shown no more", function() {
 	write("tiddlers/Baile.tid", "title: Baile\ntags: Location\nlink: https://example.org/baile\n\nTown.\n");
 	try {

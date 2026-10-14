@@ -32,15 +32,15 @@ exports.boot = function() {
 function fixtures(wiki) {
 	var T = "20261001000000000";
 	[
-		{title: "Insel Avalon", tags: "Location", map: "Insel Avalon.jpg", battlemap: "Insel Avalon.jpg", text: "Island of the pirates.\n\n<<spot \"Kantine\">>\n\nAn orc cooks."},
+		{title: "Insel Avalon", tags: "Location", map: "Insel Avalon.jpg", text: "Island of the pirates.\n\n<<spot \"Kantine\">>\n\nAn orc cooks."},
 		{title: "Baile", tags: "Location", map: "Baile.png", text: "Town."},
 		// Locations within locations (filters/location.js) and spots (modules/spots.js)
 		{title: "Continent", tags: "Location", text: "A continent."},
 		{title: "Kingdom", tags: "Location", location: "Continent", text: "A kingdom.\n\n<<spot \"Twice\">>\n\nA place claimed twice."},
 		{title: "Neighbour", tags: "Location", location: "Kingdom", text: "Next door.\n\n<<spot \"Twice\">>\n\nClaimed again."},
 		{title: "Twice", tags: "Location", text: "A spot of two locations."},
-		{title: "Town", tags: "Location", location: "Kingdom", map: "Town.png", battlemap: "Market.jpg, Gate.jpg", text: "A town.\n\n<<spot \"Tavern\">>\n\nWhere they drink.\n\n<<spot \"Old Well\" battlemap:\"Well.jpg\">>\n\nDeep and dark.\n\n<<spot \"Tempel von [[Chauntea]]\">>\n\nA temple.\n\n<<spot \"Guild\">>\n\nThe guild house."},
-		{title: "Tavern", tags: "Location", battlemap: "Tavern.jpg", text: "The tavern."},
+		{title: "Town", tags: "Location", location: "Kingdom", map: "Town.png, Market.jpg, Gate.jpg", text: "A town.\n\n<<spot \"Tavern\">>\n\nWhere they drink.\n\n<<spot \"Old Well\" image:\"Well.jpg\" map:\"Well shaft.jpg\">>\n\nDeep and dark.\n\n<<spot \"Tempel von [[Chauntea]]\" image:\"Temple.jpg\">>\n\nA temple.\n\n<<spot \"Guild\" image:\"Guild house.jpg\">>\n\nThe guild house."},
+		{title: "Tavern", tags: "Location", image: "Tavern.jpg", text: "The tavern."},
 		{title: "Chauntea", tags: "Deity", text: "Goddess."},
 		{title: "Guild", tags: "Organisation", location: "Town Kingdom", leader: "Town", text: "Traders."},
 		{title: "Guildmaster", tags: "Person", location: "Town", leader: "Guild", text: "Leads the guild."},

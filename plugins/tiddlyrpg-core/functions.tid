@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014165746000
+modified: 20261014180236000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -181,12 +181,14 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- A spot of a location (modules/spots.js): <<spot "Name">>, <<spot "Tempel von [[Chauntea]]">>,
-     <<spot "Name" "Tiddler">>, <<spot "Name" battlemap:"a.jpg">>. Draws the heading of the
-     spot with the jump mark "spot-<name>". Joined to a tiddler (the second parameter, or a
-     tiddler with the plain name), the heading links to it; otherwise the name is rendered as
-     wikitext, links in it stay links. Its text and its place on the map come from the parse
-     tree, not from this procedure. -->
-\procedure spot(name,target,battlemap)
+     <<spot "Name" "Tiddler">>, <<spot "Name" image:"a.jpg, b.jpg" map:"c.jpg">>. Draws the
+     heading of the spot with the jump mark "spot-<name>". Joined to a tiddler (the second
+     parameter, or a tiddler with the plain name), the heading links to it and the tiddler shows
+     its own images; otherwise the name is rendered as wikitext, links in it stay links, and its
+     images (images/location/) and maps (images/map/) follow below the heading (trpg.images,
+     not in the tooltip of the map: trpg-spot-media="no"). Its text and its place on the map
+     come from the parse tree, not from this procedure. -->
+\procedure spot(name,target,image,map)
 \whitespace trim
 <$let trpg-target={{{ [<name>spottarget<target>] }}}>
 <h3 class="trpg-spot" data-trpg-anchor={{{ [<name>spotanchor[]] }}}>
@@ -196,6 +198,42 @@ type: text/vnd.tiddlywiki
 <$transclude $variable="name" $mode="inline"/>
 <%endif%>
 </h3>
+<%if [<trpg-target>is[blank]then[yes]] :filter[<trpg-spot-media>!match[no]then[yes]] %>
+<$transclude $variable="trpg.images"
+	entries="[<image>imagelist[location]] [<map>imagelist[map]]"
+	state={{{ [<name>spotplain[]addprefix[/]addprefix<currentTiddler>addprefix[$:/state/tiddlyrpg-core/spot-tab/]] }}}/>
+<%endif%>
+</$let>
+\end
+
+<!-- Images or maps of a tiddler or spot (filters/images.js): <entries> is a filter giving the
+     entries as JSON {id, label, path}. One shows on its own, two or more as tabs labelled with
+     the file names (tab state <state>). A click opens the file. -->
+\procedure trpg.images(entries,state)
+\whitespace trim
+<$let trpg-n={{{ [subfilter<entries>count[]] }}}>
+<%if [<trpg-n>match[1]] %>
+<$list filter="[subfilter<entries>]" variable="trpg-entry"><$transclude $variable="trpg.image" entry=<<trpg-entry>>/></$list>
+<%elseif [<trpg-n>compare:number:gt[1]] %>
+<$let trpg-ids={{{ [subfilter<entries>jsonget[id]format:titlelist[]join[ ]] }}}>
+<$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
+	tabsList=<<trpg-ids>>
+	default={{{ [enlist<trpg-ids>first[]] }}}
+	explicitState=<<state>>
+	class="trpg-image-tabs">
+<$fill $name=button><$text text={{{ [subfilter<entries>] :filter[jsonget[id]match<currentTab>] +[first[]jsonget[label]] }}}/></$fill>
+<$fill $name=body><$list filter="[subfilter<entries>] :filter[jsonget[id]match<currentTab>] +[first[]]" variable="trpg-entry"><$transclude $variable="trpg.image" entry=<<trpg-entry>>/></$list></$fill>
+</$transclude>
+</$let>
+<%endif%>
+</$let>
+\end
+
+<!-- One image or map: scaled to the width, a click opens the file -->
+\procedure trpg.image(entry)
+\whitespace trim
+<$let trpg-path={{{ [<entry>jsonget[path]] }}}>
+<div class="trpg-image"><a href={{{ [<trpg-path>encodeuri[]] }}} target="_blank" rel="noopener noreferrer"><$image source=<<trpg-path>>/></a></div>
 </$let>
 \end
 

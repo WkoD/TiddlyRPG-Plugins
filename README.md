@@ -318,13 +318,16 @@ Text of the spot, up to the next spot.
 
 <<spot "Tempel von [[Sola]]">>                  links in the name stay links
 <<spot "Anwesen" "Haus Kemri">>                  joined to another tiddler than the name says
-<<spot "Lagerhaus" battlemap:"a.jpg, b.jpg">>    with battle maps
+<<spot "Lagerhaus" image:"a.jpg, b.jpg" map:"c.jpg">>   with images and maps
 ```
 
 A spot whose plain name (the name without link brackets) is a tiddler is joined to it; if that
 tiddler is a location, it is a part of this location. The body shows the text without the
-spots; the spots and their texts appear in the tab "Map". The block form
-`<$spot name="…" target="…" battlemap="…">…</$spot>` is a spot with an end of its own; see
+spots; the spots appear below the maps of the location, each with its heading, then its
+images and maps (`image` from `images/location/`, `map` from `images/map/`; one on its own,
+two or more as tabs named after the files), then its text. A spot joined to a tiddler shows no
+images there: that tiddler shows its own. The block form
+`<$spot name="…" target="…" image="…" map="…">…</$spot>` is a spot with an end of its own; see
 "Sections in the text".
 
 **Referencing a spot** from an event or any other text:
@@ -334,26 +337,25 @@ spots; the spots and their texts appear in the tab "Map". The block form
 <<spotlink "Miehall" "[[Grauen Esel|Zum Grauen Esel]]">>   text|spot
 ```
 
-The link opens the location at its map tab and scrolls to the spot (a spot joined to a tiddler
+The link opens the location and scrolls to the spot (a spot joined to a tiddler
 opens that tiddler); in a dated section of an event it is also a pill "Schloss Baile (Baile)",
 and the event appears in the event list of Baile and every place above. A missing spot or
 location gives a hint for the editor.
 
 **Maps** of a location (no sub-tiddlers):
 
-- The tab "Map" (a location with a map image, spots or places within) shows a graph: the
+- The map (a location with a map image, spots or places within) shows a graph: the
   spots and the places within at fixed positions, each a dot with its name in a pill below it
   (filled for a tiddler, white and dashed for a spot without a tiddler of its own); they keep
   their size on screen when zooming. Hovering shows the text of a spot, a double click scrolls
   to it. Buttons: "Fit map", "Hide nodes"/"Show nodes", "Edit positions" (drag a node to place
   it; the position is saved in the field `map-positions` of the location - not in the
   published copy).
-- `map: Baile.png` - the map image from `images/map/`, drawn behind the graph across the full
-  width; without it the graph stands on an empty canvas.
-- `battlemap: a.jpg, b.jpg` - battle maps from `images/battlemap/`, one tab each; battle maps
-  of a spot come from its parameter `battlemap` (or the field `battlemap` of the tiddler it is
-  joined to). Tabs: `[Map] [Baile 1] [Baile 2] [Baile Taverne] [Baile Schloss 1] ...` - a
-  number only if there is more than one.
+- `map: Baile.png, Hafen.jpg` - the maps from `images/map/`, battle maps among them. The first
+  is drawn behind the graph across the full width; without one the graph stands on an empty
+  canvas. With two maps or more each is a tab named after its file (`[Baile] [Hafen]`), the
+  further ones show the image only; a click opens the file.
+- Below the maps the spots (see above).
 
 ## Items
 
@@ -395,8 +397,9 @@ body (PDF), not for a secret the active view does not see.
 ## Images and sources
 
 `image: Baile.jpg` shows an image from `images/<folder>/` (the folder of the type, e.g.
-`location`) below the body; several are separated by commas. Maps and battle maps of a location:
-see "Locations".
+`location`, `information` for the type `Information`) above the body; several are separated by
+commas and show as tabs named after the files (`image: Vogel.png, Hirsch.jpg` gives
+`[Vogel] [Hirsch]`). Maps of a location and images of a spot: see "Locations".
 
 **Source:** `source` is free text (wikitext) shown below a tiddler as "Source: …" - where its
 images come from: a link, the author, a license, several of them. It is shown to the views that

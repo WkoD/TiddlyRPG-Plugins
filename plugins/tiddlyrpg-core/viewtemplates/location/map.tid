@@ -1,15 +1,13 @@
 created: 20261006064449000
-modified: 20261007170245412
+modified: 20261014180236000
 title: $:/plugins/tiddlyrpg-core/viewtemplates/location/map
 type: text/vnd.tiddlywiki
 
-<!-- Tab "Map" of a location (viewtemplates/location): the map as a graph (graph/map, template
-     graph/templates/trpg-map) with its buttons - over the map image (field map) if there is one,
-     otherwise on an empty canvas -, below it the spots of the location with their texts, from
-     the parse tree of the body (trpg-body, widgets/sections.js): the procedure spot draws the
-     heading and jump mark "spot-<name>", a locked spot shows only to a view that sees it.
-     Buttons: "Fit map" (message trpg-map-fit through a messagerelay into the graph), "Hide
-     nodes"/"Show nodes" ($:/state/tiddlyrpg-core/map-nodes/<title>), "Edit positions"
+<!-- The first map of a location (viewtemplates/location): the map as a graph (graph/map,
+     template graph/templates/trpg-map) with its buttons - over the first map image (field map)
+     if there is one, otherwise on an empty canvas. The spots follow below the maps
+     (viewtemplates/location). Buttons: "Fit map" (message trpg-map-fit through a messagerelay
+     into the graph), "Hide nodes"/"Show nodes" ($:/state/tiddlyrpg-core/map-nodes/<title>), "Edit positions"
      ($:/state/tiddlyrpg-core/map-edit/<title>; not in the published copy, off while the nodes are
      hidden). The states are temporary and not saved with the location. -->
 \whitespace trim
@@ -42,8 +40,5 @@ type: text/vnd.tiddlywiki
 <$messagerelay name=<<trpg-relay>>/>
 </$graph.view>
 <%endif%>
-</div>
-<div class="trpg-spots">
-<$trpg-body $tiddler=<<currentTiddler>> $mode="block" $only="spot"/>
 </div>
 </$let>

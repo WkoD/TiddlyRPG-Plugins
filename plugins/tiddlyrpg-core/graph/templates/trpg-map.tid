@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261007170245412
+modified: 20261014180236000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -30,7 +30,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 </$let>
 \end trpg.fixed
 
-<!-- Map of the location <<currentNode>> (viewtemplates/location/map): its map image (field map,
+<!-- Map of the location <<currentNode>> (viewtemplates/location/map): its first map (field map,
      images/map/) as background, always 600 units wide and fitted to the width (vis-property
      trpg-map-fit, graph/map-fit.js); without an image
      an empty canvas fitted to the nodes. Fixed at the
@@ -52,14 +52,14 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 	trpg-places={{{ [<trpg-loc>sublocations:all[location]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
 <$graph>
 <$properties $for=graph $tiddler="$:/config/tiddlyrpg/graph/physics" />
-<$properties $for=graph trpgMapImage={{{ [<trpg-loc>get[map]encodeuri[]addprefix[images/map/]] }}} trpgMapFit={{{ [<trpg-loc>has[map]then[image]else[nodes]] }}} />
+<$properties $for=graph trpgMapImage={{{ [<trpg-loc>maptabs[]first[]jsonget[path]encodeuri[]] }}} trpgMapFit={{{ [<trpg-loc>has[map]then[image]else[nodes]] }}} />
 <!-- tw5-graph hands a node event to every enclosing $properties as well: open only real
      tiddlers, not the dots of spots (their own action jumps to their text) -->
 <$properties $for=nodes actions="<$list filter='[<nodeTiddler>is[tiddler]] [<nodeTiddler>is[shadow]] +[first[]]' variable='trpg-open'><$action-navigate $to=<<trpg-open>>/></$list>">
 <$properties.popup $enabled="yes">
 <$fill $name="tooltip">
 <%if [<nodeTiddler>prefix<trpg-loc>removeprefix<trpg-loc>prefix[#]] %>
-<$let trpg-name={{{ [<nodeTiddler>removeprefix<trpg-loc>removeprefix[#]] }}}>
+<$let trpg-name={{{ [<nodeTiddler>removeprefix<trpg-loc>removeprefix[#]] }}} trpg-spot-media="no">
 <$trpg-body $tiddler=<<trpg-loc>> $mode="block" $only="spot" $name=<<trpg-name>> $marker="no"/>
 </$let>
 <%else%>

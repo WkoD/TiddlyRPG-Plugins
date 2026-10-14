@@ -1,5 +1,5 @@
 created: 20200817115000561
-modified: 20261006064449000
+modified: 20261014180236000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/item
 type: text/vnd.tiddlywiki
@@ -12,8 +12,13 @@ margin:10px;
 text-align: justify;
 }
 
-/* Battle maps (viewtemplates/location/battlemap): scaled to the width, the link opens the original file */
-a.trpg-battlemap img {
+/* Images and maps (procedure trpg.images): centred, scaled to the width, the link opens the
+   original file */
+.trpg-image {
+text-align: center;
+}
+
+.trpg-image img {
 max-width: 100%;
 height: auto;
 }

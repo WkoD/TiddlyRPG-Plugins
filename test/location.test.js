@@ -311,12 +311,12 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("map tabs: Karte and the battle map", function() {
-		assert.ok(avalon.indexOf(">Karte<") !== -1 && avalon.indexOf("data-tab-title=\"battlemap\"") !== -1, avalon);
+	test("one map: no tabs, the map with its graph", function() {
+		assert.ok(avalon.indexOf('class="trpg-map"') !== -1 && avalon.indexOf('data-tab-title="map') === -1, avalon);
 	});
 
-	test("map tab: a rule parts it from the relations", function() {
-		var start = avalon.indexOf('data-tab-title="map"');
+	test("map: a rule parts it from the relations", function() {
+		var start = avalon.indexOf('class="trpg-map"');
 		assert.ok(start !== -1 && avalon.lastIndexOf("<hr>", start) > avalon.indexOf(">Graph<"), avalon);
 	});
 
@@ -347,20 +347,77 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("map tab for a location with places within only (no image, no spots)", function() {
+	test("map for a location with places within only (no image, no spots)", function() {
 		var html = h.view(wiki, "Continent");
-		assert.ok(html.indexOf(">Karte<") !== -1 && html.indexOf('class="trpg-map"') !== -1, html);
+		assert.ok(html.indexOf('class="trpg-map"') !== -1 && html.indexOf('data-tab-title="map') === -1, html);
 	});
 
-	test("battle map tab links to the file", function() {
-		var battlemap = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/battlemap\" mode=\"block\"/>", {currentTiddler: "Insel Avalon", currentTab: "battlemap"});
-		assert.ok(battlemap.indexOf('href="images/battlemap/Insel%20Avalon.jpg"') !== -1, battlemap);
-	});
-
-	test("tabs: Karte before the battle map, labels and numbers", function() {
+	test("several maps: a tab per map named after its file, the first with the graph", function() {
 		var town = h.view(wiki, "Town"),
-			labels = ["Karte", "Town 1", "Town 2", "Town Tavern", "Town Old Well"].map(function(s) { return town.indexOf("<span>" + s + "</span>"); });
+			labels = ["Town", "Market", "Gate"].map(function(s) { return town.indexOf("<span>" + s + "</span>"); });
 		assert.ok(labels.every(function(p, i) { return p !== -1 && (i === 0 || p > labels[i - 1]); }), town);
+		assert.ok(town.indexOf('data-tab-title="map"') !== -1 && town.indexOf('class="trpg-map"') !== -1, town);
+	});
+
+	test("a further map links to its file", function() {
+		h.add(wiki, {title: "$:/state/tiddlyrpg-core/location-tab/Town", text: "map-2"});
+		try {
+			var town = h.view(wiki, "Town");
+			assert.ok(town.indexOf('href="images/map/Market.jpg"') !== -1 && town.indexOf('class="trpg-map"') === -1, town);
+		} finally {
+			wiki.deleteTiddler("$:/state/tiddlyrpg-core/location-tab/Town");
+		}
+	});
+
+	test("spots below the maps, outside the tabs", function() {
+		var town = h.view(wiki, "Town"),
+			spots = town.indexOf('class="trpg-spots"');
+		assert.ok(spots > town.indexOf('class="trpg-map"') && town.indexOf("Deep and dark") > spots, town);
+	});
+
+	test("spot with an image and a map: tabs below its heading, the text below them", function() {
+		var town = h.view(wiki, "Town"),
+			heading = town.indexOf('data-trpg-anchor="spot-old-well"'),
+			well = town.indexOf("<span>Well</span>"),
+			shaft = town.indexOf("<span>Well shaft</span>");
+		assert.ok(heading !== -1 && heading < well && well < shaft && shaft < town.indexOf("Deep and dark"), town);
+		assert.ok(town.indexOf('href="images/location/Well.jpg"') !== -1, town);
+	});
+
+	test("spot with one image: no tabs", function() {
+		var town = h.view(wiki, "Town"),
+			temple = town.slice(town.indexOf('data-trpg-anchor="spot-tempel-von-chauntea"'));
+		assert.ok(temple.indexOf('href="images/location/Temple.jpg"') !== -1 && temple.indexOf("<span>Temple</span>") === -1, temple);
+	});
+
+	test("a spot joined to a tiddler: its images show there, not at the location", function() {
+		var town = h.view(wiki, "Town");
+		assert.ok(town.indexOf("Tavern.jpg") === -1 && town.indexOf("Guild house.jpg") === -1, town);
+		assert.ok(h.view(wiki, "Tavern").indexOf('href="images/location/Tavern.jpg"') !== -1);
+	});
+
+	test("the field image: one without tabs, several as tabs named after the files", function() {
+		var added = [
+			{title: "Pic One", tags: "Person", image: "Face.jpg"},
+			{title: "Pic Two", tags: "Person", image: "Front.png, Side view.png"},
+			{title: "Pic Info", tags: "Information", image: "Note.png"}
+		];
+		added.forEach(function(fields) { h.add(wiki, fields); });
+		try {
+			var one = h.view(wiki, "Pic One"),
+				two = h.view(wiki, "Pic Two");
+			assert.ok(one.indexOf('href="images/person/Face.jpg"') !== -1 && one.indexOf("<span>Face</span>") === -1, one);
+			assert.ok(two.indexOf("<span>Front</span>") !== -1 && two.indexOf("<span>Front</span>") < two.indexOf("<span>Side view</span>"), two);
+			assert.ok(two.indexOf('href="images/person/Front.png"') !== -1 && two.indexOf("Side%20view.png") === -1, two);
+			assert.ok(h.view(wiki, "Pic Info").indexOf('href="images/information/Note.png"') !== -1);
+		} finally {
+			added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		}
+	});
+
+	test("no images of a spot in the tooltip of the map", function() {
+		var tip = h.render(wiki, "text/html", "<$let trpg-spot-media=\"no\"><$trpg-body $tiddler=\"Town\" $mode=\"block\" $only=\"spot\" $name=\"Old Well\" $marker=\"no\"/></$let>");
+		assert.ok(tip.indexOf("Deep and dark") !== -1 && tip.indexOf("Well.jpg") === -1, tip);
 	});
 
 	test("history header with era", function() {
@@ -384,13 +441,13 @@ test.describe("de-DE", function() {
 		assert.ok(avalon.indexOf("Friggs Traum") !== -1);
 	});
 
-	test("location with a map only: one tab", function() {
+	test("location with a map only: the map, no tabs", function() {
 		var baile = h.view(wiki, "Baile");
-		assert.ok(baile.indexOf(">Karte<") !== -1 && baile.indexOf("data-tab-title=\"battlemap") === -1);
+		assert.ok(baile.indexOf('class="trpg-map"') !== -1 && baile.indexOf('data-tab-title="map') === -1);
 	});
 
-	test("location without map, spots and places within: no map tab", function() {
-		assert.ok(h.view(wiki, "Nowhere").indexOf(">Karte<") === -1);
+	test("location without map, spots and places within: no map", function() {
+		assert.ok(h.view(wiki, "Nowhere").indexOf('class="trpg-map"') === -1);
 	});
 
 	test("relation list heading", function() {
@@ -421,11 +478,6 @@ test.describe("de-DE", function() {
 test.describe("en-GB", function() {
 	test.before(function() {
 		h.setLanguage(wiki, "en-GB");
-	});
-
-	test("en tabs", function() {
-		var avalon = h.view(wiki, "Insel Avalon");
-		assert.ok(avalon.indexOf(">Map<") !== -1 && avalon.indexOf("<span>Insel Avalon</span>") !== -1);
 	});
 
 	test("en history header", function() {

@@ -27,11 +27,14 @@
  *            view that sees the transcluding tiddler); a macro nothing defines (it shows
  *            nothing, modules/macros-check.js); a rules macro with a text the
  *            ruleset does not understand (modules/rules.js); the field link (shown no more, the
- *            source of the images goes into the field source)
+ *            source of the images goes into the field source); an image or map that is not in
+ *            images/ (fields image and map, the parameters image and map of a spot); battlemap
+ *            as a field or a parameter of a spot (shown no more, battle maps go into map)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
  *            heading; text before the first placeholder; an event without date; a phase
  *            of a non-event without an end before a later one (dates.openPhases); ".." as
- *            start of a non-event
+ *            start of a non-event; images or maps at a spot joined to a tiddler (they show in
+ *            that tiddler)
  *
  * Exit code 1 if there is an error.
  */
@@ -113,6 +116,45 @@ $tw.boot.boot(function() {
 		});
 		return out;
 	};
+	// Images and maps (modules/images.js): a file that is not in the folder of the wiki, battle
+	// maps left over, images of a spot that is joined to a tiddler (they show there, not here)
+	var images = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/images.js"),
+		spots = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/spots.js");
+	var checkImages = function(tiddler, title) {
+		var fields = tiddler.fields,
+			folder = images.folderOf(tiddler);
+		var missing = function(list, dir, what) {
+			$tw.utils.each(images.files(list), function(file) {
+				if(!fs.existsSync(path.join(wikiDir, "images", dir, file))) {
+					add(title, "warning", what + ": images/" + dir + "/" + file + " does not exist");
+				}
+			});
+		};
+		if(folder) {
+			missing(fields.image, folder, "image");
+		}
+		missing(fields.map, "map", "map");
+		if(fields.battlemap !== undefined) {
+			add(title, "warning", "the field battlemap is no longer shown - battle maps go into the field map");
+		}
+		if(/<<spot\s[^>]*battlemap\s*:|<\$spot\s[^>]*battlemap\s*=/.test(fields.text || "")) {
+			add(title, "warning", "the parameter battlemap of a spot is no longer shown - battle maps go into map");
+		}
+		if(!tiddler.hasTag("Location")) {
+			return;
+		}
+		$tw.utils.each(spots.read(wiki, title).spots, function(spot) {
+			var target = spots.targetOf(wiki, spot);
+			if(target && wiki.tiddlerExists(target)) {
+				if(spot.image || spot.map) {
+					add(title, "hint", "spot " + spot.plain + " is joined to " + target + " - its images and maps show there, set them in that tiddler");
+				}
+			} else {
+				missing(spot.image, "location", "image of spot " + spot.plain);
+				missing(spot.map, "map", "map of spot " + spot.plain);
+			}
+		});
+	};
 	wiki.each(function(tiddler, title) {
 		if(wiki.isSystemTiddler(title) && !/^\$:\/graph\//.test(title)) {
 			return;
@@ -147,6 +189,7 @@ $tw.boot.boot(function() {
 		if(fields.link !== undefined) {
 			add(title, "warning", "the field link is no longer shown - where the images come from goes into the field source");
 		}
+		checkImages(tiddler, title);
 		if(/\$:\/state\/tiddlyrpg\/view|trpg\.visible|trpgvisible/.test(text)) {
 			add(title, "warning", "asks the view itself - lock with the tag Secret, <<secret>> or <$secret>");
 		}

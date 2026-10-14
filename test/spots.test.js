@@ -23,8 +23,9 @@ function f(text, variables) {
 	return Array.from(h.filter(wiki, text, variables));
 }
 
-function mapTab(title) {
-	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/map\" mode=\"block\"/>", {currentTiddler: title});
+// The maps of a location with its spots below them (viewtemplates/location)
+function mapBlock(title) {
+	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location\" mode=\"block\"/>", {currentTiddler: title, storyTiddler: title});
 }
 
 test.describe("reading", function() {
@@ -91,23 +92,23 @@ test.describe("body and map tab", function() {
 		assert.notDeepEqual(f("[[Baile]]" + cascade), ["$:/plugins/tiddlyrpg-core/templates/body-sections"]);
 	});
 
-	test("map tab: heading of a joined spot links to the tiddler", function() {
-		assert.match(mapTab("Town"), /<h3 class="trpg-spot" data-trpg-anchor="spot-tavern"><a class="tc-tiddlylink tc-tiddlylink-resolves" href="#Tavern">Tavern<\/a><\/h3>/);
+	test("spots: heading of a joined spot links to the tiddler", function() {
+		assert.match(mapBlock("Town"), /<h3 class="trpg-spot" data-trpg-anchor="spot-tavern"><a class="tc-tiddlylink tc-tiddlylink-resolves" href="#Tavern">Tavern<\/a><\/h3>/);
 	});
 
-	test("map tab: a link in the name stays a link", function() {
-		assert.match(mapTab("Town"), /data-trpg-anchor="spot-tempel-von-chauntea">Tempel von <a [^>]*href="#Chauntea">Chauntea<\/a><\/h3>/);
+	test("spots: a link in the name stays a link", function() {
+		assert.match(mapBlock("Town"), /data-trpg-anchor="spot-tempel-von-chauntea">Tempel von <a [^>]*href="#Chauntea">Chauntea<\/a><\/h3>/);
 	});
 
-	test("map tab: the texts follow their headings", function() {
-		var html = mapTab("Town");
+	test("spots: the texts follow their headings", function() {
+		var html = mapBlock("Town");
 		assert.ok(html.indexOf("spot-old-well") < html.indexOf("Deep and dark.") && html.indexOf("Deep and dark.") < html.indexOf("spot-tempel-von-chauntea"), html);
 	});
 
 	test("location without map image: the graph with its buttons, the spots", function() {
 		h.add(wiki, {title: "Village", tags: "Location", text: "Small.\n\n<<spot \"Inn\">>\n\nBeds."});
 		try {
-			var html = mapTab("Village");
+			var html = mapBlock("Village");
 			assert.ok(html.indexOf("spot-inn") !== -1 && html.indexOf("trpg-map-buttons") !== -1 && html.indexOf('class="trpg-map"') !== -1, html);
 		} finally {
 			wiki.deleteTiddler("Village");

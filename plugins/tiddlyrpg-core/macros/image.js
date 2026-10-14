@@ -9,6 +9,8 @@ module-type: macro
 /*global $tw: false */
 "use strict";
 
+var images = require("$:/plugins/tiddlyrpg-core/modules/images.js");
+
 exports.name = "image";
 
 exports.params = [
@@ -16,62 +18,22 @@ exports.params = [
    { name: "parent" }
 ];
 
-// Image folder per type tag (images/<folder>/); the first matching tag wins
-var FOLDERS = [
-   {tags: ["Event"], folder: "event"},
-   {tags: ["Artifact", "Item", "Material"], folder: "item"},
-   {tags: ["Organisation"], folder: "organisation"},
-   {tags: ["Location"], folder: "location"},
-   {tags: ["Person", "Deity"], folder: "person"},
-   {tags: ["Player"], folder: "player"}
-];
-
 /*
-Run the macro
+The images of the field image of <title> one below the other, in the folder of its type tag
+(modules/images.js); a tiddler without a type takes the folder of <parent> (sub-tiddlers,
+macros/subtiddler.js). The view template shows them as tabs instead (procedure trpg.images).
 */
 exports.run = function(title, parent) {
-   var tiddler = this.wiki.getTiddler(title);
-   var ptiddler = this.wiki.getTiddler(parent);
+   var tiddler = this.wiki.getTiddler(title),
+      ptiddler = this.wiki.getTiddler(parent),
+      folder = tiddler && (images.folderOf(tiddler) || (ptiddler && images.folderOf(ptiddler)));
 
-   var ret = "";
-
-   if (tiddler && tiddler.fields.image) {
-      var images = tiddler.fields.image.split(",");
-
-      for (var i = 0; i < images.length; ++i) {
-         // "a.png, b.png" -> without spaces; skip empty entries (e.g. a trailing comma)
-         var name = images[i].trim();
-
-         if (name) {
-            ret += buildImage(tiddler, ptiddler, name);
-         }
-      }
+   if (!tiddler || !folder) {
+      return "";
    }
-
-   return ret;
-};
-
-function folderOf(tiddler) {
-   for (var i = 0; i < FOLDERS.length; ++i) {
-      for (var j = 0; j < FOLDERS[i].tags.length; ++j) {
-         if (tiddler.hasTag(FOLDERS[i].tags[j])) {
-            return FOLDERS[i].folder;
-         }
-      }
-   }
-   return null;
-}
-
-function buildImage(tiddler, ptiddler, name) {
-   var folder = folderOf(tiddler);
-
-   if (!folder) {
-      return ptiddler ? buildImage(ptiddler, null, name) : "";
-   }
-
-   // The map image (field map) and battle maps (field battlemap) of a location have their own
-   // tabs (viewtemplates/location), not this macro
-   return "[img[images/" + folder + "/" + name + "]]";
+   return images.files(tiddler.fields.image).map(function(name) {
+      return "[img[images/" + folder + "/" + name + "]]";
+   }).join("");
 };
 
 })();

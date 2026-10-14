@@ -296,15 +296,16 @@ test.describe("sweep", function() {
 			{title: "Qx7 Ort", tags: "Location Secret", location: "Town", text: "Qx7 house."},
 			{title: "Qx7 Fest", tags: "Event Secret", date: "1399-02-01", text: "At [[Baile]]."},
 			{title: "Sweep Bund", tags: "Organisation", location: "Baile [[Qx7 Ort]]", bond: "[[Qx7 Akte]]", text: "A league."},
-			{title: "Sweep Burg", tags: "Location", location: "Baile", text: "A castle.\n\n<<spot \"Hof\">>\n\nOpen.\n\n<<secret>><<spot \"Qx7 Kammer\">>\n\nQx7 room."},
+			{title: "Sweep Burg", tags: "Location", location: "Baile", text: "A castle.\n\n<<spot \"Hof\">>\n\nOpen.\n\n<<secret>><<spot \"Qx7 Kammer\" image:\"Qx7bild.jpg, Qx7zwei.jpg\" map:\"Qx7plan.jpg\">>\n\nQx7 room."},
 			// The caption of the locked section holds a rules macro: heading, timeline (card and
 			// tooltip) and event table render it, none of them in the public view
 			{title: "Sweep Treffen", tags: "Event Frigg [[Qx7 Akte]]", date: "1351-08-01, 1399-01-01",
 				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			// A locked item with a price (and the hint on it)
 			{title: "Qx7 Klinge", tags: "Item Secret", price: "1399 Qx7"},
-			// The source of the images of a locked tiddler (field source)
-			{title: "Qx7 Karte", tags: "Location Secret", location: "Baile", source: "Qx7src"},
+			// The source of the images of a locked tiddler (field source), its images and maps as tabs
+			{title: "Qx7 Karte", tags: "Location Secret", location: "Baile", source: "Qx7src",
+				image: "Qx7a.jpg, Qx7b.jpg", map: "Qx7m1.jpg, Qx7m2.jpg"},
 			// Rules macros in a locked section: their text and the hint on what is not understood
 			{title: "Sweep Regeln", tags: "Location", location: "Baile",
 				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>."},
@@ -376,7 +377,8 @@ test.describe("sweep", function() {
 
 	test("the DM: every secret shows, so the sweep reaches them", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
-		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src", YEAR].forEach(function(word) {
+		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
+			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

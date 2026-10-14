@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261007170000000
+modified: 20261014180236000
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -110,7 +110,7 @@ register("date",{
 
 register("spot",{
 	types: ["Location"],
-	// <<spot "Name" "Tiddler" battlemap:"a.jpg">>; <$spot name="Name" target="Tiddler" battlemap="a.jpg">
+	// <<spot "Name" "Tiddler" image:"a.jpg" map:"b.jpg">>; <$spot name="Name" target="Tiddler" image="a.jpg" map="b.jpg">
 	params: function(node) {
 		var name = attribute(node,"name"),
 			target = attribute(node,"target");
@@ -120,7 +120,8 @@ register("spot",{
 		if(target === undefined) {
 			target = attribute(node,"1") || "";
 		}
-		return {name: name, plain: plain(name), target: target.trim(), battlemap: attribute(node,"battlemap") || ""};
+		return {name: name, plain: plain(name), target: target.trim(), image: attribute(node,"image") || "",
+			map: attribute(node,"map") || ""};
 	},
 	// A spot joined to a tiddler the view does not see is not seen either
 	visible: function(wiki,record,view) {

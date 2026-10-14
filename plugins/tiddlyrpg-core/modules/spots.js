@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/spots.js
 type: application/javascript
 module-type: library
 created: 20261006064449000
-modified: 20261007170245412
+modified: 20261014180236000
 
 Spots: the places of interest of a location, written in its body - the one place of these rules.
 Used by the spot filters (filters/spots.js), the location rules (filters/location.js) and the
@@ -12,8 +12,8 @@ dated sections of a body (modules/dates.js, for <<spotlink>>).
   <<spot "Schloss Baile">>                        a spot; its text runs to the next marker
   <<spot "Tempel von [[Chauntea]]">>              the name may hold wikitext (links stay links)
   <<spot "Anzeige" "Tiddler">>                    joined to another tiddler than the name says
-  <<spot "Schloss" battlemap:"a.jpg, b.jpg">>     with battle maps (images/battlemap/)
-  <$spot name="Schloss" target="Tiddler" battlemap="a.jpg">...</$spot>   the block form
+  <<spot "Schloss" image:"a.jpg, b.jpg" map:"c.jpg">>   with images and maps (modules/images.js)
+  <$spot name="Schloss" target="Tiddler" image="a.jpg">...</$spot>   the block form
 
 The plain name of a spot (anchor, node label, target of <<spotlink>>) is its name with every
 link replaced by its visible text. The spot is joined to a tiddler if one has its plain name, or
@@ -69,15 +69,10 @@ exports.anchor = function(name) {
 	return "spot-" + text.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
 };
 
-// Battle maps of a field or parameter: "a.jpg, b.jpg" -> ["a.jpg", "b.jpg"]
-exports.files = function(text) {
-	return (text || "").split(",").map(function(s) { return s.trim(); }).filter(function(s) { return !!s; });
-};
-
 /*
 The spots and spot references of a tiddler (cached per tiddler):
-  spots     [{id, name, plain, target, battlemap, start, end}] in document order; target is the
-            second parameter as written (or ""), battlemap the parameter; id: the section
+  spots     [{id, name, plain, target, image, map, start, end}] in document order; target is the
+            second parameter as written (or ""), image and map the parameters; id: the section
             (modules/sections.js)
   links     [{place, spot, text, start, id}] - the <<spotlink>> calls; id: the innermost
             section they stand in, -1 for none
@@ -90,7 +85,7 @@ var read = exports.read = function(wiki,title) {
 		$tw.utils.each(model.records,function(record) {
 			if(record.kind === "spot" && record.counts) {
 				found.push({id: record.id, name: record.params.name, plain: record.params.plain, target: record.params.target,
-					battlemap: record.params.battlemap, start: record.start, end: record.end});
+					image: record.params.image, map: record.params.map, start: record.start, end: record.end});
 			}
 		});
 		$tw.utils.each(model.spotlinks,function(link) {
