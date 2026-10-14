@@ -47,12 +47,8 @@ test.describe("de-DE", function() {
 		assert.equal(f("[[Location]trpgtitle[]]"), "Ort");
 	});
 
-	test("trpgtitle sub-tiddler", function() {
-		assert.equal(f("[[Insel Avalon/Map]trpgtitle[]]"), "Insel Avalon/Karte");
-	});
-
 	test("trpgtitle without existing parent", function() {
-		assert.equal(f("[[Foo/Map]trpgtitle[]]"), "Foo/Map");
+		assert.equal(f("[[Foo/Campaign]trpgtitle[]]"), "Foo/Campaign");
 	});
 
 	test("trpgtitle TBC/Campaign", function() {

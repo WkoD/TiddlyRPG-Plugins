@@ -284,9 +284,8 @@ the tiddler title:
   section; `$only`, `$omit`, `$name`, `$marker`), `trpg-section` (one short section, made by
   `trpg-body`) and the block forms `date`, `spot`, `secret` - see "Sections".
 - **Macros** (`macros/*`): `image` (the images of the `image` field one below the other, folder
-  from the type tag through `modules/images.js`; for sub-tiddlers and the cards of the `Player`
-  hub - the view template shows them as tabs, `trpg.images`), `subtiddler` (renders
-  `<title>/<sub>` sub-tiddlers).
+  from the type tag through `modules/images.js`; for the cards of the `Player` hub - the view
+  template shows them as tabs, `trpg.images`).
 - **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`trpgtranslate`, `trpgtitle`, `trpgtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
@@ -475,8 +474,8 @@ Of each type one is active, chosen in
   from the input:** in filters use the operators directly (`[<title>trpgtitle[]]`,
   `[<type>addprefix[Plural/]trpgtranslate[]]`), in wikitext the functions as macros
   (`<<trpg.t Event/Year>>` - plain text, wrapped in `<p>` in block mode).
-- Display names of titles: `Title/<title>`; a sub-tiddler `<parent>/<leaf>` whose parent exists
-  shows the translated leaf (`Insel Avalon/Map` -> "Insel Avalon/Karte"). Used by the title
+- Display names of titles: `Title/<title>`; a title `<parent>/<leaf>` whose parent exists
+  shows the translated leaf (`TBC/Campaign` -> "TBC/Kampagne"). Used by the title
   cascade (`config/title-translated`), the tag pill override, the search and the hub lists.
 - **Texts that need refreshing go through filtered attributes, not JS macros.** A JS macro call
   only re-renders when its parameters change; a filtered attribute is recomputed on every

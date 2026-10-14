@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261011160657000
+modified: 20261014181914000
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back
@@ -63,9 +63,9 @@ exports.t = function(wiki,key) {
 	return text === null ? key : text;
 };
 
-// Display name of a tiddler title: Title/<title> if present; otherwise, for a sub-tiddler
+// Display name of a tiddler title: Title/<title> if present; otherwise, for a title
 // "<parent>/<leaf>" whose parent exists, the parent plus the translated leaf
-// ("Insel Avalon/Map" -> "Insel Avalon/Karte"); otherwise the title unchanged
+// ("TBC/Campaign" -> "TBC/Kampagne"); otherwise the title unchanged
 exports.title = function(wiki,title) {
 	var text = lookup(wiki,"Title/" + title);
 	if(text !== null) {

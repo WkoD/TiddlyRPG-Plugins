@@ -14,19 +14,17 @@ var images = require("$:/plugins/tiddlyrpg-core/modules/images.js");
 exports.name = "image";
 
 exports.params = [
-   { name: "title" },
-   { name: "parent" }
+   { name: "title" }
 ];
 
 /*
 The images of the field image of <title> one below the other, in the folder of its type tag
-(modules/images.js); a tiddler without a type takes the folder of <parent> (sub-tiddlers,
-macros/subtiddler.js). The view template shows them as tabs instead (procedure trpg.images).
+(modules/images.js) - for the cards of the Player hub. The view template shows them as tabs
+instead (procedure trpg.images).
 */
-exports.run = function(title, parent) {
+exports.run = function(title) {
    var tiddler = this.wiki.getTiddler(title),
-      ptiddler = this.wiki.getTiddler(parent),
-      folder = tiddler && (images.folderOf(tiddler) || (ptiddler && images.folderOf(ptiddler)));
+      folder = tiddler && images.folderOf(tiddler);
 
    if (!tiddler || !folder) {
       return "";
