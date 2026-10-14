@@ -29,8 +29,9 @@
  *            ruleset does not understand (modules/rules.js); the field link (shown no more, the
  *            source of the images goes into the field source)
  *   hint     an event without <<date>> (every event starts with one); sections that have no
- *            heading; text before the first placeholder; an event without date; several
- *            sections or ".." as start of a non-event
+ *            heading; text before the first placeholder; an event without date; a phase
+ *            of a non-event without an end before a later one (dates.openPhases); ".." as
+ *            start of a non-event
  *
  * Exit code 1 if there is an error.
  */
@@ -131,8 +132,10 @@ $tw.boot.boot(function() {
 					add(title, "warning", warning);
 				});
 			}
-			if(!event && parsed.sections.length > 1) {
-				add(title, "hint", "several sections for a non-event: " + fields.date);
+			if(!event) {
+				$tw.utils.each(dates.openPhases(parsed), function(section) {
+					add(title, "hint", "a phase without an end before a later one: " + section.text);
+				});
 			}
 			if(!event && parsed.sections.length && parsed.sections[0].start === dates.FOREVER) {
 				add(title, "hint", "\"..\" as start (since time immemorial)");

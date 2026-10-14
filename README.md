@@ -434,9 +434,14 @@ span. Elsewhere in the list it cannot be read.
 | `1322` | person born 1322, alive (a single point of a non-event is the start) |
 | `1300/1351`, `./1339`, `./.` | dead: dates known, birth unknown, both unknown |
 | `../..` | a deity since time immemorial |
+| `./1351, 1355` | person who died 1351 and is back since 1355 (alive) |
+| `./1351, ./1380` | back at an unknown time, dead again since 1380 |
 
 A non-event whose last section is a span with an end other than `..` counts as dead or
 destroyed (function `trpg.dead`: struck-through links, the class `trpg-dead`, the atlas).
+Several sections of a non-event are its phases: each but the last has to end (a death before
+the return), `scripts/check-wiki.js` gives a hint otherwise. The date line below the tags shows
+the last phase only, the timeline a band per phase with a gap between them.
 
 **Dated sections in the body of an event.** The dates stay in the field; the body only marks
 where each section begins:

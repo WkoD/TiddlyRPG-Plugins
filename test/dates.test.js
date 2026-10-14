@@ -133,6 +133,15 @@ test.describe("de-DE", function() {
 		assert.equal(f("[[1351/..]dateformat:year,era[]]"), "1351 DR – ????");
 	});
 
+	test("dateformat: last - the current phase of a non-event after a death and a return", function() {
+		assert.equal(f("[[./1351, 1355]dateformat:year,era,last[]]"), "1355 DR");
+		assert.equal(f("[[./., 1355]dateformat:year,era,last[]]"), "1355 DR");
+		assert.equal(f("[[./1351, ./1380]dateformat:year,era,last[]]"), "???? – 1380 DR");
+		assert.equal(f("[[1200/1351-04-14]dateformat:year,era,last[]]"), "1200 – 1351 DR");
+		assert.equal(f("[[./1351, ./1380]dateformat:year,era[]]"), "???? – 1380 DR");
+		assert.equal(f("[[./1351, 1355]dateformat:year,era[]]"), "???? – 1355 DR");
+	});
+
 	test("dateformat: long form for the calculator", function() {
 		assert.equal(f("[[1351-01-31]dateformat:long[]]"), "//1351 DR//<br>//Mittwinter (01/02)//");
 		assert.equal(f("[[1351-07-01-10:00]dateformat:long[]]"), "//1351 DR//<br>//01. Flamerule (07) 10:00 Uhr//");

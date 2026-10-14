@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261010075834000
+modified: 20261014165746000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -31,7 +31,9 @@ behind the lanes; its dates also set anchors. A single point of a non-event is a
 open end. An open end ("..", alive) runs to the top of the axis and fades out there: no end yet.
 An unknown start fades in from the first mention (the earliest event shown); without any known
 day - also without a date - the band fades in from the first mention to the last, see
-collectBand. The band is labelled with the years of its known sides only, and is at least as
+collectBand. Several sections of a non-event are phases (a death, then a return), one band
+each: an unknown side of a phase only looks at the mentions between its neighbours and never
+reaches into them. The band is labelled with the years of its known sides only, and is at least as
 wide as these labels.
 
 At most L.maxLanes lanes: where more spans run side by side, they merge into one beam of that
@@ -365,15 +367,34 @@ TimelineWidget.prototype.collectBand = function(C,events) {
 			lo: Math.min.apply(null,events.map(function(ev) { return ev.start; })),
 			hi: Math.max.apply(null,events.map(function(ev) { return ev.end; }))
 		} : null,
+		all = [],
 		secs = [];
 	$tw.utils.each(parsed.sections,function(section,i) {
-		if(hidden[i + 1]) {
-			return;
+		if(!hidden[i + 1]) {
+			var end = section.range || event ? section.end : FOREVER;
+			all.push(daysOf(C,section,i + 1,section.start,end,true));
 		}
-		var end = section.range || event ? section.end : FOREVER,
-			s = daysOf(C,section,i + 1,section.start,end,true);
-		if(s.start === UNKNOWN_SIDE && mentions && (s.lo === undefined || mentions.lo < s.lo)) {
-			s.mentions = mentions;
+	});
+	// Several sections of a non-event are phases (a death, then a return): an unknown side of a
+	// phase only looks at the mentions after the phase before it and before the next one, and
+	// layout() keeps it out of them (s.from/s.to, days). An event is one whole.
+	$tw.utils.each(all,function(s,k) {
+		var m = mentions;
+		if(!event && all.length > 1) {
+			var prev = all[k - 1],
+				next = all[k + 1],
+				from = prev ? (prev.hi !== undefined ? prev.hi : (prev.mentions ? prev.mentions.hi : -Infinity)) : -Infinity,
+				to = next && next.lo !== undefined ? next.lo : Infinity,
+				inside = events.filter(function(ev) { return ev.start > from && ev.start < to; });
+			m = inside.length ? {
+				lo: Math.min.apply(null,inside.map(function(ev) { return ev.start; })),
+				hi: Math.min(to,Math.max.apply(null,inside.map(function(ev) { return ev.end; })))
+			} : null;
+			s.from = from;
+			s.to = to;
+		}
+		if(s.start === UNKNOWN_SIDE && m && (s.lo === undefined || m.lo < s.lo)) {
+			s.mentions = m;
 		} else if(s.lo === undefined && !(s.start === FOREVER && s.end === FOREVER)) {
 			return;
 		}
@@ -558,6 +579,18 @@ TimelineWidget.prototype.layout = function() {
 				if(s.mentions) {
 					s.y0 = Math.min(s.y0,yOf(s.mentions.lo));
 				}
+			}
+			// A phase of a non-event never reaches into its neighbours (collectBand)
+			if(s.from !== undefined && isFinite(s.from)) {
+				var top = yOf(s.from);
+				s.y0 = s.y0 === null ? top : Math.max(s.y0,top);
+				s.yAt = Math.max(s.yAt,s.y0);
+				s.solid0 = Math.max(s.solid0,s.y0);
+			}
+			if(s.to !== undefined && isFinite(s.to)) {
+				var bottomOf = yOf(s.to);
+				s.y1 = s.y1 === null ? bottomOf : Math.min(s.y1,bottomOf);
+				s.solid1 = s.solid1 === null ? s.y1 : Math.min(s.solid1,s.y1);
 			}
 			if(s.y1 === null) {
 				anyForeverEnd = true;

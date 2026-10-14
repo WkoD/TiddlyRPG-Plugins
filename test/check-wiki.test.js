@@ -2,7 +2,8 @@
  * scripts/check-wiki.js against a small wiki folder (written to the temp folder) on what it
  * checks beyond dates: the config of the plugin types ruleset and setting, the tiddlyrpg-core
  * version a plugin needs, the reference coin of the currency, unknown macros and rules macros
- * not understood, the field link, and the plugins of the packages in the wiki's node_modules.
+ * not understood, the field link, the plugins of the packages in the wiki's node_modules and the
+ * phases of a non-event.
  * The checks of dates and sections before and after the 1.x migration: migrate.test.js.
  */
 var test = require("node:test"),
@@ -62,6 +63,21 @@ test("an unknown macro and a rules macro the ruleset does not understand: warnin
 		assert.match(result.out, /0 errors, 2 warnings, 0 hints/);
 	} finally {
 		fs.rmSync(path.join(dir, "tiddlers/Notiz.tid"), {force: true});
+	}
+});
+
+test("phases of a non-event: a death before the return is fine, a phase without an end a hint", function() {
+	write("tiddlers/Hati.tid", "title: Hati\ntags: Person\ndate: ./1351-08-04, 1355\n\nA wolf.\n");
+	write("tiddlers/Twice.tid", "title: Twice\ntags: Person\ndate: 1300, 1310/1320\n\nTwo starts.\n");
+	try {
+		var result = check();
+		assert.equal(result.status, 0, result.out);
+		assert.doesNotMatch(result.out, /^Hati$/m);
+		assert.match(result.out, /Twice\n {2}hint {2}a phase without an end before a later one: 1300\n/);
+		assert.match(result.out, /0 errors, 0 warnings, 1 hints/);
+	} finally {
+		fs.rmSync(path.join(dir, "tiddlers/Hati.tid"), {force: true});
+		fs.rmSync(path.join(dir, "tiddlers/Twice.tid"), {force: true});
 	}
 });
 

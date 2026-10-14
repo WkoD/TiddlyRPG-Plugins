@@ -405,6 +405,17 @@ test.describe("de-DE", function() {
 	test("activity line year", function() {
 		assert.ok(h.view(wiki, "Grum").indexOf("<div class=\"trpg-dateline\">???? – 1350 DR</div>") !== -1);
 	});
+
+	test("activity line after a death and a return: the last phase only, alive", function() {
+		h.add(wiki, {title: "Back Again", tags: "Person", date: "./1351-08-04, 1355", text: "A wolf."});
+		try {
+			var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/core/ui/StoryTiddlerTemplate\" mode=\"block\"/>", {currentTiddler: "Back Again", storyTiddler: "Back Again"});
+			assert.ok(html.indexOf("<div class=\"trpg-dateline\">1355 DR</div>") !== -1, html);
+			assert.ok(html.indexOf("trpg-dead") === -1);
+		} finally {
+			wiki.deleteTiddler("Back Again");
+		}
+	});
 });
 
 test.describe("en-GB", function() {

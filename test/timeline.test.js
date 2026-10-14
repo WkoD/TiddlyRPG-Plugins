@@ -290,6 +290,65 @@ test.describe("band of the tiddler itself", function() {
 		assert.deepEqual(dm.sort(), ["1290", "1300", "1340", "1345"]);
 	});
 
+	test.describe("phases of a non-event: a death, then a return", function() {
+		var added = [
+			{title: "Wolf Back", tags: "Person", date: "./1351, 1355"},
+			{title: "Wolf Lost", tags: "Person", date: "./., 1355"},
+			{title: "Wolf Again", tags: "Person", date: "./1351, ./1380"},
+			{title: "Wolf Return", tags: "Event", date: "1355-02-01"},
+			{title: "Wolf End", tags: "Event", date: "1380-11-20"}
+		],
+			events = "[[Early Word]] [[Late Deed]] [[Wolf Return]] [[Wolf End]]";
+
+		test.before(function() {
+			added.forEach(function(fields) {
+				h.add(wiki, fields);
+			});
+		});
+
+		test.after(function() {
+			added.forEach(function(fields) {
+				wiki.deleteTiddler(fields.title);
+			});
+		});
+
+		// The band areas, newest first: [{top, bottom}] (time runs upwards in the drawing)
+		function areas(html) {
+			return (html.match(/<rect [^>]*class="trpg-tl-band-area"[^>]*>/g) || []).map(function(rect) {
+				var y = parseFloat(/ y="([-\d.]+)"/.exec(rect)[1]);
+				return {top: y, bottom: y + parseFloat(/height="([-\d.]+)"/.exec(rect)[1])};
+			}).sort(function(a, b) { return a.top - b.top; });
+		}
+		// The points of the events, newest first
+		function points(html) {
+			return (html.match(/<circle [^>]*class="trpg-tl-point[^>]*>/g) || []).map(function(c) {
+				return parseFloat(/cy="([-\d.]+)"/.exec(c)[1]);
+			}).sort(function(a, b) { return a - b; });
+		}
+
+		["Wolf Back", "Wolf Lost", "Wolf Again"].forEach(function(title) {
+			test(title + ": one band per phase, apart", function() {
+				var a = areas(draw(events, title));
+				assert.equal(a.length, 2, JSON.stringify(a));
+				assert.ok(a[0].bottom < a[1].top, JSON.stringify(a));
+			});
+		});
+
+		test("an unknown end before the return fades out before it", function() {
+			var html = draw(events, "Wolf Lost"),
+				a = areas(html),
+				p = points(html);
+			assert.ok(a[1].top >= p[1], JSON.stringify(a) + " / " + JSON.stringify(p));
+		});
+
+		test("an unknown start of the return fades in from the first mention after the death", function() {
+			var html = draw(events, "Wolf Again"),
+				a = areas(html),
+				p = points(html);
+			assert.ok(Math.abs(a[0].bottom - p[1]) < 1, JSON.stringify(a) + " / " + JSON.stringify(p));
+		});
+	});
+
 	test("no band in the Event hub (no self)", function() {
 		assert.doesNotMatch(draw("[[Hafenfest]]"), /class="trpg-tl-band[" ]/);
 	});

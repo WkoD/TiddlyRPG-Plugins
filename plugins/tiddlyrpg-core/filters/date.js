@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/date.js
 type: application/javascript
 module-type: filteroperator
 created: 20261001095424000
-modified: 20261007170245412
+modified: 20261014165746000
 
 Date filter operators on top of modules/dates.js and the calendar engine (modules/calendar.js).
 They are filter operators rather than JS macros so that a filtered attribute recomputes them on
@@ -13,7 +13,8 @@ procedures dateformat, dateadd, datediff and date in functions.tid wrap them for
 [<date>dateformat[]]          short form of a date field: one section as it is, several as the
                               span from the first start to the last end
 [<date>dateformat[2]]         short form of section 2
-  suffix flags, comma separated: era (append the era), year (years only), long (long form of
+  suffix flags, comma separated: era (append the era), year (years only), last (the last
+  section only - the current phase of a non-event, see dates.formatLast), long (long form of
   a single point as wikitext, for the calculator of the Calendar hub)
 [<date>dateadd<days>]         date plus/minus days, "" if invalid or no calendar
 [<from>datediff<to>]          days from <from> to <to>, "" if invalid or no calendar
@@ -59,6 +60,7 @@ exports.dateformat = function(source,operator,options) {
 		flags = (operator.suffix || "").split(","),
 		opts = {era: flags.indexOf("era") !== -1, year: flags.indexOf("year") !== -1},
 		long = flags.indexOf("long") !== -1,
+		last = flags.indexOf("last") !== -1,
 		n = parseInt(operator.operand,10),
 		results = [];
 	source(function(tiddler,title) {
@@ -71,6 +73,8 @@ exports.dateformat = function(source,operator,options) {
 		if(n > 0) {
 			var section = parsed.sections[n - 1];
 			results.push(section ? dates.formatSection(wiki,cal,section,opts) : "");
+		} else if(last) {
+			results.push(dates.formatLast(wiki,cal,parsed,opts));
 		} else {
 			results.push(dates.formatField(wiki,cal,parsed,opts));
 		}

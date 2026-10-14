@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014162944000
+modified: 20261014165746000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -117,11 +117,12 @@ type: text/vnd.tiddlywiki
 
 <!-- Date line below the tags of every tiddler with dates, right-aligned: an event shows the span
      of its date field ("????" with the era if it has none), every other type its years of
-     existence (mode "year", nothing without dates). With the hint on a date that cannot be read. -->
+     existence (mode "year", nothing without dates) - of its last phase only, after a death and
+     a return ("./1351, 1355" shows 1355). With the hint on a date that cannot be read. -->
 \procedure trpg.dateline(mode)
 \whitespace trim
 <%if [<mode>match[year]] %>
-<$let trpg-text={{{ [<currentTiddler>get[date]dateformat:year,era[]] }}}>
+<$let trpg-text={{{ [<currentTiddler>get[date]dateformat:year,era,last[]] }}}>
 <%if [<trpg-text>!is[blank]] %><div class="trpg-dateline"><$text text=<<trpg-text>>/></div><%endif%>
 </$let>
 <%else%>

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261014162944000
+modified: 20261014165746000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -26,7 +26,9 @@ before; "." the same with an unknown end/start. Elsewhere it cannot be read.
 
 A single point is a point in time for events. For every other type it is the start and the end
 stays open ("1322" = born 1322, alive). A non-event whose last section is a range with an end
-other than ".." has ended (dead/destroyed, trpg.dead).
+other than ".." has ended (dead/destroyed, trpg.dead). Several sections of a non-event are its
+phases, each but the last ended: "./1351, 1355" died 1351 and is back since 1355 (alive),
+"./1351, ./1380" came back at an unknown time and died again 1380 (openPhases, formatLast).
 
 The old format (tiddlyrpg-core before 2.0) separated everything by "." - isOld() recognises it;
 scripts/migrate-dates.js converts it.
@@ -451,6 +453,32 @@ exports.formatField = function(wiki,cal,parsed,opts) {
 		return formatSection(wiki,cal,sections[0],opts);
 	}
 	return formatRange(wiki,cal,parsed.before || sections[0].start,parsed.after || sections[sections.length - 1].end,opts);
+};
+
+/*
+Short form of the last section of a field ("."/".." after it taken as its end), the date line of
+a non-event: with several phases (a death, then a return) only the current one. One section as
+formatField.
+*/
+exports.formatLast = function(wiki,cal,parsed,opts) {
+	var sections = parsed.sections;
+	if(sections.length < 2) {
+		return exports.formatField(wiki,cal,parsed,opts);
+	}
+	var last = sections[sections.length - 1];
+	return parsed.after ? formatRange(wiki,cal,last.start,parsed.after,opts) : formatSection(wiki,cal,last,opts);
+};
+
+/*
+Several sections of a non-event are its phases of existence: born - died, back - died again.
+Every phase but the last has to end (a span whose end is not ".."); a point or an open end
+before a later phase cannot be read as a death. Returns the sections that do not end ([] if the
+field reads as phases).
+*/
+exports.openPhases = function(parsed) {
+	return parsed.sections.slice(0,-1).filter(function(section) {
+		return !section.range || section.end === FOREVER;
+	});
 };
 
 /*

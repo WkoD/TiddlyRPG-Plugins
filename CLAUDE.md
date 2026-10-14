@@ -73,7 +73,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     leap rule
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
     `datecheck` in de-DE and en-GB, and without a calendar; `datesection`; the order month
-    before day
+    before day; the last phase of a non-event (flag `last`)
   - `sections` - event head, dated sections `<<date>>` (counting, captions as wikitext with
     relink, rule, hints),
     locations per section, subtitle without modifier, event table (rows and title cells),
@@ -113,7 +113,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
     timeline, span, pills, `datesection`, spots and map tab, search, backlinks
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
-    the band of the tiddler itself, the section lines as links, captions with macros, refresh
+    the band of the tiddler itself (one per phase, apart), the section lines as links, captions
+    with macros, refresh
     on the rules and plugin configs
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
@@ -134,7 +135,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     not met, wrong form
   - `check-wiki` - `scripts/check-wiki.js` beyond dates: the config of the plugin types, the
     core version a plugin needs, unknown macros and rules macros not understood, the field
-    `link`, plugins from the packages in the wiki's `node_modules`
+    `link`, plugins from the packages in the wiki's `node_modules`, the phases of a non-event
   - `markdown` - the content type `text/x-tiddlyrpg-markdown` (`modules/markdown.js`): the
     markers, what of Markdown it reads, that nothing becomes wikitext, the real `README.md` as
     the tab "readme"
@@ -581,6 +582,11 @@ mind when changing it:
   runs through ClassFilters and graph templates for every visible tiddler on every refresh.
 - A single point means a point in time for events and a start with an open end for every other
   type; the timeline band and `trpg.dead` rely on that.
+- Several sections of a non-event are its phases: each but the last ends (`openPhases()`,
+  otherwise a hint of `scripts/check-wiki.js`), a death before a return. The last phase decides
+  `trpg.dead` and is the date line (`formatLast()`, flag `last` of `dateformat`); in the
+  timeline each phase is a band of its own, and an unknown side only looks at the mentions
+  between its neighbours (`collectBand`, `s.from`/`s.to`).
 - `sections()` takes the dated sections, the links and the `<<spotlink>>` calls of each from
   the model of the body (`modules/sections.js`, see "Sections"; cached per tiddler); a link
   keeps the id of its innermost section, so `sectionlinks`/`sectionspots` leave out what the
