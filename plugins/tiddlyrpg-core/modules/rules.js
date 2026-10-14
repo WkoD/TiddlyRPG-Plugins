@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261011180604762
+modified: 20261014194538000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -22,7 +22,7 @@ Domain types and their data:
     "defaults": ["<unit>"] - units for which this domain applies without a kind
     "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, distance, size ...)
                 chooses the domain and optionally a display of its own; the value still carries
-                its unit (<<unit "60 ft" range>>) - a number without unit is not read. Where the
+                its unit (<<unit "60 ft" kind:"range">>) - a number without unit is not read. Where the
                 display of the kind would show a value that is not 0 as 0 (30 ft as distance:
                 "0 km"), the display of the domain applies
     "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a
@@ -74,7 +74,7 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 var PREFIX = "$:/tiddlyrpg/language/",
 	BASE = "en-GB",
-	MACROS = {unit: ["value","kind"], dice: ["value"], damage: ["value"], term: ["id","arg"]};
+	MACROS = {unit: ["value","kind"], dice: ["value"], damage: ["value"], term: ["id","variant","value"]};
 
 function escape(text) {
 	return text.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
@@ -392,28 +392,30 @@ function findEntry(wiki,type,id) {
 }
 
 // <<term id variant|value>>: "wis", "wis save", "frightened 2"
-exports.term = function(wiki,id,arg) {
+// A term in the rules language: <id>, with a variant ("save": Rules/Term/<id>/<variant>) and/or
+// a value ("frightened 2": in place of $value$ in the text, or after it)
+exports.term = function(wiki,id,variant,value) {
 	id = (id || "").toString().trim();
-	arg = (arg || "").toString().trim();
-	var found = id && findEntry(wiki,"label",id);
+	variant = (variant || "").toString().trim();
+	value = (value || "").toString().trim();
+	var written = [id,variant,value].filter(function(s) { return !!s; }).join(" "),
+		found = id && findEntry(wiki,"label",id);
 	if(!found) {
-		return result(id + (arg ? " " + arg : ""),"Rules/Check/Term",{id: id});
+		return result(written,"Rules/Check/Term",{id: id});
 	}
 	var domain = found.domain.domain,
 		key = "Rules/Term/" + found.entry.id,
-		value = /^-?\d+$/.test(arg);
-	if(arg && !value) {
-		var variant = language.lookupRules(wiki,domain,key + "/" + arg);
-		if(variant === null) {
-			return result(id + " " + arg,"Rules/Check/Variant",{id: id, variant: arg});
+		text = language.lookupRules(wiki,domain,variant ? key + "/" + variant : key);
+	if(text === null) {
+		if(variant) {
+			return result(written,"Rules/Check/Variant",{id: id, variant: variant});
 		}
-		return result(variant);
+		text = found.entry.id;
 	}
-	var label = language.lookupRules(wiki,domain,key) || found.entry.id;
 	if(value) {
-		label = label.indexOf("$value$") !== -1 ? label.replace("$value$",arg) : label + " " + arg;
+		text = text.indexOf("$value$") !== -1 ? text.replace("$value$",value) : text + " " + value;
 	}
-	return result(label.replace(/\s*\$value\$/,""));
+	return result(text.replace(/\s*\$value\$/,""));
 };
 
 /* Damage */
@@ -635,7 +637,8 @@ exports.table = function(wiki,name) {
 /* Examples */
 
 // The example of a domain ("example" in its JSON) as {input, output}, shown the way its type
-// shows it; null without example. A label example is "<id> [variant|value]".
+// shows it; null without example. A label example is "<id> [variant] [value]", a number is the
+// value.
 exports.example = function(wiki,name) {
 	var domain = language.domains(wiki)[name],
 		input = domain && domain.example ? domain.example.toString() : "";
@@ -655,8 +658,9 @@ exports.example = function(wiki,name) {
 			output = exports.damage(wiki,input).text;
 			break;
 		case "label":
-			var parts = input.split(/\s+/);
-			output = exports.term(wiki,parts[0],parts.slice(1).join(" ")).text;
+			var parts = input.split(/\s+/),
+				last = parts.length > 1 && /^-?\d+$/.test(parts[parts.length - 1]) ? parts.pop() : "";
+			output = exports.term(wiki,parts[0],parts.slice(1).join(" "),last).text;
 			break;
 		case "calendar":
 			output = wiki.filterTiddlers("[<v>dateformat[]]",$tw.rootWidget.makeFakeWidgetWithVariables({v: input}))[0] || input;
@@ -692,7 +696,7 @@ function runMacro(wiki,name,node) {
 		name === "unit" ? exports.unit(wiki,p.value,p.kind) :
 		name === "dice" ? dice(wiki,p.value) :
 		name === "damage" ? exports.damage(wiki,p.value) :
-		exports.term(wiki,p.id,p.arg);
+		exports.term(wiki,p.id,p.variant,p.value);
 }
 
 // The problems of the rules macros in the body of a tiddler: texts in the wiki

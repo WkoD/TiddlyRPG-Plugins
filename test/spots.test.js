@@ -96,6 +96,20 @@ test.describe("body and map tab", function() {
 		assert.match(mapBlock("Town"), /<h3 class="trpg-spot" data-trpg-anchor="spot-tavern"><a class="tc-tiddlylink tc-tiddlylink-resolves" href="#Tavern">Tavern<\/a><\/h3>/);
 	});
 
+	test("tiddler: joins a spot to a tiddler of another name; relink renames it in both forms", function() {
+		h.add(wiki, {title: "Stammhaus", tags: "Location", text: "A house."});
+		h.add(wiki, {title: "Gut", tags: "Location", text: "An estate.\n\n<<spot \"Anwesen\" tiddler:\"Stammhaus\">>\n\nOld.\n\n<$spot name=\"Hof\" tiddler=\"Stammhaus\">\n\nYard.\n\n</$spot>\n"});
+		try {
+			assert.deepEqual(f("[[Gut]spottargets[]]"), ["Stammhaus"]);
+			assert.match(mapBlock("Gut"), /data-trpg-anchor="spot-anwesen"><a [^>]*href="#Stammhaus">Anwesen<\/a>/);
+			wiki.renameTiddler("Stammhaus", "Neues Haus");
+			var text = wiki.getTiddler("Gut").fields.text;
+			assert.ok(text.indexOf("<<spot \"Anwesen\" tiddler:\"Neues Haus\">>") !== -1 && text.indexOf("tiddler=\"Neues Haus\"") !== -1, text);
+		} finally {
+			["Stammhaus", "Neues Haus", "Gut"].forEach(function(title) { wiki.deleteTiddler(title); });
+		}
+	});
+
 	test("spots: a link in the name stays a link", function() {
 		assert.match(mapBlock("Town"), /data-trpg-anchor="spot-tempel-von-chauntea">Tempel von <a [^>]*href="#Chauntea">Chauntea<\/a><\/h3>/);
 	});

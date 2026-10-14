@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/eventrows.js
 type: application/javascript
 module-type: filteroperator
 created: 20200311094442101
-modified: 20261007170245412
+modified: 20261014194538000
 
 Filter operator for the event table: one table row per point in time of the date field (split
 by modules/dates.js, the same rules as the timeline) - a point is one row, a span two (its start
@@ -15,7 +15,7 @@ year/month/day share their cells.
 Consecutive rows of the same event (no other event in between) share one title cell, so an
 event reads across all the years it covers - whether its dates are points or a span. Rows of
 different sections only join if neither has a caption; the caption of a section
-(<<date "Caption">>) follows the title. Flags: the first row of an event "start", the last
+(<<date label:"Caption">>) follows the title. Flags: the first row of an event "start", the last
 "end", the rows in between "continued"; an unknown or open start or end (also "."/".." as a
 section of its own, "1351, 1352, ..") counts as continued. A joined cell combines them like its
 first and last row in time (start...end shows none).

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261014165746000
+modified: 20261014194538000
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -57,7 +57,7 @@ all other events dashed; they take the colour of the hub Campaign.
 Card: the span of the event with its tags as dots, below it the title. Interaction: hovering
 previews an event (highlight); a click or tap selects it - the highlight stays and its card
 grows: below the title the tags (links) and one line per section with its caption
-(<<date "Caption">> in the body). Inside the selected card the title, the tags and the lines
+(<<date label:"Caption">> in the body). Inside the selected card the title, the tags and the lines
 of the sections are links; a section line opens the event at that section (jump mark
 "date-<n>", modules/anchor-jump.js). Ctrl/Cmd+click opens an event directly. A click on an
 empty spot or on the selected card again clears the selection.
@@ -195,7 +195,7 @@ TimelineWidget.prototype.refresh = function(changedTiddlers) {
 /* ---------- Data ---------- */
 
 // The caption of a section as plain text: it is wikitext like the heading in the body
-// (<<date "Fight at <<unit '30 ft'>>">>), rendered in the scope of the widget with the event as
+// (<<date label:"Fight at <<unit '30 ft'>>">>), rendered in the scope of the widget with the event as
 // currentTiddler. Only a caption with "<", "[" or "{" is rendered, every other one stays as it is
 // (also "$5$").
 TimelineWidget.prototype.caption = function(text,title) {

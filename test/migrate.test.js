@@ -109,7 +109,7 @@ test.describe("after --write", function() {
 
 	test("checker: clean after fixing by hand", function() {
 		tid("Turm", {title: "Turm", tags: "Campaign Event", date: "1351-07-01, 1351-07-11, 1351-08-09/.."},
-			"<<date>>\n\nA.\n\n<<date \"Zweiter\">>\n\nB.\n\n<<date>>\n\nC.\n");
+			"<<date>>\n\nA.\n\n<<date label:\"Zweiter\">>\n\nB.\n\n<<date>>\n\nC.\n");
 		tid("Intro", {title: "Intro", tags: "Event", date: "1351-08-15, 1351-11-12"}, "<<date>>\n\nZuerst.\n\n<<date>>\n\nDann.\n");
 		var result = run("check-wiki.js", [dir]);
 		assert.equal(result.status, 0, result.out);

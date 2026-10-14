@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011205315000
+modified: 20261014192337000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -104,6 +104,7 @@ Ruleset/Hub/See: Namen und ihre Sprache: siehe
 Ruleset/Hub/Setting: Die Begriffe des Regelwerks in der Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Regelwerk Einstellungen.
 Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
+Section/Check/DateLabel: Text prüfen: <<date "$text$">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"$text$"
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
 Section/Check/Nested: Text prüfen: $kind$ ineinander verschachtelt – der innere zählt nicht
 Section/Check/NoCharacter: Text prüfen: Eine Sperre nennt „$name$“, das ist keine Spielerfigur

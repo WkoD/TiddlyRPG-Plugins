@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261014180236000
+modified: 20261014194538000
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -11,7 +11,7 @@ date, spot and secret (widgets/sections.js), and the filters of filters/sections
 
 Every kind of section has a short and a block form:
 
-  <<date>>  <<date 3 "Caption">>              short: runs to the next marker on the same level
+  <<date>>  <<date 3 label:"Caption">>              short: runs to the next marker on the same level
   <$date n="3" label="Caption">...</$date>    block: runs to its closing tag
 
   date    dated section of an event (tag Event): number and caption, see modules/dates.js
@@ -87,33 +87,36 @@ exports.kind = function(name) {
 
 register("date",{
 	types: ["Event"],
-	// <<date>>, <<date 3>>, <<date "Caption">>, <<date 3 "Caption">>, <<date n:3 label:"Caption">>;
-	// <$date n="3" label="Caption">
+	// <<date>>, <<date 3>>, <<date label:"Caption">>, <<date 3 label:"Caption">>;
+	// <$date n="3" label="Caption">. The caption is named only: a text by position is no
+	// caption but a hint (bad, sections.check)
 	params: function(node) {
 		var first = attribute(node,"0"),
 			second = attribute(node,"1"),
 			n = attribute(node,"n"),
-			label = attribute(node,"label");
-		if(first !== undefined) {
-			if(n === undefined && /^\s*\d+\s*$/.test(first)) {
+			label = attribute(node,"label"),
+			bad = "";
+		if(first !== undefined && n === undefined) {
+			if(/^\s*\d+\s*$/.test(first)) {
 				n = first;
-			} else if(label === undefined) {
-				label = first;
+			} else {
+				bad = first;
 			}
 		}
-		if(second !== undefined && label === undefined) {
-			label = second;
+		if(second !== undefined) {
+			bad = bad || second;
 		}
-		return {n: n !== undefined && /^\s*\d+\s*$/.test(n) ? parseInt(n,10) : null, label: (label || "").trim()};
+		return {n: n !== undefined && /^\s*\d+\s*$/.test(n) ? parseInt(n,10) : null, label: (label || "").trim(), bad: bad};
 	}
 });
 
 register("spot",{
 	types: ["Location"],
-	// <<spot "Name" "Tiddler" image:"a.jpg" map:"b.jpg">>; <$spot name="Name" target="Tiddler" image="a.jpg" map="b.jpg">
+	// <<spot "Name" tiddler:"Tiddler" image:"a.jpg" map:"b.jpg">>; <$spot name="Name" tiddler="Tiddler"
+	// image="a.jpg" map="b.jpg">. The tiddler it is joined to is kept as target.
 	params: function(node) {
 		var name = attribute(node,"name"),
-			target = attribute(node,"target");
+			target = attribute(node,"tiddler");
 		if(name === undefined) {
 			name = attribute(node,"0") || "";
 		}
@@ -571,6 +574,13 @@ exports.check = function(wiki,title) {
 		}
 	});
 	$tw.utils.each(model.records,function(record) {
+		// Its text only for a view that sees the section (the hint repeats it)
+		if(record.kind === "date" && record.params.bad && visible(wiki,title,record.id)) {
+			var hint = language.format(language.t(wiki,"Section/Check/DateLabel"),{text: record.params.bad});
+			if(messages.indexOf(hint) === -1) {
+				messages.push(hint);
+			}
+		}
 		$tw.utils.each(record.locks,function(list) {
 			$tw.utils.each(list,function(name) {
 				if(!visibility.isCharacter(wiki,name)) {

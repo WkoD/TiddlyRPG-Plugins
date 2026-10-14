@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261011205315000
+modified: 20261014192337000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -104,6 +104,7 @@ Ruleset/Hub/See: Names and their language: see
 Ruleset/Hub/Setting: The terms of the ruleset in the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Ruleset options.
 Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
+Section/Check/DateLabel: Check the text: <<date "$text$">> - the first parameter is the number of a section, a caption goes into label:"$text$"
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
 Section/Check/Nested: Check the text: $kind$ nested in each other - the inner one does not count
 Section/Check/NoCharacter: Check the text: a lock names "$name$", who is no player character

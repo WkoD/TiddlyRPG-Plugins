@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/date.js
 type: application/javascript
 module-type: widget
 created: 20261002082222000
-modified: 20261002082222000
+modified: 20261014192337000
 
 Works out which section of the date field a <<date>> placeholder stands for (procedure "date" in
 functions.tid) and sets for its content:
@@ -61,8 +61,7 @@ DateWidget.prototype.execute = function() {
 		section = "",
 		first = "";
 	if(n && !/^\d+$/.test(n)) {
-		// <<date "Caption">>: the caption binds to the first parameter
-		label = label || n;
+		// Not a number: no section (a caption is label:"...", sections.check gives a hint)
 		n = "";
 	}
 	if(node && node.start !== undefined) {

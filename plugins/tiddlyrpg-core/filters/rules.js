@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261011160657000
+modified: 20261014194538000
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -13,7 +13,7 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<value>trpgunit<kind>]            each input as <<unit>> shows it: "228 cm" -> "7 ft 7 in"
 [<value>trpgdice[]]                each input with the dice tokens of the display language
 [<value>trpgdamage[]]              each input as damage expression: "1d8 cold" -> "1W8 Kälteschaden"
-[<id>trpgterm<arg>]                each input id as term, with a variant or value
+[<id>trpgterm<variant>,<value>]    each input id as term, with a variant ("save") and/or a value (2)
 [<title>trpgrulecheck[]]           the problems of the rules macros in the body of each input
                                    tiddler (texts in the wiki language)
 [trpgrulesdomains[]]               the names of the registered rules domains, sorted; with an
@@ -71,7 +71,8 @@ exports.trpgdamage = function(source,operator,options) {
 
 exports.trpgterm = function(source,operator,options) {
 	return each(source,function(id) {
-		return rules.term(options.wiki,id,operator.operand).text;
+		var operands = operator.operands || [operator.operand];
+		return rules.term(options.wiki,id,operands[0],operands[1]).text;
 	});
 };
 

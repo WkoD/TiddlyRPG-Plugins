@@ -54,7 +54,7 @@ function fixtures(wiki) {
 		// Player characters and the lock (modules/visibility.js): Frigg is played by Anna
 		{title: "Frigg", tags: "Player", player: "Anna", text: "A player character."},
 		{title: "Hideout", tags: "Location Frigg Secret", text: "Only for Frigg."},
-		{title: "Der dunkle Turm", tags: "Event Frigg", date: "1351-07-01, 1351-07-11", text: "At [[Baile]].\n\n<<date 2 \"Traum von Shinfel\">>\n\nAt [[Insel Avalon]]."},
+		{title: "Der dunkle Turm", tags: "Event Frigg", date: "1351-07-01, 1351-07-11", text: "At [[Baile]].\n\n<<date 2 label:\"Traum von Shinfel\">>\n\nAt [[Insel Avalon]]."},
 		{title: "Hafenfest", tags: "Event", date: "1351-07-05", text: "At [[Insel Avalon]]."},
 		{title: "Sage", tags: "Event", text: "Undated."},
 		{title: "Friggs Traum", tags: "Event Frigg Secret", date: "1351-07-03", text: "At [[Insel Avalon]]."},

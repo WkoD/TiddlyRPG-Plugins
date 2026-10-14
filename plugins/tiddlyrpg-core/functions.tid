@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014185321000
+modified: 20261014194538000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -48,8 +48,8 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- Rules terms in the display language of their domain (modules/rules.js, filters/rules.js):
-     <<unit "228 cm">>, <<unit 60 range>>, <<dice "4d6">>, <<damage "1d8 slashing">>,
-     <<term wis save>>, <<term frightened 2>>. Filtered attributes, so that they recompute when
+     <<unit "228 cm">>, <<unit 60 kind:"range">>, <<dice "4d6">>, <<damage "1d8 slashing">>,
+     <<term wis variant:"save">>, <<term frightened 2>>. Filtered attributes, so that they recompute when
      the rules language changes. What is not understood shows unchanged; the hint stands below
      the title (trpgrulecheck). -->
 \procedure unit(value,kind)
@@ -64,8 +64,8 @@ type: text/vnd.tiddlywiki
 <$text text={{{ [<value>trpgdamage[]] }}}/>
 \end
 
-\procedure term(id,arg)
-<$text text={{{ [<id>trpgterm<arg>] }}}/>
+\procedure term(id,variant,value)
+<$text text={{{ [<id>trpgterm<variant>,<value>] }}}/>
 \end
 
 <!-- Locations linked in a section of the body of the current tiddler (0 = before the first
@@ -141,13 +141,13 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- A dated section in the body: <<date>> is the next section of the date field (the first
-     is 1), <<date 3>> section 3, <<date "Caption">> / <<date 3 "Caption">> with a caption.
+     is 1), <<date 3>> section 3, <<date label:"Caption">> / <<date 3 label:"Caption">> with a caption.
      Draws the rule before it (not at the very start of the body), the date, the caption and
      the locations of the section. widgets/date.js finds out which section it is. Without any
      date in the field the heading is "????" (with the era). The heading is the jump mark
      "date-<n>" (data-trpg-anchor, modules/anchor-jump.js) - not at the very start of the body:
      there a jump would only hide the title, the plain navigation already shows the section. The
-     caption is inline wikitext: <<date "Fight at <<unit '30 ft'>>">> (other quotes inside). -->
+     caption is inline wikitext: <<date label:"Fight at <<unit '30 ft'>>">> (other quotes inside). -->
 \procedure date(n,label)
 \whitespace trim
 <$trpg-date n=<<n>> label=<<label>>>
@@ -181,16 +181,16 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- A spot of a location (modules/spots.js): <<spot "Name">>, <<spot "Tempel von [[Chauntea]]">>,
-     <<spot "Name" "Tiddler">>, <<spot "Name" image:"a.jpg, b.jpg" map:"c.jpg">>. Draws the
-     heading of the spot with the jump mark "spot-<name>". Joined to a tiddler (the second
-     parameter, or a tiddler with the plain name), the heading links to it and the tiddler shows
+     <<spot "Name" tiddler:"Tiddler">>, <<spot "Name" image:"a.jpg, b.jpg" map:"c.jpg">>. Draws
+     the heading of the spot with the jump mark "spot-<name>". Joined to a tiddler (tiddler:, or
+     a tiddler with the plain name), the heading links to it and the tiddler shows
      its own images; otherwise the name is rendered as wikitext, links in it stay links, and its
      images (images/location/) and maps (images/map/) follow below the heading (trpg.images,
      not in the tooltip of the map: trpg-spot-media="no"). Its text and its place on the map
      come from the parse tree, not from this procedure. -->
-\procedure spot(name,target,image,map)
+\procedure spot(name,tiddler,image,map)
 \whitespace trim
-<$let trpg-target={{{ [<name>spottarget<target>] }}}>
+<$let trpg-target={{{ [<name>spottarget<tiddler>] }}}>
 <h3 class="trpg-spot" data-trpg-anchor={{{ [<name>spotanchor[]] }}}>
 <%if [<trpg-target>!is[blank]] %>
 <$link to=<<trpg-target>>><$text text={{{ [<name>spotplain[]] }}}/></$link>

@@ -300,7 +300,7 @@ test.describe("sweep", function() {
 			// The caption of the locked section holds a rules macro: heading, timeline (card and
 			// tooltip) and event table render it, none of them in the public view
 			{title: "Sweep Treffen", tags: "Event Frigg [[Qx7 Akte]]", date: "1351-08-01, 1399-01-01",
-				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date \"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
+				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date label:\"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			// A locked item with a price (and the hint on it)
 			{title: "Qx7 Klinge", tags: "Item Secret", price: "1399 Qx7"},
 			// The source of the images of a locked tiddler (field source), its images and maps as tabs

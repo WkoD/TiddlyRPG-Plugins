@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/spots.js
 type: application/javascript
 module-type: library
 created: 20261006064449000
-modified: 20261014180236000
+modified: 20261014194538000
 
 Spots: the places of interest of a location, written in its body - the one place of these rules.
 Used by the spot filters (filters/spots.js), the location rules (filters/location.js) and the
@@ -11,9 +11,9 @@ dated sections of a body (modules/dates.js, for <<spotlink>>).
 
   <<spot "Schloss Baile">>                        a spot; its text runs to the next marker
   <<spot "Tempel von [[Chauntea]]">>              the name may hold wikitext (links stay links)
-  <<spot "Anzeige" "Tiddler">>                    joined to another tiddler than the name says
+  <<spot "Anzeige" tiddler:"Tiddler">>                    joined to another tiddler than the name says
   <<spot "Schloss" image:"a.jpg, b.jpg" map:"c.jpg">>   with images and maps (modules/images.js)
-  <$spot name="Schloss" target="Tiddler" image="a.jpg">...</$spot>   the block form
+  <$spot name="Schloss" tiddler="Tiddler" image="a.jpg">...</$spot>   the block form
 
 The plain name of a spot (anchor, node label, target of <<spotlink>>) is its name with every
 link replaced by its visible text. The spot is joined to a tiddler if one has its plain name, or

@@ -96,7 +96,7 @@ test.describe("sections", function() {
 		h.add(wiki, {title: "Points", tags: "Event", date: "1351-07-01, 1351-07-11"});
 		h.add(wiki, {title: "Span", tags: "Event", date: "1351-07-01/1351-07-11"});
 		h.add(wiki, {title: "Ongoing", tags: "Event", date: "1351-07-01/.."});
-		h.add(wiki, {title: "Mixed", tags: "Event Baile", date: "1351/1352, 1356", text: "<<date \"Krieg\">>\n\n<<date \"Nachspiel\">>"});
+		h.add(wiki, {title: "Mixed", tags: "Event Baile", date: "1351/1352, 1356", text: "<<date label:\"Krieg\">>\n\n<<date label:\"Nachspiel\">>"});
 	});
 
 	test.after(function() {
@@ -147,7 +147,7 @@ test.describe("sections", function() {
 		var feet = h.filter(wiki, "[[30 ft]trpgunit[]]").join();
 		assert.notEqual(feet, "30 ft");
 		h.add(wiki, {title: "Captions", tags: "Event", date: "1351-07-01, 1351-07-11, 1351-07-21",
-			text: "<<date \"Sturz aus <<unit '30 ft'>>\">>\n\n<<date \"Nach [[Baile]]\">>\n\n<<date \"Lohn $5$\">>"});
+			text: "<<date label:\"Sturz aus <<unit '30 ft'>>\">>\n\n<<date label:\"Nach [[Baile]]\">>\n\n<<date label:\"Lohn $5$\">>"});
 		try {
 			var html = draw("[[Captions]]"),
 				details = html.slice(html.indexOf("trpg-tl-details"));

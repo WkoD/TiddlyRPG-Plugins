@@ -495,7 +495,7 @@ Of each type one is active, chosen in
   and each group has a setting of its own: the DM sets the language shown under
   `$:/config/tiddlyrpg/rules/<group>/...` (modes `wiki`, `all`, `domain`), so the ruleset in
   English does not turn the month names English. Nothing decides how a text is read: words of
-  every language are read, and a number needs its unit (`<<unit 60 range>>` gives a hint; a kind
+  every language are read, and a number needs its unit (`<<unit 60 kind:"range">>` gives a hint; a kind
   only chooses the display). `lookupRules(wiki,domain,key)` looks a key
   up in the display language of the
   domain, then en-GB. Only terms go through it - the calendar names (`calendar.js`), not the
@@ -600,14 +600,21 @@ mind when changing it:
   another text (a transcluded snippet) there is no match: then only an explicit number works,
   otherwise a visible hint. The edit preview works because the draft has the same text and
   date.
-- The caption of a section is inline wikitext: `<<date "Fight at <<unit '30 ft'>>">>` (other
+- The caption of a section is inline wikitext: `<<date label:"Fight at <<unit '30 ft'>>">>` (other
   quotes inside). The heading transcludes it (`functions.tid`), the event table puts it into
   its wikitext row, the timeline renders it as plain text for card and tooltip
   (`TimelineWidget.caption()`, only a caption with `<`, `[` or `{`; `$5$` stays as written).
   A link in a caption is no TiddlyWiki link (no backlink, not in `sectionlinks`), like a spot
-  name; renaming works through the relink configuration of `date` - `label` and `n` (the
-  short form `<<date "Caption">>` hands the caption to `n` by position) and the attribute
-  `label` of `<$date>`. Search and jump marks keep the stored text.
+  name; renaming works through the relink configuration of `date` - `label` - and the attribute
+  `label` of `<$date>`. Search and jump marks keep the stored text. The caption is named only:
+  a text by position (`<<date "Caption">>`) is no caption but a hint of `sections.check()`
+  (`Section/Check/DateLabel`, only for a section the view sees - the hint repeats the text).
+- Parameters of the macros of the wikis: the required ones by position, the optional ones
+  named, each called after what it holds: `<<date 3 label:"…">>`, `<<spot "Name"
+  tiddler:"…" image:"…" map:"…">>`, `<<image "a.png" folder:"…">>`, `<<unit "60 ft"
+  kind:"range">>`, `<<term wis variant:"save">>`, `<<term frightened value:2>>`. The block form
+  `<$spot>` has the same names as attributes; Relink knows `spot` `name`/`tiddler` as macro
+  parameters and as attributes of `<$spot>`.
 - `sectionAt()` (operator `datesection`) finds the section a date falls into by overlap of
   their days: of several the narrowest wins, on a tie the first; "."/".." are open sides. It
   never falls back to "the section before" - a jump to the whole event is better than one to
@@ -670,7 +677,7 @@ only call their operators.
 - Spots: `<<spot "Name">>` begins a section that runs to the next marker, `<$spot name="…">`
   is the block form (see "Sections"). The name may hold wikitext; its plain text (links
   replaced by their visible text) is the anchor, the node label and the target of
-  `<<spotlink>>`. Joined to a tiddler: the second parameter, or a tiddler with the plain name.
+  `<<spotlink>>`. Joined to a tiddler: `tiddler:`, or a tiddler with the plain name.
   `<<spotlink "Place" "[[Text|Spot]]">>`: here the target of the link counts. Both come from
   the model of the body. They are no TiddlyWiki links: no backlinks, not in "Missing"; renaming
   works through the relink configuration of the macro parameters.

@@ -112,7 +112,7 @@ language"):
 ```
                                 shown in English          shown in German
 <<unit "228 cm">>               7 ft 7 in                 228 cm
-<<unit "25 ft" range>>          25 ft                     7,5 m      (kinds: range, distance, size)
+<<unit "25 ft" kind:"range">>          25 ft                     7,5 m      (kinds: range, distance, size)
 <<dice "4d6">>                  4d6                       4W6
 <<damage "2d6 fire">>           2d6 fire damage           2W6 Feuerschaden
 <<term hp>>                     HP                        LP
@@ -125,7 +125,7 @@ words of every language are read: `<<damage "2W6 Feuer">>` works as well. A numb
 (`<<unit 60>>` is not read, also not with a kind): what a text means never depends on a setting.
 A kind only chooses how a value is shown, e.g. a range in whole feet.
 
-**In headings.** The caption of a dated section is wikitext: `<<date "Fight at <<unit '30
+**In headings.** The caption of a dated section is wikitext: `<<date label:"Fight at <<unit '30
 ft'>>">>` - use the other kind of quotes inside. Links in a caption stay links.
 
 **Unknown macros.** A macro that nothing defines renders nothing, so a typo disappears silently.
@@ -317,7 +317,7 @@ the place and who is there stay visible, but it has no parent and is missing amo
 Text of the spot, up to the next spot.
 
 <<spot "Tempel von [[Sola]]">>                  links in the name stay links
-<<spot "Anwesen" "Haus Kemri">>                  joined to another tiddler than the name says
+<<spot "Anwesen" tiddler:"Haus Kemri">>                  joined to another tiddler than the name says
 <<spot "Lagerhaus" image:"a.jpg, b.jpg" map:"c.jpg">>   with images and maps
 ```
 
@@ -327,7 +327,7 @@ spots; the spots appear below the maps of the location, each with its heading, t
 images and maps (`image` from `images/location/`, `map` from `images/map/`; one on its own,
 two or more as tabs named after the files), then its text. A spot joined to a tiddler shows no
 images there: that tiddler shows its own. The block form
-`<$spot name="…" target="…" image="…" map="…">…</$spot>` is a spot with an end of its own; see
+`<$spot name="…" tiddler="…" image="…" map="…">…</$spot>` is a spot with an end of its own; see
 "Sections in the text".
 
 **Referencing a spot** from an event or any other text:
@@ -457,7 +457,7 @@ where each section begins:
 ```
 <<date>>                  the next section (the first is section 1)
 <<date 3>>                section 3; the following ones count on from there
-<<date "The ritual">>     with a caption (also <<date 3 "The ritual">>, <<date label:"1351">>)
+<<date label:"The ritual">>     with a caption (also <<date 3 label:"The ritual">>, <<date label:"1351">>)
 ```
 
 Each placeholder shows a rule (not at the very start of the body), the date of its section,

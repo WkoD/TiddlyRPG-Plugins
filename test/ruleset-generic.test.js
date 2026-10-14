@@ -51,7 +51,8 @@ test.describe("de-DE", function() {
 	});
 
 	test("a condition with a value", function() {
-		assert.equal(f("[[frightened]trpgterm[2]]"), "verängstigt 2");
+		assert.equal(f("[[frightened]trpgterm[],[2]]"), "verängstigt 2");
+		assert.equal(h.render(wiki, "text/plain", "<<term frightened value:2>>").trim(), "verängstigt 2");
 		assert.equal(f("[[frightened]trpgterm[]]"), "verängstigt");
 	});
 

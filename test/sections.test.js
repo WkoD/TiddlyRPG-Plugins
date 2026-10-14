@@ -18,7 +18,7 @@ test.before(function() {
 		dates = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/dates.js");
 		h.setLanguage(wiki, "de-DE");
 		h.add(wiki, {title: "Schild", tags: "Event Frigg", date: "1351-07-05, 1351-07-09, 1351-07-22/1351-07-24",
-			text: "<<date \"Banbanzas Bitte\">>\n\nIn [[Baile]].\n\n<<date>>\n\nAuf [[Insel Avalon]] und [[Hideout]].\n\n```\n<<date>>\n```\n\n<<date \"Das Ritual\">>\n\nNach [[Baile]].\n\n@@.tc-tiddler-frame\n[[Nowhere]]\n@@\n"});
+			text: "<<date label:\"Banbanzas Bitte\">>\n\nIn [[Baile]].\n\n<<date>>\n\nAuf [[Insel Avalon]] und [[Hideout]].\n\n```\n<<date>>\n```\n\n<<date label:\"Das Ritual\">>\n\nNach [[Baile]].\n\n@@.tc-tiddler-frame\n[[Nowhere]]\n@@\n"});
 		h.add(wiki, {title: "Vinland", tags: "Event", date: "1351-08-15, 1351-11-12/..",
 			text: "Zuerst [[Nowhere]].\n\n<<date 2>>\n\nDann [[Insel Avalon]]."});
 	});
@@ -66,7 +66,7 @@ test.describe("a caption is inline wikitext", function() {
 	test.before(function() {
 		feet = h.filter(wiki, "[[30 ft]trpgunit[]]").join();
 		h.add(wiki, {title: "Brücke", tags: "Event", date: "1351-07-05, 1351-07-09, 1351-07-11, 1351-07-12",
-			text: "<<date \"Kampf auf <<unit '30 ft'>>\">>\n\nZuerst.\n\n<<date \"Treffen in [[Alt Ort]]\">>\n\nDann.\n\n<<date 3 \"Preis $5$ bei [[Alt Ort]]\">>\n\nLetzt.\n\n<$date n=\"4\" label=\"Rückkehr nach [[Alt Ort]]\">\n\nZuletzt.\n\n</$date>\n"});
+			text: "<<date label:\"Kampf auf <<unit '30 ft'>>\">>\n\nZuerst.\n\n<<date label:\"Treffen in [[Alt Ort]]\">>\n\nDann.\n\n<<date 3 label:\"Preis $5$ bei [[Alt Ort]]\">>\n\nLetzt.\n\n<$date n=\"4\" label=\"Rückkehr nach [[Alt Ort]]\">\n\nZuletzt.\n\n</$date>\n"});
 		h.add(wiki, {title: "Alt Ort", tags: "Location"});
 	});
 
@@ -100,8 +100,8 @@ test.describe("a caption is inline wikitext", function() {
 	test("relink: a renamed title in a caption, alone or after the number, and in <$date label>", function() {
 		wiki.renameTiddler("Alt Ort", "Neuer Ort");
 		var text = wiki.getTiddler("Brücke").fields.text;
-		assert.match(text, /<<date "Treffen in \[\[Neuer Ort\]\]">>/);
-		assert.match(text, /<<date 3 "Preis \$5\$ bei \[\[Neuer Ort\]\]">>/);
+		assert.match(text, /<<date label:"Treffen in \[\[Neuer Ort\]\]">>/);
+		assert.match(text, /<<date 3 label:"Preis \$5\$ bei \[\[Neuer Ort\]\]">>/);
 		assert.match(text, /<\$date n="4" label="Rückkehr nach \[\[Neuer Ort\]\]">/);
 		assert.doesNotMatch(text, /Alt Ort/);
 	});

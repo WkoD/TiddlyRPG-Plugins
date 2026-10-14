@@ -23,7 +23,7 @@ test.before(function() {
 		h.add(wiki, {title: "Mischung", tags: "Event", date: "1351-01-01, 1351-02-01, 1351-03-01",
 			text: "<<date>>\n\nErster.\n\n<$date label=\"Block\">\n\nZweiter.\n\n</$date>\n\n<<date>>\n\nDritter."});
 		h.add(wiki, {title: "Nacht", tags: "Event", date: "1351-07-01, 1351-07-05, 1351-07-09",
-			text: "<<date>>\n\nOffen in [[Baile]].\n\n<<secret \"Frigg\">><<date \"Traum\">> Geheim in [[Nowhere]] mit Wortgeheimnis.\n\n<<date>>\n\nWieder offen. <$secret>Nur DM in [[Insel Avalon]].</$secret> Danach offen."});
+			text: "<<date>>\n\nOffen in [[Baile]].\n\n<<secret \"Frigg\">><<date label:\"Traum\">> Geheim in [[Nowhere]] mit Wortgeheimnis.\n\n<<date>>\n\nWieder offen. <$secret>Nur DM in [[Insel Avalon]].</$secret> Danach offen."});
 		h.add(wiki, {title: "Hafen", tags: "Location", text: "Ein Hafen.\n\n<<spot \"Kai\">>\n\nAm Wasser.\n\n<<secret \"Frigg\" \"Ragna\">><<spot \"Versteck\">>\n\nVerborgen.\n\n<<spot \"Markt\">>\n\nLaut. <$secret for=\"Odo\">Odos Stand.</$secret>"});
 	});
 });
@@ -81,6 +81,16 @@ test.describe("forms and numbers", function() {
 		withTiddler({title: "Falsch2", tags: "Event", text: "<<spot \"Hier\">>"}, function() {
 			assert.deepEqual(f("[[Falsch2]spots[]]"), []);
 			assert.ok(f("[[Falsch2]sectioncheck[]]").some(function(t) { return /Tag Ort/.test(t); }));
+		});
+	});
+
+	test("a caption only as label: - a text by position is no caption but a hint, not for a locked section", function() {
+		withTiddler({title: "Alte Form", tags: "Event", date: "1351, 1352", text: "<<date \"Aufbruch\">>\n\nA.\n\n<<secret>><<date 2 \"Geheimnis\">>\n\nB."}, function() {
+			assert.deepEqual(numbers("Alte Form"), [1, 2]);
+			assert.ok(body("Alte Form").indexOf("Aufbruch") === -1);
+			assert.ok(f("[[Alte Form]sectioncheck[]]").some(function(t) { return /<<date "Aufbruch">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"Aufbruch"/.test(t); }));
+			assert.ok(inView("public", function() { return f("[[Alte Form]sectioncheck[]]"); }).every(function(t) { return t.indexOf("Geheimnis") === -1; }));
+			assert.ok(f("[[Alte Form]sectioncheck[]]").some(function(t) { return t.indexOf("Geheimnis") !== -1; }));
 		});
 	});
 
