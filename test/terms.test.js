@@ -19,8 +19,8 @@ test.before(function() {
 	});
 });
 
-function t(id, arg) {
-	return h.filter(wiki, "[<id>trpgterm<arg>]", {id: id, arg: arg || ""}).join();
+function t(id, variant) {
+	return h.filter(wiki, "[<id>trpgterm<variant>]", {id: id, variant: variant || ""}).join();
 }
 
 test.describe("de-DE", function() {
