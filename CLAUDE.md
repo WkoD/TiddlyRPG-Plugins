@@ -81,7 +81,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-wiki.js` against fixtures in a
     temp folder
   - `location` - parents and places within (`filters/location.js`), occupants (items too), the
-    checks of `locationcheck` (artifacts too), the path below the title, the relation list of a
+    messages of `checks/locations.js` (artifacts too, a location as tag, the places of the
+    organisations), the path below the title, the relation list of a
     location, the events of the places within, the maps (one without tabs, several as tabs named
     after their files, the first with the graph), the spots below them with their images and
     maps (not for a joined spot, not in the tooltip), the field image (tabs from two images on,
@@ -94,7 +95,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     also renders ControlPanel -> License).
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
     `$:/status/IsReadOnly`)
-  - `items` - base type and categories (`filters/item.js`), the hints of `itemcheck`, the price
+  - `items` - base type and categories and their messages (`checks/items.js`), the price
     with the currency of the fixture setting, the hub lists of `Item` and of a category, a
     category of the campaign, the file of a book (field `data`), colour and image folder
     through the base type
@@ -108,8 +109,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     phrases, units with pairs and kinds, tokens; calendar and currency pointing to their hubs
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
-    marks below the maps, spots in notes of the DM; `<<spotlink>>`: link, pill, missing spot or
-    location, the events referencing a place
+    marks below the maps, spots in notes of the DM; `<<spotlink>>`: link, pill, the messages on a
+    missing spot or location (`checks/spots.js`), the events referencing a place; a spot one letter
+    off a title
   - `text-sections` - the sections of a body (`modules/sections.js`, `widgets/sections.js`):
     short and block forms, numbering over both, nesting (with a kind registered in the test),
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
@@ -124,7 +126,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     fails for an input without its case (see "Inputs keep their focus")
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
     label), the relation list forward and back, included types, symmetric types, family,
-    who leads a location as present there
+    who leads a location as present there, the messages of `checks/relations.js`
   - `graph` - through the nodes and edges of the real templates (`h.graph`): the
     `edges.typed` override (`tiddlyrpg-exclude`, symmetric edges, style from the edge type
     config and its axis, included types, every type its own edge, the types of a view), the function edges `rules`, `spots` and `links`, the ego graph (type colours, the dead, a location as centre,
@@ -138,9 +140,16 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     ControlPanel -> Plugins
   - `plugin-versions` - the core version equals `package.json`; `tiddlyrpg-core-version` met,
     not met, wrong form
-  - `check-wiki` - `scripts/check-wiki.js` beyond dates: the config of the plugin types, the
-    core version a plugin needs, unknown macros and rules macros not understood, the field
-    `link`, plugins from the packages in the wiki's `node_modules`, the phases of a non-event
+  - `checks` - the registry of the checks (`modules/checks.js`): ids and themes, level, key and
+    text in the wiki language, the messages below the title (`viewtemplates/checks`; not in the
+    published copy, not for system tiddlers or tiddlers the view does not see), `trpg-noerror`
+    and `trpg-noinfo`, the rules of scope wiki at the titles they name, what a message leaves
+    out for a view, and the rules without a topic of their own (links, types, events, expected
+    fields)
+  - `check-wiki` - `scripts/check-wiki.js`: the report (ids, levels, exit code), themes,
+    `--github`, the switches; the config of the plugin types, the core version a plugin needs,
+    unknown macros and rules macros not understood, the field `link`, images and maps on disk,
+    plugins from the packages in the wiki's `node_modules`, the phases of a non-event, quest names
   - `markdown` - the content type `text/x-tiddlyrpg-markdown` (`modules/markdown.js`): the
     markers, what of Markdown it reads, that nothing becomes wikitext, the real `README.md` as
     the tab "readme"
@@ -148,7 +157,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     License (the wiki, every plugin, both views, de-DE), the line of the field `source`
   - `macros-check` - unknown macros: the forms of a call, global and local definitions, the
     variables of the page and view template, wildcards, code and definitions left out, locked
-    sections, data tiddlers and snippets, the hint below the title, the operator
+    sections, data tiddlers and snippets, the message below the title in the wiki language
   - `units`, `dice`, `damage`, `terms` - the domain types `unit`, `tokens`, `damage`, `label` of
     the rules engine against `fixture-ruleset-5e-mini`: parsing in every language, pairs, kinds,
     display rules, the damage grammar, variants, what is not understood (a number without unit,
@@ -161,7 +170,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     ruleset, its table with the system of the unit domains, shown with a ruleset); "Campaign
     setting options" (shown in only, its domains, the order of dates, shown with a setting or
     an own calendar); disabled inputs in the published copy, version hints
-  - `rules-check` - the hints on rules macros below the title: wiki language, not in the
+  - `rules-check` - the messages on rules macros below the title: wiki language, not in the
     published copy, not for a section the view does not see, not for computed parameters
   - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
     or file names below `plugins/`; new names use `tiddlyrpg-`, `trpg-`, `trpg.`
@@ -258,9 +267,8 @@ the tiddler title:
   (rules engine), `date` (dated section in a body,
   with `widgets/date.js`), `trpg.places` (location pills of a section, with the pills of
   `<<spotlink>>` via `trpg.spotpill`), `trpg.dateline` (date line below the tags: span of an
-  event, years of existence of the other types), `trpg.datecheck` (hint on a date that cannot
-  be read, not in the published copy), `spot` (heading of a spot with its jump mark),
-  `spotlink` (reference to a spot, with `trpg.spotjump` and the hint `trpg.spotcheck`),
+  event, years of existence of the other types), `spot` (heading of a spot with its jump mark),
+  `spotlink` (reference to a spot, with `trpg.spotjump`),
   `secret` (a lock, draws nothing itself, see "Sections"), `image` (images in a text or of a
   tiddler, with `trpg.images` and `trpg.image`, see "Locations"), `trpg.locationpath` (where
   a tiddler is, below its title, see "Locations") and the tag pill macros `tag-pill-styles`
@@ -278,7 +286,10 @@ the tiddler title:
   links, mentions, the ways to a map), `anchor-jump.js`
   (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
   lock, campaign events), `markdown.js` (Markdown of a README as wikitext, see "Readme and
-  license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`).
+  license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`),
+  `checks.js` (see "Checks": the registry and the run of the rules), `types.js` (the type tags:
+  the hubs and the item categories of the campaign).
+- **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
@@ -304,10 +315,9 @@ the tiddler title:
   `dateended`, `datecheck`, `sectionlinks`, `sectionspots`, `datesection`, `visibledate`,
   `calendar[...]`), `currency.js` (`priceformat`, `priceconvert`, `pricecheck`, `currency[...]`,
   `currencyunit`, `currencycoin`, see "Currency engine"), `sections.js` (`hassections`,
-  `sectioncheck`, `sectionbacklinks`,
-  `visiblelinks`, `trpgsearch`),
-  `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`,
-  `locationcheck`), `item.js` (`itemcheck`, see "Items"), `spots.js` (`spots`, `spottargets`, `spotplain`,
+  `sectionbacklinks`, `visiblelinks`, `trpgsearch`),
+  `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`),
+  `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
@@ -317,8 +327,8 @@ the tiddler title:
   `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
   `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgunit`,
-  `trpgdice`, `trpgdamage`, `trpgterm`, `trpgrulecheck`, see "Language system" -> "Rules
-  language" and "Rules engine"), `macros-check.js` (`macrocheck`, see "Unknown macros").
+  `trpgdice`, `trpgdamage`, `trpgterm`, see "Language system" -> "Rules language" and "Rules
+  engine"), `checks.js` (`trpgcheck`, see "Checks").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
   tab "Recent"), see "Views".
@@ -353,8 +363,7 @@ the tiddler title:
   the open quests that lead here and why, `questroutes`); tab state per location; below it the
   spots, see "Locations"), `image` (the
   field `image` through `trpg.images`: one image on its own, several as tabs),
-  `location-path` (path below the title, with the hints of `locationcheck`, `itemcheck`,
-  `sectioncheck`, `trpgrulecheck` and `macrocheck`),
+  `location-path` (path below the title), `checks` (the messages below it, see "Checks"),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs), `secret` (marker of a secret above the title: whom it is
@@ -368,7 +377,8 @@ the tiddler title:
   heading of a dated section, location pills), `location` (path, spot pills, spots, map buttons; static
   CSS, `type: text/css`), `quest` (the frame of a marker in gold or silver, stripes for a
   quest and a rumour together, the cards and history; wikitext for the silver of the palette),
-  `sections` (the frames of the sections - a line on the left in the
+  `checks` (the messages below the title: a bar on the left, an error in the alert colour, a
+  hint muted; static CSS), `sections` (the frames of the sections - a line on the left in the
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
   and the frame of a locked tiddler outside the frame of its type; wikitext for the colours) and
   `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
@@ -541,8 +551,7 @@ Of each type one is active, chosen in
   domains and the language keys of the active ruleset or setting; the die letters of a damage
   calculation are the tokens of the `tokens` domains. Parsing reads the words of every language,
   showing uses the display language of the domain. What is not understood shows unchanged;
-  `check()` (operator `trpgrulecheck`) gives the hints below the title, in the editable wiki
-  only, and leaves out calls in sections the active view does not see (the hint would show their
+  `check()` gives the problems for the rule `macros/rules` (see "Checks") and leaves out calls in sections the active view does not see (the hint would show their
   text, `sections.hiddenRanges()`). Numbers show with `Number/Decimal` of the wiki language.
 - **Hubs `Ruleset` and `CampaignSetting`** (`Ruleset.tid`, `CampaignSetting.tid`, each hidden
   from `Information` without its plugin): the name (`Rules/System/Name`, `Setting/Name` of the
@@ -553,9 +562,44 @@ Of each type one is active, chosen in
   settings tabs of the two groups link to them. They show terms and data of the plugins only,
   no wiki titles.
 
+## Checks
+
+The problems of a tiddler are rules in modules of type `trpg-check` (`checks/<theme>.js`), run
+**once** by `modules/checks.js`; the list of the rules with their ids and levels is in
+`README.md` ("Checks"). The same rules give the messages below the title
+(`viewtemplates/checks`, filter `trpgcheck`, `styles/checks`) and the report of
+`scripts/check-wiki.js`.
+
+- A rule: `{id: "<theme>/<name>", scope, run}`. Scope `tiddler` (default):
+  `run(wiki, title, view)` gives the messages of the tiddler; scope `wiki`: `run(wiki, view)` gives
+  messages over the whole wiki, each with its `title` (quests, plugins; also a title that is no
+  tiddler - a rumour - which only the script shows). A message is `{level, key, params}`: the
+  level `error` (broken, does not work as meant) or `hint` (fine, but better with ...), a
+  language key `Check/<Theme>/<Name>` (older keys such as `Section/Check/*`,
+  `Location/Check/*` stay) with its `$name$` values. No text in a rule: `checks.text()`
+  translates in the wiki language, for the view and the script alike.
+- The view: every rule takes it and leaves out a whole message that names a title the view does
+  not see or repeats text of a section it does not see (`visibility.visible`,
+  `sections.visible`, `sections.hiddenRanges`). A message that tells there is something the view
+  does not see (`LockedParent`) only for the DM. The script runs in the view of the DM. The sweep
+  in `test/views.test.js` covers the messages (they render in the editable view template);
+  a rule that names another tiddler gets a fixture there.
+- Switching off: `trpg-noerror`/`trpg-noinfo` hold rule ids (`switchedOff()`); present but empty,
+  every message of the level. `checks/checks.js` reports an id that is no rule. A new rule is a
+  new id: keep ids stable, they stand in wikis.
+- `forTiddler()` caches per view and title in the global cache (cleared on every change); the
+  rules of scope `wiki` run once per view. `all()` is for the script: every tiddler that is no
+  system tiddler (graph views aside) and no draft, plus the titles of the scope `wiki`.
+- Files: `images/files` needs the folder of the wiki (`checks.setFolder()`, set by the script);
+  in the browser it gives nothing. Everything else needs no file system.
+- A new rule: a module (or an entry in the module of its theme) with the rules in its header, its
+  keys in `language/<code>/checks.multids` of every language, its row in the table of the
+  README, tests in the file of its topic (`checks.test.js` for one without a topic). A new theme
+  goes into the list of `test/checks.test.js`.
+
 ## Unknown macros
 
-`modules/macros-check.js` (operator `macrocheck`, key `Text/Check/UnknownMacro`): a call
+`modules/macros-check.js` (rule `macros/unknown`, key `Text/Check/UnknownMacro`): a call
 `<<name>>` that nothing defines renders nothing - a typo disappears silently. Reported below the
 title (editable wiki only) and by `check-wiki.js`. Defined is a name that is global
 (`GlobalImportFilter`, the view template import tags, JavaScript macros), set around the call
@@ -580,7 +624,7 @@ module header.
 - `reference` is the coin that matches the price unit of the ruleset (`currency-reference` of
   `$:/tiddlyrpg/rules/system`): read, checked (hub hint, `check-wiki.js`) and shown, not yet used
   to convert prices of the ruleset.
-- Without a currency a price is a plain number; with one it needs a coin (`itemcheck`, keys
+- Without a currency a price is a plain number; with one it needs a coin (`items/price`, keys
   `Item/Check/PriceNoCurrency` and `Item/Check/PriceCurrency`). The hub `Currency` is hidden
   from `Information` without a currency.
 
@@ -617,7 +661,7 @@ mind when changing it:
 - A single point means a point in time for events and a start with an open end for every other
   type; the timeline band and `trpg.dead` rely on that.
 - Several sections of a non-event are its phases: each but the last ends (`openPhases()`,
-  otherwise a hint of `scripts/check-wiki.js`), a death before a return. The last phase decides
+  otherwise the hint `dates/phases`), a death before a return. The last phase decides
   `trpg.dead` and is the date line (`formatLast()`, flag `last` of `dateformat`); in the
   timeline each phase is a band of its own, and an unknown side only looks at the mentions
   between its neighbours (`collectBand`, `s.from`/`s.to`).
@@ -654,9 +698,9 @@ mind when changing it:
   never falls back to "the section before" - a jump to the whole event is better than one to
   the wrong section.
 - `scripts/migrate-dates.js` converts the 1.x notation (dots), `scripts/check-wiki.js` checks a
-  wiki (boots it with the plugins of this repo and of the packages in its `node_modules`, so its
-  calendar applies). Both are tested in
-  `test/migrate.test.js`.
+  wiki with the rules of "Checks" (boots it with the plugins of this repo and of the packages in
+  its `node_modules`, so its calendar applies). The migration and the checks of dates after it
+  are tested in `test/migrate.test.js`, the report in `test/check-wiki.test.js`.
 
 ## Jump marks
 
@@ -700,7 +744,7 @@ only call their operators.
 - Occupants (`occupants`) are persons, players, organisations, deities and items whose
   `location` points to the location or, through spots only, to a part of it. Organisations,
   items and materials may have several locations; persons one, artifacts one owner or one
-  location (`locationcheck` reports more, or both). Items are occupants like everyone else:
+  location (`locations/structure` reports more, or both). Items are occupants like everyone else:
   in the tree of the relation list and for the folding in the ego graph.
 - The path below the title (`trpg.locationpath`, filter `locationgroups`): for a location its
   parents; for every other type the places of `location` and the locations of `leader`
@@ -743,9 +787,9 @@ only call their operators.
   spot joined to a tiddler shows nothing of it - that tiddler shows its own images; nor does the
   tooltip on the map (`trpg-spot-media="no"`). Tab states
   `$:/state/tiddlyrpg-core/image-tab/<title>` and `.../spot-tab/<location>/<spot>`. There are no
-  battle maps of their own any more: they are maps; `scripts/check-wiki.js` warns about a
-  `battlemap` left over, about files that are not in `images/` (also of `<<image>>`) and about
-  `<<image "…">>` without `folder:` in a tiddler without type.
+  battle maps of their own any more: they are maps. `checks/images.js` reports files that are
+  not in `images/` (also of `<<image>>`; `scripts/check-wiki.js` only), `<<image "…">>` without
+  `folder:` in a tiddler without type and images at a joined spot.
 - Map (`graph/templates/trpg-map`): background the first file of the field `map`, drawn by
   `graph/map-fit.js` always 600 units wide (graph property `trpgMapImage`, not the `background`
   of tw5-vis-network, which draws in image pixels and shrinks nodes and labels on a large
@@ -780,13 +824,13 @@ only call their operators.
   not by the field edge `leader` (its config has `tiddlyrpg-exclude: [tag[Location]]`, applied by
   `modules/relations.js`). Who leads a location is present there: `occupants` reads `leader`
   like `location`, the tree of the relation list marks them ("kontrolliert"); `rules` includes
-  `location` (see "Relations"), and `locationcheck` hints at a `location` to a place the field
+  `location` (see "Relations"), and `locations/led` hints at a `location` to a place the field
   `leader` already holds (`Location/Check/LedAndLocation`). The relation list shows the places
   led as the group "Controls".
 
 ## Items
 
-The rules of items live **once** in `filters/item.js` (base type and categories) and
+The rules of items live **once** in `checks/items.js` (base type and categories) and
 `filters/location.js` (owner and location of an artifact). Meaning and examples: `README.md`
 ("Items").
 
@@ -798,8 +842,8 @@ The rules of items live **once** in `filters/item.js` (base type and categories)
   here, more from a campaign). They need no code: the hub `Item` reads them from the tag, and
   a category hub is `{{ || Item }}`, which then lists only its own items. Behaviour of one
   category hangs on its tag (`viewtemplates/book`, `styles/item`).
-- The hints of `itemcheck` stand below the title (`viewtemplates/location-path`), next to
-  those of `locationcheck`; they include the check of the price against the currency.
+- Their messages stand below the title (`items/base`, `items/price`: the price against the
+  currency), see "Checks".
 - The price (field `price`) shows in `viewtemplates/item` through `priceformat` (see "Currency
   engine"), only for a tiddler the view sees.
 
@@ -877,8 +921,8 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
   .trpg-section-<kind>` (`.trpg-section-locked`, marker first) or nothing for a view that does
   not see them, and refresh on the view (`visibility.watched`). The heading of a block is a
   transclude of the procedure of its kind with the position of the block.
-- Problems (`check()`, operator `sectioncheck`): below the title (`viewtemplates/location-path`)
-  in the editable wiki and in `scripts/check-wiki.js`; none for editor snippets.
+- Problems (`check()`, as language keys): the rule `sections/structure` (`checks/sections.js`,
+  see "Checks"); none for editor snippets.
 - Not seen: markers that only exist when rendering (transclusions, `$list`, macros that write
   `<<date>>`) - the walk reads the text of the tiddler itself.
 
@@ -890,7 +934,7 @@ the marker is a kind of section (`register("quest", ...)` in `modules/sections.j
 - Marker: kind `quest` with `nest` - its short form at the start of a paragraph or list item
   marks that block only and splits nothing (`group()` skips it); later in a block it holds the
   rest of it (a tinted span). Only in a dated section of an event; the problems (`check` of the
-  kind, `sectioncheck`; the wrong tiddler type is the general hint): no name, no dated section,
+  kind, `sections/structure`; the wrong tiddler type is the general hint): no name, no dated section,
   a name that is a tiddler without tag `Quest`, an unknown status, a status by position. A quest
   marker directly inside one of another name links the two (`parent` of the mark); the same
   name inside itself is the usual hint.
@@ -908,8 +952,8 @@ the marker is a kind of section (`register("quest", ...)` in `modules/sections.j
   `$marker`); the hub `Quest` -> `templates/quest-list` -> `templates/quest-card`; relations,
   quest graph and maps (see "Relations", "Locations"). Relink: `macros/quest/name`,
   `attributes/$quest/name`.
-- `scripts/check-wiki.js`: the problems of the markers, a quest tiddler without a marker, two
-  names one step apart (`distance()`, case, spaces and punctuation aside).
+- `checks/quests.js`: a quest tiddler without a marker, two names one step apart
+  (`checks.distance()`, case, spaces and punctuation aside), at both names.
 
 ## Views
 
@@ -939,8 +983,8 @@ The rules of who sees what live **once** in `modules/visibility.js`; meaning and
   `$:/core/ui/TagTemplate` and `$:/core/ui/SideBarSegments/tabs` when raising the engine
   version. The pill itself: `tag-pill-inner` and `tag-pill-styles` in `functions` (see "Core
   overrides").
-- `filters/location.js` compares the audience of a location and its parent
-  (`visibility.audience`) for the hint `LockedParent`.
+- `checks/locations.js` compares the audience of a location and its parent
+  (`visibility.audience`) for the error `LockedParent` (`checks/locations.js`, view of the DM only).
 
 ## Functions & cascades
 

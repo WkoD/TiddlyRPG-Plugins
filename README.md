@@ -209,7 +209,7 @@ with a bar on top naming whom it is for ("Secret: Theren", "DM only"); a secret 
 in such a frame as a whole, outside the frame of its type, with the bar above its title.
 Lock only with `Secret`, `<<secret>>` and `<$secret>`: a `$list` or `<%if%>` of your own on the
 view hides the text, but not the dates, locations and spots in it, and a transcluded secret
-tiddler shows wherever it is transcluded (`scripts/check-wiki.js` warns about both).
+tiddler shows wherever it is transcluded (both are errors below the title, see "Checks").
 
 ## Sections in the text
 
@@ -633,6 +633,76 @@ so, and warns if the currency has no such coin. Display names go into
 `$:/tiddlyrpg/language/<code>/Currency/<id>/...` (`Name`, `Unit/<coin>` "cr" / "Kr",
 `Coin/<coin>` "crown" / "Krone", `Description`). The hub "Currency" shows the
 description, a converter (a price in coins, in any language) and the table of the coins.
+
+## Checks
+
+Below the title of a tiddler stand its messages - in the editable wiki only, not in the
+published copy, not for system tiddlers and not for a tiddler the view does not see:
+
+- **errors** (a bar in the alert colour): something is broken or does not work as meant;
+- **hints** (muted): fine, but better with what the hint names.
+
+Hovering a message shows the id of its rule. A message that would name a tiddler the view does
+not see, or repeat text of a section it does not see, is left out for that view.
+
+**The whole wiki at once:** `node scripts/check-wiki.js <wiki folder>` in this repo, or in a wiki
+that has this package in `node_modules` the npm script `"check": "node
+node_modules/tiddlyrpg-plugins/scripts/check-wiki.js ."` (`npm run check`). It reports the same
+messages for every tiddler in the view of the DM, plus the files in `images/` the wiki names,
+each with the id of its rule, and ends with exit code 1 if there is an error. Names of themes
+after the folder run only their rules (`npm run check -- relations links`); `--github` also
+writes each message as an annotation for GitHub Actions.
+
+**Switching off at a tiddler:** the field `trpg-noerror` (errors) or `trpg-noinfo` (hints) holds
+the ids of the rules whose messages are left out there, e.g. `trpg-noinfo: relations/leaders` for
+an organisation led by a council. Present but empty (`trpg-noinfo:` without a value), it leaves
+out every message of its level. An id that is no rule is a hint.
+
+| Id | Level | Message |
+|---|---|---|
+| `checks/switches` | hint | `trpg-noerror` or `trpg-noinfo` names an id that is no rule |
+| `dates/format` | error | the date field in the format before 2.0, a part that cannot be read, a day or month the calendar does not have, start after end, sections out of order |
+| `dates/field` | hint | an empty side or section in the date field |
+| `dates/phases` | hint | a phase of a non-event without an end before a later one, `..` as start |
+| `dates/event` | hint | an event without date, without `<<date>>` at the start, sections without heading, text before the first `<<date>>` |
+| `dates/placeholders` | error, hint | `<<date n>>` beyond the sections of the field (error); two `<<date>>` for one section, `---` right before one (hints) |
+| `events/participants` | hint | an event links a player character it is not tagged with |
+| `expected/image` | hint | a person, player character or location without image |
+| `expected/map` | hint | a location without map |
+| `expected/player` | hint | a player character without the field `player` |
+| `images/files` | error | a file in `image`, `map`, a spot or `<<image>>` that is not in `images/` (only `check-wiki.js`) |
+| `images/folder` | error | `<<image "...">>` in a tiddler without type and without `folder:` |
+| `images/joined` | hint | images or maps at a spot joined to a tiddler - they show in that tiddler |
+| `items/base` | error | a category without base type, two base types |
+| `items/price` | error | a price that does not fit the currency |
+| `legacy/deadfilter` | error | a filter on the old dead marker `search:date[.]` |
+| `legacy/eventdate` | error | a `datelong` call or a `<<dateformat "...">>` date in the body of an event |
+| `legacy/link` | hint | the field `link` (shown no more; sources go into `source`) |
+| `links/missing` | hint | a link to a tiddler that does not exist |
+| `locations/structure` | error | a location in two places or in a cycle, naming no location, with a parent hidden from someone who sees it; a person in two places; an artifact in two places, with two owners, or with owner and location |
+| `locations/led` | hint | `location` names a location `leader` already holds |
+| `locations/tag` | error | a location as tag |
+| `locations/organisation` | hint | the location of a person is none of the places of its organisations, nor within or above one |
+| `macros/rules` | error | a rules macro with a text the ruleset does not understand |
+| `macros/unknown` | error | a macro nothing defines |
+| `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
+| `quests/marker` | hint | a quest without a marker |
+| `quests/similar` | hint | two names of quests or rumours one letter apart |
+| `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name) |
+| `relations/included` | hint | an entry another field to the same target includes (`member` next to `leader`, `ancestor` next to `parent`) |
+| `relations/former` | error | `member` or `owner` and `former` name the same target |
+| `relations/symmetric` | hint | a symmetric relation (`spouse`, `sibling`, `family`, `alliance`, `bond`, `enmity`) only on the other side |
+| `relations/siblings` | hint | two children of a parent without `sibling` between them |
+| `relations/family` | hint | `family` next to another family relation of the same two |
+| `relations/ancestor` | hint | an `ancestor` the line of parents already reaches |
+| `relations/leaders` | hint | an organisation led by several living tiddlers |
+| `relations/deadleader` | hint | a dead tiddler that still leads |
+| `secrets/view` | error | a tiddler asks the view itself instead of locking |
+| `secrets/transclusion` | error | a tiddler transcludes a secret one |
+| `sections/structure` | error | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker |
+| `spots/spotlink` | error | a `<<spotlink>>` whose location does not exist or does not have the spot |
+| `spots/similar` | hint | a spot without tiddler one letter off a title |
+| `types/missing` | hint | a tiddler without type tag |
 
 ## Licenses in the wiki
 
