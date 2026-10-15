@@ -260,6 +260,30 @@ test("map fit: the map 600 units wide across the container, height from the aspe
 	assert.equal(mapFit.fit(adapter, true), false);
 });
 
+test("map fit: the frame takes the box of a wide node (a quest with a long name), not only the room of a pin", function() {
+	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
+		moved = [],
+		element = {clientWidth: 800, style: {}, ownerDocument: {defaultView: {innerHeight: 1000}}},
+		adapter = {
+			trpgMapFit: "image",
+			trpgImage: {width: 1600, height: 1200},
+			element: element,
+			vis: {
+				setSize: function() {},
+				moveTo: function(options) { moved.push(options); },
+				getPositions: function() { return {pin: {x: 280, y: 0}, quest: {x: -280, y: 0}}; },
+				getBoundingBox: function(id) {
+					return id === "quest" ? {left: -400, right: -160, top: -12, bottom: 12} : {left: 270, right: 290, top: -5, bottom: 30};
+				}
+			}
+		};
+	mapFit.fit(adapter, true);
+	// left: the box of the quest (-400); right: the room of the pin (280 + 60)
+	assert.equal(moved[0].scale, 800 / 740);
+	assert.equal(moved[0].position.x, -30);
+	assert.deepEqual(JSON.parse(JSON.stringify(mapFit.frameOf(600, 450, {a: {x: 0, y: 0}}))), {left: -300, right: 300, top: -225, bottom: 225}, "without boxes as before");
+});
+
 test("map: nodes without a position get a grid slot, kept per id", function() {
 	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
 		adapter = {},

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/map-fit.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261015200000000
 
 Graph properties for the map of a location (graph/templates/trpg-map), in the manner of the
 properties of tw5-vis-network (properties/background.js):
@@ -93,7 +93,16 @@ function fit(adapter,force) {
 	if(adapter.trpgMapMoved && !force) {
 		return true;
 	}
-	var frame = frameOf(MAP_WIDTH,MAP_WIDTH * image.height / image.width,vis.getPositions ? vis.getPositions() : {}),
+	var positions = vis.getPositions ? vis.getPositions() : {},
+		boxes = {};
+	if(vis.getBoundingBox) {
+		for(var id in positions) {
+			try {
+				boxes[id] = vis.getBoundingBox(id);
+			} catch(e) {}
+		}
+	}
+	var frame = frameOf(MAP_WIDTH,MAP_WIDTH * image.height / image.width,positions,boxes),
 		scale = width / (frame.right - frame.left),
 		height = Math.round((frame.bottom - frame.top) * scale);
 	if(element.style.height !== height + "px") {
@@ -110,16 +119,25 @@ exports.fit = fit;
 // Room around a pin (graph/map-pin.js) in map units: its pill hangs below the dot
 var PIN_SIDE = 60, PIN_TOP = 10, PIN_BOTTOM = 35;
 
-// The frame of the map: the image (centred on the origin), widened to every node outside it
-function frameOf(imageWidth,imageHeight,positions) {
+// The frame of the map: the image (centred on the origin), widened to every node outside it -
+// at least the room of a pin around its position, and the box vis-network draws it in
+// (<boxes>: {id: {left, right, top, bottom}}, e.g. a quest with a long name is wider than a pin)
+function frameOf(imageWidth,imageHeight,positions,boxes) {
 	var frame = {left: -imageWidth / 2, right: imageWidth / 2, top: -imageHeight / 2, bottom: imageHeight / 2};
 	for(var id in positions) {
-		var p = positions[id];
+		var p = positions[id],
+			box = boxes && boxes[id];
 		if(p && isFinite(p.x) && isFinite(p.y)) {
 			frame.left = Math.min(frame.left,p.x - PIN_SIDE);
 			frame.right = Math.max(frame.right,p.x + PIN_SIDE);
 			frame.top = Math.min(frame.top,p.y - PIN_TOP);
 			frame.bottom = Math.max(frame.bottom,p.y + PIN_BOTTOM);
+		}
+		if(box && isFinite(box.left) && isFinite(box.right) && isFinite(box.top) && isFinite(box.bottom)) {
+			frame.left = Math.min(frame.left,box.left);
+			frame.right = Math.max(frame.right,box.right);
+			frame.top = Math.min(frame.top,box.top);
+			frame.bottom = Math.max(frame.bottom,box.bottom);
 		}
 	}
 	return frame;
