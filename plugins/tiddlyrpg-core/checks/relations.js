@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194724000
-modified: 20261015194724000
+modified: 20261015200756000
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type
@@ -16,8 +16,9 @@ tw5-graph draws as well: they are no relations.
   relations/included    hint: an entry that another field to the same target includes
                         (tiddlyrpg-implies: member or officer next to leader, ancestor next to
                         parent) - it is neither drawn nor listed
-  relations/former      error: member and former, or owner and former, name the same target -
-                        a member or a former member, an owner or a former one
+  relations/former      error: former names a target that member, a type that includes member
+                        (officer, leader: tiddlyrpg-implies) or owner names as well - a member or a
+                        former member, an owner or a former one
   relations/symmetric   hint: a symmetric type (tiddlyrpg-symmetric: spouse, sibling, family,
                         alliance, bond, enmity) that the other side has and this one not
   relations/siblings    hint: a child of the same parent without sibling between the two - true
@@ -120,9 +121,14 @@ exports.rules = [
 		id: "relations/former",
 		run: function(wiki,title,view) {
 			var former = list(wiki,title,"former"),
+				member = relations.types(wiki).member,
+				fields = ["member","owner"].concat(member ? member.impliedBy : []),
 				messages = [];
-			$tw.utils.each(["member","owner"],function(field) {
-				$tw.utils.each(list(wiki,title,field),function(target) {
+			if(!former.length) {
+				return messages;
+			}
+			$tw.utils.each(fields,function(field) {
+				$tw.utils.each(relations.targets(wiki,field,title),function(target) {
 					if(former.indexOf(target) !== -1 && visibility.visible(wiki,target,view)) {
 						messages.push({level: "error", key: "Check/Relations/Former", params: {field: field, target: target}});
 					}

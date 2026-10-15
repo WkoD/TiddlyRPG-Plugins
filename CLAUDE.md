@@ -148,7 +148,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     fields)
   - `check-wiki` - `scripts/check-wiki.js`: the report (ids, levels, exit code), themes,
     `--github`, the switches; the config of the plugin types, the core version a plugin needs,
-    unknown macros and rules macros not understood, the field `link`, images and maps on disk,
+    unknown macros and rules macros not understood, images and maps on disk,
     plugins from the packages in the wiki's `node_modules`, the phases of a non-event, quest names
   - `markdown` - the content type `text/x-tiddlyrpg-markdown` (`modules/markdown.js`): the
     markers, what of Markdown it reads, that nothing becomes wikitext, the real `README.md` as

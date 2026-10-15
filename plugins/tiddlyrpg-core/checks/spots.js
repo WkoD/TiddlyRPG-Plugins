@@ -3,16 +3,17 @@ title: $:/plugins/tiddlyrpg-core/checks/spots.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015194724000
+modified: 20261015200756000
 
 Checks of spots and of the references to them (modules/spots.js; modules/checks.js runs them).
 
   spots/spotlink      error: a <<spotlink>> whose location does not exist (like a link to a
                       missing tiddler) or whose spot the location does not have; only calls in a
                       section the view sees (the message repeats their text)
-  spots/similar       hint: a spot without a tiddler whose name differs only a little from a
-                      title (case, spaces and punctuation aside, one letter or two swapped) - a
-                      typo makes a point of its own instead of joining the tiddler
+  spots/similar       hint: a spot without a tiddler whose name looks like a title written
+                      another way (checks.similar(): case, spaces and punctuation aside, or one
+                      letter or two swapped in longer names) - a typo makes a point of its own
+                      instead of joining the tiddler
 
 \*/
 
@@ -66,7 +67,7 @@ exports.rules = [
 				}
 				var name = checks.plain(spot.plain),
 					similar = (titles.byLength[name.length - 1] || []).concat(titles.byLength[name.length] || [],titles.byLength[name.length + 1] || []).filter(function(entry) {
-						return entry.title !== title && checks.distance(name,entry.plain) <= 1 && visibility.visible(wiki,entry.title,view);
+						return entry.title !== title && checks.similar(spot.plain,entry.title) && visibility.visible(wiki,entry.title,view);
 					});
 				if(similar.length) {
 					messages.push({level: "hint", key: "Check/Spots/Similar", params: {spot: spot.plain, title: similar[0].title}});

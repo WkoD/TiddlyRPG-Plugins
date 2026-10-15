@@ -3,8 +3,7 @@
  * (messages with the ids of their rules, errors and hints, exit code), the themes, --github, the
  * fields trpg-noerror and trpg-noinfo, and what it checks beyond dates: the config of the plugin
  * types ruleset and setting, the tiddlyrpg-core version a plugin needs, the reference coin of
- * the currency, unknown macros and rules macros not understood, the field link, images and maps
- * on disk, the plugins of the packages in the wiki's node_modules and the phases of a non-event,
+ * the currency, unknown macros and rules macros not understood, images and maps on disk, the plugins of the packages in the wiki's node_modules and the phases of a non-event,
  * the messages on quest names.
  * The checks of dates and sections before and after the 1.x migration: migrate.test.js.
  */
@@ -113,17 +112,6 @@ test("images and maps: a missing file, images at a joined spot; battlemap is no 
 	}
 });
 
-test("the field link: a hint, it is shown no more", function() {
-	write("tiddlers/Baile.tid", "title: Baile\ntags: Location\nlink: https://example.org/baile\n\nTown.\n");
-	try {
-		var result = check(["legacy"]);
-		assert.equal(result.status, 0, result.out);
-		assert.match(result.out, /Baile\n {2}hint {2}Check the fields: the field link is shown no more - where the images come from goes into the field source {2}\[legacy\/link\]\n/);
-	} finally {
-		fs.rmSync(path.join(dir, "tiddlers/Baile.tid"), {force: true});
-	}
-});
-
 test.describe("the config of the plugin types", function() {
 	var CONFIG = "tiddlers/$__config_tiddlyrpg_setting.tid";
 
@@ -226,7 +214,7 @@ test("the plugins of the packages in the wiki's node_modules are found", functio
 
 test.describe("themes, --github and the switches", function() {
 	test.before(function() {
-		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\nlink: x\n\nA <<nope>> B.\n");
+		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\n\nA <<nope>> B.\n");
 	});
 
 	test.after(function() {
@@ -234,36 +222,36 @@ test.describe("themes, --github and the switches", function() {
 	});
 
 	test("a theme runs only its rules", function() {
-		var result = check(["legacy"]);
+		var result = check(["expected"]);
 		assert.equal(result.status, 0, result.out);
-		assert.match(result.out, /- legacy/);
-		assert.match(result.out, /\[legacy\/link\]/);
+		assert.match(result.out, /- expected/);
+		assert.match(result.out, /\[expected\/image\]/);
 		assert.doesNotMatch(result.out, /macros\/unknown/);
 	});
 
 	test("an unknown theme: exit code 2 and the list of themes", function() {
 		var result = check(["nonsense"]);
 		assert.equal(result.status, 2, result.out);
-		assert.match(result.out, /Unknown theme: nonsense - themes: .*legacy/);
+		assert.match(result.out, /Unknown theme: nonsense - themes: .*expected/);
 	});
 
 	test("--github: each message also as a workflow command", function() {
 		var result = check(["--github"]);
 		assert.match(result.out, /^::error title=Mix::Check the text: <<nope>> is no known macro \[macros\/unknown\]$/m);
-		assert.match(result.out, /^::notice title=Mix::Check the fields: the field link is shown no more/m);
+		assert.match(result.out, /^::notice title=Mix::Check the fields: no image yet/m);
 	});
 
 	test("trpg-noerror and trpg-noinfo switch messages off, empty means all of a level", function() {
-		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\nlink: x\ntrpg-noerror: macros/unknown\ntrpg-noinfo: legacy/typo\n\nA <<nope>> B.\n");
+		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\ntrpg-noerror: macros/unknown\ntrpg-noinfo: expected/typo\n\nA <<nope>> B.\n");
 		var result = check();
 		assert.equal(result.status, 0, result.out);
 		assert.doesNotMatch(result.out, /macros\/unknown/);
-		assert.match(result.out, /\[legacy\/link\]/);
-		assert.match(result.out, /Check the fields: trpg-noinfo names "legacy\/typo", which is no check {2}\[checks\/switches\]/);
-		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\nlink: x\ntrpg-noinfo: \n\nA <<nope>> B.\n");
+		assert.match(result.out, /\[expected\/image\]/);
+		assert.match(result.out, /Check the fields: trpg-noinfo names "expected\/typo", which is no check {2}\[checks\/switches\]/);
+		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\ntrpg-noinfo: \n\nA <<nope>> B.\n");
 		result = check();
 		assert.equal(result.status, 1, result.out);
-		assert.doesNotMatch(result.out, /legacy\/link/);
+		assert.doesNotMatch(result.out, /expected\/image/);
 		assert.match(result.out, /\[macros\/unknown\]/);
 	});
 });

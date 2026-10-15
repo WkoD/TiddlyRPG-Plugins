@@ -166,9 +166,10 @@ test.describe("messages", function() {
 		});
 	});
 
-	test("member and former, owner and former on the same target: an error", function() {
-		people([{title: "R Wechsel", member: "Guild", former: "Guild"}, {title: "R Ring", tags: "Artifact", owner: "Grum", former: "Grum"}], function() {
+	test("member (or what includes it) and former, owner and former on the same target: an error", function() {
+		people([{title: "R Wechsel", member: "Guild", former: "Guild"}, {title: "R Ring", tags: "Artifact", owner: "Grum", former: "Grum"}, {title: "R Altchef", leader: "Guild", former: "Guild"}], function() {
 			assert.deepEqual(messages("R Wechsel", "relations/former"), [{key: "Check/Relations/Former", params: {field: "member", target: "Guild"}}]);
+			assert.deepEqual(messages("R Altchef", "relations/former"), [{key: "Check/Relations/Former", params: {field: "leader", target: "Guild"}}], "leader includes member");
 			assert.deepEqual(messages("R Ring", "relations/former"), [{key: "Check/Relations/Former", params: {field: "owner", target: "Grum"}}]);
 		});
 	});

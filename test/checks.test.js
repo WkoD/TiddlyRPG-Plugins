@@ -54,7 +54,7 @@ test.describe("registry", function() {
 
 	test("the themes are the first parts of the ids", function() {
 		var themes = Array.from(checks.themes());
-		["checks", "dates", "events", "expected", "images", "items", "legacy", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
+		["checks", "dates", "events", "expected", "images", "items", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
 			assert.ok(themes.indexOf(theme) !== -1, theme);
 		});
 	});
@@ -62,7 +62,7 @@ test.describe("registry", function() {
 
 test.describe("messages", function() {
 	test("level, key and text in the wiki language, errors first", function() {
-		withTiddlers([{title: "Mischung", tags: "Event", date: "1351-13", link: "x", text: "<<date>>\n\nA <<nope>>."}], function() {
+		withTiddlers([{title: "Mischung", tags: "Event", date: "1351-13", text: "<<date>>\n\nA <<nope>> and [[Nirgendwo]]."}], function() {
 			var messages = h.checks(wiki, "Mischung");
 			assert.deepEqual(messages.map(function(m) { return m.level; }), ["error", "error", "hint"]);
 			assert.ok(messages.some(function(m) { return m.text === "Datum prüfen: 1351-13 – den Monat 13 gibt es nicht"; }));
@@ -76,10 +76,10 @@ test.describe("messages", function() {
 	});
 
 	test("below the title: a line per message, the level as class, the id as tooltip", function() {
-		withTiddlers([{title: "Mischung", tags: "Event", date: "1351-13", link: "x", text: "<<date>>\n\nA."}], function() {
+		withTiddlers([{title: "Mischung", tags: "Event", date: "1351-13", text: "<<date>>\n\nA [[Nirgendwo]]."}], function() {
 			var html = h.view(wiki, "Mischung");
 			assert.match(html, /<div class="trpg-check trpg-check-error" title="dates\/format">Datum prüfen: 1351-13 – den Monat 13 gibt es nicht<\/div>/);
-			assert.match(html, /<div class="trpg-check trpg-check-hint" title="legacy\/link">Felder prüfen: /);
+			assert.match(html, /<div class="trpg-check trpg-check-hint" title="links\/missing">Link prüfen: /);
 			assert.ok(html.indexOf("trpg-check-error") < html.indexOf("trpg-check-hint"));
 		});
 	});
@@ -110,23 +110,23 @@ test.describe("messages", function() {
 });
 
 test.describe("switching off", function() {
-	var fields = {title: "Schalter", tags: "Event", date: "1351-13", link: "x", text: "<<date>>\n\nA <<nope>>."};
+	var fields = {title: "Schalter", tags: "Event", date: "1351-13", text: "<<date>>\n\nA <<nope>> and [[Nirgendwo]]."};
 
 	test("trpg-noerror with ids leaves out these errors only", function() {
 		withTiddlers([Object.assign({"trpg-noerror": "macros/unknown"}, fields)], function() {
-			assert.deepEqual(ids("Schalter"), ["dates/format", "legacy/link"]);
+			assert.deepEqual(ids("Schalter"), ["dates/format", "links/missing"]);
 		});
 	});
 
 	test("trpg-noinfo with ids leaves out these hints only", function() {
-		withTiddlers([Object.assign({"trpg-noinfo": "legacy/link"}, fields)], function() {
+		withTiddlers([Object.assign({"trpg-noinfo": "links/missing"}, fields)], function() {
 			assert.deepEqual(ids("Schalter"), ["dates/format", "macros/unknown"]);
 		});
 	});
 
 	test("present but empty: every message of its level", function() {
 		withTiddlers([Object.assign({"trpg-noerror": ""}, fields)], function() {
-			assert.deepEqual(ids("Schalter"), ["legacy/link"]);
+			assert.deepEqual(ids("Schalter"), ["links/missing"]);
 		});
 		withTiddlers([Object.assign({"trpg-noinfo": ""}, fields)], function() {
 			assert.deepEqual(ids("Schalter"), ["dates/format", "macros/unknown"]);
@@ -182,6 +182,35 @@ test.describe("what a message leaves out for a view", function() {
 		});
 	});
 
+	test("a transcluded secret where only who may see it sees it: no error", function() {
+		var ids = function(title) {
+			return h.checks(wiki, title, "secrets").map(function(message) { return message.id; });
+		};
+		withTiddlers([
+			{title: "Auch Geheim", tags: "Event Frigg Secret", date: "1351", text: "<<date>>\n\n{{Hideout}}"},
+			{title: "Nur DM", tags: "Secret", text: "{{Hideout}}"},
+			{title: "Gesperrter Abschnitt", tags: "Event Frigg", date: "1351, 1352", text: "<<date>>\n\nOpen.\n\n<<secret \"Frigg\">><<date>>\n\n{{Hideout}}"},
+			{title: "Offener Abschnitt", tags: "Event Frigg", date: "1351, 1352", text: "<<date>>\n\n{{Hideout}}\n\n<<secret \"Frigg\">><<date>>\n\nLocked."}
+		], function() {
+			assert.deepEqual(ids("Auch Geheim"), [], "locked for the same character");
+			assert.deepEqual(ids("Nur DM"), [], "locked for fewer (the DM only)");
+			assert.deepEqual(ids("Gesperrter Abschnitt"), [], "in a section locked for the same character");
+			assert.deepEqual(ids("Offener Abschnitt"), ["secrets/transclusion"], "in the open part");
+		});
+	});
+
+	test("a list filtered with trpg.visible does not ask the view; the state tiddler and trpgview do", function() {
+		withTiddlers([
+			{title: "Liste", tags: "Information", text: "<$list filter=\"[tag[Person]] :filter[trpg.visible[]]\"><<currentTiddler>></$list>"},
+			{title: "Abfrage", tags: "Information", text: "<%if [{$:/state/tiddlyrpg/view}match[dm]] %>DM<%endif%>"},
+			{title: "Operator", tags: "Information", text: "<$list filter=\"[trpgview:choices[]]\"/>"}
+		], function() {
+			assert.deepEqual(h.checkKeys(wiki, "Liste", "secrets"), []);
+			assert.deepEqual(h.checkKeys(wiki, "Abfrage", "secrets"), ["Check/Secrets/View"]);
+			assert.deepEqual(h.checkKeys(wiki, "Operator", "secrets"), ["Check/Secrets/View"]);
+		});
+	});
+
 	test("a parent hidden from someone: for the DM only", function() {
 		withTiddlers([
 			{title: "Hidden Realm", tags: "Location Secret", text: "Locked."},
@@ -192,6 +221,19 @@ test.describe("what a message leaves out for a view", function() {
 				assert.ok(h.checkKeys(wiki, "Open Town", "locations").indexOf("Location/Check/LockedParent") === -1);
 			});
 		});
+	});
+});
+
+test.describe("similar names", function() {
+	test("the same plain form always, one step apart only from five letters on", function() {
+		assert.equal(checks.similar("Tyrias Labore finden", "Tyrias labore finden!"), true);
+		assert.equal(checks.similar("Tor", "tor"), true);
+		assert.equal(checks.similar("Rettung von Baile", "Rettung von Biale"), true);
+		assert.equal(checks.similar("Tavrn", "Tavern"), true);
+		assert.equal(checks.similar("Turm", "Sturm"), false);
+		assert.equal(checks.similar("Tor", "Thor"), false);
+		assert.equal(checks.similar("Tor", "Tür"), false);
+		assert.equal(checks.similar("Die Schamanin Eoria", "Die Schamanin Tyria"), false);
 	});
 });
 

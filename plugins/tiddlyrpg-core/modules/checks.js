@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/checks.js
 type: application/javascript
 module-type: library
 created: 20261015191942000
-modified: 20261015191942000
+modified: 20261015200756000
 
 Checks: the problems of the tiddlers of a wiki - the one place that runs them. The same rules
 give the messages below the title (viewtemplates/checks, filter trpgcheck) and the report of
@@ -36,6 +36,10 @@ message of that level.
                                 tiddler (graph views aside) and no draft, plus the titles the
                                 rules of scope wiki name; themes (optional) limits the rules
   plain(text), distance(a,b)    for names that differ only a little (quests, spots)
+  similar(a,b)                  whether two names look like one written two ways: the same plain
+                                form (case, spaces, punctuation aside), or one step apart when both
+                                have at least SIMILAR_LENGTH letters - "Turm" and "Sturm" are two
+                                words
   setFolder(path), folder()     the folder of the wiki on disk, for the rules that look at files
                                 (scripts/check-wiki.js sets it; in the browser there is none)
 
@@ -187,6 +191,17 @@ exports.all = function(wiki,view,themes) {
 		}
 	});
 	return result;
+};
+
+var SIMILAR_LENGTH = exports.SIMILAR_LENGTH = 5;
+
+exports.similar = function(a,b) {
+	var pa = exports.plain(a),
+		pb = exports.plain(b);
+	if(pa === pb) {
+		return true;
+	}
+	return pa.length >= SIMILAR_LENGTH && pb.length >= SIMILAR_LENGTH && Math.abs(pa.length - pb.length) <= 1 && exports.distance(pa,pb) <= 1;
 };
 
 // Lower case without spaces and punctuation: "Die Schamanin Eoria" -> "dieschamanineoria"

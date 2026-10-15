@@ -3,13 +3,13 @@ title: $:/plugins/tiddlyrpg-core/checks/dates.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015191942000
+modified: 20261015200756000
 
 Checks of the field date and of the dated sections of an event (modules/dates.js;
 modules/checks.js runs them).
 
-  dates/format        error: the old format (dots), a part that cannot be read, a month or day
-                      the calendar does not have, start after end, sections out of order
+  dates/format        error: a part that cannot be read, a month or day the calendar does not
+                      have, start after end, sections out of order
   dates/field         hint: an empty side or section
   dates/phases        hint: a phase of a non-event without an end before a later one; ".." as
                       start of a non-event (since time immemorial)
@@ -44,20 +44,14 @@ exports.rules = [
 		id: "dates/format",
 		run: function(wiki,title) {
 			var date = field(tiddlerOf(wiki,title));
-			if(date === null) {
-				return [];
-			}
-			if(dates.isOld(date)) {
-				return [{level: "error", key: "Check/Dates/Old", params: {date: date}}];
-			}
-			return as("error",dates.check(calendar.active(wiki),dates.parse(date)));
+			return date === null ? [] : as("error",dates.check(calendar.active(wiki),dates.parse(date)));
 		}
 	},
 	{
 		id: "dates/field",
 		run: function(wiki,title) {
 			var date = field(tiddlerOf(wiki,title));
-			return date === null || dates.isOld(date) ? [] : as("hint",dates.parse(date).warnings);
+			return date === null ? [] : as("hint",dates.parse(date).warnings);
 		}
 	},
 	{
@@ -65,7 +59,7 @@ exports.rules = [
 		run: function(wiki,title) {
 			var tiddler = tiddlerOf(wiki,title),
 				date = field(tiddler);
-			if(date === null || tiddler.hasTag("Event") || dates.isOld(date)) {
+			if(date === null || tiddler.hasTag("Event")) {
 				return [];
 			}
 			var parsed = dates.parse(date),

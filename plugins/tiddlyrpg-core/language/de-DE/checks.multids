@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015194724000
+modified: 20261015200756000
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -13,7 +13,6 @@ Dates/Month: Datum prüfen: $point$ – den Monat $month$ gibt es nicht
 Dates/NoDate: Ereignis prüfen: Es hat kein Datum
 Dates/NoHeading: Ereignis prüfen: kein <<date>> für Abschnitt $sections$
 Dates/NoPlaceholder: Ereignis prüfen: Jedes Ereignis beginnt mit <<date>>
-Dates/Old: Datum prüfen: „$date$“ steht im Format vor 2.0 (Punkte)
 Dates/OpenPhase: Datum prüfen: Die Phase $section$ hat kein Ende, aber eine spätere folgt
 Dates/Order: Datum prüfen: $section$ liegt vor dem Abschnitt davor
 Dates/Rule: Text prüfen: „---“ direkt vor <<date>> von Abschnitt $n$ – die Überschrift zieht ihre eigene Linie
@@ -31,10 +30,6 @@ Images/Map: Karte prüfen: $path$ gibt es nicht
 Images/NoFolder: Text prüfen: <<image "$files$">> in einem Tiddler ohne Typ – den Ordner nennen, z. B. folder:"event"
 Images/SpotImage: Spot $spot$ prüfen: Sein Bild $path$ gibt es nicht
 Images/SpotMap: Spot $spot$ prüfen: Seine Karte $path$ gibt es nicht
-Legacy/Dateformat: Ereignis prüfen: ein Datum im Text statt im Feld: $calls$
-Legacy/Datelong: Ereignis prüfen: Ein Aufruf von datelong steht noch im Text – das Datum gehört ins Feld
-Legacy/DeadFilter: Filter prüfen: search:date[.] ist die alte Marke der Toten – trpg.dead[] verwenden
-Legacy/Link: Felder prüfen: Das Feld link wird nicht mehr gezeigt – woher die Bilder stammen, steht im Feld source
 Links/Missing: Link prüfen: $target$ gibt es nicht – anlegen, entlinken oder bewusst stehen lassen
 Locations/Organisation: Ort prüfen: $place$ ist keiner der Orte von $organisations$ und liegt weder darin noch darüber
 Locations/Tag: Tags prüfen: $tag$ ist ein Ort – Orte sind nie Tags, der Ort gehört ins Feld location

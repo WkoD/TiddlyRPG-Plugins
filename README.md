@@ -661,7 +661,7 @@ out every message of its level. An id that is no rule is a hint.
 | Id | Level | Message |
 |---|---|---|
 | `checks/switches` | hint | `trpg-noerror` or `trpg-noinfo` names an id that is no rule |
-| `dates/format` | error | the date field in the format before 2.0, a part that cannot be read, a day or month the calendar does not have, start after end, sections out of order |
+| `dates/format` | error | a part of the date field that cannot be read, a day or month the calendar does not have, start after end, sections out of order |
 | `dates/field` | hint | an empty side or section in the date field |
 | `dates/phases` | hint | a phase of a non-event without an end before a later one, `..` as start |
 | `dates/event` | hint | an event without date, without `<<date>>` at the start, sections without heading, text before the first `<<date>>` |
@@ -675,9 +675,6 @@ out every message of its level. An id that is no rule is a hint.
 | `images/joined` | hint | images or maps at a spot joined to a tiddler - they show in that tiddler |
 | `items/base` | error | a category without base type, two base types |
 | `items/price` | error | a price that does not fit the currency |
-| `legacy/deadfilter` | error | a filter on the old dead marker `search:date[.]` |
-| `legacy/eventdate` | error | a `datelong` call or a `<<dateformat "...">>` date in the body of an event |
-| `legacy/link` | hint | the field `link` (shown no more; sources go into `source`) |
 | `links/missing` | hint | a link to a tiddler that does not exist |
 | `locations/structure` | error | a location in two places or in a cycle, naming no location, with a parent hidden from someone who sees it; a person in two places; an artifact in two places, with two owners, or with owner and location |
 | `locations/led` | hint | `location` names a location `leader` already holds |
@@ -687,21 +684,21 @@ out every message of its level. An id that is no rule is a hint.
 | `macros/unknown` | error | a macro nothing defines |
 | `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
 | `quests/marker` | hint | a quest without a marker |
-| `quests/similar` | hint | two names of quests or rumours one letter apart |
+| `quests/similar` | hint | two names of quests or rumours that look like one written two ways: the same apart from case, spaces and punctuation, or - from five letters on - one letter or two swapped |
 | `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name) |
 | `relations/included` | hint | an entry another field to the same target includes (`member` next to `leader`, `ancestor` next to `parent`) |
-| `relations/former` | error | `member` or `owner` and `former` name the same target |
+| `relations/former` | error | `former` and `member` (or what includes it: `officer`, `leader`) or `owner` name the same target |
 | `relations/symmetric` | hint | a symmetric relation (`spouse`, `sibling`, `family`, `alliance`, `bond`, `enmity`) only on the other side |
 | `relations/siblings` | hint | two children of a parent without `sibling` between them |
 | `relations/family` | hint | `family` next to another family relation of the same two |
 | `relations/ancestor` | hint | an `ancestor` the line of parents already reaches |
 | `relations/leaders` | hint | an organisation led by several living tiddlers |
 | `relations/deadleader` | hint | a dead tiddler that still leads |
-| `secrets/view` | error | a tiddler asks the view itself instead of locking |
-| `secrets/transclusion` | error | a tiddler transcludes a secret one |
+| `secrets/view` | error | a tiddler asks the view itself (`$:/state/tiddlyrpg/view`, `trpgview`) instead of locking; a list filtered with `trpg.visible` is fine |
+| `secrets/transclusion` | error | a secret tiddler is transcluded where someone sees it who may not see the secret (fine inside a tiddler or section locked for the same players or fewer) |
 | `sections/structure` | error | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker |
 | `spots/spotlink` | error | a `<<spotlink>>` whose location does not exist or does not have the spot |
-| `spots/similar` | hint | a spot without tiddler one letter off a title |
+| `spots/similar` | hint | a spot without tiddler whose name looks like a title written another way (as `quests/similar`) |
 | `types/missing` | hint | a tiddler without type tag |
 
 ## Licenses in the wiki
