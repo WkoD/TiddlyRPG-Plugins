@@ -105,8 +105,14 @@ test("images and maps: a missing file, images at a joined spot; battlemap is no 
 			assert.ok(result.out.indexOf(line) !== -1, line + "\n" + result.out);
 		});
 		assert.doesNotMatch(result.out, /Hafen\.jpg does not exist|Steg\.jpg does not exist|battlemap/);
+		write("images/location/Unbenutzt.jpg", "");
+		write("images/maptool/Eigen.png", "");
+		result = check(["images"]);
+		assert.match(result.out, /images\/location\/Unbenutzt\.jpg\n {2}hint {2}Check the file: no tiddler shows it - use it in image, map or <<image>>, or remove it {2}\[images\/unused\]/);
+		assert.doesNotMatch(result.out, /images\/map\/Hafen\.jpg\n|images\/location\/Steg\.jpg\n/, "used files");
+		assert.doesNotMatch(result.out, /maptool/, "a folder of the campaign");
 	} finally {
-		["images/map/Hafen.jpg", "images/location/Steg.jpg", "tiddlers/Hafen.tid", "tiddlers/Kneipe.tid", "tiddlers/Ankunft.tid", "tiddlers/Lose Notiz.tid"].forEach(function(file) {
+		["images/map/Hafen.jpg", "images/location/Steg.jpg", "images/location/Unbenutzt.jpg", "images/maptool/Eigen.png", "tiddlers/Hafen.tid", "tiddlers/Kneipe.tid", "tiddlers/Ankunft.tid", "tiddlers/Lose Notiz.tid"].forEach(function(file) {
 			fs.rmSync(path.join(dir, file), {force: true});
 		});
 	}

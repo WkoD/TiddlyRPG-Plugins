@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/images.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015191942000
+modified: 20261015204450000
 
 Checks of images and maps (modules/images.js; modules/checks.js runs them).
 
@@ -15,6 +15,11 @@ Checks of images and maps (modules/images.js; modules/checks.js runs them).
                   image and map of a spot without tiddler, the files of <<image>>). Only where
                   the folder of the wiki is known (checks.setFolder(), scripts/check-wiki.js);
                   in the browser it gives nothing
+  images/unused   hint, scope wiki: a file in the image folder of a type or in images/map/ that
+                  no tiddler names (fields image and map, the parameters image and map of a
+                  spot, <<image>>) - use it or remove it. Other folders below images/ are the
+                  campaign's own. The title of the message is the path of the file: it shows
+                  only in scripts/check-wiki.js
 
 Calls and spots in a section the view does not see are left out (the message repeats them).
 
@@ -90,6 +95,63 @@ exports.rules = [
 			}).map(function(entry) {
 				return {level: "hint", key: "Check/Images/Joined", params: {spot: entry.spot.plain, target: entry.joined}};
 			});
+		}
+	},
+	{
+		id: "images/unused",
+		scope: "wiki",
+		run: function(wiki,view) {
+			var root = checks.folder();
+			if(!root) {
+				return [];
+			}
+			var fs = require("fs"),
+				path = require("path"),
+				used = Object.create(null);
+			var mark = function(dir,list) {
+				$tw.utils.each(images.files(list),function(file) {
+					used[dir + "/" + file] = true;
+				});
+			};
+			wiki.each(function(tiddler,title) {
+				var own = images.folderOf(tiddler);
+				if(own) {
+					mark(own,tiddler.fields.image);
+				}
+				mark("map",tiddler.fields.map);
+				if(tiddler.hasTag("Location")) {
+					$tw.utils.each(spots.read(wiki,title).spots,function(spot) {
+						mark("location",spot.image);
+						mark("map",spot.map);
+					});
+				}
+				if((tiddler.fields.text || "").indexOf("image") !== -1) {
+					$tw.utils.each(calls(wiki,title,view),function(call) {
+						if(call.folder || own) {
+							mark(call.folder || own,call.files);
+						}
+					});
+				}
+			});
+			var dirs = ["map"],
+				messages = [];
+			$tw.utils.each(images.FOLDERS,function(entry) {
+				if(dirs.indexOf(entry.folder) === -1) {
+					dirs.push(entry.folder);
+				}
+			});
+			$tw.utils.each(dirs.sort(),function(dir) {
+				var full = path.join(root,"images",dir);
+				if(!fs.existsSync(full)) {
+					return;
+				}
+				$tw.utils.each(fs.readdirSync(full).sort(),function(file) {
+					if(file.charAt(0) !== "." && !used[dir + "/" + file] && fs.statSync(path.join(full,file)).isFile()) {
+						messages.push({title: "images/" + dir + "/" + file, level: "hint", key: "Check/Images/Unused"});
+					}
+				});
+			});
+			return messages;
 		}
 	},
 	{

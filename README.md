@@ -669,12 +669,14 @@ out every message of its level. An id that is no rule is a hint.
 | `expected/image` | hint | a person, player character or location without image |
 | `expected/map` | hint | a location without map |
 | `expected/player` | hint | a player character without the field `player` |
+| `expected/text` | hint | a tiddler without text (not a quest, a tiddler with a file in `data`, a hub) |
 | `images/files` | error | a file in `image`, `map`, a spot or `<<image>>` that is not in `images/` (only `check-wiki.js`) |
 | `images/folder` | error | `<<image "...">>` in a tiddler without type and without `folder:` |
+| `images/unused` | hint | a file in the image folder of a type or in `images/map/` that no tiddler names (only `check-wiki.js`, the path of the file as title) |
 | `images/joined` | hint | images or maps at a spot joined to a tiddler - they show in that tiddler |
 | `items/base` | error | a category without base type, two base types |
 | `items/price` | error | a price that does not fit the currency |
-| `links/missing` | hint | a link to a tiddler that does not exist |
+| `links/missing` | hint | a link to a tiddler that does not exist; from how many tiddlers it is linked; for the name of a spot its location and `<<spotlink>>` |
 | `locations/structure` | error | a location in two places or in a cycle, naming no location, with a parent hidden from someone who sees it; a person in two places; an artifact in two places, with two owners, or with owner and location |
 | `locations/led` | hint | `location` names a location `leader` already holds |
 | `locations/tag` | error | a location as tag |

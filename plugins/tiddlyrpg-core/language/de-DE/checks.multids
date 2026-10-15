@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015203416000
+modified: 20261015204450000
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -22,6 +22,7 @@ Dates/Unreadable: Datum prüfen: $parts$ ist nicht lesbar
 Expected/Image: Felder prüfen: noch kein Bild (Feld image)
 Expected/Map: Felder prüfen: noch keine Karte (Feld map)
 Expected/Player: Felder prüfen: Wer spielt diese Figur? (Feld player)
+Expected/Text: Text prüfen: noch kein Text
 Images/Image: Bild prüfen: $path$ gibt es nicht
 Images/Joined: Spot prüfen: $spot$ ist mit $target$ verbunden – seine Bilder und Karten erscheinen dort, also dort eintragen
 Images/Macro: Text prüfen: <<image>> zeigt $path$, das gibt es nicht
@@ -29,7 +30,10 @@ Images/Map: Karte prüfen: $path$ gibt es nicht
 Images/NoFolder: Text prüfen: <<image "$files$">> in einem Tiddler ohne Typ – den Ordner nennen, z. B. folder:"event"
 Images/SpotImage: Spot $spot$ prüfen: Sein Bild $path$ gibt es nicht
 Images/SpotMap: Spot $spot$ prüfen: Seine Karte $path$ gibt es nicht
+Images/Unused: Datei prüfen: Kein Tiddler zeigt sie – in image, map oder <<image>> verwenden oder entfernen
 Links/Missing: Link prüfen: $target$ gibt es nicht – anlegen, entlinken oder bewusst stehen lassen
+Links/MissingOften: Link prüfen: $target$ gibt es nicht und $count$ Tiddler verlinken es – anlegen, entlinken oder bewusst stehen lassen
+Links/MissingSpot: Link prüfen: $target$ ist kein Tiddler, nur ein Spot von $place$ – mit <<spotlink "$place$" "$target$">> verlinken oder den Tiddler anlegen
 Locations/Tag: Tags prüfen: $tag$ ist ein Ort – Orte sind nie Tags, der Ort gehört ins Feld location
 Plugins/Reference: Geldsystem prüfen: Die Münze der Preise des Regelwerks ist $reference$, das ist keine seiner Münzen ($coins$)
 Plugins/disabled: Auswahl prüfen: $configured$ ist deaktiviert – aktiv ist $active$

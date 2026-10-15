@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015203416000
+modified: 20261015204450000
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -22,6 +22,7 @@ Dates/Unreadable: Check the date: cannot read $parts$
 Expected/Image: Check the fields: no image yet (field image)
 Expected/Map: Check the fields: no map yet (field map)
 Expected/Player: Check the fields: who plays this character? (field player)
+Expected/Text: Check the text: it has no text yet
 Images/Image: Check the image: $path$ does not exist
 Images/Joined: Check the spot: $spot$ is joined to $target$ - its images and maps show there, set them in that tiddler
 Images/Macro: Check the text: <<image>> shows $path$, which does not exist
@@ -29,7 +30,10 @@ Images/Map: Check the map: $path$ does not exist
 Images/NoFolder: Check the text: <<image "$files$">> in a tiddler without type - name the folder, e.g. folder:"event"
 Images/SpotImage: Check the spot $spot$: its image $path$ does not exist
 Images/SpotMap: Check the spot $spot$: its map $path$ does not exist
+Images/Unused: Check the file: no tiddler shows it - use it in image, map or <<image>>, or remove it
 Links/Missing: Check the link: $target$ does not exist - create it, unlink it or leave it on purpose
+Links/MissingOften: Check the link: $target$ does not exist and is linked from $count$ tiddlers - create it, unlink it or leave it on purpose
+Links/MissingSpot: Check the link: $target$ is no tiddler, only a spot of $place$ - link it with <<spotlink "$place$" "$target$">>, or create the tiddler
 Locations/Tag: Check the tags: $tag$ is a location - locations are never tags, the place goes into the field location
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$

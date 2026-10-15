@@ -3,19 +3,41 @@ title: $:/plugins/tiddlyrpg-core/checks/links.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194724000
-modified: 20261015194724000
+modified: 20261015204450000
 
 Checks of the links in a body (the links of the model of modules/sections.js; modules/checks.js
 runs them).
 
   links/missing   hint: a link to a tiddler that does not exist - create it, unlink it or leave
-                  it on purpose; only links in sections the view sees, none to system tiddlers
+                  it on purpose. Linked from several tiddlers, the hint says from how many (a
+                  target many link is likely worth a tiddler). The name of a spot: the hint names
+                  its location and <<spotlink>>. Only links in sections the view sees, none to
+                  system tiddlers; the count and the spot only as far as the view sees them
 
 \*/
 
 "use strict";
 
-var sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js");
+var sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
+	spots = require("$:/plugins/tiddlyrpg-core/modules/spots.js"),
+	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
+
+// Whether <title> links <target> in a section the view sees
+function linksVisibly(wiki,title,target,view) {
+	return visibility.visible(wiki,title,view) && sections.read(wiki,title).links.some(function(link) {
+		return link.to === target && sections.visible(wiki,title,link.section,view);
+	});
+}
+
+// A location the view sees with a spot of that name the view sees, or ""
+function spotPlace(wiki,target,view) {
+	var places = (spots.index(wiki).names[target] || []).filter(function(place) {
+		return visibility.visible(wiki,place,view) && spots.visibleSpots(wiki,place,view).some(function(spot) {
+			return spot.plain === target;
+		});
+	});
+	return places[0] || "";
+}
 
 exports.rules = [
 	{
@@ -30,7 +52,17 @@ exports.rules = [
 					return;
 				}
 				seen[target] = true;
-				messages.push({level: "hint", key: "Check/Links/Missing", params: {target: target}});
+				var place = spotPlace(wiki,target,view);
+				if(place) {
+					messages.push({level: "hint", key: "Check/Links/MissingSpot", params: {target: target, place: place}});
+					return;
+				}
+				var count = wiki.getTiddlerBacklinks(target).filter(function(linker) {
+					return linksVisibly(wiki,linker,target,view);
+				}).length;
+				messages.push(count > 1 ?
+					{level: "hint", key: "Check/Links/MissingOften", params: {target: target, count: count}} :
+					{level: "hint", key: "Check/Links/Missing", params: {target: target}});
 			});
 			return messages;
 		}

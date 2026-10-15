@@ -247,6 +247,40 @@ test.describe("content", function() {
 		});
 	});
 
+	test("links/missing: the name of a spot names its location; several linking tiddlers are counted, as far as the view sees them", function() {
+		withTiddlers([
+			{title: "Brunnenweg", tags: "Event", date: "1351", text: "<<date>>\n\nTo the [[Old Well]] and [[Ferne Insel]]; [[Einsam]]."},
+			{title: "Inselfahrt", tags: "Event", date: "1351", text: "<<date>>\n\nTo [[Ferne Insel]]."},
+			{title: "Geheimfahrt", tags: "Event Frigg", date: "1351, 1352", text: "<<date>>\n\nOpen.\n\n<<secret>><<date>>\n\nTo [[Ferne Insel]]."}
+		], function() {
+			var found = function() {
+				return h.checks(wiki, "Brunnenweg", "links").map(function(m) { return m.key + " " + JSON.stringify(m.params); });
+			};
+			assert.deepEqual(found(), [
+				"Check/Links/MissingSpot {\"target\":\"Old Well\",\"place\":\"Town\"}",
+				"Check/Links/MissingOften {\"target\":\"Ferne Insel\",\"count\":3}",
+				"Check/Links/Missing {\"target\":\"Einsam\"}"
+			]);
+			assert.equal(h.checks(wiki, "Brunnenweg", "links")[0].text, "Link prüfen: Old Well ist kein Tiddler, nur ein Spot von Town – mit <<spotlink \"Town\" \"Old Well\">> verlinken oder den Tiddler anlegen");
+			h.inView(wiki, "public", function() {
+				assert.ok(found().indexOf("Check/Links/MissingOften {\"target\":\"Ferne Insel\",\"count\":2}") !== -1, "the locked section does not count");
+			});
+		});
+	});
+
+	test("expected/text: a tiddler without text; not a quest, a book with its file, a hub", function() {
+		withTiddlers([
+			{title: "Leerer Ort", tags: "Location", text: ""},
+			{title: "Leerer Quest", tags: "Quest", text: ""},
+			{title: "Zeitung", tags: "Item Book", data: "Zeitung.pdf", text: ""}
+		], function() {
+			assert.deepEqual(h.checkKeys(wiki, "Leerer Ort", "expected").filter(function(k) { return k === "Check/Expected/Text"; }), ["Check/Expected/Text"]);
+			assert.ok(h.checkKeys(wiki, "Leerer Quest", "expected").indexOf("Check/Expected/Text") === -1);
+			assert.ok(h.checkKeys(wiki, "Zeitung", "expected").indexOf("Check/Expected/Text") === -1);
+			assert.ok(h.checkKeys(wiki, "Baile", "expected").indexOf("Check/Expected/Text") === -1, "has a text");
+		});
+	});
+
 	test("types/missing: a tiddler without type tag; not a hub, a data tiddler or one with a type", function() {
 		withTiddlers([
 			{title: "Ohne Typ", tags: "Secret", text: "Loose."},
