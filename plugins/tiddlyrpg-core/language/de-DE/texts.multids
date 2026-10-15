@@ -146,7 +146,6 @@ Settings/SettingOptions/Caption: Kampagnenwelt Einstellungen
 Settings/SettingOptions/Hint: Einstellungen der Kampagnenwelt für dieses Wiki: in welcher Sprache die Namen des Kalenders und der Münzen angezeigt werden, und die Reihenfolge von Tag und Monat in Daten.
 Settings/SettingOptions/Hub: Alle Namen:
 Snippet/DateSection: Abschnitt mit Datum
-Snippet/OpenItems: Offene Punkte
 Source/Label: Quelle:
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden
 Spot/PlaceMissing: Ort „$place$“ gibt es nicht

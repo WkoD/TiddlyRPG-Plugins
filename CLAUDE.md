@@ -342,7 +342,7 @@ the tiddler title:
   one type scope filter for both tabs), `secret` (marker of a secret: whom it is for), `player`
   (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-sections` (cascade, see below).
-- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `open-items`, `date-section`.
+- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `date-section`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   dated sections, location pills), `location` (path, spot pills, spots, map buttons; static
