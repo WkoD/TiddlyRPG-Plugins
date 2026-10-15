@@ -209,8 +209,26 @@ test.describe("messages", function() {
 			assert.deepEqual(messages("R Bund", "relations/leaders"), [{key: "Check/Relations/Leaders", params: {leaders: "R Erste, R Zweite"}}]);
 			people([{title: "R Zweite", leader: "[[R Bund]]", date: "1300/1340"}], function() {
 				assert.deepEqual(messages("R Bund", "relations/leaders"), []);
-				assert.deepEqual(messages("R Zweite", "relations/deadleader"), [{key: "Check/Relations/DeadLeader", params: {targets: "R Bund"}}]);
 			});
+		});
+	});
+
+	test("a dead leader: a hint only once a living one leads the same - not without successor, not when the organisation died too", function() {
+		people([{title: "R Orden", tags: "Organisation"}, {title: "R Gründer", leader: "[[R Orden]]", date: "1300/1340"}], function() {
+			assert.deepEqual(messages("R Gründer", "relations/deadleader"), [], "no successor yet");
+			people([{title: "R Erbin", leader: "[[R Orden]]"}], function() {
+				assert.deepEqual(messages("R Gründer", "relations/deadleader"), [{key: "Check/Relations/DeadLeader", params: {target: "R Orden", successors: "R Erbin"}}]);
+				assert.match(h.checks(wiki, "R Gründer", "relations")[0].text, /^Felder prüfen: tot, und R Erbin führt R Orden schon – der Tote ist dort jetzt Mitglied/);
+			});
+			people([{title: "R Erbin", leader: "[[R Orden]]", date: "1320/1350"}], function() {
+				assert.deepEqual(messages("R Gründer", "relations/deadleader"), [], "a dead successor is no successor");
+			});
+		});
+		people([{title: "R Alter Bund", tags: "Organisation", date: "1200/1340"}, {title: "R Letzter", leader: "[[R Alter Bund]]", date: "1290/1340"}], function() {
+			assert.deepEqual(messages("R Letzter", "relations/deadleader"), [], "died with the organisation");
+		});
+		people([{title: "R Alter Vogt", leader: "Baile", date: "1290/1340"}, {title: "R Neuer Vogt", leader: "Baile"}], function() {
+			assert.deepEqual(messages("R Alter Vogt", "relations/deadleader"), [{key: "Check/Relations/DeadLeaderPlace", params: {target: "Baile", successors: "R Neuer Vogt"}}]);
 		});
 	});
 

@@ -691,7 +691,7 @@ out every message of its level. An id that is no rule is a hint.
 | `relations/family` | hint | `family` next to another family relation of the same two |
 | `relations/ancestor` | hint | an `ancestor` the line of parents already reaches |
 | `relations/leaders` | hint | an organisation led by several living tiddlers |
-| `relations/deadleader` | hint | a dead tiddler that still leads |
+| `relations/deadleader` | hint | a dead tiddler leads something a living one leads as well: there is a successor, the dead one is a member now (of a location: no entry). A dead leader without successor stays leader - death ends no membership |
 | `secrets/view` | error | a tiddler asks the view itself (`$:/state/tiddlyrpg/view`, `trpgview`) instead of locking; a list filtered with `trpg.visible` is fine |
 | `secrets/transclusion` | error | a secret tiddler is transcluded where someone sees it who may not see the secret (fine inside a tiddler or section locked for the same players or fewer) |
 | `sections/structure` | error | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker |

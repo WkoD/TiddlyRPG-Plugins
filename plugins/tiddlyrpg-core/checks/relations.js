@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194724000
-modified: 20261015200756000
+modified: 20261015203416000
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type
@@ -29,8 +29,11 @@ tw5-graph draws as well: they are no relations.
                         of its own - the line or the ancestor may go
   relations/leaders     hint: an organisation led by several living tiddlers - a council is
                         fine (switch it off with trpg-noinfo), else one too many
-  relations/deadleader  hint: a dead tiddler (date ends) that still leads (field leader) - who
-                        followed?
+  relations/deadleader  hint: a dead tiddler (date ends) that leads something (field leader)
+                        that a living tiddler leads as well - there is a successor, so the dead
+                        one is only a member now (of a location: no entry at all). A dead leader
+                        without successor stays leader: none chosen yet, or the organisation died
+                        with them. Death ends no membership
 
 A message that names another tiddler is left out for a view that does not see it.
 
@@ -234,9 +237,22 @@ exports.rules = [
 	},
 	{
 		id: "relations/deadleader",
-		run: function(wiki,title) {
-			var led = list(wiki,title,"leader");
-			return led.length && dead(wiki,title) ? [{level: "hint", key: "Check/Relations/DeadLeader", params: {targets: led.join(", ")}}] : [];
+		run: function(wiki,title,view) {
+			if(!dead(wiki,title)) {
+				return [];
+			}
+			var messages = [];
+			$tw.utils.each(list(wiki,title,"leader"),function(target) {
+				var successors = wiki.findListingsOfTiddler(target,"leader").filter(function(other) {
+					return other !== title && others(wiki,other) && !dead(wiki,other) && visibility.visible(wiki,other,view);
+				}).sort();
+				if(successors.length && visibility.visible(wiki,target,view)) {
+					var place = wiki.getTiddler(target);
+					messages.push({level: "hint", key: place && place.hasTag("Location") ? "Check/Relations/DeadLeaderPlace" : "Check/Relations/DeadLeader",
+						params: {target: target, successors: successors.join(", ")}});
+				}
+			});
+			return messages;
 		}
 	}
 ];

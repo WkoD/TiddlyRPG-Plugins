@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015201958000
+modified: 20261015203416000
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -39,7 +39,8 @@ Quests/NoMarker: Check the quest: it has no marker yet - mark it in an event: <<
 Quests/SimilarQuest: Check the name: it is close to the quest $other$ - one quest written two ways?
 Quests/SimilarRumour: Check the name: it is close to the rumour $other$ - one quest written two ways?
 Relations/Ancestor: Check the family: the line of parents already reaches the ancestor $other$
-Relations/DeadLeader: Check the fields: dead, but still leads $targets$ - who followed?
+Relations/DeadLeader: Check the fields: dead, and $successors$ leads $target$ already - the dead one is a member of it now (member instead of leader)
+Relations/DeadLeaderPlace: Check the fields: dead, and $successors$ leads $target$ already - remove $target$ from leader
 Relations/Family: Check the family: family names $other$, who is already parent, ancestor, spouse or sibling
 Relations/Former: Check the fields: $field$ and former both name $target$ - it is one of them
 Relations/Included: Check the fields: $field$ names $target$, whom $other$ already includes

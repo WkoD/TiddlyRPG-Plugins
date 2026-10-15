@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015201958000
+modified: 20261015203416000
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -39,7 +39,8 @@ Quests/NoMarker: Quest prüfen: Es hat noch keinen Marker – in einem Ereignis 
 Quests/SimilarQuest: Namen prüfen: Er gleicht fast dem Quest $other$ – ein Quest zweimal verschieden geschrieben?
 Quests/SimilarRumour: Namen prüfen: Er gleicht fast dem Gerücht $other$ – ein Quest zweimal verschieden geschrieben?
 Relations/Ancestor: Familie prüfen: Die Linie der Eltern erreicht den Vorfahren $other$ schon
-Relations/DeadLeader: Felder prüfen: tot, aber führt noch $targets$ – wer folgte?
+Relations/DeadLeader: Felder prüfen: tot, und $successors$ führt $target$ schon – der Tote ist dort jetzt Mitglied (member statt leader)
+Relations/DeadLeaderPlace: Felder prüfen: tot, und $successors$ führt $target$ schon – $target$ aus leader entfernen
 Relations/Family: Familie prüfen: family nennt $other$, das ist schon Elternteil, Vorfahr, Ehepartner oder Geschwister
 Relations/Former: Felder prüfen: $field$ und former nennen beide $target$ – es ist eins von beiden
 Relations/Included: Felder prüfen: $field$ nennt $target$, das $other$ schon einschließt
