@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/pill.js
 type: application/javascript
 module-type: vis-property
 created: 20261015160005000
-modified: 20261015161851000
+modified: 20261015162440000
 
 Node property trpgPill (tw5-vis-network, like its own properties/color.js): a node drawn like a
 tag pill ($:/core/macros/tag) - its colour as the border, inside that colour at 18 % on the
@@ -37,7 +37,7 @@ exports.properties = {
 	}
 };
 
-var SHARE = 0.18, STRIPE = 6, FONT = 14, FAMILY = "arial", MARGIN = 5, RADIUS = 6;
+var SHARE = 0.18, STRIPE = 24, FONT = 14, FAMILY = "arial", MARGIN = 5, RADIUS = 6;
 
 var roundRect = exports.roundRect = function(ctx,x,y,width,height,radius) {
 	radius = Math.min(radius,height / 2,width / 2);

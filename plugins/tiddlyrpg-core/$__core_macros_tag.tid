@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015161511000
+modified: 20261015162440000
 title: $:/core/macros/tag
 tags: $:/tags/Macro
 
@@ -18,7 +18,7 @@ $(pillStripes)$
 \end
 
 \define tag-pill-stripes()
-background-image:repeating-linear-gradient(45deg, color-mix(in srgb, $(pillText)$ 18%, $(pillBase)$) 0 6px, color-mix(in srgb, $(pillColour)$ 18%, $(pillBase)$) 6px 12px);
+background-image:repeating-linear-gradient(45deg, color-mix(in srgb, $(pillText)$ 18%, $(pillBase)$) 0 24px, color-mix(in srgb, $(pillColour)$ 18%, $(pillBase)$) 24px 48px);
 \end
 
 <!-- This has no whitespace trim to avoid modifying $actions$ -->

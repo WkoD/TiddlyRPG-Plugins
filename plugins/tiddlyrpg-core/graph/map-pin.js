@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/map-pin.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261015161851000
+modified: 20261015162528000
 
 Node property trpgPin (tw5-vis-network, like its own properties/nodes.js): a node of the map of a
 location (graph/templates/trpg-map) drawn as a pin - a dot at its position and its name in a pill
@@ -12,7 +12,8 @@ below it:
 - trpgPin="tiddler": a place that is a tiddler; the dot in the colour of the node, the pill like
   a tag pill - light inside, that colour around (graph/pill.js) -, the text in contrast to it;
   a dead place (trpgDead, graph/pill.js) with the pill striped grey and its colour.
-- trpgPin="spot": a spot without a tiddler of its own; a white pill with a dashed border in the
+- trpgPin="spot": a spot without a tiddler of its own; a pill striped at 45° in white (the
+  background of the graph) and the light colour of the node, with a dashed border in the
   border colour of the node, the dot in that colour.
 
 Dot, pill and text keep their size on screen whatever the zoom (all sizes divided by the scale of
@@ -35,7 +36,7 @@ exports.properties = {
 var pill = require("$:/plugins/tiddlyrpg-core/graph/pill.js"),
 	roundRect = pill.roundRect;
 
-var DOT = 5, FONT = 12, FAMILY = "arial", PAD_X = 6, PAD_Y = 3, GAP = 4, RADIUS = 8, STRIPE = 4;
+var DOT = 5, FONT = 12, FAMILY = "arial", PAD_X = 6, PAD_Y = 3, GAP = 4, RADIUS = 8, STRIPE = 16;
 
 function textColour(background) {
 	try {
@@ -77,8 +78,9 @@ function renderer(adapter,kind,dead) {
 				ctx.fill();
 				if(label) {
 					roundRect(ctx,x - pillWidth / 2,pillTop,pillWidth,pillHeight,RADIUS * unit);
-					if(dead && !spot) {
-						var colours = pill.deadColours(adapter,colour);
+					if(spot || dead) {
+						// A spot: the colour of its location and the background; a dead place: grey and its colour
+						var colours = spot ? [adapter.trpgPillBase || "#ffffff",pill.mix(colour,adapter.trpgPillBase)] : pill.deadColours(adapter,colour);
 						pill.stripes(ctx,x - pillWidth / 2,pillTop,pillWidth,pillHeight,colours[0],colours[1],STRIPE * unit);
 						roundRect(ctx,x - pillWidth / 2,pillTop,pillWidth,pillHeight,RADIUS * unit);
 					} else {
@@ -90,7 +92,7 @@ function renderer(adapter,kind,dead) {
 					ctx.strokeStyle = colour;
 					ctx.stroke();
 					ctx.setLineDash([]);
-					ctx.fillStyle = spot ? "#000000" : dead ? (adapter.trpgPillText || "#333333") : textColour(fill);
+					ctx.fillStyle = spot || dead ? (adapter.trpgPillText || "#333333") : textColour(fill);
 					ctx.textAlign = "center";
 					ctx.textBaseline = "middle";
 					ctx.fillText(label,x,pillTop + pillHeight / 2);

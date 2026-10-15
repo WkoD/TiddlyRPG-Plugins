@@ -176,7 +176,7 @@ test.describe("trpg.link", function() {
 
 	test("the pill of a dead tag striped, grey and its colour; a living one not", function() {
 		var pill = function(title) { return (h.render(wiki, "text/html", "<<tag-pill [[" + title + "]]>>").match(/style="([^"]*)"/) || ["", ""])[1]; };
-		assert.match(pill("Grum"), /background-image:repeating-linear-gradient\(45deg, color-mix\(in srgb, #333333 18%, #ffffff\) 0 6px, color-mix\(in srgb, #00a600 18%, #ffffff\) 6px 12px\)/);
+		assert.match(pill("Grum"), /background-image:repeating-linear-gradient\(45deg, color-mix\(in srgb, #333333 18%, #ffffff\) 0 24px, color-mix\(in srgb, #00a600 18%, #ffffff\) 24px 48px\)/);
 		assert.match(pill("Grum"), /box-shadow:inset 0 0 0 1px #00a600/);
 		assert.doesNotMatch(pill("Link Alive"), /repeating-linear-gradient/);
 	});

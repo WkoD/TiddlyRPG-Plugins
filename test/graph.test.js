@@ -292,24 +292,25 @@ test("map pin: a custom shape, the same size on screen at any zoom", function() 
 	assert.equal(changes.nodes.a.trpgPin, undefined);
 	assert.equal(changes.nodes.c.shape, undefined);
 	var drawn = [],
-		ctx = {font: "12px arial", measureText: function() { return {width: parseFloat(this.font) * 4}; }, beginPath: function() {}, arc: function() {}, fill: function() {}, stroke: function() {},
-			moveTo: function() {}, arcTo: function() {}, closePath: function() {}, fillText: function(t) { drawn.push(t); },
+		filled = [],
+		ctx = {font: "12px arial", measureText: function() { return {width: parseFloat(this.font) * 4}; }, beginPath: function() {}, arc: function() {}, stroke: function() {},
+			moveTo: function() {}, lineTo: function() {}, arcTo: function() {}, closePath: function() {}, save: function() {}, restore: function() {}, clip: function() {},
+			fill: function() { filled.push(this.fillStyle); }, fillRect: function() { filled.push(this.fillStyle); }, fillText: function(t) { drawn.push(t); },
 			setLineDash: function(d) { drawn.push(Array.from(d).length); }},
 		args = {ctx: ctx, x: 0, y: 0, style: {color: "#ff0000", borderColor: "#ff0000"}, label: "Kantine", state: {}};
+	adapter.trpgPillBase = "#ffffff";
+	adapter.trpgPillText = "#333333";
 	var near = changes.nodes.a.ctxRenderer(args);
 	scale = 4;
 	var far = changes.nodes.a.ctxRenderer(args);
 	assert.ok(Math.abs(near.nodeDimensions.width / far.nodeDimensions.width - 4) < 1e-9, "zoomed in four times: a quarter of the size on the map");
 	far.drawNode();
 	assert.ok(drawn.indexOf("Kantine") !== -1 && drawn.indexOf(2) !== -1, "label in a dashed pill");
+	assert.ok(filled.indexOf("#ffffff") !== -1 && filled.indexOf("#ffd1d1") !== -1, "a spot striped white and its colour: " + filled.join());
 	// A dead place: its pill striped (graph/pill.js), the text in the font colour of the graph
-	var dead = {nodes: {d: {trpgPin: "tiddler", trpgDead: "yes"}}},
-		filled = [];
-	adapter.trpgPillBase = "#ffffff";
-	adapter.trpgPillText = "#333333";
+	var dead = {nodes: {d: {trpgPin: "tiddler", trpgDead: "yes"}}};
+	filled = [];
 	pin.process.call(adapter, {}, dead);
-	Object.assign(ctx, {save: function() {}, restore: function() {}, clip: function() {}, lineTo: function() {},
-		fillRect: function() { filled.push(this.fillStyle); }, fill: function() { filled.push(this.fillStyle); }});
 	dead.nodes.d.ctxRenderer({ctx: ctx, x: 0, y: 0, style: {color: "#ffd5d5", borderColor: "#ff0000"}, label: "Burg", state: {}}).drawNode();
 	assert.ok(filled.indexOf("#dadada") !== -1 && filled.indexOf("#ffd1d1") !== -1, filled.join());
 	assert.equal(ctx.fillStyle, "#333333");
