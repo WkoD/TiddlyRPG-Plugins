@@ -252,6 +252,23 @@ test("map: nodes without a position get a grid slot, kept per id", function() {
 	assert.equal(again.nodes.a.trpgUnplaced, undefined);
 });
 
+test("pill: the colour of a node as its border, light inside, the label in the font colour; the dead stay", function() {
+	var pill = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/pill.js"),
+		adapter = {},
+		changes = {
+			graph: {trpgPillBase: "#ffffff", trpgPillText: "#333333"},
+			nodes: {a: {trpgPill: "yes", color: "#00a600", shape: "box"}, dead: {trpgPill: "yes", color: "#dddddd", borderColor: "#00a600"}, plain: {label: "x"}}
+		};
+	pill.process.call(adapter, {}, changes);
+	assert.deepEqual(JSON.parse(JSON.stringify(changes.nodes.a.color)), {background: "#d1efd1", border: "#00a600", highlight: {background: "#d1efd1", border: "#00a600"}, hover: {background: "#d1efd1", border: "#00a600"}});
+	assert.equal(changes.nodes.a.font.color, "#333333");
+	assert.equal(changes.nodes.a.trpgPill, undefined);
+	assert.equal(changes.nodes.dead.color, "#dddddd", "grey inside stays");
+	assert.equal(changes.graph.trpgPillBase, undefined);
+	assert.equal(pill.mix("#e6b400", "#1c1d20"), "#40381a", "a dark palette: dark inside");
+	assert.equal(changes.nodes.plain.color, undefined);
+});
+
 test("map pin: a custom shape, the same size on screen at any zoom", function() {
 	var pin = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-pin.js"),
 		scale = 1,

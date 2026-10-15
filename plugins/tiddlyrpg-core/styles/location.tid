@@ -1,5 +1,5 @@
 created: 20261006064449000
-modified: 20261015155038000
+modified: 20261015155557000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/location
 type: text/css
@@ -88,9 +88,12 @@ type: text/css
 .trpg-relations-group::first-letter {
 	text-transform: uppercase;
 }
-.trpg-spot-pill {
+/* Like a tag pill ($:/core/macros/tag): an outline in the colour of the location, light inside */
+.tc-tag-label.trpg-spot-pill {
 	display: inline-block;
-	color: var(--tpc-tag-foreground, #fff);
+	background-color: color-mix(in srgb, var(--trpg-pill) 18%, var(--tpc-background, #fff));
+	box-shadow: inset 0 0 0 1px var(--trpg-pill);
+	color: var(--tpc-foreground, #333);
 	border-radius: 1em;
 	padding: 0 0.5em;
 	font-size: 0.9em;

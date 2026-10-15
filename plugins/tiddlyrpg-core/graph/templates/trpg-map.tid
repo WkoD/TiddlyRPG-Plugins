@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261014180236000
+modified: 20261015160005000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -66,7 +66,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 <$transclude $tiddler=<<nodeTiddler>> $mode="block"/>
 <%endif%>
 </$fill>
-<$properties physics=yes shape=box>
+<$properties physics=yes shape=box trpgPill="yes">
 
 <$slot $name=ts-raw $depth=4 />
 

@@ -1,6 +1,6 @@
 caption: TiddlyRPG graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261007163804094
+modified: 20261015160005000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 
 \whitespace trim
@@ -22,7 +22,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 <$properties $for=graph $tiddler="$:/config/tiddlyrpg/graph/physics" />
 <$properties $for=nodes actions="<$action-navigate $to=<<nodeTiddler>> />">
 <$properties.settings>
-<$properties physics=yes shape=box>
+<$properties physics=yes shape=box trpgPill="yes">
 
 <$slot $name=ts-raw $depth=5 />
 

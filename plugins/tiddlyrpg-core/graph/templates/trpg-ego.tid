@@ -1,6 +1,6 @@
 caption: TiddlyRPG ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261015154229000
+modified: 20261015160005000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 \whitespace trim
@@ -29,7 +29,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 <$graph>
 <$properties $for=graph $tiddler="$:/config/tiddlyrpg/graph/physics" />
 <$properties $for=nodes actions="<$action-navigate $to=<<nodeTiddler>> />">
-<$properties physics=yes shape=box>
+<$properties physics=yes shape=box trpgPill="yes">
 
 <$properties $filter="[tag[Event]]"      color={{Event!!color}}>
 <$properties $filter="[tag[Deity]]"           color={{Deity!!color}}>

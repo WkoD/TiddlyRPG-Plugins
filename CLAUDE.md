@@ -386,7 +386,10 @@ the tiddler title:
   "Locations"); the views `$:/plugins/tiddlyrpg-core/graph/ego` and `.../graph/map` (outside
   `$:/graph/`, so not in the dropdown of the graph sidebar); the vis-network extensions
   `graph/map-fit.js` (`module-type: vis-property`, graph property `trpgMapFit`),
-  `graph/map-pin.js` (`vis-property`, node property `trpgPin`) and
+  `graph/map-pin.js` (`vis-property`, node property `trpgPin`),
+  `graph/pill.js` (`vis-property`, node property `trpgPill`: a node like a tag pill - its colour
+  as the border, light inside, the label in the font colour of the graph; set by all three graph
+  templates) and
   `graph/map-fit-message.js` (`vis-message`, `trpg-map-fit`). The thin view definitions
   (`$:/graph/Default`/`Cosmogram`/`Atlas`/`Items`) live in each wiki on purpose, not here.
 
@@ -982,7 +985,7 @@ Current list:
 | File | Overrides | Plugin | Why no hook is enough |
 |---|---|---|---|
 | `tiddlyrpg-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `tiddlyrpg-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
-| `tiddlyrpg-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `tiddlyrpg-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Only change: `<$text text={{{ [<__tag__>trpgtitle[]] }}}/>` for the translated display name. |
+| `tiddlyrpg-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `tiddlyrpg-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Changes: `<$text text={{{ [<__tag__>trpgtitle[]] }}}/>` for the translated display name; the colours of the pill (`tag-pill-styles`, the variables of `tag-pill-inner`): an outline in the colour of the tag (inset shadow) around a light inside (18 % of it on the background of the palette), the text in the foreground colour of the palette instead of `contrastcolour`. |
 | `tiddlyrpg-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `tiddlyrpg-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`trpgtitlesearch`) and keeps only what the view sees (`trpg.visible`), the second searches with `trpgsearch` (only the text the view sees), hits use `search/item` (translated name). |
 | `tiddlyrpg-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `tiddlyrpg-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes (field and function branch alike): the targets come from `relationtargets` (`modules/relations.js`: `tiddlyrpg-exclude` and included types; function filters run there too), with the types of the call passed as `trpgTypes`; an outer `$properties $for=edges` with the style of the axis of the type; an inner `$properties $for=edges label=...` from `relationlabel` (`Edge/<type>`); for a type whose config has `tiddlyrpg-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the type - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge of a symmetric type has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 

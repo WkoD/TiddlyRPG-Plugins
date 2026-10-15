@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261015154229000
+modified: 20261015155519000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -105,7 +105,7 @@ type: text/vnd.tiddlywiki
 <$let trpg-colour={{{ [<place>] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]] }}}
 	trpg-label={{{ [<place>spots[]match<spot>then<spot>addsuffix[ (]addsuffix<place>addsuffix[)]] ~[<place>] }}}>
 <$transclude $variable="trpg.spotjump" place=<<place>> spot=<<spot>>>
-<span class="tc-tag-label trpg-spot-pill" style.background-color=<<trpg-colour>>><$text text=<<trpg-label>>/></span>
+<span class="tc-tag-label trpg-spot-pill" style={{{ [<trpg-colour>addprefix[--trpg-pill:]] }}}><$text text=<<trpg-label>>/></span>
 </$transclude>
 \end
 

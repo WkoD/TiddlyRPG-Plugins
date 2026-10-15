@@ -3,13 +3,14 @@ title: $:/plugins/tiddlyrpg-core/graph/map-pin.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261015160005000
 
 Node property trpgPin (tw5-vis-network, like its own properties/nodes.js): a node of the map of a
 location (graph/templates/trpg-map) drawn as a pin - a dot at its position and its name in a pill
 below it:
 
-- trpgPin="tiddler": a place that is a tiddler; dot and pill filled in the node colour.
+- trpgPin="tiddler": a place that is a tiddler; the dot in the colour of the node, the pill like
+  a tag pill - light inside, that colour around (graph/pill.js) -, the text in contrast to it.
 - trpgPin="spot": a spot without a tiddler of its own; a white pill with a dashed border in the
   border colour of the node, the dot in that colour.
 
@@ -62,7 +63,7 @@ function renderer(adapter,kind) {
 			scale = (adapter.vis && adapter.vis.getScale()) || 1,
 			unit = 1 / scale,
 			spot = kind === "spot",
-			colour = spot ? style.borderColor : style.color,
+			colour = style.borderColor || style.color,
 			fill = spot ? "#ffffff" : style.color;
 		ctx.font = (FONT * unit) + "px " + FAMILY;
 		var pillWidth = label ? ctx.measureText(label).width + 2 * PAD_X * unit : 0,

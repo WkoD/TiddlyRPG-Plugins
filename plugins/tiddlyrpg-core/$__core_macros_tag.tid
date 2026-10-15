@@ -1,20 +1,27 @@
 created: 20261001095424000
-modified: 20261001095424000
+modified: 20261015155519000
 title: $:/core/macros/tag
 tags: $:/tags/Macro
 
+<!-- TiddlyRPG: a pill is drawn as an outline in the colour of its tag (a 1px inset shadow, so it
+     keeps the size of the core pill) around a light inside - that colour at 18 % on the
+     background of the palette - with the text in the foreground colour of the palette, for
+     readability in light and dark palettes alike. A tag without a colour takes tag-background
+     of the palette. -->
 \define tag-pill-styles()
-background-color:$(backgroundColor)$;
-fill:$(foregroundColor)$;
-color:$(foregroundColor)$;
+background-color:color-mix(in srgb, $(pillColour)$ 18%, $(pillBase)$);
+box-shadow:inset 0 0 0 1px $(pillColour)$;
+fill:$(pillText)$;
+color:$(pillText)$;
 \end
 
 <!-- This has no whitespace trim to avoid modifying $actions$ -->
 \define tag-pill-inner(tag,icon,colour,fallbackTarget,colourA,colourB,element-tag,element-attributes,actions)
 \whitespace trim
 <$let
-	foregroundColor=<<contrastcolour target:"""$colour$""" fallbackTarget:"""$fallbackTarget$""" colourA:"""$colourA$""" colourB:"""$colourB$""">>
-	backgroundColor=<<__colour__>>
+	pillColour={{{ [<__colour__>!is[blank]] ~[<__fallbackTarget__>] }}}
+	pillBase=<<__colourB__>>
+	pillText=<<__colourA__>>
 >
 <$element-tag$
 	$element-attributes$
