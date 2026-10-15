@@ -1,15 +1,15 @@
 caption: <<trpg.t Relations/List>>
 created: 20260713135021000
-modified: 20261008062202000
+modified: 20261015154229000
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
-\function trpg.forward(type) [<self>relationtargets<type>!is[system]] :filter[trpg.visible[]] +[!match<self>sort[title]]
-\function trpg.backward(type) [<self>relationsources<type>!is[system]] :filter[trpg.visible[]] +[!match<self>sort[title]]
+\function trpg.forward(type) [<self>relationtargets<type>!is[system]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[!match<self>sort[title]]
+\function trpg.backward(type) [<self>relationsources<type>!is[system]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[!match<self>sort[title]]
 \function trpg.both(type) [trpg.forward<type>] [trpg.backward<type>] +[sort[title]]
 \function trpg.at(place) [<currentTiddler>get[location]enlist-input[]] [<currentTiddler>get[leader]enlist-input[]] +[match<place>]
-\function trpg.here(place) [<place>occupants[]] :filter[trpg.at<place>] :filter[trpg.visible[]] +[!match<self>sort[title]]
-\function trpg.within(place) [<place>sublocations[]] :filter[trpg.visible[]] +[sort[title]]
+\function trpg.here(place) [<place>occupants[]] :filter[trpg.at<place>] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[!match<self>sort[title]]
+\function trpg.within(place) [<place>sublocations[]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[sort[title]]
 
 \procedure trpg.group(label)
 <%if [(hits)] %>
@@ -56,13 +56,15 @@ type: text/vnd.tiddlywiki
      it marked -, then each place within (both kinds, a spot marked) with who is there and its
      own places within, every depth. Every place with entries starts folded (<details>). The
      parent is in the path below the title, the places a tiddler leads in the group of the
-     function type rules ("Controls"). -->
+     function type rules ("Controls").
+     Last the group "Quests": the open quests that mention it (questsabout). Every entry only
+     when its kind is switched on above the block (trpg.egoshown, viewtemplates/relations). -->
 
 <$list filter="[relationtypes:list[]]" variable=type>
 <$let trpg-label={{{ [<type>addprefix[Field/]trpgtranslate[]] }}}
 	trpg-inverse={{{ [<type>addprefix[FieldInverse/]trpgtranslate[]] :filter[!prefix[FieldInverse/]] ~[<type>addprefix[Field/]trpgtranslate[]] }}}>
 <%if [<type>match[location]] :filter[<self>tag[Location]] %>
-<%if [<self>occupants[]] [<self>sublocations[]] :filter[trpg.visible[]] +[first[]] %>
+<%if [<self>occupants[]] [<self>sublocations[]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[first[]] %>
 <h3 class="trpg-relations-group"><$text text=<<trpg-inverse>>/></h3>
 <$transclude $variable="trpg.tree" place=<<self>> depth="0"/>
 <%endif%>
@@ -76,3 +78,4 @@ type: text/vnd.tiddlywiki
 <%endif%>
 </$let>
 </$list>
+<$let hits={{{ [trpg.egocentre<self>questsabout[]] :filter[trpg.egoshown<self>] +[sort[title]] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural[Quest]] }}}/></$let>

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/quests.js
 type: application/javascript
 module-type: filteroperator
 created: 20261015122743000
-modified: 20261015122743000
+modified: 20261015154229000
 
 Filter operators of the quests (modules/quests.js), all for the active view:
 
@@ -16,6 +16,8 @@ Filter operators of the quests (modules/quests.js), all for the active view:
 [<name>questplayers[]]          who takes part (player characters)
 [<name>questlinks[]]            the quests linked with it
 [<titles>questmarked[]]         the input titles that are names of a quest or rumour with a marker
+[<name>questmentions[]]         what its markers link ([[...]], <<spotlink>>: the location)
+[<title>questsabout[]]          the open quests and rumours whose markers link the input titles
 [<id>questmark:event[]]         of a marker: its event; key (its position, for $quest of
                                 trpg-body), number (its dated section), date (the text of the
                                 section), status (as written: complete, failed or empty), anchor
@@ -84,6 +86,18 @@ exports.questlinks = function(source,operator,options) {
 exports.questmarked = function(source,operator,options) {
 	return each(source,function(title) {
 		return quests.marks(options.wiki,title).length ? [title] : [];
+	});
+};
+
+exports.questmentions = function(source,operator,options) {
+	return each(source,function(name) {
+		return quests.mentions(options.wiki,name);
+	});
+};
+
+exports.questsabout = function(source,operator,options) {
+	return each(source,function(title) {
+		return quests.about(options.wiki,title);
 	});
 };
 

@@ -1,6 +1,6 @@
 created: 20260713135021000
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/book
-modified: 20261007163804094
+modified: 20261015155234000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations
 type: text/vnd.tiddlywiki
@@ -9,17 +9,50 @@ type: text/vnd.tiddlywiki
      of both stacked. The type scope (multitag) is stated only here, once, instead of separately
      in the two tab content tiddlers. Tab switcher = $:/plugins/flibbles/graph/ui/grouped-tabs
      (part of tw5-graph, already a dependency). explicitState -> one global tab state (newly
-     opened tiddlers always show the graph first). -->
+     opened tiddlers always show the graph first).
+     On top of the tab (graph and list alike) a row of switches, one per kind of what they can show
+     (trpg.egonodes, functions.tid) - players, persons (with deities), organisations, locations,
+     items (with artifacts and materials), open quests (with rumours) - in the colour of its hub,
+     the two colours split at 45° where a switch holds two kinds of colour of their own
+     (<second>), labelled Relations/Kind/<hub> where it holds two kinds, else with the plural of
+     the hub; all on at first, a click switches a kind off and on again for this tiddler
+     (trpg.egoshown; state $:/state/tiddlyrpg-core/relations-filter/<title>, field list, not
+     saved). The tiddler itself always shows. -->
+\procedure trpg.kindswitch(hub,second,kinds,state)
+\whitespace trim
+<$let trpg-kind={{{ [<hub>lowercase[]] }}}>
+<%if [enlist<kinds>match<trpg-kind>] %>
+<$let trpg-on={{{ [<state>get[list]enlist-input[]match<trpg-kind>then[no]else[yes]] }}}>
+<$button class={{{ [[trpg-kind-switch]] [<trpg-kind>addprefix[trpg-kind-]] [<second>!is[blank]then[trpg-kind-split]] [<trpg-on>match[no]then[trpg-off]] +[join[ ]] }}}
+	style={{{ [<hub>get[color]addprefix[--trpg-kind:]] [<second>!is[blank]addprefix[--trpg-kind2:]] +[join[;]] }}}
+	aria-pressed={{{ [<trpg-on>match[yes]then[true]else[false]] }}}
+	actions="<$action-listops $tiddler=<<state>> $field='list' $subfilter='+[toggle<trpg-kind>]'/>">
+<$text text={{{ [<hub>addprefix[Relations/Kind/]trpgtranslate[]] :filter[!prefix[Relations/Kind/]] ~[trpg.plural<hub>] }}}/>
+</$button>
+</$let>
+<%endif%>
+</$let>
+\end
 
 <$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material]] :filter[trpg.visible[]]" variable=null>
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
-<$let currentNode=<<currentTiddler>> self=<<currentTiddler>>>
+<$let currentNode=<<currentTiddler>> self=<<currentTiddler>>
+	trpg-kinds={{{ [trpg.egonodes<currentTiddler>relationkind[]] +[format:titlelist[]join[ ]] }}}
+	trpg-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/relations-filter/]] }}}>
 <$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
 	tabsList="[[$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph]] [[$:/plugins/tiddlyrpg-core/viewtemplates/relations/list]]"
 	default="$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph"
 	explicitState="$:/state/tiddlyrpg-core/relations-tab"
 	class="">
 <$fill $name=body>
+<%if [enlist<trpg-kinds>!match[other]] %>
+<div class="trpg-kind-switches">
+<$list filter="Player Person Organisation Location Item Quest" variable="trpg-hub">
+<$transclude $variable="trpg.kindswitch" hub=<<trpg-hub>> kinds=<<trpg-kinds>> state=<<trpg-state>>
+	second={{{ [<trpg-hub>match[Person]then{Deity!!color}] [<trpg-hub>match[Quest]then[var(--trpg-rumour, #9aa1aa)]] }}}/>
+</$list>
+</div>
+<%endif%>
 <$transclude $tiddler=<<currentTab>> $mode=block/>
 </$fill>
 </$transclude>

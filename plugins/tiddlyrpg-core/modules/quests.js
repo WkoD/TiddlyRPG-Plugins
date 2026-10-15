@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/quests.js
 type: application/javascript
 module-type: library
 created: 20261015122743000
-modified: 20261015122743000
+modified: 20261015154229000
 
 Quests - the one place of these rules. A quest is a name; its markers stand in events
 (<<quest "Name">>, <$quest name="Name">, modules/sections.js). A tiddler with the name tagged
@@ -17,6 +17,8 @@ Used by filters/quests.js.
   a newer marker without status opens it again.
 - Two quests are linked where a marker of one stands directly in a marker of the other (both
   ways alike; with three layers only the neighbours).
+- What a quest mentions: what its markers link ([[...]], <<spotlink>>: the location); an open
+  quest that mentions a tiddler shows in its relations (graph and list).
 - What a view sees: markers in an event it sees, in a section it sees (locks, and the quest
   tiddler: a quest tagged Secret hides its markers, sections.visible). A name without a marker
   the view sees counts only through a quest tiddler it sees.
@@ -49,10 +51,12 @@ function compareParts(a,b) {
 
 /*
 The index: {marks: [{id, name, status, event, key, sectionId, start, number, firstSection, date,
-parent}], names: [names of the markers]} in date order (oldest first). id: "<key>@<event>";
+parent, links}], names: [names of the markers]} in date order (oldest first). id: "<key>@<event>";
 number: the dated section (0 for none), firstSection: it stands at the very start of the body
 (no jump mark); date: its text in the date field ("" for none); parent: the name of the quest
-whose marker directly encloses this one ("" for none, also for one of the same name).
+whose marker directly encloses this one ("" for none, also for one of the same name); links:
+[{to, section}] what it links ([[...]], <<spotlink>>: the location), with the innermost section
+of the link (a lock inside the marker hides it).
 */
 var index = exports.index = function(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-quests",function() {
@@ -79,7 +83,26 @@ var index = exports.index = function(wiki) {
 				var dated = dateOf(record.id),
 					number = dated ? dated.number : 0,
 					section = number ? field.sections[number - 1] : null,
-					up = record.parent !== -1 ? model.records[record.parent] : null;
+					up = record.parent !== -1 ? model.records[record.parent] : null,
+					inside = function(id) {
+						for(var at = id; at !== -1 && at !== undefined && model.records[at]; at = model.records[at].parent) {
+							if(at === record.id) {
+								return true;
+							}
+						}
+						return false;
+					},
+					linked = [];
+				$tw.utils.each(model.links,function(link) {
+					if(inside(link.section)) {
+						linked.push({to: link.to, section: link.section});
+					}
+				});
+				$tw.utils.each(model.spotlinks,function(ref) {
+					if(inside(ref.section)) {
+						linked.push({to: ref.place, section: ref.section});
+					}
+				});
 				marks.push({
 					id: record.key + "@" + event,
 					name: record.params.name,
@@ -92,7 +115,8 @@ var index = exports.index = function(wiki) {
 					// the first section at the very start of the body has no jump mark
 					firstSection: !!(dated && dated.first),
 					date: section ? section.text : "",
-					parent: up && up.kind === "quest" && up.params.name !== record.params.name ? up.params.name : ""
+					parent: up && up.kind === "quest" && up.params.name !== record.params.name ? up.params.name : "",
+					links: linked
 				});
 			});
 		});
@@ -162,6 +186,29 @@ exports.names = function(wiki,view) {
 		}
 	});
 	return out;
+};
+
+// What the markers of <name> the view sees link, in the order of the text, newest marker first
+var mentions = exports.mentions = function(wiki,name,view) {
+	view = view || visibility.current(wiki);
+	var found = [];
+	$tw.utils.each(marks(wiki,name,view),function(mark) {
+		$tw.utils.each(mark.links,function(link) {
+			if(link.to !== name && found.indexOf(link.to) === -1 && sections.visible(wiki,mark.event,link.section,view)) {
+				found.push(link.to);
+			}
+		});
+	});
+	return found;
+};
+
+// The open quests and rumours the view sees whose markers it sees link <title>, by name
+exports.about = function(wiki,title,view) {
+	view = view || visibility.current(wiki);
+	return index(wiki).names.filter(function(name) {
+		return name !== title && visibility.visible(wiki,name,view) && exports.status(wiki,name,view) === "open" &&
+			mentions(wiki,name,view).indexOf(title) !== -1;
+	}).sort();
 };
 
 // The status of <name>: of its newest marker the view sees, "open" without one

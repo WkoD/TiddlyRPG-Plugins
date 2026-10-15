@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261015145441000
+modified: 20261015154229000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -24,6 +24,16 @@ type: text/vnd.tiddlywiki
 \whitespace trim
 <$link to=<<title>> class={{{ [<title>trpg.dead[]then[trpg-dead-link]] }}}/>
 \end
+
+<!-- The relations block of <centre> (viewtemplates/relations): its centre (a location with its
+     spots that count as itself); what the graph and the list can show around it - its
+     neighbours (other locations not for a location), the places within a location, the open
+     quests that mention it -; and the input titles whose kind (relationkind) is switched on.
+     The kinds switched off are in the field list of $:/state/tiddlyrpg-core/relations-filter/
+     <centre> (not saved); the centre itself always shows. -->
+\function trpg.egocentre(centre) [<centre>] [<centre>tag[Location]sublocations:all[spot]] :filter[trpg.visible[]]
+\function trpg.egonodes(centre) [trpg.egocentre<centre>relationneighbours[]] :filter[<centre>!tag[Location]] [trpg.egocentre<centre>relationneighbours[]!tag[Location]] [<centre>tag[Location]sublocations:all[]] [trpg.egocentre<centre>questsabout[]] -[trpg.egocentre<centre>] :filter[trpg.visible[]]
+\function trpg.egoshown(centre) [relationkind[]] -[<centre>addprefix[$:/state/tiddlyrpg-core/relations-filter/]get[list]enlist-input[]]
 
 <!-- Language system (modules/language.js): translation of a key, display name of a title,
      plural of a type. Missing keys fall back to en-GB, then to the key/title itself. -->

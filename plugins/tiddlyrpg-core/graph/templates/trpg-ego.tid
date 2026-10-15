@@ -1,6 +1,6 @@
 caption: TiddlyRPG ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261015153351000
+modified: 20261015154229000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 \whitespace trim
@@ -19,7 +19,11 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
      as the centre too, with their neighbours. All places within it (every depth, both kinds)
      are nodes too, with their edges among each other, without their own neighbours (who is
      there: the tree of the list). Other locations are left out; the parent is in the path below
-     the title. -->
+     the title.
+     The open quests that mention the centre (questsabout): a node each, gold for a quest, silver
+     for a rumour, with an edge to what it mentions among the nodes (questmentions) and to the
+     quests linked with it (questlinks). Only the kinds switched on above the block
+     (trpg.egoshown, viewtemplates/relations); the centre always. -->
 
 
 <$graph>
@@ -47,7 +51,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 </$list>
 
 <%if [<currentNode>tag[Location]] %>
-<$list filter="[<currentNode>sublocations:all[]] -[enlist<trpg-centre>] :filter[trpg.visible[]]">
+<$list filter="[<currentNode>sublocations:all[]] -[enlist<trpg-centre>] :filter[trpg.visible[]] :filter[trpg.egoshown<currentNode>]">
 <<trpg.node>>
 <$edges.typed $fields="location" $functions="spots" />
 </$list>
@@ -55,16 +59,22 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
   $filter="[enlist<trpg-centre>]"
   $fields="[all[]] -[[tags]] -[[list]]"
   $functions="[all[]] -[[links]] -[[transcludes]]"
-  $whitelist="[!is[system]!is[draft]] -[tag[Location]] :filter[trpg.visible[]]"
+  $whitelist="[!is[system]!is[draft]] -[tag[Location]] :filter[trpg.visible[]] :filter[trpg.egoshown<currentNode>]"
   $interedges="yes" />
 <%else%>
 <$nodes.neighbors
   $filter="[<currentNode>]"
   $fields="[all[]] -[[tags]] -[[list]]"
   $functions="[all[]] -[[links]] -[[transcludes]]"
-  $whitelist="[!is[system]!is[draft]] :filter[trpg.visible[]]"
+  $whitelist="[!is[system]!is[draft]] :filter[trpg.visible[]] :filter[trpg.egoshown<currentNode>]"
   $interedges="yes" />
 <%endif%>
+
+<$list filter="[enlist<trpg-centre>questsabout[]] :filter[trpg.egoshown<currentNode>]">
+<$node label=<<currentTiddler>> color={{{ [<currentTiddler>questreal[]then{Quest!!color}else[#9aa1aa]] }}} />
+<$list filter="[<currentTiddler>questmentions[]]" variable="toTiddler"><$edge $to=<<toTiddler>> color={{Quest!!color}} /></$list>
+<$list filter="[<currentTiddler>questlinks[]] :filter[compare:string:gt<..currentTiddler>]" variable="toTiddler"><$edge $to=<<toTiddler>> color={{Quest!!color}} /></$list>
+</$list>
 
 </$let>
 

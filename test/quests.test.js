@@ -236,6 +236,57 @@ test.describe("views", function() {
 	});
 });
 
+test.describe("relations: open quests around what they mention, switches by kind", function() {
+	var EGO = "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>",
+		STATE = "$:/state/tiddlyrpg-core/relations-filter/Baile";
+
+	function ego(node) {
+		return h.graph(wiki, EGO, {currentNode: node});
+	}
+
+	function edges(graph) {
+		return Object.keys(graph.edges).map(function(id) { return graph.edges[id].from + " -> " + graph.edges[id].to; }).sort();
+	}
+
+	test("what a quest mentions; the open ones about a tiddler, a complete one not", function() {
+		assert.deepEqual(f("[[Spur]questmentions[]]"), ["Baile"]);
+		assert.deepEqual(f("[[Baile]questsabout[]]"), ["Echo", "Spur"]);
+		assert.deepEqual(f("[[Baile]] [[Echo]] [[Turm]] [[Questfahrt]] :map[relationkind[]]"), ["location", "quest", "quest", "other"]);
+	});
+
+	test("the ego graph: a node per open quest, edges to what it mentions and to the quests linked", function() {
+		var graph = ego("Baile");
+		assert.ok(graph.nodes.Spur && graph.nodes.Echo && !graph.nodes.Turm, Object.keys(graph.nodes).join());
+		assert.equal(graph.nodes.Spur.color, "#9aa1aa");
+		var all = edges(graph);
+		assert.ok(all.indexOf("Spur -> Baile") !== -1 && all.indexOf("Echo -> Baile") !== -1 && all.indexOf("Echo -> Spur") !== -1, all.join());
+	});
+
+	test("switches: one per kind there, all on; off leaves out the nodes and entries of it, never the centre", function() {
+		var view = h.view(wiki, "Baile");
+		assert.match(view, /<button[^>]*class="trpg-kind-switch trpg-kind-quest trpg-kind-split"[^>]*>Quests und Gerüchte<\/button>/);
+		assert.match(h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\"/>", {currentTiddler: "Baile", self: "Baile"}), /Quests\s*Echo\s*Spur/);
+		withTiddlers([{title: STATE, list: "quest location"}], function() {
+			var graph = ego("Baile");
+			assert.ok(graph.nodes.Baile && !graph.nodes.Spur && !graph.nodes.Echo, Object.keys(graph.nodes).join());
+			assert.match(h.view(wiki, "Baile"), /class="trpg-kind-switch trpg-kind-quest trpg-kind-split trpg-off"[^>]*>Quests/);
+			assert.doesNotMatch(h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\"/>", {currentTiddler: "Baile", self: "Baile"}), /Quests/);
+		});
+	});
+
+	test("views: a marker in a locked section mentions nothing for a view that does not see it", function() {
+		withTiddlers([{title: "Verdeckte Spur", tags: "Event", date: "1352", text: "<<date>>\n\nOffen.\n\n<<secret \"Frigg\">><<date>>\n\n<<quest \"Verdeckter Faden\">>Bei [[Baile]]."}], function() {
+			assert.ok(f("[[Baile]questsabout[]]").indexOf("Verdeckter Faden") !== -1);
+			assert.ok(ego("Baile").nodes["Verdeckter Faden"]);
+			h.inView(wiki, "public", function() {
+				assert.ok(f("[[Baile]questsabout[]]").indexOf("Verdeckter Faden") === -1);
+				assert.ok(!ego("Baile").nodes["Verdeckter Faden"]);
+				assert.ok(h.view(wiki, "Baile").indexOf("Verdeckter Faden") === -1);
+			});
+		});
+	});
+});
+
 test.describe("renaming", function() {
 	test("Relink rewrites short and block forms, nested markers too", function() {
 		withTiddlers([{title: "Umzug", tags: "Event", date: "1352",

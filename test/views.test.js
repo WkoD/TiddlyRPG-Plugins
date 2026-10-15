@@ -311,10 +311,11 @@ test.describe("sweep", function() {
 				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>.\n\n<<image \"Qx7pic.png, Qx7pic2.png\">>"},
 			// Quests: a quest tagged Secret with a marker in an open section (the marker is hidden
 			// with it), a rumour whose only marker stands in a locked section, and the end of an
-			// open rumour in that locked section - hub, cards, history and the event leave them out
+			// open rumour in that locked section - hub, cards, history and the event leave them out;
+			// the locked rumour mentions Sweep Bund: its graph, list and switches leave it out too
 			{title: "Qx7 Plan", tags: "Quest Secret", text: "Qx7 planning."},
 			{title: "Sweep Questzug", tags: "Event Frigg", date: "1351-09-01, 1399-03-01",
-				text: "<<date>>\n\n<<quest \"Sweep Gerücht\">>Open rumour.\n\n<<quest \"Qx7 Plan\">>Qx7 marker text.\n\n<<secret>><<date>>\n\n<<quest \"Sweep Gerücht\" status:\"complete\">><<quest \"Qx7 Faden\">>Qx7 hidden thread."},
+				text: "<<date>>\n\n<<quest \"Sweep Gerücht\">>Open rumour.\n\n<<quest \"Qx7 Plan\">>Qx7 marker text.\n\n<<secret>><<date>>\n\n<<quest \"Sweep Gerücht\" status:\"complete\">><<quest \"Qx7 Faden\">>Qx7 hidden thread at [[Sweep Bund]]."},
 			{title: "$:/graph/Sweep", type: "application/json", text: "{}",
 				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[!is[system]]", "edges.functions": "links"}
 		],

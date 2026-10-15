@@ -1,12 +1,13 @@
 created: 20261006064449000
-modified: 20261006064449000
+modified: 20261015155038000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/location
 type: text/css
 
 /* Locations: the path below the title (procedure trpg.locationpath), the pill of a <<spotlink>>
-   in a section (trpg.spotpill), the spots of a location (procedure spot, tab "Map") and the map
-   with its buttons (viewtemplates/location/map). Palette colours via --tpc-*. */
+   in a section (trpg.spotpill), the spots of a location (procedure spot, tab "Map"), the map
+   with its buttons (viewtemplates/location/map) and the relations block (its switches by kind,
+   the group headings, the tree). Palette colours via --tpc-*. */
 .trpg-location-path {
 	color: var(--tpc-muted-foreground, #888);
 	font-size: 0.85em;
@@ -20,6 +21,67 @@ type: text/css
 }
 .trpg-location-path-comma {
 	margin: 0 0.35em 0 0;
+}
+/* The switches above the relations block (viewtemplates/relations): one per kind, a point in the
+   colour of its hub; switched off it fades. */
+.trpg-kind-switches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 6px;
+	margin: 0.3em 0 0.5em;
+}
+.trpg-kind-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 0 9px;
+	border: 1px solid var(--trpg-kind);
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--trpg-kind) 18%, var(--tpc-tiddler-background, #fff));
+	color: var(--tpc-foreground, #333);
+	font-size: 0.85em;
+	line-height: 1.6;
+	cursor: pointer;
+}
+.trpg-kind-switch::before {
+	content: "";
+	width: 0.6em;
+	height: 0.6em;
+	border-radius: 50%;
+	background: var(--trpg-kind);
+}
+.trpg-kind-switch.trpg-off {
+	border-color: var(--tpc-tiddler-border, #ccc);
+	background: transparent;
+	color: var(--tpc-muted-foreground, #888);
+}
+.trpg-kind-switch.trpg-off::before {
+	background: transparent;
+	box-shadow: inset 0 0 0 1.5px var(--trpg-kind);
+}
+/* A switch of two kinds with colours of their own (persons and deities, quests and rumours):
+   both colours split at 45°, the first on the left (--trpg-kind), the second on the right
+   (--trpg-kind2) */
+.trpg-kind-switch.trpg-kind-split {
+	border-color: transparent;
+	background:
+		linear-gradient(45deg,
+			color-mix(in srgb, var(--trpg-kind) 18%, var(--tpc-tiddler-background, #fff)) 50%,
+			color-mix(in srgb, var(--trpg-kind2) 22%, var(--tpc-tiddler-background, #fff)) 50%) padding-box,
+		linear-gradient(45deg, var(--trpg-kind) 50%, var(--trpg-kind2) 50%) border-box;
+}
+.trpg-kind-switch.trpg-kind-split::before {
+	background: linear-gradient(45deg, var(--trpg-kind) 50%, var(--trpg-kind2) 50%);
+}
+.trpg-kind-switch.trpg-kind-split.trpg-off {
+	border-color: var(--tpc-tiddler-border, #ccc);
+	background: transparent;
+}
+.trpg-kind-switch.trpg-kind-split.trpg-off::before {
+	box-shadow: none;
+	background:
+		radial-gradient(circle, var(--tpc-tiddler-background, #fff) 0 0.15em, transparent 0.16em),
+		linear-gradient(45deg, var(--trpg-kind) 50%, var(--trpg-kind2) 50%);
 }
 /* Group heading of the relation list: only the first letter, a label of several words keeps
    its small letters. */

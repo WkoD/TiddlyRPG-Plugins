@@ -797,7 +797,13 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
 - Relation list (`viewtemplates/relations/list`): per type in order a group forward
   (`Field/<type>`) and back (`FieldInverse/<type>`, falls back to `Field/<type>`), one group
   for a symmetric type; on a location the way back of `location` is the tree, `rules` has no
-  way back there (the tree marks who leads).
+  way back there (the tree marks who leads); last the group "Quests".
+- Quests are no relation type: the open quests whose visible markers link the tiddler
+  (`questsabout`, `questmentions`, `modules/quests.js`) come into the ego graph as nodes of their
+  own (`graph/templates/trpg-ego`) and into the list. Switches by kind above the block
+  (`viewtemplates/relations`, filter `relationkind`, functions `trpg.egonodes`/`trpg.egoshown`
+  in `functions.tid`, state `$:/state/tiddlyrpg-core/relations-filter/<title>`) leave a kind
+  out of graph and list alike; the centre stays.
 
 ## Sections
 
