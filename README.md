@@ -696,7 +696,7 @@ out every message of its level. An id that is no rule is a hint.
 | `secrets/transclusion` | error | a secret tiddler is transcluded where someone sees it who may not see the secret (fine inside a tiddler or section locked for the same players or fewer) |
 | `sections/structure` | error | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker |
 | `spots/spotlink` | error | a `<<spotlink>>` whose location does not exist or does not have the spot |
-| `spots/joinedtext` | hint | a spot joined to a tiddler has a text of its own - it shows only in the location, not where the spot leads; move it into the tiddler |
+| `spots/joinedtext` | hint | a spot joined to another location has a text of its own - it shows only here, not where the spot leads; move it into that location (a spot joined to an organisation or a person keeps its text) |
 | `spots/similar` | hint | a spot without tiddler whose name looks like a title written another way (as `quests/similar`) |
 | `types/missing` | hint | a tiddler without type tag |
 
