@@ -358,7 +358,9 @@ the tiddler title:
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-secret` (class
-  `trpg-secret-tiddler` for a locked tiddler the view sees), `class-pinned`, `class-readonly`,
+  `trpg-secret-tiddler` for a locked tiddler the view sees), `class-rumour` (class
+  `trpg-rumour-tiddler` for the page of a rumour the view sees: silver, styles/quest),
+  `class-pinned`, `class-readonly`,
   `class-view`, `title-translated`, `subtitle`, `view-tags` - see below; `dm-published`
   (`$:/config/tiddlyrpg/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
   sidebar tabs, see "Views").

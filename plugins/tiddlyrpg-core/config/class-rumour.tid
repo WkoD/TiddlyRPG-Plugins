@@ -1,0 +1,7 @@
+created: 20261015170622000
+modified: 20261015170622000
+tags: $:/tags/ClassFilters/TiddlerTemplate
+title: $:/plugins/tiddlyrpg-core/config/class-rumour
+type: text/vnd.tiddlywiki
+
+[<storyTiddler>!is[tiddler]!is[shadow]questmarked[]then[trpg-rumour-tiddler]]

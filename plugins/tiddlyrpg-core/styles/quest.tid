@@ -1,5 +1,5 @@
 created: 20261015122743000
-modified: 20261015145716000
+modified: 20261015170622000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/quest
 type: text/vnd.tiddlywiki
@@ -257,6 +257,13 @@ span.trpg-section-quest.trpg-quest-rumour {
 	border: 1px solid var(--tpc-muted-foreground);
 	border-radius: 999px;
 	white-space: nowrap;
+}
+
+/* The page of a rumour (no tiddler, config/class-rumour) framed and tinted in silver like a
+   tiddler of a type (styles/border: 2px, 9 % inside); a quest tiddler gets gold from its tag */
+.tc-tiddler-frame.trpg-rumour-tiddler {
+	border: 2px solid var(--trpg-rumour);
+	background-color: color-mix(in srgb, var(--trpg-rumour) 9%, var(--tpc-tiddler-background, #fff));
 }
 
 /* The page of a quest: planning, rumour tools, links, history */

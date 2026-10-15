@@ -283,6 +283,8 @@ test.describe("relations: open quests around what they mention, switches by kind
 		var list = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list\"/>", {currentTiddler: "Turm", self: "Turm"}).replace(/\s+/g, " ");
 		assert.match(list, /Questfahrt \(1\. Ches 1351\) ?Baile ?Verbunden mit ?Spur \(Questfahrt\)/);
 		assert.match(h.view(wiki, "Spur"), /trpg-kind-switches/, "a rumour has the block too");
+		assert.match(h.view(wiki, "Spur"), /<div class="[^"]*trpg-rumour-tiddler[^"]*"[^>]*data-tiddler-title="Spur"/, "its page silver");
+		assert.doesNotMatch(h.view(wiki, "Turm"), /trpg-rumour-tiddler/, "a quest: gold from its tag");
 		withTiddlers([{title: "$:/state/tiddlyrpg-core/relations-filter/Turm", list: "location quest"}], function() {
 			var off = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/quest\"/>", {currentNode: "Turm"});
 			assert.deepEqual(Object.keys(off.nodes).sort(), ["Questfahrt", "Turm"], "the events stay");
@@ -297,6 +299,7 @@ test.describe("relations: open quests around what they mention, switches by kind
 			assert.ok(questGraph().nodes["Verdeckte Spur"] && questGraph().nodes.Baile);
 			h.inView(wiki, "public", function() {
 				assert.deepEqual(Object.keys(questGraph().nodes), ["Verdeckter Faden"], "no event, nothing it mentions");
+				assert.doesNotMatch(h.view(wiki, "Verdeckter Faden"), /trpg-rumour-tiddler/, "no silver for a rumour it does not see");
 				assert.ok(f("[[Baile]questsabout[]]").indexOf("Verdeckter Faden") === -1);
 				assert.ok(!ego("Baile").nodes["Verdeckter Faden"]);
 				assert.ok(h.view(wiki, "Baile").indexOf("Verdeckter Faden") === -1);
