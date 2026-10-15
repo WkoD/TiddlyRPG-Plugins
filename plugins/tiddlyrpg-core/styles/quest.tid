@@ -1,14 +1,19 @@
 created: 20261015122743000
-modified: 20261015142756000
+modified: 20261015145716000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/quest
-type: text/css
+type: text/vnd.tiddlywiki
 
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
 /* Quests (modules/quests.js): what a marker holds in the text of an event (trpg-nest and the
    block <$quest>, widgets/sections.js), the label of the marker (procedure quest), the cards of
    the hub Quest (templates/quest-list, quest-card) and the history (templates/quest-body).
    A quest (tiddler tagged Quest) gold, a rumour silver, whatever its status; complete and failed
-   cards grey like the dead (styles/dead). Palette colours via --tpc-*. */
+   cards grey like the dead (styles/dead). Palette colours via --tpc-*. The silver is lighter
+   with a dark palette (field color-scheme of the palette, as the core palettes have it). */
+:root {
+	--trpg-rumour: {{{ [{$:/palette}get[color-scheme]match[dark]then[#b9c0c8]else[#9aa1aa]] }}};
+}
 
 /* The paragraphs the wikitext parser puts around inline-parsed content of the containers below
    take no room of their own: their children lay out in the grid or flex of the container */
@@ -35,8 +40,8 @@ div.trpg-section-quest {
 	margin: 0.6em 0;
 }
 div.trpg-section-quest.trpg-quest-rumour {
-	border-left-color: #9aa1aa;
-	background: color-mix(in srgb, #9aa1aa 10%, transparent);
+	border-left-color: var(--trpg-rumour);
+	background: color-mix(in srgb, var(--trpg-rumour) 10%, transparent);
 }
 div.trpg-section-quest > div.trpg-section-quest {
 	border-left: none;
@@ -49,7 +54,7 @@ div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.
 	border-left-color: transparent;
 	background: repeating-linear-gradient(45deg,
 		color-mix(in srgb, #e6b400 8%, transparent) 0 96px,
-		color-mix(in srgb, #9aa1aa 12%, transparent) 96px 192px);
+		color-mix(in srgb, var(--trpg-rumour) 12%, transparent) 96px 192px);
 }
 div.trpg-section-quest.trpg-quest-real:has(> div.trpg-quest-rumour, > div > div.trpg-quest-rumour)::before,
 div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.trpg-quest-real)::before {
@@ -59,7 +64,7 @@ div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.
 	bottom: 0;
 	left: -4px;
 	width: 4px;
-	background: repeating-linear-gradient(45deg, #e6b400 0 64px, #9aa1aa 64px 128px);
+	background: repeating-linear-gradient(45deg, #e6b400 0 64px, var(--trpg-rumour) 64px 128px);
 }
 /* A list item: the line at the edge of the text like the other frames, back over the indent of
    its lists (40px each), the text where it was */
@@ -87,7 +92,7 @@ span.trpg-section-quest {
 	box-decoration-break: clone;
 }
 span.trpg-section-quest.trpg-quest-rumour {
-	background: color-mix(in srgb, #9aa1aa 22%, transparent);
+	background: color-mix(in srgb, var(--trpg-rumour) 22%, transparent);
 }
 
 /* The label of a marker */
@@ -105,7 +110,7 @@ span.trpg-section-quest.trpg-quest-rumour {
 	vertical-align: 1px;
 }
 .trpg-quest-label.trpg-quest-rumour {
-	border-color: #9aa1aa;
+	border-color: var(--trpg-rumour);
 }
 .trpg-quest-kind {
 	color: var(--tpc-muted-foreground);
@@ -181,7 +186,7 @@ span.trpg-section-quest.trpg-quest-rumour {
 	background: var(--tpc-tiddler-background);
 }
 .trpg-quest-card.trpg-quest-rumour {
-	border-left-color: #9aa1aa;
+	border-left-color: var(--trpg-rumour);
 }
 .trpg-quest-card.trpg-quest-done {
 	background: color-mix(in srgb, var(--tpc-muted-foreground) 50%, var(--tpc-tiddler-background));
@@ -296,7 +301,7 @@ span.trpg-section-quest.trpg-quest-rumour {
 	gap: 10px;
 }
 .trpg-quest-history.trpg-quest-rumour {
-	--trpg-quest-colour: #9aa1aa;
+	--trpg-quest-colour: var(--trpg-rumour);
 }
 .trpg-quest-history::before {
 	content: "";

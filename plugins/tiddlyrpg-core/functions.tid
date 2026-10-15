@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261015122743000
+modified: 20261015145441000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -143,8 +143,8 @@ type: text/vnd.tiddlywiki
 <!-- A dated section in the body: <<date>> is the next section of the date field (the first
      is 1), <<date 3>> section 3, <<date label:"Caption">> / <<date 3 label:"Caption">> with a caption.
      Draws the rule before it (not at the very start of the body), the date, the caption and
-     the locations of the section. widgets/date.js finds out which section it is. Without any
-     date in the field the heading is "????" (with the era). The heading is the jump mark
+     the locations of the section (its frame: styles/sections). widgets/date.js finds out which
+     section it is. Without any date in the field the heading is "????" (with the era). The heading is the jump mark
      "date-<n>" (data-trpg-anchor, modules/anchor-jump.js) - not at the very start of the body:
      there a jump would only hide the title, the plain navigation already shows the section. The
      caption is inline wikitext: <<date label:"Fight at <<unit '30 ft'>>">> (other quotes inside). -->

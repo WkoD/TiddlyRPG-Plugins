@@ -143,7 +143,8 @@ test.describe("locks in the text", function() {
 		assert.ok(pub.indexOf("Offen in") !== -1 && pub.indexOf("Geheim in") === -1 && pub.indexOf("Traum") === -1, pub);
 		assert.ok(inView("player:Anna", function() { return body("Nacht"); }).indexOf("Geheim in") !== -1);
 		var dm = body("Nacht");
-		assert.match(dm, /trpg-section-locked">.*Geheim: Frigg.*Geheim in/s);
+		assert.match(dm, /<div class="trpg-section-lock trpg-section-locked"><div class="trpg-secret-marker">.*Geheim: Frigg<\/div><div class="trpg-section trpg-section-date">.*Geheim in/s);
+		assert.doesNotMatch(pub, /trpg-section-lock/);
 	});
 
 	test("<$secret> in the text: only the block, the text around stays", function() {

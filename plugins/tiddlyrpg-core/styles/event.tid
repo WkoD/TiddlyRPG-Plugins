@@ -1,12 +1,13 @@
 created: 20261002082222000
-modified: 20261002103000000
+modified: 20261015144343000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/event
 type: text/css
 
 /* Date line below the tags (procedure trpg.dateline: span of an event, years of existence of the
    other types), head of an event
-   (viewtemplates/event), dated sections in the body (procedure date), location pills (procedure
+   (viewtemplates/event), the heading of a dated section (procedure date; its frame:
+   styles/sections), location pills (procedure
    trpg.places) and hints on dates that cannot be read (trpg.datecheck). Palette colours via
    --tpc-*. */
 .trpg-dateline {
@@ -19,9 +20,6 @@ type: text/css
 }
 .trpg-date-label {
 	font-weight: normal;
-}
-.trpg-date-rule {
-	margin: 1.2em 0 0.8em;
 }
 .trpg-date-heading + .trpg-places {
 	margin-top: 0.2em;

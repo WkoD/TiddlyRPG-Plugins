@@ -1,0 +1,114 @@
+created: 20261015144343000
+modified: 20261015145441000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/sections
+type: text/vnd.tiddlywiki
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
+/* The sections of a body (modules/sections.js, widgets/sections.js) in one pattern: the heading,
+   the text below, a line on the left in the colour of the kind - a dated section in that of the
+   hub Event, a spot in that of Location, a quest marker gold or silver (styles/quest).
+   A lock in the alert colour of the palette (as the bar of the view of the DM): a frame all
+   round, wider on the left, its marker as a bar on top saying for whom; a locked section of
+   another kind keeps its own line inside the frame. A locked tiddler (tag Secret,
+   config/class-secret) in a frame of its own outside the frame of its type (styles/border), its
+   marker (viewtemplates/secret) as a bar above the title. All of it only for a view that sees
+   it: what it does not see renders nothing, frames included. */
+div.trpg-section-date,
+div.trpg-section-spot {
+	border-left: 3px solid {{Event!!color}};
+	padding: 1px 0 1px 14px;
+	margin: 1em 0;
+}
+div.trpg-section-spot {
+	border-left-color: {{Location!!color}};
+}
+/* The heading on top: also where it stands in a paragraph (after <<secret>> on its line) */
+div.trpg-section-date > :first-child,
+div.trpg-section-spot > :first-child,
+div.trpg-section-date > p:first-child > :first-child,
+div.trpg-section-spot > p:first-child > :first-child,
+div.trpg-section-spot > h3.trpg-spot {
+	margin-top: 0;
+}
+div.trpg-section-date > :last-child,
+div.trpg-section-spot > :last-child {
+	margin-bottom: 0;
+}
+/* The rule before a dated section (procedure date) in the gap above its frame, over the width of
+   the text and its line; in a lock the frame of the lock draws it above itself */
+div.trpg-section-date > hr.trpg-date-rule:first-child {
+	margin: calc(-0.5em - 2px) 0 calc(0.5em + 1px) -17px;
+}
+.trpg-section-lock hr.trpg-date-rule {
+	display: none;
+}
+.trpg-section-locked:has(hr.trpg-date-rule) {
+	position: relative;
+}
+.trpg-section-locked:has(hr.trpg-date-rule)::before {
+	content: "";
+	position: absolute;
+	top: calc(-0.5em - 2px);
+	left: -4px;
+	right: -1px;
+	border: 1px inset;
+	border-width: 1px 0;
+	color: <<colour foreground>>;
+}
+
+/* The tag Secret: its pill in the colour of the lock */
+.tc-tag-list-item[data-tag-title="Secret"] .tc-tag-label {
+	background-color: <<colour alert-highlight>> !important;
+	color: <<colour tiddler-background>> !important;
+	fill: <<colour tiddler-background>> !important;
+}
+
+/* A lock: the secret itself, or the frame around a locked section of another kind */
+.trpg-section-locked {
+	border: 1px solid <<colour alert-highlight>>;
+	border-left-width: 4px;
+	border-radius: 0 6px 6px 0;
+	padding: 0 12px 6px 12px;
+	margin: 1em 0;
+}
+.trpg-section-locked > .trpg-secret-marker {
+	margin: 0 -12px 6px;
+	padding: 2px 12px;
+	border-radius: 0 5px 0 0;
+	background: <<colour alert-highlight>>;
+	color: <<colour tiddler-background>>;
+	fill: <<colour tiddler-background>>;
+	font-size: 0.8em;
+}
+.trpg-section-lock > div.trpg-section {
+	margin: 4px 0 0;
+}
+.trpg-secret-marker svg {
+	width: 0.9em;
+	height: 0.9em;
+	vertical-align: middle;
+	margin-right: 0.3em;
+}
+
+/* A locked tiddler: a frame outside the frame of its type (a gap in the colour of the page, then
+   1px all round, 5px on the left), the marker as a bar above the title */
+.tc-tiddler-frame.trpg-secret-tiddler {
+	box-shadow: 0 0 0 3px <<colour page-background>>, 0 0 0 4px <<colour alert-highlight>>, -4px 0 0 4px <<colour alert-highlight>>;
+}
+.trpg-secret-head {
+	margin: 0 0 0.6em;
+	padding: 2px 10px;
+	border-radius: 3px;
+	background: <<colour alert-highlight>>;
+	color: <<colour tiddler-background>>;
+	fill: <<colour tiddler-background>>;
+	font-size: 0.8em;
+}
+
+/* The popup of a spot on a map (graph/templates/trpg-map) shows its text without the frame */
+.graph-popup div.trpg-section-spot {
+	border: none;
+	padding: 0;
+	margin: 0;
+}

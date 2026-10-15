@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261015122743000
+modified: 20261015144343000
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -30,9 +30,11 @@ Rendering of the sections of a body (modules/sections.js).
   paragraph or a list item it is a span
 
 A section the active view does not see renders nothing. Every section is a div with the classes
-trpg-section trpg-section-<kind> (trpg-section-locked with a lock of its own; a quest also
-trpg-quest-real or trpg-quest-rumour) - the base for the
-styling of its kind; a locked one starts with a marker for whom it is ("Secret: Theren"). The
+trpg-section trpg-section-<kind> (a quest also trpg-quest-real or trpg-quest-rumour) - the base
+for the styling of its kind (styles/sections). A lock starts with a marker for whom it is
+("Secret: Theren"): a secret is itself the frame of its lock (trpg-section-locked), a locked
+section of another kind (<<secret>><<date>>) stands in a frame of its own around it
+(div.trpg-section-lock.trpg-section-locked, the marker first), so it keeps its own look. The
 blocks draw the heading of their kind through the procedures date and spot (functions.tid), so
 both forms look the same; the heading of a block carries the position of the block, so the
 dated section finds its number (widgets/date.js).
@@ -121,7 +123,20 @@ function render(parent,nextSibling) {
 		return;
 	}
 	var div = this.document.createElement(this.inline ? "span" : "div");
-	div.className = this.className;
+	div.className = this.className + (this.frame && this.inline ? " " + this.frame : "");
+	if(this.frame && !this.inline) {
+		// The lock of a section of another kind: its frame with the marker around the section
+		var frame = this.document.createElement("div");
+		frame.className = this.frame;
+		parent.insertBefore(frame,nextSibling);
+		this.domNodes.push(frame);
+		this.children[0].render(frame,null);
+		frame.appendChild(div);
+		for(var i = 1; i < this.children.length; i++) {
+			this.children[i].render(div,null);
+		}
+		return;
+	}
 	parent.insertBefore(div,nextSibling);
 	this.domNodes.push(div);
 	this.renderChildren(div,null);
@@ -134,7 +149,8 @@ function setup(widget,record,kind,children,shown) {
 		def = sections.kind(kind),
 		lock = record ? sections.lockOf(wiki,widget.title,record.id) : null;
 	widget.shown = record ? sections.visible(wiki,widget.title,record.id) : (shown === undefined ? true : shown);
-	widget.className = "trpg-section trpg-section-" + kind + (lock ? " trpg-section-locked" : "") +
+	widget.frame = lock && kind !== "secret" ? "trpg-section-lock trpg-section-locked" : "";
+	widget.className = "trpg-section trpg-section-" + kind + (lock && !widget.frame ? " trpg-section-locked" : "") +
 		(record && def && def.classes ? " " + def.classes(wiki,record) : "");
 	widget.watch = record && def && def.watch ? def.watch(record) : [];
 	widget.makeChildWidgets(widget.shown ? (lock ? [markerNode(wiki,lock)] : []).concat(children) : []);

@@ -145,15 +145,15 @@ test.describe("page control and page class", function() {
 });
 
 test.describe("a locked tiddler", function() {
-	test("marker for who sees it: the DM and its players", function() {
-		assert.match(h.view(wiki, "Friggs Traum"), /class="trpg-secret-marker">.*Geheim: Frigg</s);
+	test("frame and marker above the title for who sees it: the DM and its players", function() {
+		assert.match(h.view(wiki, "Friggs Traum"), /<div class="[^"]*trpg-secret-tiddler[^"]*"[^>]*>\s*<div class="trpg-secret-marker trpg-secret-head">.*Geheim: Frigg<\/div>\s*<div class="tc-tiddler-title/s);
 		assert.match(inView("player:Anna", function() { return h.view(wiki, "Friggs Traum"); }), /Geheim: Frigg/);
 		assert.match(h.view(wiki, "Geheimbund"), /Geheim: nur DM/);
 	});
 
 	test("opened in a view that does not see it: no body, tags, marker, relations, date line", function() {
 		var html = inView("public", function() { return h.view(wiki, "Geheimbund"); });
-		assert.doesNotMatch(html, /DM only\.|tc-tag-list-item|trpg-secret-marker|tc-tab-set|trpg-dateline/);
+		assert.doesNotMatch(html, /DM only\.|tc-tag-list-item|trpg-secret-marker|trpg-secret-tiddler|tc-tab-set|trpg-dateline/);
 		assert.match(h.view(wiki, "Geheimbund"), /DM only\./);
 	});
 });

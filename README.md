@@ -204,6 +204,9 @@ hint asks for the block form. A locked dated section is missing entirely in the 
 not see it - heading, text, locations, its row in the table, its part of the timeline and of the
 span in the date line; a locked spot is missing on the map, among the spots and in the paths.
 A spot joined to a secret tiddler is locked as well. The search finds no word of a locked part.
+In the views that see it, a locked part stands in a frame in the alert colour of the palette,
+with a bar on top naming whom it is for ("Secret: Theren", "DM only"); a secret tiddler stands
+in such a frame as a whole, outside the frame of its type, with the bar above its title.
 Lock only with `Secret`, `<<secret>>` and `<$secret>`: a `$list` or `<%if%>` of your own on the
 view hides the text, but not the dates, locations and spots in it, and a transcluded secret
 tiddler shows wherever it is transcluded (`scripts/check-wiki.js` warns about both).
@@ -460,8 +463,10 @@ where each section begins:
 <<date label:"The ritual">>     with a caption (also <<date 3 label:"The ritual">>, <<date label:"1351">>)
 ```
 
-Each placeholder shows a rule (not at the very start of the body), the date of its section,
-the caption and the locations linked in that section. Every event starts with `<<date>>`, also
+Each section stands out by a line on the left in the colour of events (a rule between two
+sections), with a heading of the date of its section, the caption and the locations linked in
+that section (a spot likewise in the colour of locations, with its name). Every event starts
+with `<<date>>`, also
 one with a single date; without any date in the field the heading reads `????` (with the
 era). Below its tags, right-aligned, every tiddler with dates shows a date line: an
 event the span of its whole field, every other type its years of existence. An event also

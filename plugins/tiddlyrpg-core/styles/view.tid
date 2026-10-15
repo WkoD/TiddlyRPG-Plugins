@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261014185321000
+modified: 20261015144343000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/view
 type: text/vnd.tiddlywiki
@@ -7,8 +7,8 @@ type: text/vnd.tiddlywiki
 \rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
 /* Views (modules/visibility.js): a coloured bar at the top of the window outside the public view
    (config/class-view adds trpg-view-<mode> to the page container) - in the colour of the Player
-   hub for a player, in the alert colour for the DM -, the page control ui/view-switcher, the
-   marker of a locked tiddler (viewtemplates/secret) and the cards of the Player hub. */
+   hub for a player, in the alert colour for the DM -, the page control ui/view-switcher and the
+   cards of the Player hub. Locked tiddlers and sections: styles/sections. */
 .tc-page-container.trpg-view-player::before,
 .tc-page-container.trpg-view-dm::before {
 	content: "";
@@ -43,18 +43,6 @@ type: text/vnd.tiddlywiki
 	width: 0.9em;
 	height: 0.9em;
 	vertical-align: middle;
-}
-.trpg-secret-marker {
-	font-size: 0.85em;
-	color: <<colour alert-highlight>>;
-	fill: <<colour alert-highlight>>;
-	margin: 0.2em 0;
-}
-.trpg-secret-marker svg {
-	width: 0.9em;
-	height: 0.9em;
-	vertical-align: middle;
-	margin-right: 0.3em;
 }
 .trpg-players {
 	display: flex;

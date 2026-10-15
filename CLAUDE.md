@@ -339,21 +339,26 @@ the tiddler title:
   `sectioncheck`, `trpgrulecheck` and `macrocheck`),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
-  one type scope filter for both tabs), `secret` (marker of a secret: whom it is for), `player`
+  one type scope filter for both tabs), `secret` (marker of a secret above the title: whom it is
+  for), `player`
   (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-sections` (cascade, see below).
 - **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `date-section`.
 - **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
-  dated sections, location pills), `location` (path, spot pills, spots, map buttons; static
-  CSS, `type: text/css`) and `view` (bar of the view, page control, marker of a secret, cards
-  of the `Player` hub; wikitext for the colour of `Player`).
+  heading of a dated section, location pills), `location` (path, spot pills, spots, map buttons; static
+  CSS, `type: text/css`), `sections` (the frames of the sections - a line on the left in the
+  colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
+  and the frame of a locked tiddler outside the frame of its type; wikitext for the colours) and
+  `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
+  `Player`).
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/title-translated`,
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
-- **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-pinned`, `class-readonly`,
+- **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-secret` (class
+  `trpg-secret-tiddler` for a locked tiddler the view sees), `class-pinned`, `class-readonly`,
   `class-view`, `title-translated`, `subtitle`, `view-tags` - see below; `dm-published`
   (`$:/config/tiddlyrpg/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
   sidebar tabs, see "Views").
@@ -812,6 +817,11 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
   sections; the walk and the rendering (`transform()`) use the same function, so a rendered
   section finds its record by key. Pragma nodes at the start (`set`, `importvariables`,
   `parameters`) wrap all sections and are kept.
+- Look (`styles/sections`): every kind a line on the left in its colour, the heading on top (a
+  dated section after the start of the body with a rule above, `hr.trpg-date-rule`); a
+  lock a frame in the alert colour of the palette with the marker as a bar. A locked section of
+  another kind (`<<secret>><<date>>`) renders in a frame of its own
+  (`div.trpg-section-lock.trpg-section-locked`) around the section, so it keeps its line.
 - Visibility is decided when asked (`visible()`: the locks of a record and its parents, and the
   `visible` condition of its kind - a spot joined to a tiddler the view does not see), never
   cached. `lockOf()` gives whom a section's own lock is for (the marker).
