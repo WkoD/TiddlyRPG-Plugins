@@ -382,8 +382,9 @@ the tiddler title:
   `$:/config/tiddlyrpg/graph/axes[/<axis>]` (see "Relations"); relink of the macro parameters
   of `spot` and `spotlink`; the graph templates
   `$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph` (type colours from the tag `color`,
-  `shape=box`, no saved positions), `.../trpg-ego` and `.../trpg-map` (map of a location, see
-  "Locations"); the views `$:/plugins/tiddlyrpg-core/graph/ego` and `.../graph/map` (outside
+  `shape=box`, no saved positions), `.../trpg-ego`, `.../trpg-quest` (graph of a quest, see
+  "Relations") and `.../trpg-map` (map of a location, see "Locations"); the views
+  `$:/plugins/tiddlyrpg-core/graph/ego`, `.../graph/quest` and `.../graph/map` (outside
   `$:/graph/`, so not in the dropdown of the graph sidebar); the vis-network extensions
   `graph/map-fit.js` (`module-type: vis-property`, graph property `trpgMapFit`),
   `graph/map-pin.js` (`vis-property`, node property `trpgPin`),
@@ -807,6 +808,12 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   (`viewtemplates/relations`, filter `relationkind`, functions `trpg.egonodes`/`trpg.egoshown`
   in `functions.tid`, state `$:/state/tiddlyrpg-core/relations-filter/<title>`) leave a kind
   out of graph and list alike; the centre stays.
+- A quest or rumour has the relations block too, with tabs of its own
+  (`viewtemplates/relations/quest-graph`, `.../quest-list`, state
+  `$:/state/tiddlyrpg-core/quest-relations-tab`): the events of its visible markers (edge with
+  the date of the section, the newest with a thick border), what the markers there link
+  (`questmentions<event>`), the quests linked with it at their event (`questlinkat`); the same
+  switches, the events always shown (`graph/templates/trpg-quest`).
 
 ## Sections
 

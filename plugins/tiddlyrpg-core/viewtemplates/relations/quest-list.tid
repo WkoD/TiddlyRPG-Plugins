@@ -1,0 +1,28 @@
+caption: <<trpg.t Relations/List>>
+created: 20261015170052000
+modified: 20261015170052000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list
+type: text/vnd.tiddlywiki
+
+<!-- The list of a quest or rumour `self` (viewtemplates/relations), what its graph shows
+     (graph/templates/trpg-quest): per event of its markers the view sees, newest first, the event
+     with the date of its section and what the markers there link; then the quests linked with it,
+     each with the event where their markers are stacked. Only the kinds switched on above the
+     block (trpg.egoshown). -->
+\whitespace trim
+\function trpg.mentioned(event) [<self>questmentions<event>] -[<self>] :filter[is[tiddler]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[sort[title]]
+
+<$list filter="[<self>questevents[]]" variable="trpg-event">
+<$let trpg-number={{{ [<self>questmarks[]] :filter[questmark:event[]match<trpg-event>] +[first[]questmark:number[]] }}}>
+<h3 class="trpg-relations-group"><$transclude $variable="trpg.link" title=<<trpg-event>>/><span class="trpg-via"><$text text={{{ [<trpg-event>get[date]dateformat<trpg-number>addprefix[ (]addsuffix[)]] }}}/></span></h3>
+<$list filter="[trpg.mentioned<trpg-event>]">
+<div class="tc-menu-list-subitem"><$transclude $variable="trpg.link" title=<<currentTiddler>>/></div>
+</$list>
+</$let>
+</$list>
+<$list filter="[<self>questlinks[]] :filter[trpg.egoshown<self>] +[limit[1]]" variable="ignore">
+<h3 class="trpg-relations-group"><$text text={{{ [[Relations/Quest/LinkedWith]trpgtranslate[]] }}}/></h3>
+<$list filter="[<self>questlinks[]] :filter[trpg.egoshown<self>]" variable="trpg-other">
+<div class="tc-menu-list-subitem"><$transclude $variable="trpg.link" title=<<trpg-other>>/><span class="trpg-via"><$text text={{{ [<self>questlinkat<trpg-other>first[]addprefix[ (]addsuffix[)]] }}}/></span></div>
+</$list>
+</$list>

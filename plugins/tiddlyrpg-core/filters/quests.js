@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/quests.js
 type: application/javascript
 module-type: filteroperator
 created: 20261015122743000
-modified: 20261015154229000
+modified: 20261015170052000
 
 Filter operators of the quests (modules/quests.js), all for the active view:
 
@@ -16,7 +16,10 @@ Filter operators of the quests (modules/quests.js), all for the active view:
 [<name>questplayers[]]          who takes part (player characters)
 [<name>questlinks[]]            the quests linked with it
 [<titles>questmarked[]]         the input titles that are names of a quest or rumour with a marker
-[<name>questmentions[]]         what its markers link ([[...]], <<spotlink>>: the location)
+[<name>questmentions[]]         what its markers link ([[...]], <<spotlink>>: the location);
+                                questmentions<event>: only its markers in that event
+[<name>questevents[]]           the events of its markers, newest first
+[<name>questlinkat<other>]      the events where it is linked with <other>
 [<title>questsabout[]]          the open quests and rumours whose markers link the input titles
 [<id>questmark:event[]]         of a marker: its event; key (its position, for $quest of
                                 trpg-body), number (its dated section), date (the text of the
@@ -91,7 +94,19 @@ exports.questmarked = function(source,operator,options) {
 
 exports.questmentions = function(source,operator,options) {
 	return each(source,function(name) {
-		return quests.mentions(options.wiki,name);
+		return quests.mentions(options.wiki,name,null,operator.operand || null);
+	});
+};
+
+exports.questevents = function(source,operator,options) {
+	return each(source,function(name) {
+		return quests.events(options.wiki,name);
+	});
+};
+
+exports.questlinkat = function(source,operator,options) {
+	return each(source,function(name) {
+		return quests.linkEvents(options.wiki,name,operator.operand);
 	});
 };
 

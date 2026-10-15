@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/quests.js
 type: application/javascript
 module-type: library
 created: 20261015122743000
-modified: 20261015154229000
+modified: 20261015170052000
 
 Quests - the one place of these rules. A quest is a name; its markers stand in events
 (<<quest "Name">>, <$quest name="Name">, modules/sections.js). A tiddler with the name tagged
@@ -188,11 +188,26 @@ exports.names = function(wiki,view) {
 	return out;
 };
 
-// What the markers of <name> the view sees link, in the order of the text, newest marker first
-var mentions = exports.mentions = function(wiki,name,view) {
+// The events of the markers of <name> the view sees, newest first
+exports.events = function(wiki,name,view) {
+	var found = [];
+	$tw.utils.each(marks(wiki,name,view),function(mark) {
+		if(found.indexOf(mark.event) === -1) {
+			found.push(mark.event);
+		}
+	});
+	return found;
+};
+
+// What the markers of <name> the view sees link (only those in <event>, if given), in the order
+// of the text, newest marker first
+var mentions = exports.mentions = function(wiki,name,view,event) {
 	view = view || visibility.current(wiki);
 	var found = [];
 	$tw.utils.each(marks(wiki,name,view),function(mark) {
+		if(event && mark.event !== event) {
+			return;
+		}
 		$tw.utils.each(mark.links,function(link) {
 			if(link.to !== name && found.indexOf(link.to) === -1 && sections.visible(wiki,mark.event,link.section,view)) {
 				found.push(link.to);
@@ -240,6 +255,20 @@ exports.players = function(wiki,name,view) {
 		});
 	}
 	return found.sort();
+};
+
+// The events where <name> and <other> are linked (a marker of one directly in a marker of the
+// other, seen by the view), newest first
+exports.linkEvents = function(wiki,name,other,view) {
+	view = view || visibility.current(wiki);
+	var found = [];
+	$tw.utils.each(index(wiki).marks.slice().reverse(),function(mark) {
+		var pair = (mark.name === name && mark.parent === other) || (mark.name === other && mark.parent === name);
+		if(pair && found.indexOf(mark.event) === -1 && markVisible(wiki,mark,view)) {
+			found.push(mark.event);
+		}
+	});
+	return found;
 };
 
 // The quests linked with <name>: a marker of one directly in a marker of the other, both seen

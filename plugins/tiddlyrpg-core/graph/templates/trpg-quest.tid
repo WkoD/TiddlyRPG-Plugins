@@ -1,0 +1,91 @@
+caption: TiddlyRPG quest graph (events and what they mention)
+created: 20261015170052000
+modified: 20261015170052000
+title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
+
+\whitespace trim
+
+\procedure trpg.node()
+<$wikify name=label mode=inline text={{{ [{!!title}get[caption]else[<$text text={{!!title}} />]] }}}>
+<$node label=<<label>> image={{!!icon}} />
+</$wikify>
+\end trpg.node
+
+<!-- Graph of a quest or rumour around <<currentNode>> (modules/quests.js), in the relations block
+     of its page (viewtemplates/relations): the quest - gold, a rumour silver -, the events of its
+     markers the view sees with an edge from the quest labelled with the date of the section (the
+     newest event with a thick border), from each event an edge to what its markers there link
+     (questmentions<event>), and the quests linked with it at the event where their markers are
+     stacked (questlinkat). Nodes drawn like pills (trpgPill), the dead striped (trpgDead,
+     graph/pill.js). Only the kinds switched on above the block (trpg.egoshown); the events are the
+     frame and always show. Nothing that the view does not see: markers in a locked section, what
+     a locked part of a marker links, tiddlers it does not see. -->
+
+<$graph>
+<$properties $for=graph $tiddler="$:/config/tiddlyrpg/graph/physics" />
+<$properties $for=nodes actions="<$action-navigate $to=<<nodeTiddler>> />">
+<$properties physics=yes shape=box trpgPill="yes">
+
+<$properties $filter="[tag[Event]]"      color={{Event!!color}}>
+<$properties $filter="[tag[Deity]]"           color={{Deity!!color}}>
+<$properties $filter="[tag[Location]]"            color={{Location!!color}}>
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]]" color={{Item!!color}}>
+<$properties $filter="[tag[Person]]"         color={{Person!!color}}>
+<$properties $filter="[tag[Player]]"        color={{Player!!color}}>
+<$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
+<$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
+
+<$let trpg-quest=<<currentNode>>
+	trpg-colour={{{ [<currentNode>questreal[]then{Quest!!color}else[#9aa1aa]] }}}
+	trpg-newest={{{ [<currentNode>questlast[]questmark:event[]] }}}
+	trpg-events={{{ [<currentNode>questevents[]format:titlelist[]join[ ]] }}}
+	trpg-linked={{{ [<currentNode>questlinks[]] :filter[trpg.egoshown<currentNode>] +[format:titlelist[]join[ ]] }}}>
+
+<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> borderWidth="3" />
+
+<$list filter="[enlist<trpg-events>]" variable="trpg-event">
+<$tiddler tiddler=<<trpg-event>>>
+<%if [<trpg-event>match<trpg-newest>] %>
+<$properties borderWidth="3"><<trpg.node>></$properties>
+<%else%>
+<<trpg.node>>
+<%endif%>
+</$tiddler>
+<$let trpg-number={{{ [<trpg-quest>questmarks[]] :filter[questmark:event[]match<trpg-event>] +[first[]questmark:number[]] }}}>
+<$edge $from=<<trpg-quest>> $to=<<trpg-event>> label={{{ [<trpg-event>get[date]dateformat<trpg-number>] }}} color=<<trpg-colour>> />
+</$let>
+<$list filter="[<trpg-quest>questmentions<trpg-event>]" variable="toTiddler">
+<$edge $from=<<trpg-event>> $to=<<toTiddler>> color="#999999" />
+</$list>
+</$list>
+
+<$list filter="[<trpg-quest>questmentions[]] -[enlist<trpg-events>] -[<trpg-quest>questlinks[]] -[<trpg-quest>] :filter[is[tiddler]] :filter[trpg.visible[]] :filter[trpg.egoshown<currentNode>]">
+<<trpg.node>>
+</$list>
+
+<$list filter="[enlist<trpg-linked>]" variable="trpg-other">
+<$node $tiddler=<<trpg-other>> label=<<trpg-other>> color={{{ [<trpg-other>questreal[]then{Quest!!color}else[#9aa1aa]] }}} />
+<$list filter="[<trpg-quest>questlinkat<trpg-other>]" variable="trpg-at">
+<$edge $from=<<trpg-at>> $to=<<trpg-other>> label={{{ [[Relations/Quest/Linked]trpgtranslate[]] }}} color={{Quest!!color}} />
+</$list>
+</$list>
+
+</$let>
+
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$graph>

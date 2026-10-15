@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015155234000
+modified: 20261015170052000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -100,6 +100,8 @@ Quest/Status/failed: fehlgeschlagen
 Quest/Status/open: offen
 Relations/Graph: Graph
 Relations/List: Liste
+Relations/Quest/Linked: verbunden
+Relations/Quest/LinkedWith: Verbunden mit
 Relations/Kind/Person: Personen und Götter
 Relations/Kind/Quest: Quests und Gerüchte
 Relations/Spot: Spot

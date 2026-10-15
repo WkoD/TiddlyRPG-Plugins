@@ -1,0 +1,9 @@
+caption: <<trpg.t Relations/Graph>>
+created: 20261015170052000
+modified: 20261015170052000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-graph
+type: text/vnd.tiddlywiki
+
+<div class="boundingbox" style="height:480px;">
+<$graph.view $tiddler="$:/plugins/tiddlyrpg-core/graph/quest" $mode=inline/>
+</div>

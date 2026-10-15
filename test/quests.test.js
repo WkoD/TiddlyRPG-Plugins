@@ -274,11 +274,29 @@ test.describe("relations: open quests around what they mention, switches by kind
 		});
 	});
 
+	test("the graph of a quest: its events with the date, what they mention, the quests linked at their event", function() {
+		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/quest\"/>", {currentNode: "Turm"}),
+			all = Object.keys(graph.edges).map(function(id) { var e = graph.edges[id]; return e.from + " -> " + e.to + (e.props.label ? " (" + e.props.label + ")" : ""); }).sort();
+		assert.deepEqual(Object.keys(graph.nodes).sort(), ["Baile", "Questfahrt", "Spur", "Turm"]);
+		assert.deepEqual(all, ["Questfahrt -> Baile", "Questfahrt -> Spur (verbunden)", "Turm -> Questfahrt (1. Ches 1351)"]);
+		assert.equal(graph.nodes.Questfahrt.borderWidth, "3", "the newest event");
+		var list = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list\"/>", {currentTiddler: "Turm", self: "Turm"}).replace(/\s+/g, " ");
+		assert.match(list, /Questfahrt \(1\. Ches 1351\) ?Baile ?Verbunden mit ?Spur \(Questfahrt\)/);
+		assert.match(h.view(wiki, "Spur"), /trpg-kind-switches/, "a rumour has the block too");
+		withTiddlers([{title: "$:/state/tiddlyrpg-core/relations-filter/Turm", list: "location quest"}], function() {
+			var off = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/quest\"/>", {currentNode: "Turm"});
+			assert.deepEqual(Object.keys(off.nodes).sort(), ["Questfahrt", "Turm"], "the events stay");
+		});
+	});
+
 	test("views: a marker in a locked section mentions nothing for a view that does not see it", function() {
 		withTiddlers([{title: "Verdeckte Spur", tags: "Event", date: "1352", text: "<<date>>\n\nOffen.\n\n<<secret \"Frigg\">><<date>>\n\n<<quest \"Verdeckter Faden\">>Bei [[Baile]]."}], function() {
 			assert.ok(f("[[Baile]questsabout[]]").indexOf("Verdeckter Faden") !== -1);
 			assert.ok(ego("Baile").nodes["Verdeckter Faden"]);
+			var questGraph = function() { return h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/quest\"/>", {currentNode: "Verdeckter Faden"}); };
+			assert.ok(questGraph().nodes["Verdeckte Spur"] && questGraph().nodes.Baile);
 			h.inView(wiki, "public", function() {
+				assert.deepEqual(Object.keys(questGraph().nodes), ["Verdeckter Faden"], "no event, nothing it mentions");
 				assert.ok(f("[[Baile]questsabout[]]").indexOf("Verdeckter Faden") === -1);
 				assert.ok(!ego("Baile").nodes["Verdeckter Faden"]);
 				assert.ok(h.view(wiki, "Baile").indexOf("Verdeckter Faden") === -1);

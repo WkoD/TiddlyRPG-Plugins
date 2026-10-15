@@ -284,7 +284,9 @@ relation list show the way back by themselves.
 - **Quests** in the graph and the list of a tiddler: the open quests and rumours whose markers
   link it (`[[…]]`, `<<spotlink>>` for a location) - in gold or silver, with an edge to what
   else of the graph they mention and to the quests linked with them. No field: they come from
-  the markers in the text.
+  the markers in the text. A quest (or rumour) itself shows its events instead: each with the
+  date of its section (the newest one stressed), what its markers there mention, and the quests
+  linked with it at the event where their markers stand together - as a graph and as a list.
 - **Switches on top of graph and list:** one per kind they show (players, people with deities,
   organisations, locations, items, quests with rumours), in the colour of the kind - split at
   45° where a switch holds two colours; all on at first, a click leaves that kind out of the

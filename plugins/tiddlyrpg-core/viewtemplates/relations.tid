@@ -1,6 +1,6 @@
 created: 20260713135021000
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/book
-modified: 20261015155234000
+modified: 20261015170052000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations
 type: text/vnd.tiddlywiki
@@ -17,7 +17,9 @@ type: text/vnd.tiddlywiki
      (<second>), labelled Relations/Kind/<hub> where it holds two kinds, else with the plural of
      the hub; all on at first, a click switches a kind off and on again for this tiddler
      (trpg.egoshown; state $:/state/tiddlyrpg-core/relations-filter/<title>, field list, not
-     saved). The tiddler itself always shows. -->
+     saved). The tiddler itself always shows.
+     A quest or rumour has its own tabs instead (quest-graph, quest-list: its events and what its
+     markers there mention, graph/templates/trpg-quest), with the same switches. -->
 \procedure trpg.kindswitch(hub,second,kinds,state)
 \whitespace trim
 <$let trpg-kind={{{ [<hub>lowercase[]] }}}>
@@ -34,17 +36,7 @@ type: text/vnd.tiddlywiki
 </$let>
 \end
 
-<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material]] :filter[trpg.visible[]]" variable=null>
-<$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
-<$let currentNode=<<currentTiddler>> self=<<currentTiddler>>
-	trpg-kinds={{{ [trpg.egonodes<currentTiddler>relationkind[]] +[format:titlelist[]join[ ]] }}}
-	trpg-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/relations-filter/]] }}}>
-<$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
-	tabsList="[[$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph]] [[$:/plugins/tiddlyrpg-core/viewtemplates/relations/list]]"
-	default="$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph"
-	explicitState="$:/state/tiddlyrpg-core/relations-tab"
-	class="">
-<$fill $name=body>
+\procedure trpg.relationstab()
 <%if [enlist<trpg-kinds>!match[other]] %>
 <div class="trpg-kind-switches">
 <$list filter="Player Person Organisation Location Item Quest" variable="trpg-hub">
@@ -54,8 +46,30 @@ type: text/vnd.tiddlywiki
 </div>
 <%endif%>
 <$transclude $tiddler=<<currentTab>> $mode=block/>
-</$fill>
+\end
+
+<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material]] [all[current]tag[Quest]] [all[current]!is[tiddler]questmarked[]] :filter[trpg.visible[]]" variable=null>
+<$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
+<$let currentNode=<<currentTiddler>> self=<<currentTiddler>>
+	trpg-kinds={{{ [trpg.egonodes<currentTiddler>relationkind[]] +[format:titlelist[]join[ ]] }}}
+	trpg-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/relations-filter/]] }}}>
+<%if [<currentTiddler>tag[Quest]] [<currentTiddler>!is[tiddler]questmarked[]] +[first[]] %>
+<$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
+	tabsList="[[$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-graph]] [[$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list]]"
+	default="$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-graph"
+	explicitState="$:/state/tiddlyrpg-core/quest-relations-tab"
+	class="">
+<$fill $name=body><<trpg.relationstab>></$fill>
 </$transclude>
+<%else%>
+<$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
+	tabsList="[[$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph]] [[$:/plugins/tiddlyrpg-core/viewtemplates/relations/list]]"
+	default="$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph"
+	explicitState="$:/state/tiddlyrpg-core/relations-tab"
+	class="">
+<$fill $name=body><<trpg.relationstab>></$fill>
+</$transclude>
+<%endif%>
 </$let>
 </$reveal>
 </$list>
