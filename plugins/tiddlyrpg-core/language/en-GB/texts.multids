@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015200000000
+modified: 20261015193623000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -42,7 +42,6 @@ Date/Column: Date
 Date/Day: $day$
 Date/DayMonth: $day$ $month$
 Date/Ever: time immemorial
-Date/Invalid: Check the date:
 Date/MonthDay: $month$ $day$
 Date/MonthDay/Day: $day$
 Date/MonthDay/Year: $date$, $year$

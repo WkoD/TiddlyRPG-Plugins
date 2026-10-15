@@ -102,9 +102,9 @@ test.describe("after --write", function() {
 	test("checker: the date left in the body is an error, the intro a hint", function() {
 		var result = run("check-wiki.js", [dir]);
 		assert.equal(result.status, 1, result.out);
-		assert.match(result.out, /Turm\n(.*\n)*\s+error  date in the body instead of the field: <<dateformat "1351-08-09">>/);
-		assert.match(result.out, /Intro\n(.*\n)*\s+hint  sections without heading: 1/);
-		assert.doesNotMatch(result.out, /old format/);
+		assert.match(result.out, /Turm\n(.*\n)*\s+error  Check the event: a date in the text instead of the field: <<dateformat "1351-08-09">>/);
+		assert.match(result.out, /Intro\n(.*\n)*\s+hint  Check the event: no <<date>> for section 1/);
+		assert.doesNotMatch(result.out, /format before 2\.0/);
 	});
 
 	test("checker: clean after fixing by hand", function() {
@@ -113,7 +113,7 @@ test.describe("after --write", function() {
 		tid("Intro", {title: "Intro", tags: "Event", date: "1351-08-15, 1351-11-12"}, "<<date>>\n\nZuerst.\n\n<<date>>\n\nDann.\n");
 		var result = run("check-wiki.js", [dir]);
 		assert.equal(result.status, 0, result.out);
-		assert.match(result.out, /0 errors, 0 warnings/);
+		assert.match(result.out, /0 errors, 0 hints/);
 	});
 
 	test("checker: locks - asking the view, a transcluded secret, the hints on sections", function() {
@@ -121,9 +121,9 @@ test.describe("after --write", function() {
 		tid("Nutzer", {title: "Nutzer", tags: "Person"}, "{{Geheim}}\n\n<$list filter=\"[{$:/state/tiddlyrpg/view}]\">x</$list>\n");
 		tid("Mitte", {title: "Mitte", tags: "Event", date: "1351"}, "<<date>>\n\nA <<secret>> B.\n");
 		var result = run("check-wiki.js", [dir]);
-		assert.match(result.out, /Nutzer\n(.*\n)*\s+warning  asks the view itself/);
-		assert.match(result.out, /Nutzer\n(.*\n)*\s+warning  transcludes the secret tiddler Geheim/);
-		assert.match(result.out, /Mitte\n(.*\n)*\s+warning  .*<<secret>>/);
+		assert.match(result.out, /Nutzer\n(.*\n)*\s+error  Check the text: it asks the view itself/);
+		assert.match(result.out, /Nutzer\n(.*\n)*\s+error  Check the text: it transcludes the secret tiddler Geheim/);
+		assert.match(result.out, /Mitte\n(.*\n)*\s+error  .*<<secret>>/);
 	});
 });
 

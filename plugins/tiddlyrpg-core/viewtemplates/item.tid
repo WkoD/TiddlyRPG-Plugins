@@ -1,14 +1,14 @@
 created: 20200731085719858
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/location
-modified: 20261010063203140
+modified: 20261015193623000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/item
 type: text/vnd.tiddlywiki
 
 <!-- The price of an item (field price), as written with the unit labels of the display language
      of the currency (modules/currency.js, priceformat); a plain number without currency. A price
-     that cannot be read gets a hint below the title (itemcheck). Not for a tiddler the view does
-     not see. -->
+     that cannot be read is a message below the title (checks/items.js). Not for a tiddler the
+     view does not see. -->
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <%if [<currentTiddler>trpg.visible[]] %>
 <$list filter="[all[current]has:field[price]]">

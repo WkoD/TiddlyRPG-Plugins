@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261015142303000
+modified: 20261015193623000
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -677,58 +677,47 @@ exports.hiddenRanges = function(wiki,title,view) {
 };
 
 /*
-The problems of a body as translated texts: the rules above, and names in a lock that are no
-player characters. None for editor snippets ($:/tags/TextEditor/Snippet): they are templates.
+The problems of a body, each {key, params} (checks/sections.js): the rules above, and names in a
+lock that are no player characters. What repeats text of a section (a caption, the name of a
+quest) only for a view that sees the section. None for editor snippets
+($:/tags/TextEditor/Snippet): they are templates.
 */
-exports.check = function(wiki,title) {
+exports.check = function(wiki,title,view) {
 	var tiddler = wiki.getTiddler(title),
 		model = read(wiki,title),
-		messages = [];
+		problems = [];
 	if(tiddler && tiddler.hasTag("$:/tags/TextEditor/Snippet")) {
-		return messages;
+		return problems;
 	}
+	view = view || visibility.current(wiki);
 	$tw.utils.each(model.errors,function(error) {
-		var def = KINDS[error.kind],
-			text = language.format(language.t(wiki,error.key),{
-				macro: error.kind,
-				kind: language.t(wiki,"Section/Kind/" + error.kind),
-				type: def && def.types ? language.title(wiki,def.types[0]) : ""
-			});
-		if(messages.indexOf(text) === -1) {
-			messages.push(text);
-		}
+		var def = KINDS[error.kind];
+		problems.push({key: error.key, params: {
+			macro: error.kind,
+			kind: language.t(wiki,"Section/Kind/" + error.kind),
+			type: def && def.types ? language.title(wiki,def.types[0]) : ""
+		}});
 	});
 	$tw.utils.each(model.records,function(record) {
-		// The problems of the kind itself (a quest: its name, status, date section), only for a
-		// view that sees the section - the hints name it
+		// The problems of the kind itself (a quest: its name, status, date section)
 		var def = KINDS[record.kind];
-		if(def && def.check && record.counts && visible(wiki,title,record.id)) {
+		if(def && def.check && record.counts && visible(wiki,title,record.id,view)) {
 			$tw.utils.each(def.check(wiki,model,record),function(problem) {
-				var text = language.format(language.t(wiki,problem.key),problem.params || {});
-				if(messages.indexOf(text) === -1) {
-					messages.push(text);
-				}
+				problems.push({key: problem.key, params: problem.params || {}});
 			});
 		}
-		// Its text only for a view that sees the section (the hint repeats it)
-		if(record.kind === "date" && record.params.bad && visible(wiki,title,record.id)) {
-			var hint = language.format(language.t(wiki,"Section/Check/DateLabel"),{text: record.params.bad});
-			if(messages.indexOf(hint) === -1) {
-				messages.push(hint);
-			}
+		if(record.kind === "date" && record.params.bad && visible(wiki,title,record.id,view)) {
+			problems.push({key: "Section/Check/DateLabel", params: {text: record.params.bad}});
 		}
 		$tw.utils.each(record.locks,function(list) {
 			$tw.utils.each(list,function(name) {
-				if(!visibility.isCharacter(wiki,name)) {
-					var text = language.format(language.t(wiki,"Section/Check/NoCharacter"),{name: name});
-					if(messages.indexOf(text) === -1) {
-						messages.push(text);
-					}
+				if(!visibility.isCharacter(wiki,name) && visible(wiki,title,record.id,view)) {
+					problems.push({key: "Section/Check/NoCharacter", params: {name: name}});
 				}
 			});
 		});
 	});
-	return messages;
+	return problems;
 };
 
 /* ---------- Rendering ---------- */

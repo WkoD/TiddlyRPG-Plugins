@@ -1,0 +1,42 @@
+created: 20261015191942000
+modified: 20261015191942000
+title: $:/tiddlyrpg/language/en-GB/Check/
+
+Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
+Dates/Beyond: Check the text: <<date $n$>> - the field date has $count$ sections
+Dates/Day: Check the date: $point$ - day $day$ does not exist in month $month$ of $year$
+Dates/EmptySection: Check the date: an empty section (two commas in a row)
+Dates/EmptySide: Check the date: an empty side in "$section$"
+Dates/Forever: Check the date: it starts with ".." - there since time immemorial?
+Dates/Head: Check the event: text before the first <<date>>
+Dates/Month: Check the date: $point$ - month $month$ does not exist
+Dates/NoDate: Check the event: it has no date
+Dates/NoHeading: Check the event: no <<date>> for section $sections$
+Dates/NoPlaceholder: Check the event: every event starts with <<date>>
+Dates/Old: Check the date: "$date$" is written in the format before 2.0 (dots)
+Dates/OpenPhase: Check the date: the phase $section$ has no end, but a later one follows
+Dates/Order: Check the date: $section$ comes before the section ahead of it
+Dates/Rule: Check the text: "---" right before <<date>> of section $n$ - the heading draws its own rule
+Dates/StartAfterEnd: Check the date: $section$ - the start is after the end
+Dates/Twice: Check the text: two <<date>> for section $n$
+Dates/Unreadable: Check the date: cannot read $parts$
+Images/Image: Check the image: $path$ does not exist
+Images/Joined: Check the spot: $spot$ is joined to $target$ - its images and maps show there, set them in that tiddler
+Images/Macro: Check the text: <<image>> shows $path$, which does not exist
+Images/Map: Check the map: $path$ does not exist
+Images/NoFolder: Check the text: <<image "$files$">> in a tiddler without type - name the folder, e.g. folder:"event"
+Images/SpotImage: Check the spot $spot$: its image $path$ does not exist
+Images/SpotMap: Check the spot $spot$: its map $path$ does not exist
+Legacy/Dateformat: Check the event: a date in the text instead of the field: $calls$
+Legacy/Datelong: Check the event: a datelong call is left in the text - the date belongs in the field
+Legacy/DeadFilter: Check the filter: search:date[.] is the old marker of the dead - use trpg.dead[]
+Legacy/Link: Check the fields: the field link is shown no more - where the images come from goes into the field source
+Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
+Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
+Plugins/missing: Check the choice: $configured$ is not installed - active is $active$
+Plugins/type: Check the choice: $configured$ is no plugin of this type - active is $active$
+Quests/NoMarker: Check the quest: it has no marker yet - mark it in an event: <<quest "$name$">>
+Quests/SimilarQuest: Check the name: it is close to the quest $other$ - one quest written two ways?
+Quests/SimilarRumour: Check the name: it is close to the rumour $other$ - one quest written two ways?
+Secrets/Transclusion: Check the text: it transcludes the secret tiddler $target$ - every view that sees this tiddler sees it
+Secrets/View: Check the text: it asks the view itself - lock with the tag Secret, <<secret>> or <$secret>

@@ -1,5 +1,5 @@
 /*
- * The check for unknown macros (modules/macros-check.js, operator macrocheck): a call nothing
+ * The check for unknown macros (modules/macros-check.js, rule macros/unknown): a call nothing
  * defines is reported, under the title and not in the published copy; global definitions,
  * definitions and variables set around the call, the variables of the page and view template,
  * the wildcards; calls in a section the view does not see, in code and in definitions are left
@@ -88,7 +88,7 @@ test("a locked section: left out for a view that does not see it, reported to th
 test("the hint below the title, not in the published copy", function() {
 	h.add(wiki, {title: "Hinweisprobe", text: "A <<nope>> B"});
 	try {
-		assert.match(h.view(wiki, "Hinweisprobe"), /class="trpg-date-invalid">Text prüfen: &lt;&lt;nope&gt;&gt; ist kein bekanntes Makro</);
+		assert.match(h.view(wiki, "Hinweisprobe"), /class="trpg-check trpg-check-error" title="macros\/unknown">Text prüfen: &lt;&lt;nope&gt;&gt; ist kein bekanntes Makro</);
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
 		assert.doesNotMatch(h.view(wiki, "Hinweisprobe"), /kein bekanntes Makro/);
 	} finally {
@@ -97,12 +97,15 @@ test("the hint below the title, not in the published copy", function() {
 	}
 });
 
-test("the operator macrocheck gives the texts in the wiki language", function() {
+test("the message is in the wiki language", function() {
 	h.add(wiki, {title: "Operatorprobe", text: "<<nope>>"});
+	var text = function() {
+		return h.checks(wiki, "Operatorprobe", "macros").map(function(message) { return message.text; }).join();
+	};
 	try {
-		assert.equal(h.filter(wiki, "[[Operatorprobe]macrocheck[]]").join(), "Text prüfen: <<nope>> ist kein bekanntes Makro");
+		assert.equal(text(), "Text prüfen: <<nope>> ist kein bekanntes Makro");
 		h.setLanguage(wiki, "en-GB");
-		assert.equal(h.filter(wiki, "[[Operatorprobe]macrocheck[]]").join(), "Check the text: <<nope>> is no known macro");
+		assert.equal(text(), "Check the text: <<nope>> is no known macro");
 	} finally {
 		h.setLanguage(wiki, "de-DE");
 		wiki.deleteTiddler("Operatorprobe");

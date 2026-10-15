@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261014195324000
+modified: 20261015193623000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -116,7 +116,7 @@ function parseSection(text,warnings) {
 		if(!other || typeof other === "string") {
 			return null;
 		}
-		warnings.push("empty side in \"" + text + "\"");
+		warnings.push({key: "Check/Dates/EmptySide", params: {section: text}});
 		return {text: text, range: false, start: other, end: other};
 	}
 	return {text: text, range: true, start: start, end: end};
@@ -131,7 +131,8 @@ Parses a date field. The result is shared between callers (cached) and must not 
   sections  [{text, range, start, end}]; start/end are points, UNKNOWN or FOREVER
   valid     false if any part could not be read
   invalid   the parts that could not be read
-  warnings  readable, but probably not meant that way (empty side, empty section)
+  warnings  readable, but probably not meant that way (empty side, empty section), each
+            {key, params} (checks/dates.js)
   before    UNKNOWN or FOREVER if the field starts with "." or ".." (began earlier), else null
   after     UNKNOWN or FOREVER if the field ends with "." or ".." (goes on), else null
   ended     after is UNKNOWN, or (without after) the last section is a range whose end is not
@@ -148,7 +149,7 @@ exports.parse = function(text) {
 		var parts = compact.split(",");
 		$tw.utils.each(parts,function(part,i) {
 			if(!part) {
-				result.warnings.push("empty section");
+				result.warnings.push({key: "Check/Dates/EmptySection"});
 				return;
 			}
 			// "." or ".." on its own: the whole field began earlier / goes on
@@ -187,23 +188,23 @@ var comparePoints = exports.comparePoints = function(a,b) {
 };
 
 /*
-Problems of a parsed field beyond the syntax, as readable texts (English, for check-wiki.js):
-months and days against the calendar (festivals and leap years included), start after end,
-sections out of order. Without a calendar only the order is checked.
+Problems of a parsed field beyond the syntax, each {key, params} (checks/dates.js): parts that
+cannot be read, months and days against the calendar (festivals and leap years included), start
+after end, sections out of order. Without a calendar only the order is checked.
 */
 exports.check = function(cal,parsed) {
 	var problems = [];
 	if(!parsed.valid) {
-		problems.push("cannot read " + parsed.invalid.map(function(part) { return "\"" + part + "\""; }).join(", "));
+		problems.push({key: "Check/Dates/Unreadable", params: {parts: parsed.invalid.join(", ")}});
 	}
 	var checkPoint = function(point) {
 		if(!cal || typeof point === "string") {
 			return;
 		}
 		if(point.month > cal.months.length) {
-			problems.push(point.text + ": month " + point.month + " does not exist");
+			problems.push({key: "Check/Dates/Month", params: {point: point.text, month: point.month}});
 		} else if(point.day && point.day > calendar.monthLength(cal,point.year,point.month)) {
-			problems.push(point.text + ": day " + point.day + " does not exist in month " + point.month + " of " + point.year);
+			problems.push({key: "Check/Dates/Day", params: {point: point.text, day: point.day, month: point.month, year: point.year}});
 		}
 	};
 	var previous = null;
@@ -212,12 +213,12 @@ exports.check = function(cal,parsed) {
 		if(section.range) {
 			checkPoint(section.end);
 			if(typeof section.start === "object" && typeof section.end === "object" && comparePoints(section.start,section.end) > 0) {
-				problems.push(section.text + ": start after end");
+				problems.push({key: "Check/Dates/StartAfterEnd", params: {section: section.text}});
 			}
 		}
 		var first = typeof section.start === "object" ? section.start : (typeof section.end === "object" ? section.end : null);
 		if(first && previous && comparePoints(previous,first) > 0) {
-			problems.push(section.text + ": before the previous section");
+			problems.push({key: "Check/Dates/Order", params: {section: section.text}});
 		}
 		if(first) {
 			previous = first;

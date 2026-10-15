@@ -1,8 +1,8 @@
 /*
- * The hints on rules macros (modules/rules.js check(), operator trpgrulecheck): what is not
+ * The messages on rules macros (modules/rules.js check(), rule macros/rules): what is not
  * understood by <<unit>>, <<dice>>, <<damage>> and <<term>> in a body, as text in the wiki
- * language below the title (viewtemplates/location-path); not in the published copy; not for a
- * call in a section the active view does not see; not for computed parameters.
+ * language below the title (viewtemplates/checks); not in the published copy; not for a call in a
+ * section the active view does not see; not for computed parameters.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -19,7 +19,11 @@ test.before(function() {
 });
 
 function check(title) {
-	return Array.from(h.filter(wiki, "[<t>trpgrulecheck[]]", {t: title}));
+	return h.checks(wiki, title).filter(function(message) {
+		return message.id === "macros/rules";
+	}).map(function(message) {
+		return message.text;
+	});
 }
 
 function withTiddler(fields, fn) {
@@ -60,7 +64,7 @@ test("named parameters and the widget form are checked, computed ones not", func
 
 test("below the title in the editable wiki, not in the published copy", function() {
 	withTiddler({title: "Unter Titel", text: "<<term xyz>>"}, function() {
-		assert.match(h.view(wiki, "Unter Titel"), /trpg-date-invalid">Text prüfen: &lt;&lt;term&gt;&gt; kennt kein „xyz“/);
+		assert.match(h.view(wiki, "Unter Titel"), /trpg-check trpg-check-error" title="macros\/rules">Text prüfen: &lt;&lt;term&gt;&gt; kennt kein „xyz“/);
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
 		try {
 			assert.doesNotMatch(h.view(wiki, "Unter Titel"), /kennt kein/);

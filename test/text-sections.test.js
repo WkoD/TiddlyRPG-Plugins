@@ -32,6 +32,11 @@ function f(text, variables) {
 	return Array.from(h.filter(wiki, text, variables));
 }
 
+// The texts of the messages on the sections of a tiddler (checks/sections.js)
+function sectionTexts(title) {
+	return h.checks(wiki, title, "sections").map(function(message) { return message.text; });
+}
+
 // The numbers of the dated sections of a tiddler (Array.from: arrays of the realm of the wiki)
 function numbers(title) {
 	return Array.from(dates.sections(wiki, title).placeholders, function(p) { return p.number; });
@@ -69,18 +74,18 @@ test.describe("forms and numbers", function() {
 	test("a date in a date does not count", function() {
 		withTiddler({title: "Doppelt", tags: "Event", date: "1351, 1352", text: "<$date>\n\nA <$date>B</$date>\n\n</$date>\n\n<<date>>\n\nC"}, function() {
 			assert.deepEqual(numbers("Doppelt"), [1, 2]);
-			assert.ok(f("[[Doppelt]sectioncheck[]]").some(function(t) { return /Datumsabschnitte ineinander/.test(t); }));
+			assert.ok(sectionTexts("Doppelt").some(function(t) { return /Datumsabschnitte ineinander/.test(t); }));
 		});
 	});
 
 	test("a date only in an event, a spot only in a location", function() {
 		withTiddler({title: "Falsch", tags: "Location", text: "<<date>>\n\nText."}, function() {
 			assert.deepEqual(numbers("Falsch"), []);
-			assert.ok(f("[[Falsch]sectioncheck[]]").some(function(t) { return /<<date>> zählt nur in einem Tiddler mit Tag Ereignis/.test(t); }));
+			assert.ok(sectionTexts("Falsch").some(function(t) { return /<<date>> zählt nur in einem Tiddler mit Tag Ereignis/.test(t); }));
 		});
 		withTiddler({title: "Falsch2", tags: "Event", text: "<<spot \"Hier\">>"}, function() {
 			assert.deepEqual(f("[[Falsch2]spots[]]"), []);
-			assert.ok(f("[[Falsch2]sectioncheck[]]").some(function(t) { return /Tag Ort/.test(t); }));
+			assert.ok(sectionTexts("Falsch2").some(function(t) { return /Tag Ort/.test(t); }));
 		});
 	});
 
@@ -88,16 +93,16 @@ test.describe("forms and numbers", function() {
 		withTiddler({title: "Alte Form", tags: "Event", date: "1351, 1352", text: "<<date \"Aufbruch\">>\n\nA.\n\n<<secret>><<date 2 \"Geheimnis\">>\n\nB."}, function() {
 			assert.deepEqual(numbers("Alte Form"), [1, 2]);
 			assert.ok(body("Alte Form").indexOf("Aufbruch") === -1);
-			assert.ok(f("[[Alte Form]sectioncheck[]]").some(function(t) { return /<<date "Aufbruch">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"Aufbruch"/.test(t); }));
-			assert.ok(inView("public", function() { return f("[[Alte Form]sectioncheck[]]"); }).every(function(t) { return t.indexOf("Geheimnis") === -1; }));
-			assert.ok(f("[[Alte Form]sectioncheck[]]").some(function(t) { return t.indexOf("Geheimnis") !== -1; }));
+			assert.ok(sectionTexts("Alte Form").some(function(t) { return /<<date "Aufbruch">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"Aufbruch"/.test(t); }));
+			assert.ok(inView("public", function() { return sectionTexts("Alte Form"); }).every(function(t) { return t.indexOf("Geheimnis") === -1; }));
+			assert.ok(sectionTexts("Alte Form").some(function(t) { return t.indexOf("Geheimnis") !== -1; }));
 		});
 	});
 
 	test("a short form inside an HTML block does not count", function() {
 		withTiddler({title: "Kasten", tags: "Event", date: "1351", text: "<div>\n\n<<date>>\n\nText\n\n</div>"}, function() {
 			assert.deepEqual(numbers("Kasten"), []);
-			assert.ok(f("[[Kasten]sectioncheck[]]").some(function(t) { return /Kurzform <<date>>/.test(t); }));
+			assert.ok(sectionTexts("Kasten").some(function(t) { return /Kurzform <<date>>/.test(t); }));
 		});
 	});
 
@@ -202,13 +207,13 @@ test.describe("locks in the text", function() {
 		withTiddler({title: "Mitte", tags: "Event", date: "1351", text: "<<date>>\n\nVorher. <<secret>> Nachher."}, function() {
 			var pub = inView("public", function() { return body("Mitte"); });
 			assert.ok(pub.indexOf("Vorher.") !== -1 && pub.indexOf("Nachher.") !== -1, pub);
-			assert.ok(f("[[Mitte]sectioncheck[]]").some(function(t) { return /mitten in einem Abschnitt/.test(t); }));
+			assert.ok(sectionTexts("Mitte").some(function(t) { return /mitten in einem Abschnitt/.test(t); }));
 		});
 	});
 
 	test("a name that is no player character: a hint, the lock stays for the DM", function() {
 		withTiddler({title: "Tippfehler", tags: "Event", date: "1351", text: "<<secret \"Frgg\">><<date>>\n\nVerborgen."}, function() {
-			assert.ok(f("[[Tippfehler]sectioncheck[]]").some(function(t) { return /„Frgg“/.test(t); }));
+			assert.ok(sectionTexts("Tippfehler").some(function(t) { return /„Frgg“/.test(t); }));
 			assert.ok(inView("player:Anna", function() { return body("Tippfehler"); }).indexOf("Verborgen.") === -1);
 			assert.ok(body("Tippfehler").indexOf("Verborgen.") !== -1);
 		});

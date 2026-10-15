@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261014194538000
+modified: 20261015193623000
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -699,12 +699,12 @@ function runMacro(wiki,name,node) {
 		exports.term(wiki,p.id,p.variant,p.value);
 }
 
-// The problems of the rules macros in the body of a tiddler: texts in the wiki
-// language. Calls in a section the active view does not see are left out - the hint would show
+// The problems of the rules macros in the body of a tiddler, each {key, params}
+// (checks/rules.js). Calls in a section the view does not see are left out - the hint would show
 // their text.
-exports.check = function(wiki,title) {
+exports.check = function(wiki,title,view) {
 	var parsed = wiki.parseTiddler(title),
-		hidden = require("$:/plugins/tiddlyrpg-core/modules/sections.js").hiddenRanges(wiki,title),
+		hidden = require("$:/plugins/tiddlyrpg-core/modules/sections.js").hiddenRanges(wiki,title,view),
 		problems = [];
 	var inHidden = function(node) {
 		return node.start !== undefined && hidden.some(function(range) {
@@ -717,10 +717,7 @@ exports.check = function(wiki,title) {
 				name = node.type === "transclude" && attrs.$variable && attrs.$variable.value,
 				r = name && MACROS[name] && !inHidden(node) ? runMacro(wiki,name,node) : null;
 			if(r && r.problem) {
-				var text = language.format(language.t(wiki,r.problem),r.values);
-				if(problems.indexOf(text) === -1) {
-					problems.push(text);
-				}
+				problems.push({key: r.problem, params: r.values || {}});
 			}
 			walk(node.children);
 		});

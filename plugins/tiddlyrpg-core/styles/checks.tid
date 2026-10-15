@@ -1,0 +1,24 @@
+created: 20261015191942000
+modified: 20261015191942000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/checks
+type: text/css
+
+/* The messages below the title (viewtemplates/checks): a line each, a bar on the left - an
+   error in the alert colour, a hint muted. Palette colours via --tpc-*. */
+.trpg-check {
+	font-size: 0.85em;
+	margin: 0.15em 0;
+	padding: 0.05em 0 0.05em 0.5em;
+	border-left: 3px solid;
+}
+
+.trpg-check-error {
+	color: var(--tpc-alert-highlight, #b00);
+	border-color: var(--tpc-alert-highlight, #b00);
+}
+
+.trpg-check-hint {
+	color: var(--tpc-muted-foreground, #999);
+	border-color: var(--tpc-muted-foreground, #999);
+}

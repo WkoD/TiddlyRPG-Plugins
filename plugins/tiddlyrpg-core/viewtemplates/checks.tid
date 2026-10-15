@@ -1,0 +1,16 @@
+created: 20261015191942000
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/location-path
+modified: 20261015191942000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/checks
+type: text/vnd.tiddlywiki
+
+<!-- The messages of a tiddler (modules/checks.js, filter trpgcheck) below the title and its
+     path: errors and hints, each a line of its own (styles/checks); the id of the rule as
+     tooltip, the name for trpg-noerror and trpg-noinfo. Not in the published copy, not for
+     system tiddlers or tiddlers the view does not see. -->
+<%if [<currentTiddler>!is[system]] :filter[trpg.visible[]] :filter[[yes]!match{$:/status/IsReadOnly}] %>
+<$list filter="[<currentTiddler>trpgcheck[]]" variable="trpg-check">
+<div class={{{ [<trpg-check>jsonget[level]addprefix[trpg-check trpg-check-]] }}} title={{{ [<trpg-check>jsonget[id]] }}}><$text text={{{ [<trpg-check>jsonget[text]] }}}/></div>
+</$list>
+<%endif%>

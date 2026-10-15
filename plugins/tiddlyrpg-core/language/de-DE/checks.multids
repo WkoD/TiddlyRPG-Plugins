@@ -1,0 +1,42 @@
+created: 20261015191942000
+modified: 20261015191942000
+title: $:/tiddlyrpg/language/de-DE/Check/
+
+Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
+Dates/Beyond: Text prüfen: <<date $n$>> – das Feld date hat $count$ Abschnitte
+Dates/Day: Datum prüfen: $point$ – den Tag $day$ gibt es im Monat $month$ des Jahres $year$ nicht
+Dates/EmptySection: Datum prüfen: ein leerer Abschnitt (zwei Kommas hintereinander)
+Dates/EmptySide: Datum prüfen: eine leere Seite in „$section$“
+Dates/Forever: Datum prüfen: Es beginnt mit „..“ – seit jeher da?
+Dates/Head: Ereignis prüfen: Text vor dem ersten <<date>>
+Dates/Month: Datum prüfen: $point$ – den Monat $month$ gibt es nicht
+Dates/NoDate: Ereignis prüfen: Es hat kein Datum
+Dates/NoHeading: Ereignis prüfen: kein <<date>> für Abschnitt $sections$
+Dates/NoPlaceholder: Ereignis prüfen: Jedes Ereignis beginnt mit <<date>>
+Dates/Old: Datum prüfen: „$date$“ steht im Format vor 2.0 (Punkte)
+Dates/OpenPhase: Datum prüfen: Die Phase $section$ hat kein Ende, aber eine spätere folgt
+Dates/Order: Datum prüfen: $section$ liegt vor dem Abschnitt davor
+Dates/Rule: Text prüfen: „---“ direkt vor <<date>> von Abschnitt $n$ – die Überschrift zieht ihre eigene Linie
+Dates/StartAfterEnd: Datum prüfen: $section$ – der Anfang liegt nach dem Ende
+Dates/Twice: Text prüfen: zweimal <<date>> für Abschnitt $n$
+Dates/Unreadable: Datum prüfen: $parts$ ist nicht lesbar
+Images/Image: Bild prüfen: $path$ gibt es nicht
+Images/Joined: Spot prüfen: $spot$ ist mit $target$ verbunden – seine Bilder und Karten erscheinen dort, also dort eintragen
+Images/Macro: Text prüfen: <<image>> zeigt $path$, das gibt es nicht
+Images/Map: Karte prüfen: $path$ gibt es nicht
+Images/NoFolder: Text prüfen: <<image "$files$">> in einem Tiddler ohne Typ – den Ordner nennen, z. B. folder:"event"
+Images/SpotImage: Spot $spot$ prüfen: Sein Bild $path$ gibt es nicht
+Images/SpotMap: Spot $spot$ prüfen: Seine Karte $path$ gibt es nicht
+Legacy/Dateformat: Ereignis prüfen: ein Datum im Text statt im Feld: $calls$
+Legacy/Datelong: Ereignis prüfen: Ein Aufruf von datelong steht noch im Text – das Datum gehört ins Feld
+Legacy/DeadFilter: Filter prüfen: search:date[.] ist die alte Marke der Toten – trpg.dead[] verwenden
+Legacy/Link: Felder prüfen: Das Feld link wird nicht mehr gezeigt – woher die Bilder stammen, steht im Feld source
+Plugins/Reference: Geldsystem prüfen: Die Münze der Preise des Regelwerks ist $reference$, das ist keine seiner Münzen ($coins$)
+Plugins/disabled: Auswahl prüfen: $configured$ ist deaktiviert – aktiv ist $active$
+Plugins/missing: Auswahl prüfen: $configured$ ist nicht installiert – aktiv ist $active$
+Plugins/type: Auswahl prüfen: $configured$ ist kein Plugin dieses Typs – aktiv ist $active$
+Quests/NoMarker: Quest prüfen: Es hat noch keinen Marker – in einem Ereignis markieren: <<quest "$name$">>
+Quests/SimilarQuest: Namen prüfen: Er gleicht fast dem Quest $other$ – ein Quest zweimal verschieden geschrieben?
+Quests/SimilarRumour: Namen prüfen: Er gleicht fast dem Gerücht $other$ – ein Quest zweimal verschieden geschrieben?
+Secrets/Transclusion: Text prüfen: Er transkludiert den geheimen Tiddler $target$ – jede Sicht, die diesen Tiddler sieht, sieht ihn
+Secrets/View: Text prüfen: Er fragt die Sicht selbst ab – mit dem Tag Secret, <<secret>> oder <$secret> sperren

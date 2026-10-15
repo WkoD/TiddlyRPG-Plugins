@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261014201354000
+modified: 20261015193623000
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -14,8 +14,9 @@ The location rules - the one place of them. A location lies in another one in tw
 A location has one parent: the location that has it as a spot, otherwise its field location.
 Only tiddlers tagged Location count as parents. For persons, players and deities the field
 location is where they are most likely found (one entry); organisations may have several. For
-items (filters/item.js) it is where they lie or are found: an artifact is unique and has one
-owner or one location; items and materials may have several of each.
+items (checks/items.js) it is where they lie or are found: an artifact is unique and has one
+owner or one location; items and materials may have several of each. What breaks these rules
+is reported by checks/locations.js.
 
 [<title>locationparent[]]       the parent of a location
 [<title>locationpath[]]         the parents of a location from the root down (without itself);
@@ -30,7 +31,6 @@ owner or one location; items and materials may have several of each.
                                 by their parents; each group as JSON {"path": parents, "places":
                                 places}, both title lists. A location: one group of its parents.
                                 Places and parents the active view does not see are left out.
-[<title>locationcheck[]]        language keys of the problems of <title> (Location/Check/...)
 
 \*/
 
@@ -180,16 +180,6 @@ exports.occupants = function(source,operator,options) {
 	return results;
 };
 
-// Whether someone who sees <child> may not see <parent> (modules/visibility.js)
-function hiddenParent(wiki,child,parent) {
-	var above = visibility.audience(wiki,parent),
-		own = visibility.audience(wiki,child);
-	if(above === null) {
-		return false;
-	}
-	return own === null || own.some(function(player) { return above.indexOf(player) === -1; });
-}
-
 exports.locationgroups = function(source,operator,options) {
 	var wiki = options.wiki,
 		results = [];
@@ -229,66 +219,6 @@ exports.locationgroups = function(source,operator,options) {
 		}
 		$tw.utils.each(groups,function(group) {
 			results.push(JSON.stringify({path: $tw.utils.stringifyList(group.path), places: $tw.utils.stringifyList(group.places)}));
-		});
-	});
-	return results;
-};
-
-exports.locationcheck = function(source,operator,options) {
-	var wiki = options.wiki,
-		results = [];
-	source(function(tiddler,title) {
-		var t = wiki.getTiddler(title);
-		if(!t) {
-			return;
-		}
-		var keys = [],
-			list = entries(wiki,title),
-			leads = $tw.utils.parseStringArray(t.fields.leader || "") || [];
-		if(list.some(function(entry) { return leads.indexOf(entry) !== -1 && isLocation(wiki,entry); })) {
-			keys.push("Location/Check/LedAndLocation");
-		}
-		if(t.hasTag("Location")) {
-			var owners = (spots.index(wiki).owners[title] || []).filter(function(owner) {
-				return isLocation(wiki,owner);
-			});
-			if(owners.length > 1) {
-				keys.push("Location/Check/SpotTwice");
-			}
-			if(owners.length && list.length) {
-				keys.push("Location/Check/SpotAndLocation");
-			}
-			if(list.length > 1) {
-				keys.push("Location/Check/LocationTwice");
-			}
-			if(list.length && !owners.length && !isLocation(wiki,list[0])) {
-				keys.push("Location/Check/NotALocation");
-			}
-			if(path(wiki,title).cycle) {
-				keys.push("Location/Check/Cycle");
-			}
-			var parent = parentOf(wiki,title).parent;
-			if(parent && hiddenParent(wiki,title,parent)) {
-				keys.push("Location/Check/LockedParent");
-			}
-		} else if(t.hasTag("Person") || t.hasTag("Player")) {
-			if(list.length > 1) {
-				keys.push("Location/Check/PersonTwice");
-			}
-		} else if(t.hasTag("Artifact")) {
-			var owners = $tw.utils.parseStringArray(t.fields.owner || "") || [];
-			if(list.length > 1) {
-				keys.push("Location/Check/ArtifactTwice");
-			}
-			if(owners.length > 1) {
-				keys.push("Location/Check/ArtifactOwners");
-			}
-			if(owners.length && list.length) {
-				keys.push("Location/Check/OwnerAndLocation");
-			}
-		}
-		$tw.utils.each(keys,function(key) {
-			results.push(key);
 		});
 	});
 	return results;

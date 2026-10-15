@@ -1,5 +1,5 @@
 created: 20261002082222000
-modified: 20261015144343000
+modified: 20261015193623000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/event
 type: text/css
@@ -8,7 +8,7 @@ type: text/css
    other types), head of an event
    (viewtemplates/event), the heading of a dated section (procedure date; its frame:
    styles/sections), location pills (procedure
-   trpg.places) and hints on dates that cannot be read (trpg.datecheck). Palette colours via
+   trpg.places) and hints on the sections of a date (procedure date). Palette colours via
    --tpc-*. */
 .trpg-dateline {
 	text-align: right;

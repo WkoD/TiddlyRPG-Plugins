@@ -1,5 +1,5 @@
 /*
- * Items (filters/item.js): base type and categories, the hints of itemcheck, the price with the
+ * Items (checks/items.js): base type and categories and their messages, the price with the
  * currency of the fixture setting (without currency: currency.test.js), the hub lists of
  * Item and of a category, a category of the campaign, the file of a book (field data) and
  * colour and image folder through the base type. Items at a location: location.test.js.
@@ -31,6 +31,15 @@ function f(text) {
 	return Array.from(h.filter(wiki, text));
 }
 
+// The language keys of the messages of the theme items (checks/items.js) of a tiddler, of several
+function keys(title) {
+	return h.checkKeys(wiki, title, "items");
+}
+
+function keysOf(titles) {
+	return [].concat.apply([], titles.map(keys));
+}
+
 function withTiddlers(list, fn) {
 	list.forEach(function(fields) { h.add(wiki, fields); });
 	try {
@@ -50,30 +59,30 @@ function inOrder(text, strings) {
 	});
 }
 
-test.describe("itemcheck", function() {
+test.describe("base type", function() {
 	test("no hint: one base type with or without categories", function() {
-		assert.deepEqual(f("[[Sword]] [[Chronicle]] [[Newspaper]] [[Potion]] [[Snail]] [[Moss]] +[itemcheck[]]"), []);
+		assert.deepEqual(keysOf(["Sword", "Chronicle", "Newspaper", "Potion", "Snail", "Moss"]), []);
 	});
 
 	test("category without base type", function() {
 		withTiddlers([{title: "Loose Book", tags: "Book"}], function() {
-			assert.deepEqual(f("[[Loose Book]itemcheck[]]"), ["Item/Check/NoBase"]);
+			assert.deepEqual(keys("Loose Book"), ["Item/Check/NoBase"]);
 		});
 	});
 
 	test("two base types", function() {
 		withTiddlers([{title: "Undecided", tags: "Artifact Item"}], function() {
-			assert.deepEqual(f("[[Undecided]itemcheck[]]"), ["Item/Check/TwoBases"]);
+			assert.deepEqual(keys("Undecided"), ["Item/Check/TwoBases"]);
 		});
 	});
 
 	test("the hubs themselves: no hint", function() {
-		assert.deepEqual(f("[[Book]] [[Consumable]] [[Equipment]] [[Item]] +[itemcheck[]]"), []);
+		assert.deepEqual(keysOf(["Book", "Consumable", "Equipment", "Item"]), []);
 	});
 
 	test("a category of the campaign counts too", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Loose Rune", tags: "Rune"}], function() {
-			assert.deepEqual(f("[[Loose Rune]itemcheck[]]"), ["Item/Check/NoBase"]);
+			assert.deepEqual(keys("Loose Rune"), ["Item/Check/NoBase"]);
 		});
 	});
 
@@ -94,13 +103,13 @@ test.describe("price", function() {
 	test("shown as written with the labels of the display language", function() {
 		withTiddlers([{title: "Trank", tags: "Item Consumable", price: "50 gp"}], function() {
 			assert.match(h.view(wiki, "Trank"), /<b>Preis:<\/b> 50 GM/);
-			assert.deepEqual(f("[[Trank]itemcheck[]]"), []);
+			assert.deepEqual(keys("Trank"), []);
 		});
 	});
 
 	test("with a currency a plain number gets a hint", function() {
 		withTiddlers([{title: "Trank", tags: "Item Consumable", price: "50"}], function() {
-			assert.deepEqual(f("[[Trank]itemcheck[]]"), ["Item/Check/PriceNoCurrency"]);
+			assert.deepEqual(keys("Trank"), ["Item/Check/PriceNoCurrency"]);
 			assert.match(h.view(wiki, "Trank"), /<b>Preis:<\/b> 50\s/);
 			assert.match(h.view(wiki, "Trank"), /Preis prüfen: Er braucht eine Münze des Geldsystems/);
 		});
@@ -108,8 +117,8 @@ test.describe("price", function() {
 
 	test("a coin the currency does not have, or a text: a hint", function() {
 		withTiddlers([{title: "Trank", tags: "Item", price: "50 xp"}, {title: "Trank2", tags: "Item", price: "teuer"}], function() {
-			assert.deepEqual(f("[[Trank]itemcheck[]]"), ["Item/Check/PriceCurrency"]);
-			assert.deepEqual(f("[[Trank2]itemcheck[]]"), ["Item/Check/PriceCurrency"]);
+			assert.deepEqual(keys("Trank"), ["Item/Check/PriceCurrency"]);
+			assert.deepEqual(keys("Trank2"), ["Item/Check/PriceCurrency"]);
 		});
 	});
 });

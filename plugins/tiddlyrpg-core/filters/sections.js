@@ -3,13 +3,12 @@ title: $:/plugins/tiddlyrpg-core/filters/sections.js
 type: application/javascript
 module-type: filteroperator
 created: 20261007170000000
-modified: 20261008170702467
+modified: 20261015193623000
 
 Filter operators on the sections of a body (modules/sections.js):
 
 [<titles>hassections[]]         the input titles whose body has a section, a lock or a problem
                                 of them - their body is rendered by trpg-body
-[<title>sectioncheck[]]         the problems of the sections of <title>, as translated texts
 [<titles>trpgsearch<text>]       the input titles the active view sees that hold every word of
                                 <text> in their title, tags or text - the text without the
                                 sections the view does not see
@@ -35,16 +34,6 @@ exports.hassections = function(source,operator,options) {
 				results.push(title);
 			}
 		}
-	});
-	return results;
-};
-
-exports.sectioncheck = function(source,operator,options) {
-	var results = [];
-	source(function(tiddler,title) {
-		$tw.utils.each(sections.check(options.wiki,title),function(text) {
-			results.push(text);
-		});
 	});
 	return results;
 };

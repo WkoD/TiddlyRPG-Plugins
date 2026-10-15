@@ -1,7 +1,7 @@
 /*
  * Location and person views: the parents of a location (filters/location.js) and the path below
- * the title, who is at a location (items too), the hints of locationcheck, the relation list of a location,
- * the events of the places within, the map tabs (map and battle maps), the event history under a
+ * the title, who is at a location (items too), the messages of checks/locations.js, the relation
+ * list of a location, the events of the places within, the map tabs (map and battle maps), the event history under a
  * location (player lock, with and without calendar) and the person view (relations, dead class,
  * activity line). Spots and <<spotlink>> are in spots.test.js.
  */
@@ -19,6 +19,15 @@ test.before(function() {
 
 function f(text) {
 	return Array.from(h.filter(wiki, text));
+}
+
+// The language keys of the messages of the theme locations (checks/locations.js) of a tiddler, of several
+function keys(title) {
+	return h.checkKeys(wiki, title, "locations");
+}
+
+function keysOf(titles) {
+	return [].concat.apply([], titles.map(keys));
 }
 
 test.describe("hierarchy", function() {
@@ -62,39 +71,39 @@ test.describe("hierarchy", function() {
 
 test.describe("checks", function() {
 	test("person with two locations", function() {
-		assert.deepEqual(f("[[Wanderer]locationcheck[]]"), ["Location/Check/PersonTwice"]);
+		assert.deepEqual(keys("Wanderer"), ["Location/Check/PersonTwice"]);
 	});
 
 	test("an organisation may have several", function() {
 		h.add(wiki, {title: "Traders", tags: "Organisation", location: "Town Kingdom", text: ""});
 		try {
-			assert.deepEqual(f("[[Traders]locationcheck[]]"), []);
+			assert.deepEqual(keys("Traders"), []);
 		} finally {
 			wiki.deleteTiddler("Traders");
 		}
 	});
 
 	test("location names a place the field leader already holds", function() {
-		assert.deepEqual(f("[[Guild]locationcheck[]]"), ["Location/Check/LedAndLocation"]);
+		assert.deepEqual(keys("Guild"), ["Location/Check/LedAndLocation"]);
 	});
 
 	test("spot of two locations", function() {
-		assert.deepEqual(f("[[Twice]locationcheck[]]"), ["Location/Check/SpotTwice"]);
+		assert.deepEqual(keys("Twice"), ["Location/Check/SpotTwice"]);
 	});
 
 	test("cycle", function() {
-		assert.ok(f("[[Loop A]locationcheck[]]").indexOf("Location/Check/Cycle") !== -1);
+		assert.ok(keys("Loop A").indexOf("Location/Check/Cycle") !== -1);
 	});
 
 	test("location in a tiddler that is no location", function() {
-		assert.deepEqual(f("[[Stray]locationcheck[]]"), ["Location/Check/NotALocation"]);
+		assert.deepEqual(keys("Stray"), ["Location/Check/NotALocation"]);
 	});
 
 	test("spot and field location together", function() {
 		h.add(wiki, {title: "Both", tags: "Location", location: "Continent", text: ""});
 		h.add(wiki, {title: "Holder", tags: "Location", text: "<<spot \"Both\">>"});
 		try {
-			assert.deepEqual(f("[[Both]locationcheck[]]"), ["Location/Check/SpotAndLocation"]);
+			assert.deepEqual(keys("Both"), ["Location/Check/SpotAndLocation"]);
 		} finally {
 			wiki.deleteTiddler("Both");
 			wiki.deleteTiddler("Holder");
@@ -106,15 +115,15 @@ test.describe("checks", function() {
 		h.add(wiki, {title: "Open Village", tags: "Location", location: "[[Hidden Land]]", text: ""});
 		h.add(wiki, {title: "Ragna", tags: "Player", player: "Jan"});
 		try {
-			assert.deepEqual(f("[[Open Village]locationcheck[]]"), ["Location/Check/LockedParent"]);
+			assert.deepEqual(keys("Open Village"), ["Location/Check/LockedParent"]);
 			// Locked for the same players: fine; for more players: reported
 			h.add(wiki, {title: "Open Village", tags: "Location Frigg Secret", location: "[[Hidden Land]]", text: ""});
-			assert.deepEqual(f("[[Open Village]locationcheck[]]"), []);
+			assert.deepEqual(keys("Open Village"), []);
 			h.add(wiki, {title: "Open Village", tags: "Location Frigg Ragna Secret", location: "[[Hidden Land]]", text: ""});
-			assert.deepEqual(f("[[Open Village]locationcheck[]]"), ["Location/Check/LockedParent"]);
+			assert.deepEqual(keys("Open Village"), ["Location/Check/LockedParent"]);
 			// A player character tagged without Secret is no lock
 			h.add(wiki, {title: "Hidden Land", tags: "Location Frigg", text: ""});
-			assert.deepEqual(f("[[Open Village]locationcheck[]]"), []);
+			assert.deepEqual(keys("Open Village"), []);
 		} finally {
 			["Hidden Land", "Open Village", "Ragna"].forEach(function(title) { wiki.deleteTiddler(title); });
 		}
@@ -160,24 +169,24 @@ test.describe("items", function() {
 	});
 
 	test("no hint: artifact with one location or one owner, item and material with several", function() {
-		assert.deepEqual(f("[[Lantern]] [[Crown]] [[Herb]] [[Rope]] +[locationcheck[]]"), []);
+		assert.deepEqual(keysOf(["Lantern", "Crown", "Herb", "Rope"]), []);
 	});
 
 	test("artifact with two locations", function() {
 		withItem({title: "Twin", tags: "Artifact", location: "Town Kingdom"}, function() {
-			assert.deepEqual(f("[[Twin]locationcheck[]]"), ["Location/Check/ArtifactTwice"]);
+			assert.deepEqual(keys("Twin"), ["Location/Check/ArtifactTwice"]);
 		});
 	});
 
 	test("artifact with two owners", function() {
 		withItem({title: "Shared", tags: "Artifact", owner: "Barkeep Wanderer"}, function() {
-			assert.deepEqual(f("[[Shared]locationcheck[]]"), ["Location/Check/ArtifactOwners"]);
+			assert.deepEqual(keys("Shared"), ["Location/Check/ArtifactOwners"]);
 		});
 	});
 
 	test("artifact with owner and location", function() {
 		withItem({title: "Torn", tags: "Artifact", owner: "Barkeep", location: "Town"}, function() {
-			assert.deepEqual(f("[[Torn]locationcheck[]]"), ["Location/Check/OwnerAndLocation"]);
+			assert.deepEqual(keys("Torn"), ["Location/Check/OwnerAndLocation"]);
 		});
 	});
 

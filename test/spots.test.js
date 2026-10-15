@@ -158,22 +158,36 @@ test.describe("spotlink", function() {
 		assert.ok(body.indexOf("Old Well (Town)") !== -1, body);
 	});
 
-	test("missing spot: link to the location and a hint", function() {
-		assert.ok(body.indexOf("Spot „Lost Spot“ in Town nicht gefunden") !== -1, body);
+	test("missing spot: link to the location and an error below the title", function() {
+		assert.ok(body.indexOf("nicht gefunden") === -1, "not in the text");
+		assert.ok(h.view(wiki, "Well Night").indexOf("Spot „Lost Spot“ in Town nicht gefunden") !== -1);
+		assert.ok(h.checkKeys(wiki, "Well Night", "spots").indexOf("Spot/Missing") !== -1);
 	});
 
-	test("missing location: missing link and a hint", function() {
+	test("missing location: missing link and an error below the title", function() {
 		assert.match(body, /tc-tiddlylink-missing" href="#Atlantis">Harbour<\/a>/);
-		assert.ok(body.indexOf("Ort „Atlantis“ gibt es nicht") !== -1);
+		assert.ok(h.view(wiki, "Well Night").indexOf("Ort „Atlantis“ gibt es nicht") !== -1);
 	});
 
-	test("no hints in the published copy", function() {
+	test("no messages in the published copy", function() {
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
 		try {
-			var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"Well Night\" mode=\"block\"/>", {currentTiddler: "Well Night"});
+			var html = h.view(wiki, "Well Night");
 			assert.ok(html.indexOf("nicht gefunden") === -1 && html.indexOf("gibt es nicht") === -1);
 		} finally {
 			wiki.deleteTiddler("$:/status/IsReadOnly");
+		}
+	});
+
+	test("a spotlink in a section the view does not see gives no message there", function() {
+		h.add(wiki, {title: "Geheimweg", tags: "Event", date: "1351, 1352", text: "<<date>>\n\nOpen.\n\n<<secret>><<date>>\n\nAt <<spotlink \"Town\" \"Hidden Door\">>."});
+		try {
+			assert.deepEqual(h.checkKeys(wiki, "Geheimweg", "spots"), ["Spot/Missing"]);
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(h.checkKeys(wiki, "Geheimweg", "spots"), []);
+			});
+		} finally {
+			wiki.deleteTiddler("Geheimweg");
 		}
 	});
 

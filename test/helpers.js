@@ -190,6 +190,24 @@ exports.graph = function(wiki, text, variables) {
 	return result;
 };
 
+// The messages of a tiddler for the active view (modules/checks.js), errors first:
+// [{id, level, key, params, text}]; theme (optional) keeps those of the rules of that theme
+exports.checks = function(wiki, title, theme) {
+	var checks = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/checks.js");
+	return Array.from(checks.forTiddler(wiki, title)).filter(function(message) {
+		return !theme || message.id.split("/")[0] === theme;
+	}).map(function(message) {
+		return Object.assign({text: checks.text(wiki, message)}, message);
+	});
+};
+
+// The language keys of those messages
+exports.checkKeys = function(wiki, title, theme) {
+	return exports.checks(wiki, title, theme).map(function(message) {
+		return message.key;
+	});
+};
+
 // Result of a filter (array of titles)
 exports.filter = function(wiki, text, variables) {
 	return wiki.filterTiddlers(text, $tw.rootWidget.makeFakeWidgetWithVariables(variables || {}));

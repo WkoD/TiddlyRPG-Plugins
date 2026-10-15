@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/macros-check.js
 type: application/javascript
 module-type: library
 created: 20261010065649000
-modified: 20261011172757439
+modified: 20261015193623000
 
 Check for unknown macros: a call <<name>> (also <$transclude $variable="name">, <$macrocall
 $name="name"> and <<name>> as an attribute value) in the body of a tiddler whose name nothing
@@ -29,8 +29,6 @@ the active view does not see are left out, like the hints of the rules macros.
 \*/
 
 "use strict";
-
-var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 var VIEW_TAGS = ["$:/tags/Macro/View","$:/tags/Macro/View/Body","$:/tags/Global/View","$:/tags/Global/View/Body"],
 	CONTEXT = ["currentTiddler","storyTiddler","thisTiddler","transclusion","tiddlerInfoState","folded-state",
@@ -137,14 +135,14 @@ function attributeCalls(node) {
 The unknown names called in the body of <title>, in document order, each once. None for a tiddler
 that is no wikitext and for editor snippets ($:/tags/TextEditor/Snippet: they are templates).
 */
-var unknown = exports.unknown = function(wiki,title) {
+var unknown = exports.unknown = function(wiki,title,view) {
 	var tiddler = wiki.getTiddler(title),
 		type = tiddler && tiddler.fields.type;
 	if(!tiddler || (type && type !== "text/vnd.tiddlywiki") || tiddler.hasTag("$:/tags/TextEditor/Snippet")) {
 		return [];
 	}
 	var parsed = wiki.parseTiddler(title),
-		hidden = require("$:/plugins/tiddlyrpg-core/modules/sections.js").hiddenRanges(wiki,title),
+		hidden = require("$:/plugins/tiddlyrpg-core/modules/sections.js").hiddenRanges(wiki,title,view),
 		known = globals(wiki),
 		result = [];
 	var inHidden = function(node) {
@@ -185,9 +183,9 @@ var unknown = exports.unknown = function(wiki,title) {
 	return result;
 };
 
-// The hints as texts in the wiki language
-exports.check = function(wiki,title) {
-	return unknown(wiki,title).map(function(name) {
-		return language.format(language.t(wiki,"Text/Check/UnknownMacro"),{name: name});
+// The problems, each {key, params} (checks/macros.js)
+exports.check = function(wiki,title,view) {
+	return unknown(wiki,title,view).map(function(name) {
+		return {key: "Text/Check/UnknownMacro", params: {name: name}};
 	});
 };

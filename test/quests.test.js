@@ -33,6 +33,11 @@ function f(text, variables) {
 	return Array.from(h.filter(wiki, text, variables));
 }
 
+// The texts of the messages on the sections of a tiddler (checks/sections.js)
+function sectionTexts(title) {
+	return h.checks(wiki, title, "sections").map(function(message) { return message.text; });
+}
+
 function body(title) {
 	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/templates/body-sections\" $mode=\"block\"/>", {currentTiddler: title});
 }
@@ -51,7 +56,7 @@ function withTiddlers(list, fn) {
 }
 
 function hint(title, pattern) {
-	return f("[[" + title + "]sectioncheck[]]").some(function(t) { return pattern.test(t); });
+	return sectionTexts(title).some(function(t) { return pattern.test(t); });
 }
 
 test.describe("markers in the text", function() {
@@ -63,7 +68,7 @@ test.describe("markers in the text", function() {
 		});
 		assert.deepEqual(shown, ["date", "quest:Turm<date", "quest:Spur<quest:Turm", "quest:Echo<quest:Spur", "date", "quest:Liste<date", "quest:Block<date", "date", "quest:Turm<date"]);
 		assert.deepEqual(Array.from(dates.sections(wiki, "Questfahrt").placeholders, function(p) { return p.number; }), [1, 2, 3]);
-		assert.deepEqual(f("[[Questfahrt]sectioncheck[]]"), []);
+		assert.deepEqual(sectionTexts("Questfahrt"), []);
 	});
 
 	test("the event: a frame per marker, stacked ones around the same paragraph, a list item framed inside, labels with quest or rumour", function() {
@@ -92,7 +97,7 @@ test.describe("markers in the text", function() {
 			{title: "Q Eingebettet", tags: "Event", date: "1351", text: "<<date>>\n\nText <$quest name=\"Qm5\">mitten</$quest> weiter."}
 		], function() {
 			["Q Mitte", "Q Innen", "Q Punkt", "Q Eingebettet"].forEach(function(title) {
-				assert.deepEqual(f("[[" + title + "]sectioncheck[]]"), [], title);
+				assert.deepEqual(sectionTexts(title), [], title);
 			});
 			assert.match(body("Q Mitte"), /<p>Text <span class="trpg-section trpg-section-quest trpg-quest-rumour"><span class="trpg-quest-label[^]*<\/span> mitten\.<\/span><\/p>/);
 			assert.match(body("Q Punkt"), /<li>Text <span class="trpg-section trpg-section-quest trpg-quest-rumour">/);
