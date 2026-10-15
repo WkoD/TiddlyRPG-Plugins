@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015155519000
+modified: 20261015161511000
 title: $:/core/macros/tag
 tags: $:/tags/Macro
 
@@ -7,12 +7,18 @@ tags: $:/tags/Macro
      keeps the size of the core pill) around a light inside - that colour at 18 % on the
      background of the palette - with the text in the foreground colour of the palette, for
      readability in light and dark palettes alike. A tag without a colour takes tag-background
-     of the palette. -->
+     of the palette. A tag that is deceased or destroyed (trpg.dead) is striped at 45° inside -
+     grey and its colour, both at 18 % -, like its tiddler (styles/border). -->
 \define tag-pill-styles()
 background-color:color-mix(in srgb, $(pillColour)$ 18%, $(pillBase)$);
 box-shadow:inset 0 0 0 1px $(pillColour)$;
 fill:$(pillText)$;
 color:$(pillText)$;
+$(pillStripes)$
+\end
+
+\define tag-pill-stripes()
+background-image:repeating-linear-gradient(45deg, color-mix(in srgb, $(pillText)$ 18%, $(pillBase)$) 0 6px, color-mix(in srgb, $(pillColour)$ 18%, $(pillBase)$) 6px 12px);
 \end
 
 <!-- This has no whitespace trim to avoid modifying $actions$ -->
@@ -23,6 +29,7 @@ color:$(pillText)$;
 	pillBase=<<__colourB__>>
 	pillText=<<__colourA__>>
 >
+<$set name="pillStripes" filter="[<__tag__>trpg.dead[]]" value=<<tag-pill-stripes>> emptyValue="">
 <$element-tag$
 	$element-attributes$
 	class="tc-tag-label tc-btn-invisible"
@@ -34,6 +41,7 @@ color:$(pillText)$;
 		<$text text={{{ [<__tag__>trpgtitle[]] }}}/>
 	</span>
 </$element-tag$>
+</$set>
 </$let>
 \end
 

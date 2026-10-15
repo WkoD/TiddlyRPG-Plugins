@@ -173,6 +173,19 @@ test.describe("trpg.link", function() {
 		assert.match(h.view(wiki, "Person"), /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
 		assert.match(h.view(wiki, "Insel Avalon"), /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
 	});
+
+	test("the pill of a dead tag striped, grey and its colour; a living one not", function() {
+		var pill = function(title) { return (h.render(wiki, "text/html", "<<tag-pill [[" + title + "]]>>").match(/style="([^"]*)"/) || ["", ""])[1]; };
+		assert.match(pill("Grum"), /background-image:repeating-linear-gradient\(45deg, color-mix\(in srgb, #333333 18%, #ffffff\) 0 6px, color-mix\(in srgb, #00a600 18%, #ffffff\) 6px 12px\)/);
+		assert.match(pill("Grum"), /box-shadow:inset 0 0 0 1px #00a600/);
+		assert.doesNotMatch(pill("Link Alive"), /repeating-linear-gradient/);
+	});
+
+	test("the frame of a dead tiddler striped in the stylesheet of the types, a living one tinted", function() {
+		var css = wiki.renderTiddler("text/plain", "$:/plugins/tiddlyrpg-core/styles/border");
+		assert.match(css, /\.tc-tiddler-frame\.trpg-dead\.tc-tagged-Person \{\s*background: repeating-linear-gradient\(45deg, color-mix\(in srgb, var\(--tpc-foreground, #333\) 9%, var\(--tpc-tiddler-background, #fff\)\) 0 96px, color-mix\(in srgb, #00a600 9%/);
+		assert.match(css, /\.tc-tiddler-frame\.tc-tagged-Person:not\(\.trpg-dead\) \{\s*background-color: color-mix\(in srgb, #00a600 9%/);
+	});
 });
 
 // Colour of a tiddler through the TiddlerColourFilter cascade
