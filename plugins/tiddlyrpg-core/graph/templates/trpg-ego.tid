@@ -1,6 +1,6 @@
 caption: TiddlyRPG ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261007163804094
+modified: 20261015153351000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 \whitespace trim
@@ -17,11 +17,8 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
      translated by the override of $edges.typed.
      A location as centre (filters/location.js): its spots that are locations ("Teil von") count
      as the centre too, with their neighbours. All places within it (every depth, both kinds)
-     are nodes too, with their edges among each other. A place that has someone there or a
-     leader starts folded ("▸ Baile"): a single click unfolds it ("▾ Baile") and adds its
-     neighbours, another click folds it again (graph/ego-toggle.js; the unfolded places are in
-     the field list of $:/state/tiddlyrpg-core/ego-open/<centre>, temporary). A double click opens
-     the tiddler as everywhere. Other locations are left out; the parent is in the path below
+     are nodes too, with their edges among each other, without their own neighbours (who is
+     there: the tree of the list). Other locations are left out; the parent is in the path below
      the title. -->
 
 
@@ -42,9 +39,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 <$properties $filter="[tag[Organisation]trpg.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
 
-<$let trpg-centre={{{ [<currentNode>] [<currentNode>tag[Location]sublocations:all[spot]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}
-	trpg-open-state={{{ [<currentNode>addprefix[$:/state/tiddlyrpg-core/ego-open/]] }}}
-	trpg-open={{{ [<currentNode>addprefix[$:/state/tiddlyrpg-core/ego-open/]get[list]enlist-input[]] :intersection[<currentNode>tag[Location]sublocations:all[]] -[enlist<trpg-centre>] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
+<$let trpg-centre={{{ [<currentNode>] [<currentNode>tag[Location]sublocations:all[spot]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
 
 <$list filter="[enlist<trpg-centre>]">
 <<trpg.node>>
@@ -53,15 +48,11 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 <%if [<currentNode>tag[Location]] %>
 <$list filter="[<currentNode>sublocations:all[]] -[enlist<trpg-centre>] :filter[trpg.visible[]]">
-<%if [<currentTiddler>occupants[]] [<currentTiddler>listed[leader]] :filter[trpg.visible[]] +[first[]] %>
-<$node label={{{ [enlist<trpg-open>match<currentTiddler>then[▾ ]else[▸ ]addsuffix<currentTiddler>] }}} trpgToggle=<<trpg-open-state>> />
-<%else%>
 <<trpg.node>>
-<%endif%>
 <$edges.typed $fields="location" $functions="spots" />
 </$list>
 <$nodes.neighbors
-  $filter="[enlist<trpg-centre>] [enlist<trpg-open>]"
+  $filter="[enlist<trpg-centre>]"
   $fields="[all[]] -[[tags]] -[[list]]"
   $functions="[all[]] -[[links]] -[[transcludes]]"
   $whitelist="[!is[system]!is[draft]] -[tag[Location]] :filter[trpg.visible[]]"

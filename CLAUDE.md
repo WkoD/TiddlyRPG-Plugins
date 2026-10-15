@@ -386,9 +386,7 @@ the tiddler title:
   "Locations"); the views `$:/plugins/tiddlyrpg-core/graph/ego` and `.../graph/map` (outside
   `$:/graph/`, so not in the dropdown of the graph sidebar); the vis-network extensions
   `graph/map-fit.js` (`module-type: vis-property`, graph property `trpgMapFit`),
-  `graph/map-pin.js` (`vis-property`, node property `trpgPin`),
-  `graph/ego-toggle.js` (`vis-property`, node property `trpgToggle`: fold and unfold a place in
-  the ego graph of a location with a single click) and
+  `graph/map-pin.js` (`vis-property`, node property `trpgPin`) and
   `graph/map-fit-message.js` (`vis-message`, `trpg-map-fit`). The thin view definitions
   (`$:/graph/Default`/`Cosmogram`/`Atlas`/`Items`) live in each wiki on purpose, not here.
 

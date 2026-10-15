@@ -128,20 +128,12 @@ test("ego graph of a location: its spots count as the centre, other locations st
 	assert.ok(edges(graph).every(function(edge) { return edge.indexOf("Kingdom") === -1; }), "no edge to the parent");
 });
 
-test("ego graph of a location: places with someone in them start folded, a click state unfolds them", function() {
-	var state = "$:/state/tiddlyrpg-core/ego-open/Kingdom",
-		folded = ego("Kingdom");
-	assert.deepEqual(nodes(folded), ["Guild", "Kingdom", "Neighbour", "Tavern", "Town", "Twice", "Wanderer"]);
-	assert.equal(folded.nodes.Town.label, "▸ Town");
-	assert.equal(folded.nodes.Town.trpgToggle, state);
-	assert.equal(folded.nodes.Twice.label, "Twice", "nobody there: nothing to fold");
-	withTiddlers([{title: state, list: "Town"}], function() {
-		var open = ego("Kingdom");
-		assert.equal(open.nodes.Town.label, "▾ Town");
-		assert.equal(open.nodes.Tavern.label, "▸ Tavern");
-		assert.ok(open.nodes.Guildmaster, "the neighbours of Town");
-		assert.ok(edges(open).indexOf("Guildmaster -> Guild (leads)") !== -1);
-	});
+test("ego graph of a location: the places within as plain nodes, without their neighbours", function() {
+	var graph = ego("Kingdom");
+	assert.deepEqual(nodes(graph), ["Guild", "Kingdom", "Neighbour", "Tavern", "Town", "Twice", "Wanderer"]);
+	assert.equal(graph.nodes.Town.label, "Town");
+	assert.equal(graph.nodes.Town.trpgToggle, undefined);
+	assert.ok(!graph.nodes.Guildmaster, "who is in Town stays out");
 });
 
 test("map: places lying in the location and its spots as pins, no edges", function() {
@@ -258,34 +250,6 @@ test("map: nodes without a position get a grid slot, kept per id", function() {
 	mapFit.process.call(adapter, {}, again);
 	assert.equal(again.nodes.a.x, changes.nodes.a.x);
 	assert.equal(again.nodes.a.trpgUnplaced, undefined);
-});
-
-test("ego toggle: a click folds or unfolds after a short wait, a double click does not", async function() {
-	var toggleModule = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/ego-toggle.js"),
-		state = "$:/state/tiddlyrpg-core/ego-open/Kingdom",
-		handlers = {},
-		adapter = {};
-	toggleModule.process.call(adapter, {}, {nodes: {Town: {trpgToggle: state}, Other: {label: "x"}}});
-	assert.equal(adapter.trpgToggles.Town, state);
-	assert.equal(adapter.trpgToggles.Other, undefined);
-	toggleModule.init.call(adapter, {on: function(name, fn) { handlers[name] = fn; }});
-	var wait = function() { return new Promise(function(resolve) { setTimeout(resolve, toggleModule.DELAY + 50); }); };
-	try {
-		handlers.click({nodes: ["Town"]});
-		await wait();
-		assert.deepEqual(Array.from(wiki.getTiddlerList(state)), ["Town"], "unfolded");
-		handlers.click({nodes: ["Town"]});
-		handlers.click({nodes: ["Town"]});
-		handlers.doubleClick({nodes: ["Town"]});
-		await wait();
-		assert.deepEqual(Array.from(wiki.getTiddlerList(state)), ["Town"], "a double click leaves it");
-		handlers.click({nodes: ["Other"]});
-		handlers.click({nodes: ["Town"]});
-		await wait();
-		assert.deepEqual(Array.from(wiki.getTiddlerList(state)), [], "folded again");
-	} finally {
-		wiki.deleteTiddler(state);
-	}
 });
 
 test("map pin: a custom shape, the same size on screen at any zoom", function() {

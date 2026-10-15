@@ -302,8 +302,8 @@ Below the title every tiddler shows the path of its parents ("Andu Falas › Kö
 Vandalia › Baile"); a hint appears for a cycle, a spot of two locations, a person with
 two locations, an artifact with an owner and a location and the like (not in the published
 copy). The event list of a location also contains the events of every place within it. Its
-graph shows the places within it; one with people, items or a leader starts folded ("▸ Baile")
-and opens with a click, its list shows them as a tree (people and items alike).
+graph shows the places within it, its list shows them as a tree with who is there (people and
+items alike).
 
 **Secret presence.** An organisation (or anyone else) that is somewhere in secret needs no
 tiddler of its own for that: one entry of its `location` points to a location tagged `Secret`
