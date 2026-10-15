@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261006154328000
+modified: 20261015122743000
 title: $:/tiddlyrpg/language/en-GB/Plural/
 
 Artifact: Artifacts
@@ -15,4 +15,5 @@ Material: Materials
 Organisation: Organisations
 Person: People
 Player: Players
+Quest: Quests
 TBC: Open Items

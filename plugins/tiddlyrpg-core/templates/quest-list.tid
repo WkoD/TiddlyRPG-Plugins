@@ -1,0 +1,42 @@
+created: 20261015122743000
+modified: 20261015122743000
+title: $:/plugins/tiddlyrpg-core/templates/quest-list
+type: text/vnd.tiddlywiki
+
+<!-- The quests and rumours as cards (templates/quest-card), newest marker first, in two lists:
+     quests (a tiddler tagged Quest) and rumours. Three switches open, complete, failed - each
+     only when the view sees anything with that status, open on by default; their state lives in
+     $:/state/tiddlyrpg-core/quest-filter/<status> (not saved). Shown by the hub Quest, which the
+     hub Campaign includes. -->
+\whitespace trim
+\procedure trpg.questgroup(key,names)
+\whitespace trim
+<$let trpg-names={{{ [subfilter<names>] :filter[queststatus[]addprefix[on-]getvariable[]match[yes]] +[format:titlelist[]join[ ]] }}}>
+<div class="trpg-quest-group">
+<h3><$text text={{{ [<key>addprefix[Quest/List/]trpgtranslate[]] }}}/><span class="trpg-quest-group-n"><$text text={{{ [enlist<trpg-names>count[]] }}}/></span></h3>
+<div class="trpg-quest-list">
+<$list filter="[enlist<trpg-names>]" emptyMessage="""<div class="trpg-quest-empty"><$text text={{{ [[Quest/List/Empty]trpgtranslate[]] }}}/></div>""">
+<$transclude $tiddler="$:/plugins/tiddlyrpg-core/templates/quest-card" $mode="block"/>
+</$list>
+</div>
+</div>
+</$let>
+\end
+<$let on-open={{{ [[$:/state/tiddlyrpg-core/quest-filter/open]get[text]else[yes]] }}}
+	on-complete={{{ [[$:/state/tiddlyrpg-core/quest-filter/complete]get[text]else[no]] }}}
+	on-failed={{{ [[$:/state/tiddlyrpg-core/quest-filter/failed]get[text]else[no]] }}}>
+<div class="trpg-quest-toggles">
+<span class="trpg-quest-toggles-label"><$text text={{{ [[Quest/Show]trpgtranslate[]] }}}/></span>
+<$list filter="open complete failed" variable="trpg-s">
+<$let trpg-count={{{ [questnames[]] :filter[queststatus[]match<trpg-s>] +[count[]] }}} trpg-on={{{ [<trpg-s>addprefix[on-]getvariable[]] }}}>
+<%if [<trpg-count>!match[0]] %>
+<$button class={{{ [[trpg-quest-toggle]] [<trpg-on>match[yes]then[trpg-on]] +[join[ ]] }}} set={{{ [<trpg-s>addprefix[$:/state/tiddlyrpg-core/quest-filter/]] }}} setTo={{{ [<trpg-on>match[yes]then[no]else[yes]] }}} aria-pressed={{{ [<trpg-on>match[yes]then[true]else[false]] }}}>
+<$text text={{{ [<trpg-s>addprefix[Quest/Status/]trpgtranslate[]] }}}/><span class="trpg-quest-toggle-n"><$text text=<<trpg-count>>/></span>
+</$button>
+<%endif%>
+</$let>
+</$list>
+</div>
+<$transclude $variable="trpg.questgroup" $mode="block" key="Quests" names="[questnames[]questreal[]]"/>
+<$transclude $variable="trpg.questgroup" $mode="block" key="Rumours" names="[questnames[]] -[questnames[]questreal[]]"/>
+</$let>

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261014195324000
+modified: 20261015142303000
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -21,8 +21,17 @@ Every kind of section has a short and a block form:
           stands at - directly before or after its marker, or at the very start of the body
           (then the text before the first marker); <$secret for="Theren Actia">...</$secret>
           locks what it encloses. Without a character: the DM only.
+  quest   a marker of a quest in an event (modules/quests.js): <<quest "Name">> at the start of
+          a paragraph marks the paragraph, <<quest "Name" status:"complete">> where it ends;
+          <$quest name="Name" status="failed">...</$quest> what it encloses - several
+          paragraphs, list items, or a part of a paragraph.
 
-register() adds a kind (e.g. a quest): it is found, locked, nested and rendered like the others.
+register() adds a kind: it is found, locked, nested and rendered like the others. A kind with
+nest: true (quest) splits nothing: its short form at the start of a paragraph or a list item
+holds that paragraph or item, its block form the paragraphs it encloses; it ends no other
+section. Markers stacked at the start (<<quest "A">><<quest "B">>) are one inside the other:
+the two quests are linked. A short form later in a paragraph holds the rest of it, a block
+inside a paragraph or list item what it encloses; inside another marker either links the two.
 
 Rules:
 - A short form ends at the next short marker of any kind on the same level, at a block of a
@@ -72,10 +81,15 @@ var plain = exports.plain = function(name) {
 var KINDS = Object.create(null);
 
 /*
-A kind: {types, params(node,form), visible(wiki,record,view)}
+A kind: {types, params(node,form), visible(wiki,record,view), nest, check(wiki,model,record)}
   types    tags of which a tiddler needs one for the kind to count; null: any tiddler
   params   the parameters of a marker or block node
   visible  optional: a further condition for the view to see a section of this kind
+  nest     optional: true for a kind that splits nothing (see the rules above)
+  check    optional: further problems of a record, [{key, params}] - asked by check(), not
+           cached, so it may look at other tiddlers
+  classes  optional: further classes of a rendered section, from the record
+  watch    optional: titles whose change re-renders a section of the kind
 */
 var register = exports.register = function(name,def) {
 	KINDS[name] = def;
@@ -149,13 +163,81 @@ register("secret",{
 	}
 });
 
+var STATUSES = ["open","complete","failed"];
+
+register("quest",{
+	types: ["Event"],
+	nest: true,
+	// <<quest "Name">>, <<quest "Name" status:"complete">>; <$quest name="Name" status="failed">.
+	// The status is named only: a second text by position is a hint (bad)
+	params: function(node,form) {
+		var name = attribute(node,"name"),
+			bad = form === "short" ? attribute(node,"1") : undefined;
+		if(name === undefined) {
+			name = attribute(node,"0") || "";
+		}
+		return {name: name.trim(), status: (attribute(node,"status") || "").trim(), bad: bad === undefined ? "" : bad};
+	},
+	// A quest whose tiddler the view does not see (Secret) hides its markers
+	visible: function(wiki,record,view) {
+		var name = record.params.name;
+		return !name || !wiki.tiddlerExists(name) || visibility.visible(wiki,name,view);
+	},
+	// Classes of the section: a quest with a tiddler (tag Quest) or a rumour without one; the
+	// widgets refresh when the tiddler of the name changes
+	classes: function(wiki,record) {
+		var tiddler = record.params.name ? wiki.getTiddler(record.params.name) : null;
+		return tiddler && tiddler.hasTag("Quest") ? "trpg-quest-real" : "trpg-quest-rumour";
+	},
+	watch: function(record) {
+		return record.params.name ? [record.params.name] : [];
+	},
+	check: function(wiki,model,record) {
+		var problems = [],
+			name = record.params.name,
+			tiddler = name ? wiki.getTiddler(name) : null,
+			dated = false;
+		for(var up = record.parent; up !== -1; up = model.records[up].parent) {
+			if(model.records[up].kind === "date" && model.records[up].counts) {
+				dated = true;
+			}
+		}
+		if(!name) {
+			problems.push({key: "Section/Check/QuestName"});
+		}
+		if(!dated) {
+			problems.push({key: "Section/Check/QuestDate", params: {name: name}});
+		}
+		if(record.params.status && STATUSES.indexOf(record.params.status) === -1) {
+			problems.push({key: "Section/Check/QuestStatus", params: {name: name, status: record.params.status}});
+		}
+		if(record.params.bad) {
+			problems.push({key: "Section/Check/QuestPosition", params: {name: name, text: record.params.bad}});
+		}
+		if(tiddler && !tiddler.hasTag("Quest")) {
+			problems.push({key: "Section/Check/QuestNoQuest", params: {name: name}});
+		}
+		return problems;
+	}
+});
+
 /* ---------- Nodes ---------- */
 
-// The kind of a short marker <<kind ...>> (a transclude node with a position), or null
+// The kind of a short marker <<kind ...>> (a transclude node with a position) that splits a
+// level, or null - the markers of a kind with nest are nestKind()
 var shortKind = exports.shortKind = function(node) {
 	if(node && node.type === "transclude" && node.start !== undefined) {
 		var name = attribute(node,"$variable");
-		return name && KINDS[name] ? name : null;
+		return name && KINDS[name] && !KINDS[name].nest ? name : null;
+	}
+	return null;
+};
+
+// The kind of a short marker of a kind with nest (a quest), or null
+var nestKind = exports.nestKind = function(node) {
+	if(node && node.type === "transclude" && node.start !== undefined) {
+		var name = attribute(node,"$variable");
+		return name && KINDS[name] && KINDS[name].nest ? name : null;
 	}
 	return null;
 };
@@ -245,7 +327,7 @@ function group(nodes) {
 	$tw.utils.each(nodes,function(node) {
 		var current = groups[groups.length - 1],
 			bk = blockKind(node);
-		if(bk && bk !== "secret") {
+		if(bk && bk !== "secret" && !KINDS[bk].nest) {
 			groups.push({kind: bk, form: "block", marker: node, head: node, prefix: pending, nodes: [node], open: false});
 			pending = [];
 			groups.push({kind: null, form: null, marker: null, head: null, prefix: [], nodes: [], open: false});
@@ -362,6 +444,41 @@ var read = exports.read = function(wiki,title) {
 			return record;
 		};
 		var visitNode, visitContainer;
+		/*
+		A short marker of a kind with nest (a quest) at <index> among the children of <container>:
+		it holds the rest of the container (a paragraph, a list item, the content of a block). With
+		nothing after it, it marks nothing. A marker standing alone on its level (container null)
+		marks nothing.
+		*/
+		var addNest = function(kind,marker,parent,container,index) {
+			var siblings = container ? container.children || [] : [],
+				rest = false;
+			for(var j = index + 1; j < siblings.length; j++) {
+				if(!isBlank(siblings[j]) && !nestKind(siblings[j])) {
+					rest = true;
+				}
+			}
+			var record = add(kind,"short",marker,parent,[],[marker],marker.start.toString());
+			record.from = marker.start;
+			record.to = container && container.end !== undefined ? container.end : marker.end;
+			if(!rest) {
+				errors.push({key: "Section/Check/NestEmpty", kind: kind, start: marker.start});
+			}
+			return record;
+		};
+		// The children of a node: a marker of a kind with nest begins a section that holds the
+		// rest of them
+		var visitChildren = function(node,section) {
+			var current = section;
+			$tw.utils.each(node.children,function(child,index) {
+				var nk = nestKind(child);
+				if(nk) {
+					current = addNest(nk,child,current,node,index).id;
+				} else {
+					visitNode(child,current);
+				}
+			});
+		};
 		var visitBlock = function(node,parent,prefix) {
 			var kind = blockKind(node),
 				record = add(kind,"block",node,parent,prefix,[node],node.start.toString());
@@ -386,6 +503,10 @@ var read = exports.read = function(wiki,title) {
 			if(shortKind(node)) {
 				return;
 			}
+			if(nestKind(node)) {
+				addNest(nestKind(node),node,section,null,0);
+				return;
+			}
 			if(blockKind(node)) {
 				visitBlock(node,section,[]);
 				return;
@@ -397,9 +518,7 @@ var read = exports.read = function(wiki,title) {
 					spec = attribute(node,"spot");
 				spotlinks.push({place: (place === undefined ? attribute(node,"0") || "" : place).trim(), spec: spec === undefined ? attribute(node,"1") || "" : spec, start: node.start, section: section});
 			}
-			$tw.utils.each(node.children,function(child) {
-				visitNode(child,section);
-			});
+			visitChildren(node,section);
 		};
 		visitContainer = function(nodes,parent,owner) {
 			var result = group(unwrap(nodes));
@@ -421,9 +540,14 @@ var read = exports.read = function(wiki,title) {
 						section = add("intro",null,null,parent,g.prefix,g.nodes,"intro").id;
 					}
 				}
-				$tw.utils.each(g.nodes,function(node) {
-					visitNode(node,section);
-				});
+				// Inside a block (<$quest>, <$secret>) a marker with nest holds the rest of the block
+				if(owner) {
+					visitChildren({children: g.nodes, end: owner.to},section);
+				} else {
+					$tw.utils.each(g.nodes,function(node) {
+						visitNode(node,section);
+					});
+				}
 			});
 		};
 		visitContainer(parser && parser.tree ? parser.tree : [],-1,null);
@@ -452,8 +576,9 @@ var read = exports.read = function(wiki,title) {
 				record.counts = false;
 				errors.push({key: "Section/Check/WrongType", kind: record.kind, start: record.start});
 			}
+			// A kind with nest may stand in one of its kind with another name (two quests linked)
 			for(var up = record.parent; up !== -1; up = records[up].parent) {
-				if(records[up].kind === record.kind) {
+				if(records[up].kind === record.kind && (!def.nest || records[up].params.name === record.params.name)) {
 					record.counts = false;
 					errors.push({key: "Section/Check/Nested", kind: record.kind, start: record.start});
 					break;
@@ -574,6 +699,17 @@ exports.check = function(wiki,title) {
 		}
 	});
 	$tw.utils.each(model.records,function(record) {
+		// The problems of the kind itself (a quest: its name, status, date section), only for a
+		// view that sees the section - the hints name it
+		var def = KINDS[record.kind];
+		if(def && def.check && record.counts && visible(wiki,title,record.id)) {
+			$tw.utils.each(def.check(wiki,model,record),function(problem) {
+				var text = language.format(language.t(wiki,problem.key),problem.params || {});
+				if(messages.indexOf(text) === -1) {
+					messages.push(text);
+				}
+			});
+		}
 		// Its text only for a view that sees the section (the hint repeats it)
 		if(record.kind === "date" && record.params.bad && visible(wiki,title,record.id)) {
 			var hint = language.format(language.t(wiki,"Section/Check/DateLabel"),{text: record.params.bad});
@@ -597,16 +733,115 @@ exports.check = function(wiki,title) {
 
 /* ---------- Rendering ---------- */
 
+// What a marker of a kind with nest holds, in a widget trpg-nest (widgets/sections.js): a block
+// around its paragraph, inline around the rest of a paragraph
+function nestNode(marker,children,block) {
+	return {
+		type: "trpg-nest",
+		attributes: {key: {type: "string", value: marker.start.toString()}, kind: {type: "string", value: nestKind(marker)}},
+		children: children,
+		isBlock: block
+	};
+}
+
+// Inline content (and the content of a block): a marker with nest holds the rest of it
+var wrapInline = exports.wrapInline = function(nodes) {
+	for(var i = 0; i < nodes.length; i++) {
+		if(nestKind(nodes[i])) {
+			return nodes.slice(0,i).concat([nestNode(nodes[i],[nodes[i]].concat(wrapInline(nodes.slice(i + 1))),false)]);
+		}
+	}
+	return nodes;
+};
+
+// A paragraph: the markers with nest at its start each hold the whole paragraph (the outer one
+// outside), a marker later in it the rest. A list item (item) keeps its element outside: the
+// frames go around its content
+function wrapParagraph(node,item) {
+	var children = node.children || [],
+		leads = [],
+		i = 0;
+	while(i < children.length && (isBlank(children[i]) || nestKind(children[i]))) {
+		if(nestKind(children[i])) {
+			leads.push(children[i]);
+		}
+		i++;
+	}
+	var inner = children.slice(0,i).concat(wrapInline(children.slice(i)));
+	if(item) {
+		for(var j = leads.length - 1; j >= 0; j--) {
+			inner = [nestNode(leads[j],inner,true)];
+		}
+		return $tw.utils.extend({},node,{children: inner});
+	}
+	var out = $tw.utils.extend({},node,{children: inner});
+	for(var k = leads.length - 1; k >= 0; k--) {
+		out = nestNode(leads[k],[out],true);
+	}
+	return out;
+}
+
+// The nodes of a level with what the markers with nest hold wrapped; blocks wrap their own content
+// when they render
+function wrapNests(nodes) {
+	return nodes.map(function(node) {
+		if(isFrame(node) || blockKind(node) || node.type === "trpg-section" || node.type === "trpg-nest") {
+			return node;
+		}
+		if(node.type === "element" && node.tag === "p") {
+			return wrapParagraph(node);
+		}
+		// A list item is a paragraph of its own
+		if(node.type === "element" && node.tag === "li") {
+			return wrapParagraph($tw.utils.extend({},node,{children: wrapNests(node.children || [])}),true);
+		}
+		if(node.type === "element" && node.children) {
+			var copy = $tw.utils.extend({},node);
+			copy.children = wrapNests(node.children);
+			return copy;
+		}
+		return node;
+	});
+}
+
+// The node of the marker with nest <key> in prepared nodes (a trpg-nest or a block), or null
+function findNest(nodes,key) {
+	for(var i = 0; i < nodes.length; i++) {
+		var node = nodes[i];
+		if(isFrame(node)) {
+			continue;
+		}
+		if(node.type === "trpg-nest" && node.attributes.key.value === key) {
+			return node;
+		}
+		var bk = blockKind(node);
+		if(bk && KINDS[bk].nest && node.start !== undefined && node.start.toString() === key) {
+			return node;
+		}
+		var found = findNest(bk ? wrapNests(node.children || []) : node.children || [],key);
+		if(found) {
+			return found;
+		}
+	}
+	return null;
+}
+
 /*
 The parse tree of a level, prepared for rendering: each short section and a locked intro are
 wrapped in a widget trpg-section (widgets/sections.js), which renders them only for a view that
-sees them; blocks render themselves. The pragmas at the start stay around everything.
+sees them, what a marker with nest holds in a widget trpg-nest; blocks render themselves. The
+pragmas at the start stay around everything.
 options: only (render only sections of this kind), omit (leave them out), match (a function on
 the record: render only matching sections), nomarker (without the node of the marker), root
-(the level is the body itself: a locked intro has the key "intro").
+(the level is the body itself: a locked intro has the key "intro"), nest (the key of a marker
+with nest: render only what it holds - a quest marker in the history of its quest).
 */
 var transform = exports.transform = function(wiki,title,nodes,options) {
 	options = options || {};
+	if(options.nest) {
+		var found = findNest(transform(wiki,title,nodes,{root: options.root}),options.nest);
+		return found ? [found.isBlock ? found : {type: "element", tag: "p", children: [found], isBlock: true}] : [];
+	}
 	if(nodes.length === 1 && isPragma(nodes[0])) {
 		var wrapper = $tw.utils.extend({},nodes[0]);
 		wrapper.children = transform(wiki,title,nodes[0].children || [],options);
@@ -634,12 +869,12 @@ var transform = exports.transform = function(wiki,title,nodes,options) {
 			out.push({
 				type: "trpg-section",
 				attributes: {key: {type: "string", value: key}, kind: {type: "string", value: g.kind || "intro"}},
-				children: options.nomarker ? g.nodes.filter(function(node) { return node !== g.head; }) : g.nodes,
+				children: wrapNests(options.nomarker ? g.nodes.filter(function(node) { return node !== g.head; }) : g.nodes),
 				isBlock: true
 			});
 			return;
 		}
-		Array.prototype.push.apply(out,g.nodes);
+		Array.prototype.push.apply(out,wrapNests(g.nodes));
 	});
 	return out;
 };

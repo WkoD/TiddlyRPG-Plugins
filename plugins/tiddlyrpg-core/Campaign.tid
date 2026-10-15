@@ -1,7 +1,7 @@
 caption: <<trpg.title Campaign>>
 color: #0069D2
 created: 20171009090415567
-modified: 20261001160600000
+modified: 20261015122743000
 tags: Index $:/tags/Pinned
 title: Campaign
 type: text/vnd.tiddlywiki
@@ -13,9 +13,9 @@ type: text/vnd.tiddlywiki
 
 @@clear:both;
 ---
-!! <<trpg.t Campaign/OpenTasks>>
+!! <<trpg.t Campaign/Quests>>
 
-{{||TBC/Campaign}}
+{{||Quest}}
 
 ---
 {{||Event}}

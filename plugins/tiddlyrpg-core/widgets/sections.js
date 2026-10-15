@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261014195324000
+modified: 20261015122743000
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -16,12 +16,22 @@ Rendering of the sections of a body (modules/sections.js).
 <$trpg-section key="..." kind="date">...</$trpg-section>
   made by sections.transform(), not written by hand: one short section.
 
+<$trpg-body $tiddler="Event" $quest="123"/>
+  only what the quest marker at position 123 holds (the history of a quest, modules/quests.js)
+
+<$trpg-nest key="..." kind="quest">...</$trpg-nest>
+  made by sections.transform(), not written by hand: what a marker of a kind with nest holds - a
+  block around its paragraph, a span around the rest of a paragraph.
+
 <$date section="3" label="Caption">...</$date>      block form of a dated section
 <$spot name="Name" tiddler="Tiddler" image="a.jpg" map="b.jpg">...</$spot>    block form of a spot
 <$secret for="Theren Actia">...</$secret>     locks what it encloses
+<$quest name="Name" status="complete">...</$quest>    block form of a quest marker; inside a
+  paragraph or a list item it is a span
 
 A section the active view does not see renders nothing. Every section is a div with the classes
-trpg-section trpg-section-<kind> (trpg-section-locked with a lock of its own) - the base for the
+trpg-section trpg-section-<kind> (trpg-section-locked with a lock of its own; a quest also
+trpg-quest-real or trpg-quest-rumour) - the base for the
 styling of its kind; a locked one starts with a marker for whom it is ("Secret: Theren"). The
 blocks draw the heading of their kind through the procedures date and spot (functions.tid), so
 both forms look the same; the heading of a block carries the position of the block, so the
@@ -61,7 +71,8 @@ BodyWidget.prototype.parseTransclusionTarget = function(parseAsInline) {
 			root: true,
 			only: this.getAttribute("$only",""),
 			omit: this.getAttribute("$omit",""),
-			nomarker: this.getAttribute("$marker","yes") === "no"
+			nomarker: this.getAttribute("$marker","yes") === "no",
+			nest: this.getAttribute("$quest","")
 		};
 	if(name) {
 		var wanted = sections.plain(name);
@@ -77,7 +88,7 @@ BodyWidget.prototype.parseTransclusionTarget = function(parseAsInline) {
 
 BodyWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes();
-	if(changedAttributes.$only || changedAttributes.$omit || changedAttributes.$name || changedAttributes.$marker) {
+	if(changedAttributes.$only || changedAttributes.$omit || changedAttributes.$name || changedAttributes.$marker || changedAttributes.$quest) {
 		this.refreshSelf();
 		return true;
 	}
@@ -109,19 +120,23 @@ function render(parent,nextSibling) {
 	if(!this.shown) {
 		return;
 	}
-	var div = this.document.createElement("div");
+	var div = this.document.createElement(this.inline ? "span" : "div");
 	div.className = this.className;
 	parent.insertBefore(div,nextSibling);
 	this.domNodes.push(div);
 	this.renderChildren(div,null);
 }
 
-// Sets shown, className and the child widgets for a section of <kind> (record may be null)
+// Sets shown, className, the titles to watch and the child widgets for a section of <kind>
+// (record may be null)
 function setup(widget,record,kind,children,shown) {
 	var wiki = widget.wiki,
+		def = sections.kind(kind),
 		lock = record ? sections.lockOf(wiki,widget.title,record.id) : null;
 	widget.shown = record ? sections.visible(wiki,widget.title,record.id) : (shown === undefined ? true : shown);
-	widget.className = "trpg-section trpg-section-" + kind + (lock ? " trpg-section-locked" : "");
+	widget.className = "trpg-section trpg-section-" + kind + (lock ? " trpg-section-locked" : "") +
+		(record && def && def.classes ? " " + def.classes(wiki,record) : "");
+	widget.watch = record && def && def.watch ? def.watch(record) : [];
 	widget.makeChildWidgets(widget.shown ? (lock ? [markerNode(wiki,lock)] : []).concat(children) : []);
 }
 
@@ -129,6 +144,7 @@ function refresh(changedTiddlers) {
 	/*jshint validthis: true */
 	var changedAttributes = this.computeAttributes();
 	if(Object.keys(changedAttributes).length || changedTiddlers[this.title] || changedTiddlers["$:/language"] ||
+		(this.watch || []).some(function(title) { return changedTiddlers[title]; }) ||
 		visibility.watched.some(function(title) { return changedTiddlers[title]; })) {
 		this.refreshSelf();
 		return true;
@@ -156,12 +172,31 @@ SectionWidget.prototype.execute = function() {
 	setup(this,record,this.getAttribute("kind","section"),this.parseTreeNode.children || []);
 };
 
+/* ---------- trpg-nest ---------- */
+
+var NestWidget = function(parseTreeNode,options) {
+	this.initialise(parseTreeNode,options);
+};
+
+NestWidget.prototype = new Widget();
+NestWidget.prototype.render = render;
+NestWidget.prototype.refresh = refresh;
+
+NestWidget.prototype.execute = function() {
+	this.title = modelTitle(this);
+	this.inline = !this.parseTreeNode.isBlock;
+	var kind = this.getAttribute("kind","quest"),
+		record = sections.byKey(this.wiki,this.title,this.getAttribute("key",""));
+	setup(this,record && record.kind === kind ? record : null,kind,this.parseTreeNode.children || []);
+};
+
 /* ---------- Blocks ---------- */
 
 // The attributes of a block passed on to the procedure of its heading
 var HEADINGS = {
 	date: ["section","label"],
-	spot: ["name","tiddler","image","map"]
+	spot: ["name","tiddler","image","map"],
+	quest: ["name","status"]
 };
 
 function makeBlock(kind) {
@@ -175,13 +210,15 @@ function makeBlock(kind) {
 		var node = this.parseTreeNode,
 			wiki = this.wiki;
 		this.title = modelTitle(this);
+		// A block of a kind with nest (a quest) inside a paragraph or a list item is a span
+		this.inline = !!(sections.kind(kind) && sections.kind(kind).nest && !node.isBlock);
 		var record = node.start !== undefined ? sections.byKey(wiki,this.title,node.start.toString()) : null;
 		if(record && record.kind !== kind) {
 			record = null;
 		}
-		var children = record ? sections.transform(wiki,this.title,node.children || [],{}) : (node.children || []);
+		var children = record ? sections.wrapInline(sections.transform(wiki,this.title,node.children || [],{})) : (node.children || []);
 		if(HEADINGS[kind]) {
-			var heading = {type: "transclude", attributes: {"$variable": {type: "string", value: kind}}, isBlock: true, start: node.start, end: node.end};
+			var heading = {type: "transclude", attributes: {"$variable": {type: "string", value: kind}}, isBlock: !this.inline, start: node.start, end: node.end};
 			$tw.utils.each(HEADINGS[kind],function(name) {
 				if(node.attributes && node.attributes[name]) {
 					heading.attributes[name] = node.attributes[name];
@@ -203,6 +240,8 @@ function makeBlock(kind) {
 
 exports["trpg-body"] = BodyWidget;
 exports["trpg-section"] = SectionWidget;
+exports["trpg-nest"] = NestWidget;
 exports.date = makeBlock("date");
 exports.spot = makeBlock("spot");
 exports.secret = makeBlock("secret");
+exports.quest = makeBlock("quest");

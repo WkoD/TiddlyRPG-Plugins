@@ -83,12 +83,12 @@ test.describe("de-DE", function() {
 			calendarHub.indexOf("Tiefwinter") !== -1 && calendarHub.indexOf("Schildtreff (alle 4 Jahre)") !== -1, calendarHub);
 	});
 
-	test("campaign hub: open tasks, no current date", function() {
+	test("campaign hub: quests and rumours, no current date", function() {
 		var campaign = h.body(wiki, "Campaign");
-		assert.ok(campaign.indexOf("Offene Aufgaben") !== -1 && campaign.indexOf("Aktuelles Datum") === -1);
+		assert.ok(campaign.indexOf("Quests und Gerüchte") !== -1 && campaign.indexOf("Offene Aufgaben") === -1 && campaign.indexOf("Aktuelles Datum") === -1, campaign);
 	});
 
-	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "TBC", "Item", "Event"].forEach(function(title) {
+	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "TBC", "Item", "Event", "Quest"].forEach(function(title) {
 		test("no raw <<trpg. in " + title, function() {
 			var html = h.view(wiki, title);
 			assert.ok(html.indexOf("&lt;&lt;trpg.") === -1 && html.indexOf("<<trpg.") === -1);

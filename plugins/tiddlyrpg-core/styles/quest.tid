@@ -1,0 +1,367 @@
+created: 20261015122743000
+modified: 20261015142756000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/quest
+type: text/css
+
+/* Quests (modules/quests.js): what a marker holds in the text of an event (trpg-nest and the
+   block <$quest>, widgets/sections.js), the label of the marker (procedure quest), the cards of
+   the hub Quest (templates/quest-list, quest-card) and the history (templates/quest-body).
+   A quest (tiddler tagged Quest) gold, a rumour silver, whatever its status; complete and failed
+   cards grey like the dead (styles/dead). Palette colours via --tpc-*. */
+
+/* The paragraphs the wikitext parser puts around inline-parsed content of the containers below
+   take no room of their own: their children lay out in the grid or flex of the container */
+.trpg-quest-toggles > p,
+.trpg-quest-group > p,
+.trpg-quest-list > p,
+.trpg-quest-card > p,
+.trpg-quest-card-detail > p,
+.trpg-quest-history > p,
+.trpg-quest-mark > p {
+	display: contents;
+}
+
+/* What a marker holds - a paragraph or a list item: a frame with the colour on the left, around
+   the bullet of a list item too. Markers stacked at its start are one frame; a quest and a
+   rumour together: wide stripes of both at 45°. The rest of a paragraph after a marker mid-text
+   tinted. */
+div.trpg-section-quest {
+	position: relative;
+	border-left: 4px solid #e6b400;
+	background: color-mix(in srgb, #e6b400 7%, transparent);
+	border-radius: 0 6px 6px 0;
+	padding: 1px 10px 1px 12px;
+	margin: 0.6em 0;
+}
+div.trpg-section-quest.trpg-quest-rumour {
+	border-left-color: #9aa1aa;
+	background: color-mix(in srgb, #9aa1aa 10%, transparent);
+}
+div.trpg-section-quest > div.trpg-section-quest {
+	border-left: none;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}
+div.trpg-section-quest.trpg-quest-real:has(> div.trpg-quest-rumour, > div > div.trpg-quest-rumour),
+div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.trpg-quest-real) {
+	border-left-color: transparent;
+	background: repeating-linear-gradient(45deg,
+		color-mix(in srgb, #e6b400 8%, transparent) 0 96px,
+		color-mix(in srgb, #9aa1aa 12%, transparent) 96px 192px);
+}
+div.trpg-section-quest.trpg-quest-real:has(> div.trpg-quest-rumour, > div > div.trpg-quest-rumour)::before,
+div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.trpg-quest-real)::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -4px;
+	width: 4px;
+	background: repeating-linear-gradient(45deg, #e6b400 0 64px, #9aa1aa 64px 128px);
+}
+/* A list item: the line at the edge of the text like the other frames, back over the indent of
+   its lists (40px each), the text where it was */
+li > div.trpg-section-quest {
+	margin: 0.15em 0 0.15em -40px;
+	padding-left: 36px;
+}
+li li > div.trpg-section-quest {
+	margin-left: -80px;
+	padding-left: 76px;
+}
+li li li > div.trpg-section-quest {
+	margin-left: -120px;
+	padding-left: 116px;
+}
+li > div.trpg-section-quest > div.trpg-section-quest {
+	margin: 0;
+	padding-left: 0;
+}
+span.trpg-section-quest {
+	border-radius: 3px;
+	padding: 0 2px;
+	background: color-mix(in srgb, #e6b400 16%, transparent);
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+span.trpg-section-quest.trpg-quest-rumour {
+	background: color-mix(in srgb, #9aa1aa 22%, transparent);
+}
+
+/* The label of a marker */
+.trpg-quest-label {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 4px;
+	margin-right: 6px;
+	padding: 0 7px;
+	border: 1px solid #e6b400;
+	border-radius: 999px;
+	font-size: 0.78em;
+	line-height: 1.5;
+	white-space: nowrap;
+	vertical-align: 1px;
+}
+.trpg-quest-label.trpg-quest-rumour {
+	border-color: #9aa1aa;
+}
+.trpg-quest-kind {
+	color: var(--tpc-muted-foreground);
+}
+.trpg-quest-label a.tc-tiddlylink {
+	text-decoration: none;
+}
+.trpg-quest-status {
+	padding-left: 4px;
+	border-left: 1px solid var(--tpc-muted-foreground);
+}
+
+/* The switches of the hub */
+.trpg-quest-toggles {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0.4em 0 0.8em;
+}
+.trpg-quest-toggles-label {
+	color: var(--tpc-muted-foreground);
+	font-size: 0.9em;
+}
+.trpg-quest-toggle {
+	border: 1px solid var(--tpc-tiddler-border);
+	border-radius: 999px;
+	background: var(--tpc-tiddler-background);
+	color: var(--tpc-foreground);
+	padding: 1px 12px;
+	cursor: pointer;
+}
+.trpg-quest-toggle.trpg-on {
+	border-color: var(--tpc-foreground);
+	font-weight: bold;
+}
+.trpg-quest-toggle-n {
+	margin-left: 5px;
+	font-weight: normal;
+	color: var(--tpc-muted-foreground);
+	font-size: 0.85em;
+}
+
+/* The lists and cards of the hub: one card per row */
+.trpg-quest-group h3 {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+}
+.trpg-quest-group-n {
+	font-size: 0.75em;
+	font-weight: normal;
+	color: var(--tpc-muted-foreground);
+}
+.trpg-quest-list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 8px;
+}
+.trpg-quest-empty {
+	color: var(--tpc-muted-foreground);
+	font-style: italic;
+}
+/* Frame like the cards of the timeline (styles/timeline: its line colour, 60 % on the background) */
+.trpg-quest-card {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+	padding: 6px 10px 6px 9px;
+	border: 1px solid color-mix(in srgb, color-mix(in srgb, var(--tpc-muted-foreground, #999) 55%, var(--tpc-tiddler-background, #fff)) 60%, var(--tpc-tiddler-background, #fff));
+	border-left: 4px solid #e6b400;
+	border-radius: 6px;
+	background: var(--tpc-tiddler-background);
+}
+.trpg-quest-card.trpg-quest-rumour {
+	border-left-color: #9aa1aa;
+}
+.trpg-quest-card.trpg-quest-done {
+	background: color-mix(in srgb, var(--tpc-muted-foreground) 50%, var(--tpc-tiddler-background));
+}
+.trpg-quest-card-head,
+.trpg-quest-card-foot {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 4px 10px;
+	font-size: 0.8em;
+	color: var(--tpc-muted-foreground);
+}
+/* Who takes part: tag pills, so the names can be read */
+.trpg-quest-card-dots {
+	display: inline-flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 3px;
+}
+.trpg-quest-card-dots .tc-tag-list-item {
+	margin: 0;
+}
+.trpg-quest-card-name {
+	font-weight: bold;
+}
+.trpg-quest-card-name a.tc-tiddlylink {
+	text-decoration: none;
+}
+/* The start of what the newest marker holds: two lines, without frames and labels */
+.trpg-quest-card-text {
+	max-height: 2.8em;
+	overflow: hidden;
+	font-size: 0.9em;
+	line-height: 1.4;
+	color: var(--tpc-muted-foreground);
+}
+.trpg-quest-card-text p {
+	margin: 0;
+}
+.trpg-quest-card-text div.trpg-section-quest,
+.trpg-quest-card-text span.trpg-section-quest {
+	border: none;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}
+.trpg-quest-card-text .trpg-quest-label {
+	display: none;
+}
+.trpg-quest-card-meta {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+.trpg-quest-card-toggle {
+	color: var(--tpc-muted-foreground);
+	cursor: pointer;
+}
+.trpg-quest-card-detail {
+	margin-top: 6px;
+	padding-top: 6px;
+	border-top: 1px solid var(--tpc-tiddler-border);
+}
+.trpg-quest-pill {
+	padding: 0 8px;
+	border: 1px solid var(--tpc-muted-foreground);
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+/* The page of a quest: planning, rumour tools, links, history */
+.trpg-quest-hint {
+	color: var(--tpc-muted-foreground);
+	font-style: italic;
+}
+.trpg-quest-tools {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0.5em 0;
+}
+.trpg-quest-rename-exists {
+	color: var(--tpc-alert-highlight, #b00);
+	font-size: 0.85em;
+}
+.trpg-quest-links {
+	margin: 0.5em 0;
+}
+.trpg-quest-links-label {
+	margin-right: 6px;
+	color: var(--tpc-muted-foreground);
+}
+.trpg-quest-history-head {
+	margin: 0.8em 0 0.4em;
+	padding-top: 0.5em;
+	border-top: 1px solid var(--tpc-tiddler-border);
+	color: var(--tpc-muted-foreground);
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+/* The history as a timeline: the date, a line in the colour of the quest with a point per
+   marker (a diamond where a status is set), the entry beside it */
+.trpg-quest-history {
+	--trpg-quest-colour: #e6b400;
+	--trpg-quest-date: 7.5em;
+	position: relative;
+	display: grid;
+	gap: 10px;
+}
+.trpg-quest-history.trpg-quest-rumour {
+	--trpg-quest-colour: #9aa1aa;
+}
+.trpg-quest-history::before {
+	content: "";
+	position: absolute;
+	top: 0.7em;
+	bottom: 0.7em;
+	left: calc(var(--trpg-quest-date) + 14px);
+	width: 2px;
+	background: color-mix(in srgb, var(--trpg-quest-colour) 60%, var(--tpc-tiddler-background, #fff));
+}
+.trpg-quest-step {
+	display: grid;
+	grid-template-columns: var(--trpg-quest-date) 14px minmax(0, 1fr);
+	gap: 0 8px;
+	align-items: start;
+}
+.trpg-quest-step > p {
+	display: contents;
+}
+.trpg-quest-step-date {
+	padding-top: 0.45em;
+	text-align: right;
+	font-size: 0.8em;
+	line-height: 1.3;
+	color: var(--tpc-muted-foreground);
+}
+.trpg-quest-step-dot {
+	position: relative;
+	z-index: 1;
+	box-sizing: border-box;
+	width: 14px;
+	height: 14px;
+	margin-top: 0.45em;
+	border: 3px solid var(--tpc-tiddler-background, #fff);
+	border-radius: 50%;
+	background: var(--trpg-quest-colour);
+}
+.trpg-quest-step-end .trpg-quest-step-dot {
+	border-radius: 2px;
+	transform: rotate(45deg);
+}
+.trpg-quest-mark {
+	min-width: 0;
+	padding: 4px 10px;
+	border: 1px solid color-mix(in srgb, color-mix(in srgb, var(--tpc-muted-foreground, #999) 55%, var(--tpc-tiddler-background, #fff)) 60%, var(--tpc-tiddler-background, #fff));
+	border-radius: 6px;
+	background: var(--tpc-tiddler-background);
+}
+.trpg-quest-mark > p {
+	display: contents;
+}
+.trpg-quest-mark-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 10px;
+	font-size: 0.8em;
+	color: var(--tpc-muted-foreground);
+}
+.trpg-quest-mark-body p {
+	margin: 0.3em 0;
+}
+.trpg-quest-mark-body div.trpg-section-quest {
+	border-left: none;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}

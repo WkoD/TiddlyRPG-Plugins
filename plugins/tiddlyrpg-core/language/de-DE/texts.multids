@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261014201354000
+modified: 20261015142303000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -14,6 +14,7 @@ Calendar/Result: Ergebnis:
 Calendar/To: Bis:
 Calendar/WrittenOut: Ausgeschrieben:
 Campaign/OpenTasks: Offene Aufgaben
+Campaign/Quests: Quests und Gerüchte
 CampaignSetting/Hub/None: Keine Kampagnenwelt ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
 CampaignSetting/Hub/Setting: Die Namen der Kampagnenwelt und die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Kampagnenwelt Einstellungen.
 ControlPanel/License/Author: Autor
@@ -80,6 +81,23 @@ Number/Decimal: ,
 Player/Active: Spielerfiguren
 Player/Former: Frühere Figuren
 Player/Player: Spieler:
+Quest/Create: Quest anlegen
+Quest/History: Verlauf
+Quest/Kind/Quest: Quest
+Quest/Kind/Rumour: Gerücht
+Quest/Linked: Verbunden mit:
+Quest/List/Empty: Nichts mit diesem Stand.
+Quest/List/Quests: Quests
+Quest/List/Rumours: Gerüchte
+Quest/Marks: $n$ Marker
+Quest/Rename: Umbenennen
+Quest/Rename/Exists: Gibt es schon – Umbenennen führt beide zusammen
+Quest/Rename/Placeholder: Neuer Name
+Quest/Rumour/Hint: Ein Gerücht: noch ohne eigenen Tiddler.
+Quest/Show: Zeigen:
+Quest/Status/complete: abgeschlossen
+Quest/Status/failed: fehlgeschlagen
+Quest/Status/open: offen
 Relations/Graph: Graph
 Relations/List: Liste
 Relations/Spot: Spot
@@ -105,11 +123,18 @@ Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
 Section/Check/DateLabel: Text prüfen: <<date "$text$">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"$text$"
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
+Section/Check/NestEmpty: Text prüfen: <<$macro$>> markiert nichts – der Text folgt im selben Absatz auf die Marke
 Section/Check/Nested: Text prüfen: $kind$ ineinander verschachtelt – der innere zählt nicht
 Section/Check/NoCharacter: Text prüfen: Eine Sperre nennt „$name$“, das ist keine Spielerfigur
+Section/Check/QuestDate: Text prüfen: Der Quest-Marker „$name$“ steht in keinem Datumsabschnitt
+Section/Check/QuestName: Text prüfen: Ein Quest-Marker ohne Namen
+Section/Check/QuestNoQuest: Text prüfen: „$name$“ ist ein Tiddler, aber kein Quest (Tag Quest)
+Section/Check/QuestPosition: Text prüfen: <<quest "$name$" "$text$">> – der Status steht benannt: status:"$text$"
+Section/Check/QuestStatus: Text prüfen: „$status$“ ist kein Status eines Quests (open, complete, failed)
 Section/Check/SecretMidText: Text prüfen: <<secret>> mitten in einem Abschnitt wirkt nicht – an den Anfang des Abschnitts setzen oder <$secret>…</$secret> verwenden
 Section/Check/WrongType: Text prüfen: <<$macro$>> zählt nur in einem Tiddler mit Tag $type$
 Section/Kind/date: Datumsabschnitte
+Section/Kind/quest: Quest-Marker
 Section/Kind/secret: Sperren
 Section/Kind/spot: Spots
 Settings/Check/Version: $title$ braucht tiddlyrpg-core $required$, dieses Wiki hat $core$

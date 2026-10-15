@@ -1,5 +1,5 @@
 created: 20200308185530421
-modified: 20261001095424000
+modified: 20261015122743000
 tags: Index
 title: Index
 type: text/vnd.tiddlywiki
@@ -12,6 +12,7 @@ type: text/vnd.tiddlywiki
 <li><$link to={{!!title}}><$text text={{{ [<currentTiddler>addprefix[Plural/]trpgtranslate[]] }}}/></$link></li>
 </$list>
 <br>
+<li><$link to="Quest"><$text text={{{ [[Plural/Quest]trpgtranslate[]] }}}/></$link></li>
 <li><$link to="TBC"><$text text={{{ [[Plural/TBC]trpgtranslate[]] }}}/></$link></li>
 </div>
 </ul>

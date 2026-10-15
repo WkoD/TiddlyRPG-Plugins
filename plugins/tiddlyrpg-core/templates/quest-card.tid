@@ -1,0 +1,53 @@
+created: 20261015122743000
+modified: 20261015134500000
+title: $:/plugins/tiddlyrpg-core/templates/quest-card
+type: text/vnd.tiddlywiki
+
+<!-- A quest or rumour as a card of the hub Quest (templates/quest-list), currentTiddler is its
+     name (modules/quests.js): the date of its newest marker and who takes part, the name, the
+     start of what that marker holds (trpg-body, two lines), its event with a jump to the
+     section, the number of markers or the status. Grey when complete or failed, like the dead.
+     A click on "History" opens templates/quest-body below. -->
+\whitespace trim
+<$let trpg-last={{{ [<currentTiddler>questlast[]] }}}
+	trpg-event={{{ [<trpg-last>questmark:event[]] }}}
+	trpg-number={{{ [<trpg-last>questmark:number[]] }}}
+	trpg-status={{{ [<currentTiddler>queststatus[]] }}}
+	trpg-count={{{ [<currentTiddler>questmarks[]count[]] }}}
+	trpg-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/quest-card/]] }}}
+	trpg-open={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/quest-card/]get[text]] }}}>
+<div class={{{ [[trpg-quest-card]] [<currentTiddler>questreal[]then[trpg-quest-real]else[trpg-quest-rumour]] [<trpg-status>!match[open]then[trpg-quest-done]] +[join[ ]] }}}>
+<div class="trpg-quest-card-head">
+<span class="trpg-quest-card-date"><$text text={{{ [<trpg-event>get[date]dateformat<trpg-number>!is[blank]] ~[[????]] }}}/></span>
+<span class="trpg-quest-card-dots">
+<$list filter="[<currentTiddler>questplayers[]]" variable="trpg-player">
+<$transclude $variable="tag" tag=<<trpg-player>>/>
+</$list>
+</span>
+</div>
+<div class="trpg-quest-card-name"><$link to=<<currentTiddler>>><$text text=<<currentTiddler>>/></$link></div>
+<%if [<trpg-event>!is[blank]] %>
+<div class="trpg-quest-card-text"><$trpg-body $tiddler=<<trpg-event>> $mode="block" $quest={{{ [<trpg-last>questmark:key[]] }}}/></div>
+<%endif%>
+<div class="trpg-quest-card-foot">
+<span class="trpg-quest-card-event">
+<%if [<trpg-event>!is[blank]] %>
+<$trpg-jump anchor={{{ [<trpg-last>questmark:anchor[]] }}}><$link to=<<trpg-event>>><$text text={{{ [<trpg-event>trpgtitle[]] }}}/></$link></$trpg-jump>
+<%endif%>
+</span>
+<span class="trpg-quest-card-meta">
+<%if [<trpg-status>match[open]] %>
+<$text text={{{ [[Quest/Marks]trpgtranslate[]search-replace[$n$],<trpg-count>] }}}/>
+<%else%>
+<span class="trpg-quest-pill"><$text text={{{ [<trpg-status>addprefix[Quest/Status/]trpgtranslate[]] }}}/></span>
+<%endif%>
+<$button class="tc-btn-invisible trpg-quest-card-toggle" set=<<trpg-state>> setTo={{{ [<trpg-open>match[yes]then[no]else[yes]] }}} aria-expanded={{{ [<trpg-open>match[yes]then[true]else[false]] }}}>
+<$text text={{{ [[Quest/History]trpgtranslate[]] }}}/><$text text={{{ [<trpg-open>match[yes]then[ ▴]else[ ▾]] }}}/>
+</$button>
+</span>
+</div>
+<%if [<trpg-open>match[yes]] %>
+<div class="trpg-quest-card-detail"><$transclude $tiddler="$:/plugins/tiddlyrpg-core/templates/quest-body" $mode="block"/></div>
+<%endif%>
+</div>
+</$let>

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261014201354000
+modified: 20261015142303000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -14,6 +14,7 @@ Calendar/Result: Result:
 Calendar/To: To:
 Calendar/WrittenOut: Written out:
 Campaign/OpenTasks: Open Tasks
+Campaign/Quests: Quests and rumours
 CampaignSetting/Hub/None: No campaign setting is active (ControlPanel -> Settings -> TiddlyRPG).
 CampaignSetting/Hub/Setting: The names of the campaign setting and the language they are shown in. Which one: ControlPanel -> Settings -> TiddlyRPG -> Campaign setting options.
 ControlPanel/License/Author: Author
@@ -80,6 +81,23 @@ Number/Decimal: .
 Player/Active: Player characters
 Player/Former: Former characters
 Player/Player: Player:
+Quest/Create: Create quest
+Quest/History: History
+Quest/Kind/Quest: Quest
+Quest/Kind/Rumour: Rumour
+Quest/Linked: Linked with:
+Quest/List/Empty: Nothing with this status.
+Quest/List/Quests: Quests
+Quest/List/Rumours: Rumours
+Quest/Marks: $n$ markers
+Quest/Rename: Rename
+Quest/Rename/Exists: Exists already - renaming merges both
+Quest/Rename/Placeholder: New name
+Quest/Rumour/Hint: A rumour: no tiddler of its own yet.
+Quest/Show: Show:
+Quest/Status/complete: complete
+Quest/Status/failed: failed
+Quest/Status/open: open
 Relations/Graph: Graph
 Relations/List: List
 Relations/Spot: spot
@@ -105,11 +123,18 @@ Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
 Section/Check/DateLabel: Check the text: <<date "$text$">> - the first parameter is the number of a section, a caption goes into label:"$text$"
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
+Section/Check/NestEmpty: Check text: <<$macro$>> marks nothing - the text follows the marker in its paragraph
 Section/Check/Nested: Check the text: $kind$ nested in each other - the inner one does not count
 Section/Check/NoCharacter: Check the text: a lock names "$name$", who is no player character
+Section/Check/QuestDate: Check text: the quest marker "$name$" stands in no dated section
+Section/Check/QuestName: Check text: a quest marker without a name
+Section/Check/QuestNoQuest: Check text: "$name$" is a tiddler but no quest (tag Quest)
+Section/Check/QuestPosition: Check text: <<quest "$name$" "$text$">> - the status is named: status:"$text$"
+Section/Check/QuestStatus: Check text: "$status$" is no status of a quest (open, complete, failed)
 Section/Check/SecretMidText: Check the text: <<secret>> in the middle of a section has no effect - put it at the start of the section, or use <$secret>…</$secret>
 Section/Check/WrongType: Check the text: <<$macro$>> counts only in a tiddler tagged $type$
 Section/Kind/date: dated sections
+Section/Kind/quest: Quest markers
 Section/Kind/secret: locks
 Section/Kind/spot: spots
 Settings/Check/Version: $title$ needs tiddlyrpg-core $required$, this wiki has $core$

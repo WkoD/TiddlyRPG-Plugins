@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261014202808000
+modified: 20261015122743000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -204,6 +204,27 @@ type: text/vnd.tiddlywiki
 	state={{{ [<name>spotplain[]addprefix[/]addprefix<currentTiddler>addprefix[$:/state/tiddlyrpg-core/spot-tab/]] }}}/>
 <%endif%>
 </$let>
+\end
+
+<!-- A quest marker in an event (modules/sections.js, modules/quests.js): <<quest "Name">> at the
+     start of a paragraph, <<quest "Name" status:"complete">> where the quest ends,
+     <$quest name="Name">...</$quest> around what it marks. Draws the label of the marker: quest
+     (a tiddler tagged Quest) or rumour, the name as a link, the status where it is set. What
+     it marks and its frame come from the parse tree (trpg-nest, the block), not from this
+     procedure. Nothing for a quest the view does not see. -->
+\procedure quest(name,status)
+\whitespace trim
+<%if [<name>!is[blank]trpg.visible[]] %>
+<$let trpg-real={{{ [<name>questreal[]then[yes]] }}}>
+<span class={{{ [<trpg-real>match[yes]then[trpg-quest-label trpg-quest-real]else[trpg-quest-label trpg-quest-rumour]] }}}>
+<span class="trpg-quest-kind"><$text text={{{ [<trpg-real>match[yes]then[Quest/Kind/Quest]else[Quest/Kind/Rumour]trpgtranslate[]] }}}/></span>
+<$link to=<<name>>><$text text=<<name>>/></$link>
+<%if [<status>match[complete]] [<status>match[failed]] +[limit[1]] %>
+<span class="trpg-quest-status"><$text text={{{ [<status>addprefix[Quest/Status/]trpgtranslate[]] }}}/></span>
+<%endif%>
+</span>
+</$let>
+<%endif%>
 \end
 
 <!-- Images or maps of a tiddler or spot (filters/images.js): <entries> is a filter giving the

@@ -1,0 +1,71 @@
+created: 20261015122743000
+modified: 20261015134500000
+title: $:/plugins/tiddlyrpg-core/templates/quest-body
+type: text/vnd.tiddlywiki
+
+<!-- Body of a quest (a tiddler tagged Quest) or of a rumour (a name without tiddler that has
+     markers), modules/quests.js; chosen by viewtemplates/body-filter-quest. The text of the
+     tiddler (the planning), for a rumour a hint and in the editable wiki the buttons to create
+     the quest or rename the rumour (tm-relink-tiddler rewrites every marker); the quests linked
+     with it; the history as a timeline: every marker the view sees, newest first, its date
+     beside a line with a point (a diamond where a status is set), its event (a jump to the
+     section), the status and what it holds through trpg-body. Also the details of a card of the
+     hub (templates/quest-card). -->
+\whitespace trim
+<$let trpg-quest=<<currentTiddler>> trpg-rename={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/quest-rename/]] }}}>
+<%if [<trpg-quest>is[tiddler]] %>
+<%if [<trpg-quest>get[text]!is[blank]] %>
+<div class="trpg-quest-plan"><$transclude $tiddler=<<trpg-quest>> $field="text" $mode="block"/></div>
+<%endif%>
+<%else%>
+<div class="trpg-quest-hint"><$text text={{{ [[Quest/Rumour/Hint]trpgtranslate[]] }}}/></div>
+<%if [{$:/status/IsReadOnly}!match[yes]] %>
+<$let trpg-new={{{ [<trpg-rename>get[text]trim[]] }}}>
+<div class="trpg-quest-tools">
+<$button class="trpg-quest-create" tooltip={{{ [[Quest/Create]trpgtranslate[]] }}}>
+<$action-createtiddler $basetitle=<<trpg-quest>> tags="Quest"/>
+<$text text={{{ [[Quest/Create]trpgtranslate[]] }}}/>
+</$button>
+<$edit-text tiddler=<<trpg-rename>> tag="input" class="trpg-quest-rename" placeholder={{{ [[Quest/Rename/Placeholder]trpgtranslate[]] }}}/>
+<%if [<trpg-new>!is[blank]!match<trpg-quest>] %>
+<$button class="trpg-quest-rename-do">
+<$action-sendmessage $message="tm-relink-tiddler" from=<<trpg-quest>> to=<<trpg-new>>/>
+<$action-deletetiddler $tiddler=<<trpg-rename>>/>
+<$action-navigate $to=<<trpg-new>>/>
+<$text text={{{ [[Quest/Rename]trpgtranslate[]] }}}/>
+</$button>
+<%if [<trpg-new>is[tiddler]] [<trpg-new>questmarked[]] +[limit[1]] %>
+<span class="trpg-quest-rename-exists"><$text text={{{ [[Quest/Rename/Exists]trpgtranslate[]] }}}/></span>
+<%endif%>
+<%endif%>
+</div>
+</$let>
+<%endif%>
+<%endif%>
+<$list filter="[<trpg-quest>questlinks[]] +[limit[1]]" variable="ignore">
+<div class="trpg-quest-links">
+<span class="trpg-quest-links-label"><$text text={{{ [[Quest/Linked]trpgtranslate[]] }}}/></span>
+<$list filter="[<trpg-quest>questlinks[]]" variable="trpg-other" join=", "><$link to=<<trpg-other>>><$text text=<<trpg-other>>/></$link></$list>
+</div>
+</$list>
+<div class="trpg-quest-history-head"><$text text={{{ [[Quest/History]trpgtranslate[]] }}}/></div>
+<div class={{{ [[trpg-quest-history]] [<trpg-quest>questreal[]then[trpg-quest-real]else[trpg-quest-rumour]] +[join[ ]] }}}>
+<$list filter="[<trpg-quest>questmarks[]]" variable="trpg-mark">
+<$let trpg-event={{{ [<trpg-mark>questmark:event[]] }}} trpg-number={{{ [<trpg-mark>questmark:number[]] }}} trpg-status={{{ [<trpg-mark>questmark:status[]] }}}>
+<div class={{{ [[trpg-quest-step]] [<trpg-status>!is[blank]then[trpg-quest-step-end]] +[join[ ]] }}}>
+<div class="trpg-quest-step-date"><$text text={{{ [<trpg-event>get[date]dateformat<trpg-number>!is[blank]] ~[[????]] }}}/></div>
+<div class="trpg-quest-step-dot"/>
+<div class="trpg-quest-mark">
+<div class="trpg-quest-mark-head">
+<$trpg-jump anchor={{{ [<trpg-mark>questmark:anchor[]] }}}><$link to=<<trpg-event>>><$text text={{{ [<trpg-event>trpgtitle[]] }}}/></$link></$trpg-jump>
+<%if [<trpg-status>!is[blank]] %>
+<span class="trpg-quest-pill"><$text text={{{ [<trpg-status>addprefix[Quest/Status/]trpgtranslate[]] }}}/></span>
+<%endif%>
+</div>
+<div class="trpg-quest-mark-body"><$trpg-body $tiddler=<<trpg-event>> $mode="block" $quest={{{ [<trpg-mark>questmark:key[]] }}}/></div>
+</div>
+</div>
+</$let>
+</$list>
+</div>
+</$let>

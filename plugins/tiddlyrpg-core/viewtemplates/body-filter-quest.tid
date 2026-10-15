@@ -1,0 +1,8 @@
+created: 20261015122743000
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/body-filter
+modified: 20261015122743000
+tags: $:/tags/ViewTemplateBodyFilter
+title: $:/plugins/tiddlyrpg-core/viewtemplates/body-filter-quest
+type: text/vnd.tiddlywiki
+
+[tag[Quest]then[$:/plugins/tiddlyrpg-core/templates/quest-body]] ~[!is[tiddler]questmarked[]then[$:/plugins/tiddlyrpg-core/templates/quest-body]]
