@@ -2,8 +2,7 @@
  * Views and the lock (modules/visibility.js, filters/visibility.js): the rule of trpg.visible in
  * every view, the default view, the views that can be chosen, campaign events through player
  * characters, the page control, the page class, the marker of a locked tiddler, the Player hub,
- * and every place that lists titles: hubs, search, tag pills, sidebar, relation list, graphs,
- * open items.
+ * and every place that lists titles: hubs, search, tag pills, sidebar, relation list, graphs.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -20,7 +19,7 @@ test.before(function() {
 		h.add(wiki, {title: "Ylva", tags: "Person", player: "Anna", text: "Played by Anna before."});
 		h.add(wiki, {title: "Ylvas Brief", tags: "Information Ylva Secret", text: "For Ylva."});
 		h.add(wiki, {title: "Geheimbund", tags: "Organisation Secret", location: "Town", text: "DM only."});
-		h.add(wiki, {title: "Bote", tags: "Person", location: "Town", bond: "Geheimbund", text: "A messenger. TBC\n\n@@.tc-tiddler-frame\nopen\n@@"});
+		h.add(wiki, {title: "Bote", tags: "Person", location: "Town", bond: "Geheimbund", text: "A messenger."});
 		h.add(wiki, {title: "Geheimbund Notiz", tags: "Event Geheimbund", text: "Mentions the order."});
 	});
 });
@@ -257,16 +256,6 @@ test.describe("places that list titles", function() {
 		}
 	});
 
-	test("open items: no locked tiddler", function() {
-		h.add(wiki, {title: "Geheimer Faden", tags: "Event Secret", text: "TBC\n\n@@.tc-tiddler-frame\nopen\n@@"});
-		try {
-			var open = inView("public", function() { return h.body(wiki, "TBC"); });
-			assert.ok(open.indexOf("Bote") !== -1 && open.indexOf("Geheimer Faden") === -1, open);
-		} finally {
-			wiki.deleteTiddler("Geheimer Faden");
-		}
-	});
-
 	test("graphs: no locked node", function() {
 		h.add(wiki, {title: "$:/graph/Views", type: "application/json", text: "{}",
 			template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[[Bote]] [[Geheimbund]] [[Town]]"});
@@ -292,7 +281,7 @@ test.describe("sweep", function() {
 	var WORD = "Qx7",
 		YEAR = "1399",
 		fixtures = [
-			{title: "Qx7 Akte", tags: "Person Secret", location: "Town", bond: "Baile", text: "Qx7 file. TBC\n\n@@.tc-tiddler-frame\nopen\n@@"},
+			{title: "Qx7 Akte", tags: "Person Secret", location: "Town", bond: "Baile", text: "Qx7 file."},
 			{title: "Qx7 Ort", tags: "Location Secret", location: "Town", text: "Qx7 house."},
 			{title: "Qx7 Fest", tags: "Event Secret", date: "1399-02-01", text: "At [[Baile]]."},
 			{title: "Sweep Bund", tags: "Organisation", location: "Baile [[Qx7 Ort]]", bond: "[[Qx7 Akte]]", text: "A league."},

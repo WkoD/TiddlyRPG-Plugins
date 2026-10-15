@@ -51,8 +51,13 @@ test.describe("de-DE", function() {
 		assert.equal(f("[[Foo/Campaign]trpgtitle[]]"), "Foo/Campaign");
 	});
 
-	test("trpgtitle TBC/Campaign", function() {
-		assert.equal(f("[[TBC/Campaign]trpgtitle[]]"), "TBC/Kampagne");
+	test("trpgtitle Notes/Campaign", function() {
+		h.add(wiki, {title: "Notes", text: "A parent."});
+		try {
+			assert.equal(f("[[Notes/Campaign]trpgtitle[]]"), "Notes/Kampagne");
+		} finally {
+			wiki.deleteTiddler("Notes");
+		}
 	});
 
 	test("tag pill translated", function() {

@@ -54,14 +54,15 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("index: six types in German order plus open items", function() {
+	test("index: six types in German order plus quests", function() {
 		var index = h.body(wiki, "Index"),
-			order = ["Gegenstände", "Götter", "Informationen", "Organisationen", "Orte", "Personen", "Offene Punkte"].map(function(s) { return index.indexOf(s); });
+			order = ["Gegenstände", "Götter", "Informationen", "Organisationen", "Orte", "Personen", "Quests"].map(function(s) { return index.indexOf(s); });
 		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), index);
+		assert.ok(index.indexOf("Offene Punkte") === -1, index);
 	});
 
 	// Pragmas must not leak as text (a lost backslash turns \define into visible text)
-	["Index", "Information", "Player", "Calendar", "Item", "Event", "TBC", "Campaign", "Location"].forEach(function(title) {
+	["Index", "Information", "Player", "Calendar", "Item", "Event", "Quest", "Campaign", "Location"].forEach(function(title) {
 		test("no pragma text in " + title, function() {
 			assert.doesNotMatch(h.body(wiki, title), /(^|\n)\s*(define|procedure|function|whitespace|import) /);
 		});
@@ -88,7 +89,7 @@ test.describe("de-DE", function() {
 		assert.ok(campaign.indexOf("Quests und Gerüchte") !== -1 && campaign.indexOf("Offene Aufgaben") === -1 && campaign.indexOf("Aktuelles Datum") === -1, campaign);
 	});
 
-	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "TBC", "Item", "Event", "Quest"].forEach(function(title) {
+	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "Item", "Event", "Quest"].forEach(function(title) {
 		test("no raw <<trpg. in " + title, function() {
 			var html = h.view(wiki, title);
 			assert.ok(html.indexOf("&lt;&lt;trpg.") === -1 && html.indexOf("<<trpg.") === -1);
@@ -103,7 +104,7 @@ test.describe("en-GB", function() {
 
 	test("en index", function() {
 		var index = h.body(wiki, "Index");
-		assert.ok(index.indexOf("Deities") !== -1 && index.indexOf("Open Items") !== -1, index);
+		assert.ok(index.indexOf("Deities") !== -1 && index.indexOf("Quests") !== -1 && index.indexOf("Open Items") === -1, index);
 	});
 
 	test("en hub heading uses the default template", function() {

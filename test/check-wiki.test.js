@@ -3,7 +3,7 @@
  * checks beyond dates: the config of the plugin types ruleset and setting, the tiddlyrpg-core
  * version a plugin needs, the reference coin of the currency, unknown macros and rules macros
  * not understood, the field link, the plugins of the packages in the wiki's node_modules and the
- * phases of a non-event.
+ * phases of a non-event, the hints on quest names.
  * The checks of dates and sections before and after the 1.x migration: migrate.test.js.
  */
 var test = require("node:test"),
@@ -185,6 +185,24 @@ test("a currency whose reference is none of its coins is an error", function() {
 		assert.match(result.out, /Own Coins\n\s+error\s+reference gp is no coin of the currency \(a, b\)/);
 	} finally {
 		["Own Coins.json", "Own Coins.json.meta", "$__config_tiddlyrpg_currency.tid"].forEach(function(file) {
+			fs.rmSync(path.join(dir, "tiddlers", file), {force: true});
+		});
+	}
+});
+
+test("quests: a quest tiddler without marker, names one letter apart", function() {
+	write("tiddlers/Labore.tid", "title: Labore\ntags: Event\ndate: 1351-07-02\n\n<<date>>\n\n<<quest \"Tyrias Labore finden\">>A.\n\n<<quest \"Tyrias labore finden!\">>B.\n\n<<quest \"Die Schamanin Eoria\">>C.\n\n<<quest \"Die Schamanin Tyria\">>D.\n\n<<quest \"Rettung von Biale\">>E.\n");
+	write("tiddlers/Rettung von Baile.tid", "title: Rettung von Baile\ntags: Quest\n\nPlanning.\n");
+	write("tiddlers/Leerer Quest.tid", "title: Leerer Quest\ntags: Quest\n\nPlanning.\n");
+	try {
+		var result = check();
+		assert.equal(result.status, 0, result.out);
+		assert.match(result.out, /Leerer Quest\n\s+hint\s+quest without a marker - mark it in an event: <<quest "Leerer Quest">>/);
+		assert.match(result.out, /Tyrias Labore finden\n\s+hint\s+similar to the rumour Tyrias labore finden! - one quest written two ways\?/);
+		assert.match(result.out, /Rettung von Baile\n\s+hint\s+quest without a marker.*\n\s+hint\s+similar to the rumour Rettung von Biale/);
+		assert.doesNotMatch(result.out, /Schamanin/);
+	} finally {
+		["Labore.tid", "Rettung von Baile.tid", "Leerer Quest.tid"].forEach(function(file) {
 			fs.rmSync(path.join(dir, "tiddlers", file), {force: true});
 		});
 	}

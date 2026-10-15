@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015180105000
+modified: 20261015200000000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -13,7 +13,6 @@ Calendar/InputHint: Datum als `JJJJ-MM-TT`. Festtage zwischen zwei Monaten zähl
 Calendar/Result: Ergebnis:
 Calendar/To: Bis:
 Calendar/WrittenOut: Ausgeschrieben:
-Campaign/OpenTasks: Offene Aufgaben
 Campaign/Quests: Quests und Gerüchte
 CampaignSetting/Hub/None: Keine Kampagnenwelt ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
 CampaignSetting/Hub/Setting: Die Namen der Kampagnenwelt und die Sprache, in der sie angezeigt werden. Welche: ControlPanel -> Einstellungen -> TiddlyRPG -> Kampagnenwelt Einstellungen.
@@ -179,7 +178,6 @@ Snippet/DateSection: Abschnitt mit Datum
 Source/Label: Quelle:
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden
 Spot/PlaceMissing: Ort „$place$“ gibt es nicht
-TBC/Other: Anderes
 Text/Check/UnknownMacro: Text prüfen: <<$name$>> ist kein bekanntes Makro
 Timeline/Expand: Lücke aufklappen
 Timeline/Gap: $n$ Jahre

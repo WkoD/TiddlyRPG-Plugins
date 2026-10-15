@@ -89,8 +89,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `views` - the rule of `trpg.visible` in every view (public, a player, the DM; active and
     former characters), the default view, the choices, campaign events through player
     characters, the page control, the page class, the marker of a secret, the `Player` hub, and
-    every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs,
-    open items), a secret presence; the sweep (see "Visibility - check with every change"; it
+    every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs), a
+    secret presence; the sweep (see "Visibility - check with every change"; it
     also renders ControlPanel -> License).
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
     `$:/status/IsReadOnly`)
@@ -261,7 +261,8 @@ the tiddler title:
   sections of a body, their kinds, locks and rendering), `spots.js` (see "Locations": spots and
   `<<spotlink>>` from the model of `sections.js`, plain names, the index of owners and
   references), `relations.js` (see "Relations": the relation types, their axes, what a type
-  shows and draws, labels), `anchor-jump.js`
+  shows and draws, labels), `quests.js` (see "Quests": the index of the markers, status,
+  links, mentions, the ways to a map), `anchor-jump.js`
   (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
   lock, campaign events), `markdown.js` (Markdown of a README as wikitext, see "Readme and
   license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`).
@@ -283,7 +284,7 @@ the tiddler title:
   map; scrolls at once if the tiddler already shows the mark.
   `sections.js`: `trpg-body` (the transclude widget with the parse tree prepared section by
   section; `$only`, `$omit`, `$name`, `$marker`), `trpg-section` (one short section, made by
-  `trpg-body`) and the block forms `date`, `spot`, `secret` - see "Sections".
+  `trpg-body`) and the block forms `date`, `spot`, `secret`, `quest` - see "Sections".
 - **Filters** (`filters/*`): `eventrows` (event table, the "List" tab: one row per point in time, an event in one title cell across its rows, the title jumps to its earliest section), `multitag`
   (input with at least one of the tags, grouped in tag order, no duplicates), `translate.js`
   (`trpgtranslate`, `trpgtitle`, `trpgtitlesearch`), `date.js` (`dateformat`, `dateadd`, `datediff`,
@@ -297,7 +298,10 @@ the tiddler title:
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
-  `relationsymmetric`, `relationtypes`, see "Relations"),
+  `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, see "Relations"),
+  `quests.js` (`questnames`, `questreal`, `queststatus`, `questmarks`, `questlast`,
+  `questplayers`, `questlinks`, `questmarked`, `questmentions`, `questevents`, `questlinkat`,
+  `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
   `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgunit`,
   `trpgdice`, `trpgdamage`, `trpgterm`, `trpgrulecheck`, see "Language system" -> "Rules
@@ -343,18 +347,22 @@ the tiddler title:
   one type scope filter for both tabs), `secret` (marker of a secret above the title: whom it is
   for), `player`
   (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
-  and `body-filter-sections` (cascade, see below).
+  and `body-filter-sections` (cascade, see below), `body-filter-quest` (a quest or rumour, see
+  "Quests").
 - **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `date-section`.
 - **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   heading of a dated section, location pills), `location` (path, spot pills, spots, map buttons; static
-  CSS, `type: text/css`), `sections` (the frames of the sections - a line on the left in the
+  CSS, `type: text/css`), `quest` (the frame of a marker in gold or silver, stripes for a
+  quest and a rumour together, the cards and history; wikitext for the silver of the palette),
+  `sections` (the frames of the sections - a line on the left in the
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
   and the frame of a locked tiddler outside the frame of its type; wikitext for the colours) and
   `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
   `Player`).
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
+  `templates/quest-body`, `templates/quest-card`, `templates/quest-list` (see "Quests"),
   `templates/title-translated`,
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
@@ -372,8 +380,8 @@ the tiddler title:
   `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
   `texts` (template texts).
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Currency, Ruleset, Information, Index, TBC,
-  TBC/Campaign; titles without prefix, tag `Index`; the item categories also tagged
+  Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Currency, Ruleset, Information, Index,
+  Quest; titles without prefix, tag `Index`; the item categories also tagged
   `$:/tags/tiddlyrpg/ItemKind`, see "Items"): type tags carry the `color` field from which graph nodes,
   tiddler borders and tag pills take their colour; `caption` is `<<trpg.title ...>>`. The hub
   `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or frame
@@ -483,7 +491,7 @@ Of each type one is active, chosen in
   `[<type>addprefix[Plural/]trpgtranslate[]]`), in wikitext the functions as macros
   (`<<trpg.t Event/Year>>` - plain text, wrapped in `<p>` in block mode).
 - Display names of titles: `Title/<title>`; a title `<parent>/<leaf>` whose parent exists
-  shows the translated leaf (`TBC/Campaign` -> "TBC/Kampagne"). Used by the title
+  shows the translated leaf (`Notes/Campaign` -> "Notes/Kampagne"). Used by the title
   cascade (`config/title-translated`), the tag pill override, the search and the hub lists.
 - **Texts that need refreshing go through filtered attributes, not JS macros.** A JS macro call
   only re-renders when its parameters change; a filtered attribute is recomputed on every
@@ -829,10 +837,10 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
 The rules of the sections of a body live **once** in `modules/sections.js`; meaning and
 examples: `README.md` ("Sections in the text", "Secrets in the text").
 
-- Kinds: `date`, `spot`, `secret`, each with a short form (`<<kind>>`, a transclude node with a
+- Kinds: `date`, `spot`, `secret`, `quest`, each with a short form (`<<kind>>`, a transclude node with a
   position) and a block form (`<$kind>`, a JS widget of that name in `widgets/sections.js` - no
   core or plugin widget has these names; a wikitext `\widget` would need a dot). `register()`
-  adds a kind (e.g. a quest): found, locked, nested and rendered without code of its own; the
+  adds a kind: found, locked, nested and rendered without code of its own; the
   block widget is one `makeBlock()` line.
 - One walk over the parse tree per tiddler (`read()`, cached) gives the records (kind, form,
   key = start offset of marker or block, parent, locks, text range), the links and `<<spotlink>>`
@@ -860,6 +868,35 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
 - Not seen: markers that only exist when rendering (transclusions, `$list`, macros that write
   `<<date>>`) - the walk reads the text of the tiddler itself.
 
+## Quests
+
+Meaning and examples: `README.md` ("Quests"). The rules live **once** in `modules/quests.js`;
+the marker is a kind of section (`register("quest", ...)` in `modules/sections.js`).
+
+- Marker: kind `quest` with `nest` - its short form at the start of a paragraph or list item
+  marks that block only and splits nothing (`group()` skips it); later in a block it holds the
+  rest of it (a tinted span). Only in a dated section of an event; the problems (`check` of the
+  kind, `sectioncheck`; the wrong tiddler type is the general hint): no name, no dated section,
+  a name that is a tiddler without tag `Quest`, an unknown status, a status by position. A quest
+  marker directly inside one of another name links the two (`parent` of the mark); the same
+  name inside itself is the usual hint.
+- Index (`index()`, global cache, the same for every view): the marks in date order with their
+  event, key, dated section, status, parent and links (`[[...]]`, `<<spotlink>>` with their
+  innermost section). Everything else is computed when asked, for a view: status, newest
+  marker, order, links, mentions, `about()` (open quests whose markers link a title), `routes()`
+  and `pins()` (what the newest marker leads to on a map: a location up its path, a spot, a node
+  of the map, the field `location` of what it links - nothing else of its dated section).
+- Quest or rumour: a tiddler tagged `Quest` (`isQuest()`); a quest tiddler the view does not see
+  hides its markers (`visible` of the kind). Classes `trpg-quest-real`/`trpg-quest-rumour` on the
+  section, `trpg-rumour-tiddler` on the page of a rumour (`config/class-rumour`).
+- Output: `viewtemplates/body-filter-quest` -> `templates/quest-body` (planning, buttons of a
+  rumour - `tm-relink-tiddler` -, linked quests, history through `trpg-body` with `$only`/
+  `$marker`); the hub `Quest` -> `templates/quest-list` -> `templates/quest-card`; relations,
+  quest graph and maps (see "Relations", "Locations"). Relink: `macros/quest/name`,
+  `attributes/$quest/name`.
+- `scripts/check-wiki.js`: the problems of the markers, a quest tiddler without a marker, two
+  names one step apart (`distance()`, case, spaces and punctuation aside).
+
 ## Views
 
 The rules of who sees what live **once** in `modules/visibility.js`; meaning and examples:
@@ -874,7 +911,7 @@ The rules of who sees what live **once** in `modules/visibility.js`; meaning and
   it. A player character tagged without `Secret` means "took part" and makes an event a
   campaign event (`visibility.campaign`, used by `eventrows` and the timeline).
 - Every place that lists titles filters with `:filter[trpg.visible[]]` (hubs, relation list,
-  ego graph through `$whitelist` of `$nodes.neighbors`, `trpg-graph`, `trpg-map`, open items,
+  ego graph through `$whitelist` of `$nodes.neighbors`, `trpg-graph`, `trpg-map`,
   search, event lists). A new list does the same. JS widgets that depend on the view refresh on
   `visibility.watched`. What comes from the link index of the core (`links[]`, `backlinks[]`)
   knows no lock in the text: use `visiblelinks` and `sectionbacklinks` instead (the edge type

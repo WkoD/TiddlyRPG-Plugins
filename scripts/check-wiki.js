@@ -35,7 +35,8 @@
  *            heading; text before the first placeholder; an event without date; a phase
  *            of a non-event without an end before a later one (dates.openPhases); ".." as
  *            start of a non-event; images or maps at a spot joined to a tiddler (they show in
- *            that tiddler)
+ *            that tiddler); a quest tiddler without a marker; two quest or rumour names that
+ *            differ only a little (case, spaces and punctuation aside, one letter or two swapped)
  *
  * Exit code 1 if there is an error.
  */
@@ -269,6 +270,51 @@ $tw.boot.boot(function() {
 			}
 		}
 
+	});
+	// Quests (modules/quests.js), over all markers whatever the view: a quest tiddler without a
+	// marker has no history; two names that differ only a little are likely one quest written
+	// two ways (a typo in a marker makes a new rumour)
+	var quests = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/quests.js"),
+		questNames = quests.index(wiki).names.slice();
+	$tw.utils.each(wiki.getTiddlersWithTag("Quest"), function(name) {
+		if(questNames.indexOf(name) === -1) {
+			add(name, "hint", "quest without a marker - mark it in an event: <<quest \"" + name + "\">>");
+			questNames.push(name);
+		}
+	});
+	questNames.sort();
+	var plain = function(name) {
+		return name.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+	};
+	// Edit distance of two strings: insert, delete or replace one character, or swap two
+	// neighbours ("Labore"/"Lbaore") - one step each
+	var distance = function(a, b) {
+		var d = [];
+		for(var i = 0; i <= a.length; i++) {
+			d.push([i]);
+			for(var j = 1; j <= b.length; j++) {
+				d[i].push(i ? 0 : j);
+			}
+		}
+		for(i = 1; i <= a.length; i++) {
+			for(j = 1; j <= b.length; j++) {
+				d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+				if(i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+					d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+				}
+			}
+		}
+		return d[a.length][b.length];
+	};
+	// One step apart, case, spaces and punctuation aside ("Die Schamanin Eoria" and "Die
+	// Schamanin Tyria" are two steps: two quests)
+	questNames.forEach(function(name, i) {
+		questNames.slice(i + 1).forEach(function(other) {
+			var a = plain(name), b = plain(other);
+			if(distance(a, b) <= 1) {
+				add(name, "hint", "similar to the " + (quests.isQuest(wiki, other) ? "quest " : "rumour ") + other + " - one quest written two ways?");
+			}
+		});
 	});
 	var titles = Object.keys(findings).sort();
 	console.log("Dates checked: " + path.resolve(wikiDir) + (cal ? " (calendar " + cal.id + ")" : " (no calendar)"));

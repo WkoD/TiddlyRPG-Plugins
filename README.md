@@ -213,9 +213,10 @@ tiddler shows wherever it is transcluded (`scripts/check-wiki.js` warns about bo
 
 ## Sections in the text
 
-Dated sections (`<<date>>`), spots (`<<spot>>`) and locks (`<<secret>>`) are kinds of sections
-with the same rules. Each has a short form, which runs to the next marker on the same level, and
-a block form with an end of its own:
+Dated sections (`<<date>>`), spots (`<<spot>>`), locks (`<<secret>>`) and quest markers
+(`<<quest>>`, see "Quests") are kinds of sections with the same rules. Each has a short form,
+which runs to the next marker on the same level (a quest marker: to the end of its paragraph),
+and a block form with an end of its own:
 
 ```
 <$date section="3" label="The ritual">
@@ -231,11 +232,67 @@ Text of the section.
   a `$list` they cannot end - a hint asks for the block form there.
 - Dates count on over both forms in document order: `<<date>>`, `<$date>`, `<<date>>` are 1, 2,
   3.
-- A date counts only in an event, a spot only in a location.
+- A date counts only in an event, a spot only in a location, a quest marker only in a dated
+  section of an event.
 - A blank line after the opening tag of a block makes its text paragraphs; without it the text
   stays inline (TiddlyWiki).
 
 The hints stand below the title of the tiddler, not in the published copy.
+
+## Quests
+
+A quest is a name. The DM marks the places in events that belong to it - the marked text *is*
+the story, nothing is written twice, and every marker has the date of the section it stands in:
+
+```
+<<date>>
+The party reached the laboratory.
+
+<<quest "Find Tyria's laboratories">>They found hints of a second one near [[Kattegat]].
+
+<<quest "The dark tower" status:"complete">>Behind the waterfall lay the tower.
+
+* <<quest "Silmeria in the ice crystal">>A list item counts like a paragraph.
+
+<$quest name="Stop Azurna's ritual">
+
+Several paragraphs ...
+
+</$quest>
+```
+
+- **Short form** at the start of a paragraph or list item: it marks that paragraph or item, and
+  ends no other section - one dated section can hold markers of several quests, with ordinary
+  text in between. Later in a paragraph it marks the rest of it, tinted. The **block form**
+  marks what it encloses: several paragraphs (blank line after the opening tag), or part of a
+  line.
+- **Status** only by name: `status:"complete"`, `status:"failed"`, `status:"open"` (the same as
+  none). The status of a quest is the status of its newest marker the view sees; a newer marker
+  without status opens it again.
+- **Quest or rumour:** a tiddler of that name tagged `Quest` makes it a quest - its body is the
+  text for the planning. Without a tiddler the name is a rumour, a collection of hints. A quest
+  for a few characters only gets `Secret` and their tags like any tiddler; a rumour has no
+  tiddler, so it is locked in the event (`<<secret>>`, `<$secret>`).
+- **Linked quests:** a marker directly inside a marker of another quest links the two, both ways
+  (`<<quest "A">><<quest "B">>Text`: the paragraph belongs to both). There is no parent and no
+  child; with three layers only the neighbours are linked.
+- **In the event** a marker stands framed: a line in gold (a quest) or silver (a rumour), a
+  light tint and a head with its name and, where it sets one, the status. A paragraph of a quest
+  and a rumour together is striped in both colours.
+- **The hub `Quest`** (in the hub `Campaign` as well) lists quests and rumours apart, as
+  cards, newest marker first: the date and who takes part, the start of the newest marker, its
+  event. Switches
+  "open", "complete", "failed" - each only when there is something with that status, "open" on
+  at first; complete and failed cards are grey.
+- **The page of a quest** shows the planning, the quests linked with it and the history: every
+  marker, newest first, with its date, its event (a jump to the section) and its text. A rumour
+  opens the same page without a tiddler; in the editable wiki it offers "Create quest" and
+  "Rename" (rewrites every marker; a name that exists already merges both, with a warning).
+  Renaming a quest tiddler rewrites its markers too (Relink).
+- Quests also show in the relations of what their markers link, in a graph of their own and on
+  the maps of locations (see "Relations" and "Locations").
+- `scripts/check-wiki.js` hints at a quest tiddler without a marker and at two names one letter
+  apart (one quest written two ways).
 
 ## Relations
 
@@ -491,9 +548,9 @@ event the span of its whole field, every other type its years of existence. An e
 lists there the locations linked before its first placeholder. The timeline shows each section, a
 span as a bar; the event table one row per point in time (a span: its start and end), with an
 event in one title cell across all its rows as long as no other event lies in between, and the
-caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`, the
-"open items" snippet) are not counted as locations. The block form `<$date>…</$date>` (with
-`section` and `label`) is a section with an end of its own; see "Sections in the text".
+caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`) are not counted as
+locations. The block form `<$date>…</$date>` (with `section` and `label`) is a section with an
+end of its own; see "Sections in the text".
 
 **Jumping to a section.** A click on an event in the table, or on a section line of the
 selected card in the timeline, opens the event at that section. A section at the very start of
