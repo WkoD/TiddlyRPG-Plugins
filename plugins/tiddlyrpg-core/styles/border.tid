@@ -1,5 +1,5 @@
 created: 20200814090319235
-modified: 20261015161511000
+modified: 20261015184552000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/border
 type: text/vnd.tiddlywiki
@@ -11,7 +11,8 @@ type: text/vnd.tiddlywiki
      frame takes a light tint of that colour - 9 % of it on the background of the palette, like
      the inside of a pill, only lighter -; a deceased or destroyed tiddler (class trpg-dead) is
      striped at 45° instead, 96px wide: grey and that colour, both at 9 % (its pills alike,
-     $:/core/macros/tag). A dead tiddler of a type without a colour: the grey of styles/dead. -->
+     tag-pill-stripes in functions). A dead tiddler of a type without a colour: the grey of
+     styles/dead. -->
 <$list filter="[all[shadows]] :filter[tag[Index]has[color]] +[sort[]]">
 .tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/> {
 border: 2px solid <$text text={{!!color}}/>;

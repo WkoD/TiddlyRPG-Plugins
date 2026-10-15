@@ -251,8 +251,10 @@ the tiddler title:
   be read, not in the published copy), `spot` (heading of a spot with its jump mark),
   `spotlink` (reference to a spot, with `trpg.spotjump` and the hint `trpg.spotcheck`),
   `secret` (a lock, draws nothing itself, see "Sections"), `image` (images in a text or of a
-  tiddler, with `trpg.images` and `trpg.image`, see "Locations") and `trpg.locationpath` (where
-  a tiddler is, below its title, see "Locations").
+  tiddler, with `trpg.images` and `trpg.image`, see "Locations"), `trpg.locationpath` (where
+  a tiddler is, below its title, see "Locations") and the tag pill macros `tag-pill-styles`
+  (with `trpg.pillcolour`, `trpg.pillbase`, `trpg.pilltext`), `tag-pill-stripes` and
+  `tag-pill-inner` (see "Core overrides").
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
   `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
@@ -492,7 +494,8 @@ Of each type one is active, chosen in
   (`<<trpg.t Event/Year>>` - plain text, wrapped in `<p>` in block mode).
 - Display names of titles: `Title/<title>`; a title `<parent>/<leaf>` whose parent exists
   shows the translated leaf (`Notes/Campaign` -> "Notes/Kampagne"). Used by the title
-  cascade (`config/title-translated`), the tag pill override, the search and the hub lists.
+  cascade (`config/title-translated`), the tag pills (`tag-pill-inner`, see "Core overrides"),
+  the search and the hub lists.
 - **Texts that need refreshing go through filtered attributes, not JS macros.** A JS macro call
   only re-renders when its parameters change; a filtered attribute is recomputed on every
   refresh. That is why the date output is filter operators plus procedures
@@ -923,7 +926,8 @@ The rules of who sees what live **once** in `modules/visibility.js`; meaning and
   visibility config (`config/sidebar-tabs`), `ui/sidebar` shows it in the view of the DM and
   otherwise only "Open" and `ui/sidebar-recent`. Check both copies against
   `$:/core/ui/TagTemplate` and `$:/core/ui/SideBarSegments/tabs` when raising the engine
-  version.
+  version. The pill itself: `tag-pill-inner` and `tag-pill-styles` in `functions` (see "Core
+  overrides").
 - `filters/location.js` compares the audience of a location and its parent
   (`visibility.audience`) for the hint `LockedParent`.
 
@@ -1038,7 +1042,6 @@ Current list:
 | File | Overrides | Plugin | Why no hook is enough |
 |---|---|---|---|
 | `tiddlyrpg-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `tiddlyrpg-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
-| `tiddlyrpg-core/$__core_macros_tag.tid` | `$:/core/macros/tag` | `tiddlyrpg-core` | The tag pill text is a hard-wired `$view field="title"` in `tag-pill-inner`; no cascade covers it. Changes: `<$text text={{{ [<__tag__>trpgtitle[]] }}}/>` for the translated display name; the colours of the pill (`tag-pill-styles`, the variables of `tag-pill-inner`): an outline in the colour of the tag (inset shadow) around a light inside (18 % of it on the background of the palette), the text in the foreground colour of the palette instead of `contrastcolour`; a dead tag (`trpg.dead`) striped at 45° inside, grey and its colour (`tag-pill-stripes`, variable `pillStripes`). |
 | `tiddlyrpg-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `tiddlyrpg-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`trpgtitlesearch`) and keeps only what the view sees (`trpg.visible`), the second searches with `trpgsearch` (only the text the view sees), hits use `search/item` (translated name). |
 | `tiddlyrpg-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `tiddlyrpg-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes (field and function branch alike): the targets come from `relationtargets` (`modules/relations.js`: `tiddlyrpg-exclude` and included types; function filters run there too), with the types of the call passed as `trpgTypes`; an outer `$properties $for=edges` with the style of the axis of the type; an inner `$properties $for=edges label=...` from `relationlabel` (`Edge/<type>`); for a type whose config has `tiddlyrpg-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the type - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge of a symmetric type has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 
@@ -1048,15 +1051,48 @@ Current list:
 `$__core_<path>_<name>.tid` (dots/slashes in the title -> underscores) - signals "this file
 overrides core" at first sight, regardless of the plugin folder.
 
+**Core macros defined again instead of overridden - the tag pill:** the text of a tag pill is a
+hard-wired `$view field="title"` in `tag-pill-inner` of `$:/core/macros/tag`, no cascade covers
+it. `functions` (`$:/tags/Global`) defines `tag-pill-inner` and `tag-pill-styles` again; the
+core tiddler stays untouched, `tag-pill-body`, `tag-pill` and `tag` are the core ones. This works
+because every place that renders the core macros (page, modals, notifications, new windows,
+static exports) imports through `$:/core/config/GlobalImportFilter` - `$:/tags/Macro` before
+`$:/tags/Global`, and of two definitions the later one wins - and `tag-pill-body` looks up
+`tag-pill-inner` only when it runs. A nested `\import` of `$:/tags/Macro` closer to a pill would
+bring the core macros back there; none exists (core 5.4.1, tw5-graph, relink, the wikis).
+Changes against the core:
+
+- `tag-pill-inner` (a copy of the core macro): the translated name
+  (`<$text text={{{ [<__tag__>trpgtitle[]] }}}/>`); the colours as variables `pillColour` (the
+  colour of the tag, else `tag-background` of the palette), `pillBase` (background of the
+  palette), `pillText` (its foreground) instead of `contrastcolour`; for a dead tag
+  (`trpg.dead`) the variable `pillStripes` from `tag-pill-stripes`.
+- `tag-pill-styles` (a function): an outline in the colour of the tag (inset shadow) around a
+  light inside (18 % of it on the background), the text in the foreground colour, plus
+  `pillStripes` (striped at 45° inside, grey and its colour). The tag picker
+  (`$:/core/ui/TagPickerTagTemplate`) calls `<<tag-pill-styles>>` too, with variables of its own
+  (`backgroundColor`, `colourA`, `colourB`, `fallbackTarget`); `trpg.pillcolour`,
+  `trpg.pillbase` and `trpg.pilltext` take the variables of `tag-pill-inner` first, then those
+  of the picker, so its pills look alike.
+- Known limits: the picker stripes no dead tag (it sets no `pillStripes`) and shows `Secret` in
+  `tag-background` (the colour of the lock in `styles/sections` needs `.tc-tag-list-item`); the
+  tags of the edit template (`$:/core/ui/EditTemplate/tags`, styles of its own) keep the core
+  look; a palette whose `tag-background` is a reference (`<<colour ...>>`, e.g. SolarFlare)
+  gives a tag without a colour no valid colour.
+
 **Procedure on every raise of the `tiddlywiki` engine version** (in `package.json` here, later
 also in the wikis when they raise their own `tiddlywiki` version):
 
 1. `npm install` (fetch the new engine).
 2. For every row of the table above: diff the overriding file against the new original in
-   `node_modules/tiddlywiki/core/...` (`ui/PageTemplate/story.tid`, `wiki/macros/tag.tid`,
+   `node_modules/tiddlywiki/core/...` (`ui/PageTemplate/story.tid`,
    `ui/DefaultSearchResultList.tid`). Also compare `templates/tag.tid` with `ui/TagTemplate.tid`,
    `templates/tags.tid` with `ui/ViewTemplate/tags/default.tid` and `ui/sidebar.tid` with
-   `ui/SideBarSegments/tabs.tid` (copies, no overrides), and
+   `ui/SideBarSegments/tabs.tid` (copies, no overrides), `tag-pill-inner` in `functions.tid`
+   with `wiki/macros/tag.tid` (the tag pill, see above: `tag-pill-body` still calls
+   `tag-pill-inner`, `ui/TagPickerTagTemplate.tid` still calls `tag-pill-styles` with
+   `backgroundColor`, `colourA`, `colourB` and `fallbackTarget`, no core template imports
+   `$:/tags/Macro` on its own), and
    compare the button list in `styles/readonly.tid` with
    `node_modules/tiddlywiki/plugins/tiddlywiki/tiddlyweb/readonly-styles.tid`. Compare
    `startup/plugin-types.js` with `core/modules/pluginswitcher.js` (the subclass replaces

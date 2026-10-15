@@ -1,5 +1,5 @@
 created: 20261015144343000
-modified: 20261015155519000
+modified: 20261015184552000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/sections
 type: text/vnd.tiddlywiki
@@ -58,7 +58,7 @@ div.trpg-section-date > hr.trpg-date-rule:first-child {
 }
 
 /* The tag Secret: its pill in the colour of the lock, outlined and light inside like every pill
-   ($:/core/macros/tag) */
+   (tag-pill-styles in functions) */
 .tc-tag-list-item[data-tag-title="Secret"] .tc-tag-label {
 	background-color: color-mix(in srgb, <<colour alert-highlight>> 18%, <<colour background>>) !important;
 	box-shadow: inset 0 0 0 1px <<colour alert-highlight>> !important;

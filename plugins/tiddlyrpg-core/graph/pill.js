@@ -3,19 +3,19 @@ title: $:/plugins/tiddlyrpg-core/graph/pill.js
 type: application/javascript
 module-type: vis-property
 created: 20261015160005000
-modified: 20261015162440000
+modified: 20261015184552000
 
 Node property trpgPill (tw5-vis-network, like its own properties/color.js): a node drawn like a
-tag pill ($:/core/macros/tag) - its colour as the border, inside that colour at 18 % on the
-background of the graph, the label in the font colour of the graph. Set by the graph templates
-(graph/templates/trpg-ego, trpg-graph, trpg-map) for every node; the pins of a map
+tag pill (tag-pill-styles in functions) - its colour as the border, inside that colour at 18 %
+on the background of the graph, the label in the font colour of the graph. Set by the graph
+templates (graph/templates/trpg-ego, trpg-graph, trpg-map) for every node; the pins of a map
 (graph/map-pin.js) draw the same from it. A node with a border colour of its own or without a
 colour of its own stays as it is.
 
 Node property trpgDead="yes" (the templates set it for trpg.dead): the node is striped at 45°
-inside instead, grey and its colour, both at 18 % (as its tag pill, $:/core/macros/tag) - a box
-drawn by a ctxRenderer of its own, since a box of vis-network fills with one colour only; the pin
-of a map stripes its pill the same way (graph/map-pin.js, stripes()).
+inside instead, grey and its colour, both at 18 % (as its tag pill, tag-pill-stripes in
+functions) - a box drawn by a ctxRenderer of its own, since a box of vis-network fills with one
+colour only; the pin of a map stripes its pill the same way (graph/map-pin.js, stripes()).
 
 The graph properties trpgPillBase and trpgPillText fetch the background and the font colour from
 the palette (graph-background, graph-font-color).

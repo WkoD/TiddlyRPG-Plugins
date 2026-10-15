@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261015171754000
+modified: 20261015184552000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -383,4 +383,53 @@ type: text/vnd.tiddlywiki
 <$list filter="[<currentTiddler>locationcheck[]] :filter[[yes]!match{$:/status/IsReadOnly}]" variable="trpg-key">
 <div class="trpg-date-invalid"><$text text={{{ [<trpg-key>trpgtranslate[]] }}}/></div>
 </$list>
+\end
+
+<!-- Tag pills: tag-pill-styles and tag-pill-inner of $:/core/macros/tag, defined again here. The
+     core macros tag-pill-body, tag-pill and tag stay the core ones; every place that renders
+     them (page, modals, static exports) imports $:/tags/Macro before $:/tags/Global, and of two
+     definitions the later one wins, so these replace the core ones without overriding the core
+     tiddler. tag-pill-inner is a copy of the core macro (see "Core overrides" in CLAUDE.md) with
+     the translated name (trpgtitle) and the colours below.
+     A pill is drawn as an outline in the colour of its tag (a 1px inset shadow, so it keeps the
+     size of the core pill) around a light inside - that colour at 18 % on the background of the
+     palette - with the text in the foreground colour of the palette, for readability in light
+     and dark palettes alike. A tag without a colour takes tag-background of the palette. A tag
+     that is deceased or destroyed (trpg.dead) is striped at 45° inside - grey and its colour,
+     both at 18 % -, like its tiddler (styles/border).
+     tag-pill-styles is also called by the tag picker ($:/core/ui/TagPickerTagTemplate) with the
+     variables of the picker (backgroundColor, colourA, colourB, fallbackTarget), so its colours
+     come from the variables of tag-pill-inner first, then from those of the picker. The picker
+     sets no pillStripes: a dead tag is not striped there. -->
+\function trpg.pillcolour() [<pillColour>!is[blank]] ~[<backgroundColor>!is[blank]] ~[<fallbackTarget>]
+\function trpg.pillbase() [<pillBase>!is[blank]] ~[<colourB>]
+\function trpg.pilltext() [<pillText>!is[blank]] ~[<colourA>]
+\function tag-pill-styles() [[background-color:color-mix(in srgb, $1$ 18%, $2$);box-shadow:inset 0 0 0 1px $1$;fill:$3$;color:$3$;$4$]substitute<trpg.pillcolour>,<trpg.pillbase>,<trpg.pilltext>,<pillStripes>]
+
+\define tag-pill-stripes()
+background-image:repeating-linear-gradient(45deg, color-mix(in srgb, $(pillText)$ 18%, $(pillBase)$) 0 24px, color-mix(in srgb, $(pillColour)$ 18%, $(pillBase)$) 24px 48px);
+\end
+
+<!-- This has no whitespace trim to avoid modifying $actions$ -->
+\define tag-pill-inner(tag,icon,colour,fallbackTarget,colourA,colourB,element-tag,element-attributes,actions)
+\whitespace trim
+<$let
+	pillColour={{{ [<__colour__>!is[blank]] ~[<__fallbackTarget__>] }}}
+	pillBase=<<__colourB__>>
+	pillText=<<__colourA__>>
+>
+<$set name="pillStripes" filter="[<__tag__>trpg.dead[]]" value=<<tag-pill-stripes>> emptyValue="">
+<$element-tag$
+	$element-attributes$
+	class="tc-tag-label tc-btn-invisible"
+	style=<<tag-pill-styles>>
+>
+	<<__actions__>>
+	<$transclude tiddler=<<__icon__>>/>
+	<span class={{{ [<__tag__>is[missing]then[tc-tag-missing]else[tc-tag-exists]] }}}>
+		<$text text={{{ [<__tag__>trpgtitle[]] }}}/>
+	</span>
+</$element-tag$>
+</$set>
+</$let>
 \end
