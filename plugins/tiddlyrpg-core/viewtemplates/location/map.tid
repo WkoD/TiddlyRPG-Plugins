@@ -1,33 +1,31 @@
 created: 20261006064449000
-modified: 20261014180236000
+modified: 20261015171754000
 title: $:/plugins/tiddlyrpg-core/viewtemplates/location/map
 type: text/vnd.tiddlywiki
 
 <!-- The first map of a location (viewtemplates/location): the map as a graph (graph/map,
-     template graph/templates/trpg-map) with its buttons - over the first map image (field map)
-     if there is one, otherwise on an empty canvas. The spots follow below the maps
-     (viewtemplates/location). Buttons: "Fit map" (message trpg-map-fit through a messagerelay
-     into the graph), "Hide nodes"/"Show nodes" ($:/state/tiddlyrpg-core/map-nodes/<title>), "Edit positions"
-     ($:/state/tiddlyrpg-core/map-edit/<title>; not in the published copy, off while the nodes are
-     hidden). The states are temporary and not saved with the location. -->
+     template graph/templates/trpg-map) - over the first map image (field map) if there is one,
+     otherwise on an empty canvas. The spots follow below the maps (viewtemplates/location).
+     First row: the switches by kind (procedure trpg.kindswitches, functions.tid) of what the map
+     shows - its places and spots, the open quests that lead there (trpg.mapquests); all on at
+     first; state $:/state/tiddlyrpg-core/map-filter/<title>. Second row: "Fit map" (message
+     trpg-map-fit through a messagerelay into the graph), "Edit positions"
+     ($:/state/tiddlyrpg-core/map-edit/<title>; not in the published copy). The states are
+     temporary and not saved with the location. -->
 \whitespace trim
+\function trpg.mapkinds(loc) [<loc>sublocations:all[location]] [<loc>spottargets[]] :filter[trpg.visible[]] +[relationkind[]] [<loc>spots[]limit[1]then[location]] [trpg.mapquests<loc>limit[1]then[quest]]
+
 <$let trpg-relay=<<qualify "trpg-map-relay">>
-	trpg-nodes-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-nodes/]] }}}
 	trpg-edit-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-edit/]] }}}
+	trpg-kinds={{{ [trpg.mapkinds<currentTiddler>format:titlelist[]join[ ]] }}}
 	currentNode=<<currentTiddler>>>
+<$transclude $variable="trpg.kindswitches" kinds=<<trpg-kinds>> state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-filter/]] }}}/>
 <div class="trpg-map-buttons">
 <$messagerelay to=<<trpg-relay>>>
 <$button class="tc-btn-invisible trpg-map-button" message="trpg-map-fit"><$text text={{{ [[Map/Fit]trpgtranslate[]] }}}/></$button>
 </$messagerelay>
-<%if [<trpg-nodes-state>get[text]match[hide]] %>
-<$button class="tc-btn-invisible trpg-map-button"><$action-deletetiddler $tiddler=<<trpg-nodes-state>>/><$text text={{{ [[Map/ShowNodes]trpgtranslate[]] }}}/></$button>
-<%else%>
-<$button class="tc-btn-invisible trpg-map-button"><$action-setfield $tiddler=<<trpg-nodes-state>> text="hide"/><$action-deletetiddler $tiddler=<<trpg-edit-state>>/><$text text={{{ [[Map/HideNodes]trpgtranslate[]] }}}/></$button>
-<%endif%>
 <%if [{$:/status/IsReadOnly}!match[yes]] %>
-<%if [<trpg-nodes-state>get[text]match[hide]] %>
-<span class="trpg-map-button trpg-map-button-off"><$text text={{{ [[Map/Edit]trpgtranslate[]] }}}/></span>
-<%elseif [<trpg-edit-state>get[text]match[yes]] %>
+<%if [<trpg-edit-state>get[text]match[yes]] %>
 <$button class="tc-btn-invisible trpg-map-button trpg-map-button-on"><$action-deletetiddler $tiddler=<<trpg-edit-state>>/><$text text={{{ [[Map/EditDone]trpgtranslate[]] }}}/></$button>
 <%else%>
 <$button class="tc-btn-invisible trpg-map-button"><$action-setfield $tiddler=<<trpg-edit-state>> text="yes"/><$text text={{{ [[Map/Edit]trpgtranslate[]] }}}/></$button>

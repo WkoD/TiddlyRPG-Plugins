@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261015161851000
+modified: 20261015171754000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -42,12 +42,18 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
      a pill below it - filled for a tiddler, white and dashed for a spot without a tiddler of its
      own. A double click on such a spot scrolls to its text below the map, on any other node it
      opens the tiddler; hovering shows the text. No edges: where a place lies, the map shows.
-     States per location: $:/state/tiddlyrpg-core/map-nodes/<title> = hide (only the image),
-     $:/state/tiddlyrpg-core/map-edit/<title> = yes (nodes can be moved; dropping one saves its
-     position - never in the published copy). -->
+     Quests: the open quests and rumours whose newest marker leads to this map
+     (trpg.mapquests, questpins) as pills in gold or silver, with an edge to each node they lead
+     to; one that leads only to the location as a whole stands below the map (a grid slot, or
+     its saved position). Hovering shows what the newest marker holds, a double click opens the
+     quest or rumour.
+     Only the kinds switched on above the map (trpg.kindshown, state
+     $:/state/tiddlyrpg-core/map-filter/<title>; a spot without a tiddler counts as a location).
+     $:/state/tiddlyrpg-core/map-edit/<title> = yes: nodes can be moved; dropping one saves its
+     position - never in the published copy. -->
 
 <$let trpg-loc=<<currentNode>>
-	trpg-hidden={{{ [<trpg-loc>addprefix[$:/state/tiddlyrpg-core/map-nodes/]get[text]match[hide]] }}}
+	trpg-state={{{ [<currentNode>addprefix[$:/state/tiddlyrpg-core/map-filter/]] }}}
 	trpg-edit={{{ [<trpg-loc>addprefix[$:/state/tiddlyrpg-core/map-edit/]get[text]match[yes]] :filter[{$:/status/IsReadOnly}!match[yes]] }}}
 	trpg-places={{{ [<trpg-loc>sublocations:all[location]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
 <$graph>
@@ -55,13 +61,15 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 <$properties $for=graph trpgMapImage={{{ [<trpg-loc>maptabs[]first[]jsonget[path]encodeuri[]] }}} trpgMapFit={{{ [<trpg-loc>has[map]then[image]else[nodes]] }}} />
 <!-- tw5-graph hands a node event to every enclosing $properties as well: open only real
      tiddlers, not the dots of spots (their own action jumps to their text) -->
-<$properties $for=nodes actions="<$list filter='[<nodeTiddler>is[tiddler]] [<nodeTiddler>is[shadow]] +[first[]]' variable='trpg-open'><$action-navigate $to=<<trpg-open>>/></$list>">
+<$properties $for=nodes actions="<$list filter='[<nodeTiddler>is[tiddler]] [<nodeTiddler>is[shadow]] [<nodeTiddler>questmarked[]] +[first[]]' variable='trpg-open'><$action-navigate $to=<<trpg-open>>/></$list>">
 <$properties.popup $enabled="yes">
 <$fill $name="tooltip">
 <%if [<nodeTiddler>prefix<trpg-loc>removeprefix<trpg-loc>prefix[#]] %>
 <$let trpg-name={{{ [<nodeTiddler>removeprefix<trpg-loc>removeprefix[#]] }}} trpg-spot-media="no">
 <$trpg-body $tiddler=<<trpg-loc>> $mode="block" $only="spot" $name=<<trpg-name>> $marker="no"/>
 </$let>
+<%elseif [<nodeTiddler>questmarked[]] %>
+<$trpg-body $tiddler={{{ [<nodeTiddler>questlast[]questmark:event[]] }}} $mode="block" $quest={{{ [<nodeTiddler>questlast[]questmark:key[]] }}}/>
 <%else%>
 <$transclude $tiddler=<<nodeTiddler>> $mode="block"/>
 <%endif%>
@@ -78,21 +86,20 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
 
-<%if [<trpg-hidden>is[blank]] %>
-
 <!-- fixed: the locations lying in it, the spots -->
 <$properties fixed={{{ [<trpg-edit>match[yes]then[no]else[yes]] }}} free={{{ [<trpg-edit>match[yes]then<trpg.save>] }}} trpgPin="tiddler">
-<$list filter="[enlist<trpg-places>]">
+<$list filter="[enlist<trpg-places>] :filter[trpg.kindshown<trpg-state>]">
 <$transclude $variable="trpg.fixed" id=<<currentTiddler>>><<trpg.node>></$transclude>
 </$list>
 <$list filter="[<trpg-loc>spots:raw[]]" variable="trpg-spot">
 <$let trpg-plain={{{ [<trpg-spot>spotplain[]] }}}
-	trpg-joined={{{ [<trpg-spot>spottarget[]] -[enlist<trpg-places>] :filter[trpg.visible[]] }}}>
-<%if [<trpg-joined>!is[blank]] %>
+	trpg-joined={{{ [<trpg-spot>spottarget[]] -[enlist<trpg-places>] :filter[trpg.visible[]] }}}
+	trpg-dots={{{ [[location]] -[<trpg-state>get[list]enlist-input[]] }}}>
+<%if [<trpg-joined>!is[blank]] :filter[trpg.kindshown<trpg-state>] %>
 <$tiddler tiddler=<<trpg-joined>>>
 <$transclude $variable="trpg.fixed" id=<<trpg-joined>>><<trpg.node>></$transclude>
 </$tiddler>
-<%elseif [<trpg-spot>spottarget[]count[]match[0]] %>
+<%elseif [<trpg-spot>spottarget[]count[]match[0]] :filter[<trpg-dots>!is[blank]] %>
 <$let trpg-id={{{ [<trpg-loc>addsuffix[#]addsuffix<trpg-plain>] }}}>
 <$transclude $variable="trpg.fixed" id=<<trpg-id>>>
 <$node $tiddler=<<trpg-id>> label=<<trpg-plain>> trpgPin="spot" color="#ffffff" borderColor={{Location!!color}}
@@ -104,6 +111,20 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 </$list>
 </$properties>
 
+<!-- the open quests that lead here: a pill with edges to their nodes, below the map those about
+     the location as a whole -->
+<%if [[quest]] -[<trpg-state>get[list]enlist-input[]] %>
+<$list filter="[trpg.mapquests<trpg-loc>]" variable="trpg-quest">
+<$let trpg-colour={{{ [<trpg-quest>questreal[]then{Quest!!color}else[#9aa1aa]] }}}
+	trpg-pins={{{ [<trpg-quest>questpins<trpg-loc>] -[<trpg-loc>] +[format:titlelist[]join[ ]] }}}>
+<%if [enlist<trpg-pins>] %>
+<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> />
+<$list filter="[enlist<trpg-pins>]" variable="toTiddler"><$edge $from=<<trpg-quest>> $to=<<toTiddler>> color=<<trpg-colour>> /></$list>
+<%else%>
+<$transclude $variable="trpg.fixed" id=<<trpg-quest>>><$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> /></$transclude>
+<%endif%>
+</$let>
+</$list>
 <%endif%>
 
 </$properties>

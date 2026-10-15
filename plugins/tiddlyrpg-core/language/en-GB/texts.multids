@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015170052000
+modified: 20261015180105000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -75,8 +75,9 @@ Location/Check/SpotTwice: Check the location: it is a spot of several locations
 Map/Edit: Edit positions
 Map/EditDone: Done editing
 Map/Fit: Fit map
-Map/HideNodes: Hide nodes
-Map/ShowNodes: Show nodes
+Map/Quests/Empty: No open quests or rumours lead here.
+Map/Quests/Spot: spot
+Map/Tab: Map
 Number/Decimal: .
 Player/Active: Player characters
 Player/Former: Former characters

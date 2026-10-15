@@ -340,8 +340,9 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("one map: no tabs, the map with its graph", function() {
-		assert.ok(avalon.indexOf('class="trpg-map"') !== -1 && avalon.indexOf('data-tab-title="map') === -1, avalon);
+	test("one map: the tabs Map and Quests and rumours, the map with its graph", function() {
+		assert.ok(avalon.indexOf('class="trpg-map"') !== -1 && avalon.indexOf('data-tab-title="map"') !== -1 && avalon.indexOf('data-tab-title="quests"') !== -1, avalon);
+		assert.ok(avalon.indexOf("<span>Karte</span>") < avalon.indexOf("<span>Quests und Gerüchte</span>"), avalon);
 	});
 
 	test("map: a rule parts it from the relations", function() {
@@ -353,11 +354,12 @@ test.describe("de-DE", function() {
 		assert.match(avalon, /<h3 class="trpg-spot" data-trpg-anchor="spot-kantine">Kantine<\/h3>/);
 	});
 
-	test("map tab: buttons in one row, editing only outside the published copy", function() {
+	test("map tab: the switches by kind above, then the buttons in one row, editing only outside the published copy", function() {
 		var row = avalon.split('class="trpg-map-buttons"');
 		assert.equal(row.length, 2, avalon);
-		var fit = row[1].indexOf("Karte einpassen"), hide = row[1].indexOf("Knoten ausblenden"), edit = row[1].indexOf("Positionen bearbeiten");
-		assert.ok(fit !== -1 && fit < hide && hide < edit, row[1]);
+		assert.ok(row[0].lastIndexOf('class="trpg-kind-switches"') !== -1, "the switches come first");
+		var fit = row[1].indexOf("Karte einpassen"), edit = row[1].indexOf("Positionen bearbeiten");
+		assert.ok(fit !== -1 && fit < edit && row[1].indexOf("Knoten ausblenden") === -1, row[1]);
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
 		try {
 			assert.ok(h.view(wiki, "Insel Avalon").indexOf("Positionen bearbeiten") === -1);
@@ -366,24 +368,14 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("map tab: nodes hidden, editing switched off", function() {
-		h.add(wiki, {title: "$:/state/tiddlyrpg-core/map-nodes/Insel Avalon", text: "hide"});
-		try {
-			var html = h.view(wiki, "Insel Avalon");
-			assert.ok(html.indexOf("Knoten einblenden") !== -1 && html.indexOf("trpg-map-button-off") !== -1);
-		} finally {
-			wiki.deleteTiddler("$:/state/tiddlyrpg-core/map-nodes/Insel Avalon");
-		}
-	});
-
 	test("map for a location with places within only (no image, no spots)", function() {
 		var html = h.view(wiki, "Continent");
-		assert.ok(html.indexOf('class="trpg-map"') !== -1 && html.indexOf('data-tab-title="map') === -1, html);
+		assert.ok(html.indexOf('class="trpg-map"') !== -1 && html.indexOf('data-tab-title="map"') !== -1, html);
 	});
 
-	test("several maps: a tab per map named after its file, the first with the graph", function() {
+	test("several maps: Map with the graph, a tab per further map named after its file, then Quests and rumours", function() {
 		var town = h.view(wiki, "Town"),
-			labels = ["Town", "Market", "Gate"].map(function(s) { return town.indexOf("<span>" + s + "</span>"); });
+			labels = ["Karte", "Market", "Gate", "Quests und Gerüchte"].map(function(s) { return town.indexOf("<span>" + s + "</span>"); });
 		assert.ok(labels.every(function(p, i) { return p !== -1 && (i === 0 || p > labels[i - 1]); }), town);
 		assert.ok(town.indexOf('data-tab-title="map"') !== -1 && town.indexOf('class="trpg-map"') !== -1, town);
 	});
@@ -496,13 +488,13 @@ test.describe("de-DE", function() {
 		assert.ok(avalon.indexOf("Friggs Traum") !== -1);
 	});
 
-	test("location with a map only: the map, no tabs", function() {
+	test("location with a map only: the map in the tab Map", function() {
 		var baile = h.view(wiki, "Baile");
-		assert.ok(baile.indexOf('class="trpg-map"') !== -1 && baile.indexOf('data-tab-title="map') === -1);
+		assert.ok(baile.indexOf('class="trpg-map"') !== -1 && baile.indexOf('data-tab-title="map"') !== -1);
 	});
 
-	test("location without map, spots and places within: no map", function() {
-		assert.ok(h.view(wiki, "Nowhere").indexOf('class="trpg-map"') === -1);
+	test("location without map, spots and places within: a map all the same (quests may lead there)", function() {
+		assert.ok(h.view(wiki, "Nowhere").indexOf('class="trpg-map"') !== -1);
 	});
 
 	test("relation list heading", function() {
@@ -541,7 +533,7 @@ test.describe("en-GB", function() {
 
 	test("en map buttons", function() {
 		var avalon = h.view(wiki, "Insel Avalon");
-		["Fit map", "Hide nodes", "Edit positions"].forEach(function(label) {
+		["Fit map", "Edit positions"].forEach(function(label) {
 			assert.ok(avalon.indexOf(label) !== -1, label);
 		});
 	});

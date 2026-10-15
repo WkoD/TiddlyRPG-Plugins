@@ -357,13 +357,21 @@ location gives a hint for the editor.
 
 **Maps** of a location (no sub-tiddlers):
 
-- The map (a location with a map image, spots or places within) shows a graph: the
+- Every location has the tabs "Map" (further maps beside it) and "Quests and rumours": the
+  open quests and rumours that lead to it, each with the reason - what its newest marker links
+  (a location, a spot, someone or something there - only what stands in that marker itself)
+  and the place of the map it leads to.
+- The map (also of a location without a map image, spots or places within) shows a graph: the
   spots and the places within at fixed positions, each a dot with its name in a pill below it
   (filled for a tiddler, white and dashed for a spot without a tiddler of its own); they keep
   their size on screen when zooming. Hovering shows the text of a spot, a double click scrolls
-  to it. Buttons: "Fit map", "Hide nodes"/"Show nodes", "Edit positions" (drag a node to place
-  it; the position is saved in the field `map-positions` of the location - not in the
-  published copy).
+  to it. The open quests and rumours whose newest marker leads to a place of the map stand on
+  it as pills in gold or silver, with an edge to those places (a person or organisation it
+  mentions leads to where it is); those about the location as a whole stand below the map.
+  Above the map the same switches by kind as on the relations block (locations,
+  organisations, quests, ... - whatever the map shows), all on at first; below them the
+  buttons "Fit map" and "Edit positions" (drag a node to place it; the position is saved in
+  the field `map-positions` of the location - not in the published copy).
 - `map: Baile.png, Hafen.jpg` - the maps from `images/map/`, battle maps among them. The first
   is drawn behind the graph across the full width; without one the graph stands on an empty
   canvas. With two maps or more each is a tab named after its file (`[Baile] [Hafen]`), the

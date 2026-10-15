@@ -1,5 +1,5 @@
 created: 20261006064449000
-modified: 20261015155557000
+modified: 20261015171754000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/location
 type: text/css
@@ -132,8 +132,4 @@ details.trpg-tree > summary {
 }
 .trpg-map-button-on {
 	font-weight: bold;
-}
-.trpg-map-button-off {
-	color: var(--tpc-muted-foreground, #888);
-	cursor: default;
 }

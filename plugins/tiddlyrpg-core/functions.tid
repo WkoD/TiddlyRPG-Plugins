@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261015170052000
+modified: 20261015171754000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -35,6 +35,48 @@ type: text/vnd.tiddlywiki
 \function trpg.egocentre(centre) [<centre>] [<centre>tag[Location]sublocations:all[spot]] :filter[trpg.visible[]]
 \function trpg.egonodes(centre) [trpg.egocentre<centre>relationneighbours[]] :filter[<centre>!tag[Location]] [trpg.egocentre<centre>relationneighbours[]!tag[Location]] [<centre>tag[Location]sublocations:all[]] [trpg.egocentre<centre>questsabout[]] [<centre>questmentions[]is[tiddler]] [<centre>questlinks[]] -[trpg.egocentre<centre>] :filter[trpg.visible[]]
 \function trpg.egoshown(centre) [relationkind[]] -[<centre>addprefix[$:/state/tiddlyrpg-core/relations-filter/]get[list]enlist-input[]]
+
+<!-- Switches by kind (the relations block, viewtemplates/relations; the map of a location,
+     viewtemplates/location/map): one per kind among <kinds> (a title list of relationkind values)
+     - players, persons (with deities), organisations, locations, items (with artifacts and
+     materials), quests (with rumours) - in the colour of its hub, split at 45° with the colour of
+     the second kind where a switch holds two kinds of a colour of their own, labelled
+     Relations/Kind/<hub> then, else with the plural of the hub; all on at first, a click switches
+     a kind off and on again: the kinds switched off are in the field list of <state> (not
+     saved). trpg.kindshown<state> keeps the input titles whose kind is on. -->
+\function trpg.kindshown(state) [relationkind[]] -[<state>get[list]enlist-input[]]
+
+<!-- The open quests and rumours the view sees whose newest marker leads to the map of the location
+     <loc> (questpins, modules/quests.js) -->
+\function trpg.mapquests(loc) [questnames[]] :filter[queststatus[]match[open]] :filter[questpins<loc>]
+
+\procedure trpg.kindswitch(hub,second,kinds,state)
+\whitespace trim
+<$let trpg-kind={{{ [<hub>lowercase[]] }}}>
+<%if [enlist<kinds>match<trpg-kind>] %>
+<$let trpg-on={{{ [<state>get[list]enlist-input[]match<trpg-kind>then[no]else[yes]] }}}>
+<$button class={{{ [[trpg-kind-switch]] [<trpg-kind>addprefix[trpg-kind-]] [<second>!is[blank]then[trpg-kind-split]] [<trpg-on>match[no]then[trpg-off]] +[join[ ]] }}}
+	style={{{ [<hub>get[color]addprefix[--trpg-kind:]] [<second>!is[blank]addprefix[--trpg-kind2:]] +[join[;]] }}}
+	aria-pressed={{{ [<trpg-on>match[yes]then[true]else[false]] }}}
+	actions="<$action-listops $tiddler=<<state>> $field='list' $subfilter='+[toggle<trpg-kind>]'/>">
+<$text text={{{ [<hub>addprefix[Relations/Kind/]trpgtranslate[]] :filter[!prefix[Relations/Kind/]] ~[trpg.plural<hub>] }}}/>
+</$button>
+</$let>
+<%endif%>
+</$let>
+\end
+
+\procedure trpg.kindswitches(kinds,state)
+\whitespace trim
+<%if [enlist<kinds>!match[other]] %>
+<div class="trpg-kind-switches">
+<$list filter="Player Person Organisation Location Item Quest" variable="trpg-hub">
+<$transclude $variable="trpg.kindswitch" hub=<<trpg-hub>> kinds=<<kinds>> state=<<state>>
+	second={{{ [<trpg-hub>match[Person]then{Deity!!color}] [<trpg-hub>match[Quest]then[var(--trpg-rumour, #9aa1aa)]] }}}/>
+</$list>
+</div>
+<%endif%>
+\end
 
 <!-- Language system (modules/language.js): translation of a key, display name of a title,
      plural of a type. Missing keys fall back to en-GB, then to the key/title itself. -->

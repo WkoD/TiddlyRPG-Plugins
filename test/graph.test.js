@@ -188,8 +188,29 @@ test("map: pins fixed, movable while editing, never in the published copy", func
 	});
 });
 
-test("map: hidden nodes leave only the image", function() {
-	withTiddlers([{title: "$:/state/tiddlyrpg-core/map-nodes/Town", text: "hide"}], function() {
+test("map: open quests as pills with edges to the nodes their newest marker leads to, those about the location below the map", function() {
+	withTiddlers([{title: "Mapquests", tags: "Event", date: "1351-01-01, 1351-02-01",
+		text: "<<date>>\n\n<<quest \"Q Gilde\">>Zur [[Guild]].\n\n<<quest \"Q Brunnen\">>Am <<spotlink \"Town\" \"Old Well\">>.\n\n<<quest \"Q Stadt\">>Mit [[Guildmaster]].\n\n" +
+			"<<quest \"Q Fertig\" status:\"complete\">>Zur [[Guild]].\n\n<<secret>><<date>>\n\n<<quest \"Q Geheim\">>Zur [[Guild]]."}], function() {
+		var graph = map("Town"),
+			all = edges(graph);
+		["Q Gilde", "Q Brunnen", "Q Stadt", "Q Geheim"].forEach(function(name) { assert.ok(graph.nodes[name], name); });
+		assert.ok(!graph.nodes["Q Fertig"], "complete: not on the map");
+		assert.ok(all.indexOf("Q Gilde -> Guild") !== -1 && all.indexOf("Q Brunnen -> Town#Old Well") !== -1, all.join());
+		assert.equal(graph.nodes["Q Stadt"].trpgUnplaced, "yes", "about the town as a whole: below the map");
+		assert.ok(all.every(function(edge) { return edge.indexOf("Q Stadt") === -1; }));
+		assert.ok(!h.inView(wiki, "public", function() { return map("Town"); }).nodes["Q Geheim"], "a locked marker leads nowhere");
+		withTiddlers([{title: "$:/state/tiddlyrpg-core/map-filter/Town", list: "quest"}], function() {
+			assert.ok(!map("Town").nodes["Q Gilde"]);
+		});
+	});
+});
+
+test("map: a kind switched off leaves out its nodes (a spot without a tiddler counts as a location); all off leaves the image", function() {
+	withTiddlers([{title: "$:/state/tiddlyrpg-core/map-filter/Town", list: "location"}], function() {
+		assert.deepEqual(nodes(map("Town")), ["Guild"]);
+	});
+	withTiddlers([{title: "$:/state/tiddlyrpg-core/map-filter/Town", list: "location organisation"}], function() {
 		var graph = map("Town");
 		assert.deepEqual(nodes(graph), []);
 		assert.equal(graph.graph.trpgMapImage, "images/map/Town.png");

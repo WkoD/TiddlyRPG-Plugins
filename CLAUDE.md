@@ -331,9 +331,10 @@ the tiddler title:
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
   references; contents `event-list/timeline` + `event-list/list`), `item`, `source` (the
   field `source`: where the images come from, "Source: …" below the body),
-  `location` (map block if there is a map, a spot or a place within: the first map with
-  `location/map` - map graph, buttons -, every further map as a tab of its own, tabs only from
-  two maps on; tab state per location; below it the spots, see "Locations"), `image` (the
+  `location` (map block of every location, as tabs: "Map" - the first map with `location/map`,
+  map graph, switches, buttons -, every further map, "Quests and rumours" (`location/quests`:
+  the open quests that lead here and why, `questroutes`); tab state per location; below it the
+  spots, see "Locations"), `image` (the
   field `image` through `trpg.images`: one image on its own, several as tabs),
   `location-path` (path below the title, with the hints of `locationcheck`, `itemcheck`,
   `sectioncheck`, `trpgrulecheck` and `macrocheck`),
@@ -737,9 +738,15 @@ only call their operators.
   `$:/state/tiddlyrpg-core/map-edit/<title>` is `yes` (never in the published copy); a node
   without one gets a slot in a grid (node property `trpgUnplaced`). No edges on the map. The fit
   takes the image plus every node outside it, so a pin placed beside or below the image stays
-  visible. Buttons:
-  "Fit map", "Hide nodes" (`$:/state/tiddlyrpg-core/map-nodes/<title>` = `hide`, only the image),
-  "Edit positions" (off while the nodes are hidden).
+  visible. Above it the switches by kind (procedure `trpg.kindswitches`, the same as on the
+  relations block; state `$:/state/tiddlyrpg-core/map-filter/<title>`, `trpg.kindshown`; a spot
+  without a tiddler counts as a location), below them the buttons "Fit map" and "Edit
+  positions". Quests: the open quests whose newest visible marker leads to a node of the map
+  (`trpg.mapquests`, `questpins`, `modules/quests.js` `pins()`: the places it links, the spot of
+  a `<<spotlink>>`, the field location of anyone else it links - only what stands in that
+  marker, never the rest of its section -, each walked up its parents to the first node of the
+  map) as pills with an edge to
+  those nodes; one that only reaches the location itself stands in the grid below the map.
   `$properties.persistent` of tw5-graph cannot be used: it writes by `$index` and would turn
   the wikitext body into JSON. `graph/map-fit.js` (`trpgMapFit` = `image` or `nodes`) fits the
   image to the width and sizes the container by its aspect ratio, or without an image fits the

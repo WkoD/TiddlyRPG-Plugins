@@ -291,6 +291,19 @@ test.describe("relations: open quests around what they mention, switches by kind
 		});
 	});
 
+	test("the tab Quests and rumours of a location: each open quest that leads there, and why", function() {
+		withTiddlers([{title: "Stadtfahrt", tags: "Event", date: "1352",
+			text: "<<date>>\n\n<<quest \"Q Meister\">>Mit [[Guildmaster]].\n\n<<quest \"Q Brunnen\">>Am <<spotlink \"Town\" \"Old Well\">>.\n\n<<quest \"Q Reich\">>Im [[Kingdom]]."}], function() {
+			var tab = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/quests\"/>", {currentTiddler: "Town"}).replace(/\s+/g, " ");
+			assert.match(tab, /Q Brunnen ?Spot: Old Well/);
+			assert.match(tab, /Q Meister ?Guildmaster \(Person\)/);
+			assert.ok(tab.indexOf("Q Reich") === -1, "the kingdom is above the town: not on its map");
+			var kingdom = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/quests\"/>", {currentTiddler: "Kingdom"}).replace(/\s+/g, " ");
+			assert.match(kingdom, /Q Meister ?Guildmaster \(Person\) → Town/, "who is in Town leads to Town on the map of the kingdom");
+			assert.match(kingdom, /Q Reich ?Kingdom \(Ort\)/);
+		});
+	});
+
 	test("views: a marker in a locked section mentions nothing for a view that does not see it", function() {
 		withTiddlers([{title: "Verdeckte Spur", tags: "Event", date: "1352", text: "<<date>>\n\nOffen.\n\n<<secret \"Frigg\">><<date>>\n\n<<quest \"Verdeckter Faden\">>Bei [[Baile]]."}], function() {
 			assert.ok(f("[[Baile]questsabout[]]").indexOf("Verdeckter Faden") !== -1);

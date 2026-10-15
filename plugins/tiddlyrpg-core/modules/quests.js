@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/quests.js
 type: application/javascript
 module-type: library
 created: 20261015122743000
-modified: 20261015170052000
+modified: 20261015180105000
 
 Quests - the one place of these rules. A quest is a name; its markers stand in events
 (<<quest "Name">>, <$quest name="Name">, modules/sections.js). A tiddler with the name tagged
@@ -31,7 +31,8 @@ functions below filter it by the view when asked.
 
 var sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
 	dates = require("$:/plugins/tiddlyrpg-core/modules/dates.js"),
-	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
+	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
+	spots = require("$:/plugins/tiddlyrpg-core/modules/spots.js");
 
 // The parts of the start or end of a date section as numbers, for sorting ("1351-12-03" ->
 // [1351, 12, 3]); unknown sides sort first
@@ -55,7 +56,7 @@ parent, links}], names: [names of the markers]} in date order (oldest first). id
 number: the dated section (0 for none), firstSection: it stands at the very start of the body
 (no jump mark); date: its text in the date field ("" for none); parent: the name of the quest
 whose marker directly encloses this one ("" for none, also for one of the same name); links:
-[{to, section}] what it links ([[...]], <<spotlink>>: the location), with the innermost section
+[{to, spot, section}] what it links ([[...]], <<spotlink>>: the location and the spot), with the innermost section
 of the link (a lock inside the marker hides it).
 */
 var index = exports.index = function(wiki) {
@@ -100,7 +101,7 @@ var index = exports.index = function(wiki) {
 				});
 				$tw.utils.each(model.spotlinks,function(ref) {
 					if(inside(ref.section)) {
-						linked.push({to: ref.place, section: ref.section});
+						linked.push({to: ref.place, spot: spots.reference(ref.spec).spot, section: ref.section});
 					}
 				});
 				marks.push({
@@ -255,6 +256,117 @@ exports.players = function(wiki,name,view) {
 		});
 	}
 	return found.sort();
+};
+
+/*
+Where <name> points on the map of the location <map>: the nodes of that map (graph/templates/
+trpg-map) its newest marker the view sees leads to - the next destination. The places of that
+marker: a node of the map it links directly; a location it links; a spot it references
+(<<spotlink>>); for anyone else it links (a person, an organisation, ...) the locations of its
+field location. Only what stands in that marker itself counts - not what the rest of its
+section links, which would bring together much that has nothing to do with it. Each place walks up
+its parents (filters/location.js) to the first that is a node of the map; reaching <map> itself
+gives <map> (the quest is about the map as a whole). A place the view does not see, or a parent
+on the way it does not see, leads nowhere. Nodes of the map: the locations lying in it (all
+levels) and its spots - the tiddler a spot is joined to, else "<map>#<plain name>".
+routes() gives each way as {node, via, how}: the node it leads to, what the marker links (or the
+spot) and how - "location" (a location it links), "spot" (<<spotlink>>), "node" (it links a node
+of the map), "located" (the location of someone or something it links); pins() only the nodes.
+*/
+var routes = exports.routes = function(wiki,name,map,view) {
+	view = view || visibility.current(wiki);
+	var list = marks(wiki,name,view);
+	if(!list.length) {
+		return [];
+	}
+	var location = require("$:/plugins/tiddlyrpg-core/filters/location.js"),
+		mark = list[0],
+		nodes = Object.create(null),
+		spotIds = Object.create(null),
+		found = [],
+		isLocation = function(title) {
+			var tiddler = wiki.getTiddler(title);
+			return !!tiddler && tiddler.hasTag("Location");
+		},
+		seen = function(title) {
+			return visibility.visible(wiki,title,view);
+		},
+		add = function(node,entry) {
+			if(!found.some(function(route) { return route.node === node && route.via === entry.via && route.how === entry.how; })) {
+				found.push({node: node, via: entry.via, how: entry.how});
+			}
+		};
+	$tw.utils.each(location.below(wiki,map,true,"location"),function(title) {
+		if(seen(title)) {
+			nodes[title] = true;
+		}
+	});
+	$tw.utils.each(spots.visibleSpots(wiki,map,view),function(spot) {
+		var target = spots.targetOf(wiki,spot);
+		if(target && wiki.tiddlerExists(target)) {
+			if(seen(target)) {
+				nodes[target] = true;
+				spotIds[spot.plain] = target;
+			}
+		} else {
+			spotIds[spot.plain] = map + "#" + spot.plain;
+		}
+	});
+	var places = [];
+	$tw.utils.each(mark.links,function(link) {
+		if(!sections.visible(wiki,mark.event,link.section,view) || !seen(link.to)) {
+			return;
+		}
+		if(link.spot !== undefined) {
+			places.push({place: link.to, spot: spots.plain(link.spot), via: spots.plain(link.spot), how: "spot"});
+		} else if(nodes[link.to] || isLocation(link.to)) {
+			places.push({place: link.to, via: link.to, how: isLocation(link.to) ? "location" : "node"});
+		} else {
+			var tiddler = wiki.getTiddler(link.to);
+			$tw.utils.each(tiddler ? $tw.utils.parseStringArray(tiddler.fields.location || "") || [] : [],function(title) {
+				if(isLocation(title) && seen(title)) {
+					places.push({place: title, via: link.to, how: "located"});
+				}
+			});
+		}
+	});
+	$tw.utils.each(places,function(entry) {
+		if(entry.spot !== undefined && entry.place === map) {
+			// a spot the view does not see (or that does not exist) leads nowhere
+			if(spotIds[entry.spot]) {
+				add(spotIds[entry.spot],entry);
+			}
+			return;
+		}
+		var current = entry.place,
+			visited = Object.create(null);
+		while(current && !visited[current]) {
+			visited[current] = true;
+			if(current === map) {
+				add(map,entry);
+				return;
+			}
+			if(nodes[current]) {
+				add(current,entry);
+				return;
+			}
+			current = location.parentOf(wiki,current).parent;
+			if(current && !seen(current)) {
+				return;
+			}
+		}
+	});
+	return found;
+};
+
+exports.pins = function(wiki,name,map,view) {
+	var nodes = [];
+	$tw.utils.each(routes(wiki,name,map,view),function(route) {
+		if(nodes.indexOf(route.node) === -1) {
+			nodes.push(route.node);
+		}
+	});
+	return nodes;
 };
 
 // The events where <name> and <other> are linked (a marker of one directly in a marker of the

@@ -1,50 +1,46 @@
 created: 20200308095521995
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/relations
-modified: 20261014180236000
+modified: 20261015174341000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/location
 type: text/vnd.tiddlywiki
 
-<!-- Maps of a location, if it has a map (field map), spots or places within: the first map
-     with the graph of the location (viewtemplates/location/map, also without a map image), every
-     further map as a tab of its own (filter maptabs, labelled with the file name; tabs only with
-     two maps or more). The tab state is one tiddler per location
-     ($:/state/tiddlyrpg-core/location-tab/<title>), ids "map", "map-<n>". Below the maps the
-     spots with their images and texts, from the parse tree of the body (trpg-body,
-     widgets/sections.js): the procedure spot draws heading, jump mark "spot-<name>" and images,
-     a locked spot shows only to a view that sees it. A rule above parts them from the
-     relations, like the rules around the event list. -->
+<!-- Maps of every location, as tabs: "Map" - the first map with the graph of the location
+     (viewtemplates/location/map, also without a map image or anything on it) -, every further
+     map (filter maptabs, labelled with the file name), and "Quests and rumours" (the open quests
+     that lead here and why, viewtemplates/location/quests). The tab state is one tiddler per
+     location ($:/state/tiddlyrpg-core/location-tab/<title>), ids "map", "map-<n>", "quests".
+     Below the maps the spots with their images and texts, from the parse tree of the body
+     (trpg-body, widgets/sections.js): the procedure spot draws heading, jump mark
+     "spot-<name>" and images, a locked spot shows only to a view that sees it. A rule above parts
+     them from the relations, like the rules around the event list. -->
 \function trpg.maplabel() [<currentTiddler>maptabs[]] :filter[jsonget[id]match<currentTab>] +[first[]jsonget[label]]
 
 <$list filter="[all[current]tag[Location]]" variable=null>
 <%if [<currentTiddler>trpg.visible[]] %>
-<%if [<currentTiddler>has[map]] [<currentTiddler>spots[]] [<currentTiddler>sublocations[]] +[first[]] %>
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <hr>
-<$let trpg-tabs={{{ [<currentTiddler>maptabs[]jsonget[id]format:titlelist[]join[ ]] }}}>
-<%if [enlist<trpg-tabs>nth[2]] %>
+<$let trpg-tabs={{{ [<currentTiddler>maptabs[]jsonget[id]] ~[[map]] [[quests]] +[format:titlelist[]join[ ]] }}}>
 <$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
 	tabsList=<<trpg-tabs>>
 	default="map"
 	explicitState={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/location-tab/]] }}}
 	class="">
-<$fill $name=button><$text text={{{ [trpg.maplabel[]] }}}/></$fill>
+<$fill $name=button><$text text={{{ [<currentTab>match[map]then[Map/Tab]trpgtranslate[]] ~[<currentTab>match[quests]then[Relations/Kind/Quest]trpgtranslate[]] ~[trpg.maplabel[]] }}}/></$fill>
 <$fill $name=body>
 <%if [<currentTab>match[map]] %>
 <$transclude $tiddler="$:/plugins/tiddlyrpg-core/viewtemplates/location/map" $mode=block/>
+<%elseif [<currentTab>match[quests]] %>
+<$transclude $tiddler="$:/plugins/tiddlyrpg-core/viewtemplates/location/quests" $mode=block/>
 <%else%>
 <$list filter="[<currentTiddler>maptabs[]] :filter[jsonget[id]match<currentTab>] +[first[]]" variable="trpg-entry"><$transclude $variable="trpg.image" entry=<<trpg-entry>>/></$list>
 <%endif%>
 </$fill>
 </$transclude>
-<%else%>
-<$transclude $tiddler="$:/plugins/tiddlyrpg-core/viewtemplates/location/map" $mode=block/>
-<%endif%>
 </$let>
 <div class="trpg-spots">
 <$trpg-body $tiddler=<<currentTiddler>> $mode="block" $only="spot"/>
 </div>
 </$reveal>
-<%endif%>
 <%endif%>
 </$list>

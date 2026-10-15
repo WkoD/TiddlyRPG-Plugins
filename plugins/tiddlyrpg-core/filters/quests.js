@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/quests.js
 type: application/javascript
 module-type: filteroperator
 created: 20261015122743000
-modified: 20261015170052000
+modified: 20261015174341000
 
 Filter operators of the quests (modules/quests.js), all for the active view:
 
@@ -20,6 +20,10 @@ Filter operators of the quests (modules/quests.js), all for the active view:
                                 questmentions<event>: only its markers in that event
 [<name>questevents[]]           the events of its markers, newest first
 [<name>questlinkat<other>]      the events where it is linked with <other>
+[<name>questpins<map>]          the nodes of the map of the location <map> its newest marker
+                                leads to; <map> itself for the location as a whole
+[<name>questroutes<map>]        each way there as JSON {node, via, how}: what it links (via) and
+                                how - location, spot, node, located, section
 [<title>questsabout[]]          the open quests and rumours whose markers link the input titles
 [<id>questmark:event[]]         of a marker: its event; key (its position, for $quest of
                                 trpg-body), number (its dated section), date (the text of the
@@ -101,6 +105,20 @@ exports.questmentions = function(source,operator,options) {
 exports.questevents = function(source,operator,options) {
 	return each(source,function(name) {
 		return quests.events(options.wiki,name);
+	});
+};
+
+exports.questpins = function(source,operator,options) {
+	return each(source,function(name) {
+		return quests.pins(options.wiki,name,operator.operand);
+	});
+};
+
+exports.questroutes = function(source,operator,options) {
+	return each(source,function(name) {
+		return quests.routes(options.wiki,name,operator.operand).map(function(route) {
+			return JSON.stringify(route);
+		});
 	});
 };
 

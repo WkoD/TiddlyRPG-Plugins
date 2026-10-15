@@ -1,0 +1,38 @@
+created: 20261015174341000
+modified: 20261015180105000
+title: $:/plugins/tiddlyrpg-core/viewtemplates/location/quests
+type: text/vnd.tiddlywiki
+
+<!-- The tab "Quests and rumours" of a location (viewtemplates/location): the open quests and
+     rumours the map shows (trpg.mapquests), by name, each with its label (procedure quest) and,
+     below it, why it leads here (questroutes, modules/quests.js): what its newest marker links -
+     a location, a spot, someone or something with its type - and, if that is not itself where
+     it leads, the place of the map it leads to. -->
+\whitespace trim
+\function trpg.typeof(title) [<title>tags[]] :intersection[enlist[Player Person Organisation Deity Location Artifact Item Material]] +[first[]trpgtitle[]]
+
+<$let trpg-loc=<<currentTiddler>>>
+<div class="trpg-map-quests">
+<$list filter="[trpg.mapquests<trpg-loc>sort[]]" variable="trpg-quest" emptyMessage="""<div class="trpg-quest-empty"><$text text={{{ [[Map/Quests/Empty]trpgtranslate[]] }}}/></div>""">
+<div class="trpg-map-quest">
+<$transclude $variable="quest" name=<<trpg-quest>>/>
+<$list filter="[<trpg-quest>questroutes<trpg-loc>]" variable="trpg-route">
+<$let trpg-via={{{ [<trpg-route>jsonget[via]] }}}
+	trpg-how={{{ [<trpg-route>jsonget[how]] }}}
+	trpg-node={{{ [<trpg-route>jsonget[node]] }}}>
+<div class="tc-menu-list-subitem trpg-map-quest-route">
+<%if [<trpg-how>match[spot]] %>
+<span class="trpg-via"><$text text={{{ [[Map/Quests/Spot]trpgtranslate[]addsuffix[: ]] }}}/></span><$text text=<<trpg-via>>/>
+<%else%>
+<$transclude $variable="trpg.link" title=<<trpg-via>>/><span class="trpg-via"><$text text={{{ [trpg.typeof<trpg-via>addprefix[ (]addsuffix[)]] }}}/></span>
+<%endif%>
+<%if [<trpg-how>!match[spot]] :filter[<trpg-node>!match<trpg-via>!match<trpg-loc>] %>
+<span class="trpg-via"><$text text=" → "/></span><$transclude $variable="trpg.link" title=<<trpg-node>>/>
+<%endif%>
+</div>
+</$let>
+</$list>
+</div>
+</$list>
+</div>
+</$let>
