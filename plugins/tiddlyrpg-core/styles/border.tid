@@ -1,14 +1,20 @@
 created: 20200814090319235
-modified: 20261001095424000
+modified: 20261015160617000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/border
 type: text/vnd.tiddlywiki
 
+\rules except dash
 <!-- Border in the colour of the type: one rule per type hub of the format layer (tag Index,
      field color). all[shadows] restricts this to the types from the plugin - content tiddlers
-     with their own color (faction/location tags of the campaigns) get no border. -->
+     with their own color (faction/location tags of the campaigns) get no border. Inside, the
+     frame takes a light tint of that colour - 9 % of it on the background of the palette, like
+     the inside of a pill, only lighter -; the dead keep their grey (styles/dead). -->
 <$list filter="[all[shadows]] :filter[tag[Index]has[color]] +[sort[]]">
 .tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/> {
 border: 2px solid <$text text={{!!color}}/>;
+}
+.tc-tiddler-frame.tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/>:not(.trpg-dead) {
+background-color: color-mix(in srgb, <$text text={{!!color}}/> 9%, var(--tpc-tiddler-background, #fff));
 }
 </$list>

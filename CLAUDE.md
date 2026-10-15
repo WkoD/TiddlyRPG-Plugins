@@ -344,7 +344,7 @@ the tiddler title:
   (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-sections` (cascade, see below).
 - **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `date-section`.
-- **Styles** (`styles/*`): `border` (border per type, generated from the hubs), `item` (book
+- **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   heading of a dated section, location pills), `location` (path, spot pills, spots, map buttons; static
   CSS, `type: text/css`), `sections` (the frames of the sections - a line on the left in the
