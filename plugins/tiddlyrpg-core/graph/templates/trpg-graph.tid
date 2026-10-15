@@ -1,6 +1,6 @@
 caption: TiddlyRPG graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261015160005000
+modified: 20261015161851000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 
 \whitespace trim
@@ -12,8 +12,9 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 \end trpg.node
 
 <!-- Like live-graph: no $properties.persistent -> no positions are saved.
-     Node colour comes from the colour of the type tag ({{Person!!color}} etc.); grey
-     (dead/dissolved, trpg.dead) as the innermost, highest priority. No per-node !!color -> the tag
+     Node colour comes from the colour of the type tag ({{Person!!color}} etc.), drawn like a pill
+     (trpgPill); the dead/dissolved (trpg.dead) striped grey and that colour (trpgDead,
+     graph/pill.js) as the innermost, highest priority. No per-node !!color -> the tag
      colour rules uniformly, changing it recolours all nodes of the type.
      Edge labels are translated (Field/<field>) by the override of $edges.typed in tiddlyrpg-core. -->
 
@@ -33,10 +34,10 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
-<$properties $filter="[tag[Person]trpg.dead[]]"       color="#dddddd" borderColor={{Person!!color}}>
-<$properties $filter="[tag[Player]trpg.dead[]]"      color="#dddddd" borderColor={{Player!!color}}>
-<$properties $filter="[tag[Organisation]trpg.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
-<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" color="#dddddd" borderColor={{Item!!color}}>
+<$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
 
 <$list filter="[subfilter{!!filter}] :filter[trpg.visible[]]">
 <<trpg.node>>

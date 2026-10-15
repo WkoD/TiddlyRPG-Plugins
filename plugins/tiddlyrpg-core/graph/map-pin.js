@@ -3,14 +3,15 @@ title: $:/plugins/tiddlyrpg-core/graph/map-pin.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261015160005000
+modified: 20261015161851000
 
 Node property trpgPin (tw5-vis-network, like its own properties/nodes.js): a node of the map of a
 location (graph/templates/trpg-map) drawn as a pin - a dot at its position and its name in a pill
 below it:
 
 - trpgPin="tiddler": a place that is a tiddler; the dot in the colour of the node, the pill like
-  a tag pill - light inside, that colour around (graph/pill.js) -, the text in contrast to it.
+  a tag pill - light inside, that colour around (graph/pill.js) -, the text in contrast to it;
+  a dead place (trpgDead, graph/pill.js) with the pill striped grey and its colour.
 - trpgPin="spot": a spot without a tiddler of its own; a white pill with a dashed border in the
   border colour of the node, the dot in that colour.
 
@@ -31,18 +32,10 @@ exports.properties = {
 	}
 };
 
-var DOT = 5, FONT = 12, FAMILY = "arial", PAD_X = 6, PAD_Y = 3, GAP = 4, RADIUS = 8;
+var pill = require("$:/plugins/tiddlyrpg-core/graph/pill.js"),
+	roundRect = pill.roundRect;
 
-function roundRect(ctx,x,y,width,height,radius) {
-	radius = Math.min(radius,height / 2,width / 2);
-	ctx.beginPath();
-	ctx.moveTo(x + radius,y);
-	ctx.arcTo(x + width,y,x + width,y + height,radius);
-	ctx.arcTo(x + width,y + height,x,y + height,radius);
-	ctx.arcTo(x,y + height,x,y,radius);
-	ctx.arcTo(x,y,x + width,y,radius);
-	ctx.closePath();
-}
+var DOT = 5, FONT = 12, FAMILY = "arial", PAD_X = 6, PAD_Y = 3, GAP = 4, RADIUS = 8, STRIPE = 4;
 
 function textColour(background) {
 	try {
@@ -53,7 +46,7 @@ function textColour(background) {
 }
 
 // The ctxRenderer of vis-network for one node; adapter = the adapter of tw5-vis-network
-function renderer(adapter,kind) {
+function renderer(adapter,kind,dead) {
 	return function(args) {
 		var ctx = args.ctx,
 			x = args.x,
@@ -84,14 +77,20 @@ function renderer(adapter,kind) {
 				ctx.fill();
 				if(label) {
 					roundRect(ctx,x - pillWidth / 2,pillTop,pillWidth,pillHeight,RADIUS * unit);
-					ctx.fillStyle = fill;
-					ctx.fill();
+					if(dead && !spot) {
+						var colours = pill.deadColours(adapter,colour);
+						pill.stripes(ctx,x - pillWidth / 2,pillTop,pillWidth,pillHeight,colours[0],colours[1],STRIPE * unit);
+						roundRect(ctx,x - pillWidth / 2,pillTop,pillWidth,pillHeight,RADIUS * unit);
+					} else {
+						ctx.fillStyle = fill;
+						ctx.fill();
+					}
 					ctx.lineWidth = (spot ? 1.5 : 1) * unit;
 					ctx.setLineDash(spot ? [4 * unit,3 * unit] : []);
 					ctx.strokeStyle = colour;
 					ctx.stroke();
 					ctx.setLineDash([]);
-					ctx.fillStyle = spot ? "#000000" : textColour(fill);
+					ctx.fillStyle = spot ? "#000000" : dead ? (adapter.trpgPillText || "#333333") : textColour(fill);
 					ctx.textAlign = "center";
 					ctx.textBaseline = "middle";
 					ctx.fillText(label,x,pillTop + pillHeight / 2);
@@ -114,7 +113,7 @@ exports.process = function(objects,changes) {
 			if(node && node.trpgPin !== undefined) {
 				if(node.trpgPin === "tiddler" || node.trpgPin === "spot") {
 					node.shape = "custom";
-					node.ctxRenderer = renderer(this,node.trpgPin);
+					node.ctxRenderer = renderer(this,node.trpgPin,node.trpgDead === "yes");
 				}
 				node.trpgPin = undefined;
 			}

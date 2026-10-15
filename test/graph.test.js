@@ -113,10 +113,10 @@ test("ego graph of a person: centre and neighbours in the colours of their types
 	assert.equal(graph.nodes.Guildmaster.shape, "box");
 });
 
-test("ego graph: the dead in grey, bordered in the colour of their type", function() {
+test("ego graph: the dead marked (striped by graph/pill.js) in the colour of their type", function() {
 	var grum = ego("Insel Avalon").nodes.Grum;
-	assert.equal(grum.color, "#dddddd");
-	assert.equal(grum.borderColor, colour("Person"));
+	assert.equal(grum.color, colour("Person"));
+	assert.equal(grum.trpgDead, "yes");
 });
 
 test("ego graph of a location: its spots count as the centre, other locations stay out", function() {
@@ -252,21 +252,33 @@ test("map: nodes without a position get a grid slot, kept per id", function() {
 	assert.equal(again.nodes.a.trpgUnplaced, undefined);
 });
 
-test("pill: the colour of a node as its border, light inside, the label in the font colour; the dead stay", function() {
+test("pill: the colour of a node as its border, light inside, the label in the font colour; the dead striped", function() {
 	var pill = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/pill.js"),
 		adapter = {},
 		changes = {
 			graph: {trpgPillBase: "#ffffff", trpgPillText: "#333333"},
-			nodes: {a: {trpgPill: "yes", color: "#00a600", shape: "box"}, dead: {trpgPill: "yes", color: "#dddddd", borderColor: "#00a600"}, plain: {label: "x"}}
+			nodes: {a: {trpgPill: "yes", color: "#00a600", shape: "box"}, dead: {trpgPill: "yes", trpgDead: "yes", color: "#00a600", shape: "box"},
+				own: {trpgPill: "yes", color: "#ffffff", borderColor: "#00a600"}, plain: {label: "x"}}
 		};
 	pill.process.call(adapter, {}, changes);
 	assert.deepEqual(JSON.parse(JSON.stringify(changes.nodes.a.color)), {background: "#d1efd1", border: "#00a600", highlight: {background: "#d1efd1", border: "#00a600"}, hover: {background: "#d1efd1", border: "#00a600"}});
 	assert.equal(changes.nodes.a.font.color, "#333333");
 	assert.equal(changes.nodes.a.trpgPill, undefined);
-	assert.equal(changes.nodes.dead.color, "#dddddd", "grey inside stays");
+	assert.equal(changes.nodes.own.color, "#ffffff", "a border colour of its own: as it is");
 	assert.equal(changes.graph.trpgPillBase, undefined);
 	assert.equal(pill.mix("#e6b400", "#1c1d20"), "#40381a", "a dark palette: dark inside");
 	assert.equal(changes.nodes.plain.color, undefined);
+	// The dead: a box of its own, striped grey (the font colour) and its colour, both at 18 %
+	assert.equal(changes.nodes.dead.shape, "custom");
+	var fills = [], texts = [],
+		ctx = {font: "14px arial", measureText: function() { return {width: 40}; }, beginPath: function() {}, moveTo: function() {}, lineTo: function() {}, arcTo: function() {},
+			closePath: function() {}, save: function() {}, restore: function() {}, clip: function() {}, stroke: function() {},
+			fill: function() { fills.push(this.fillStyle); }, fillRect: function() { fills.push(this.fillStyle); }, fillText: function(t) { texts.push(t); }},
+		drawn = changes.nodes.dead.ctxRenderer({ctx: ctx, x: 0, y: 0, label: "Grum", state: {}});
+	drawn.drawNode();
+	assert.deepEqual(Array.from(new Set(fills)), [pill.mix("#333333", "#ffffff"), "#d1efd1"]);
+	assert.deepEqual(texts, ["Grum"]);
+	assert.equal(drawn.nodeDimensions.width, 50);
 });
 
 test("map pin: a custom shape, the same size on screen at any zoom", function() {
@@ -290,6 +302,17 @@ test("map pin: a custom shape, the same size on screen at any zoom", function() 
 	assert.ok(Math.abs(near.nodeDimensions.width / far.nodeDimensions.width - 4) < 1e-9, "zoomed in four times: a quarter of the size on the map");
 	far.drawNode();
 	assert.ok(drawn.indexOf("Kantine") !== -1 && drawn.indexOf(2) !== -1, "label in a dashed pill");
+	// A dead place: its pill striped (graph/pill.js), the text in the font colour of the graph
+	var dead = {nodes: {d: {trpgPin: "tiddler", trpgDead: "yes"}}},
+		filled = [];
+	adapter.trpgPillBase = "#ffffff";
+	adapter.trpgPillText = "#333333";
+	pin.process.call(adapter, {}, dead);
+	Object.assign(ctx, {save: function() {}, restore: function() {}, clip: function() {}, lineTo: function() {},
+		fillRect: function() { filled.push(this.fillStyle); }, fill: function() { filled.push(this.fillStyle); }});
+	dead.nodes.d.ctxRenderer({ctx: ctx, x: 0, y: 0, style: {color: "#ffd5d5", borderColor: "#ff0000"}, label: "Burg", state: {}}).drawNode();
+	assert.ok(filled.indexOf("#dadada") !== -1 && filled.indexOf("#ffd1d1") !== -1, filled.join());
+	assert.equal(ctx.fillStyle, "#333333");
 });
 
 test("map fit: a pin below the image makes the frame taller, one beside it wider", function() {

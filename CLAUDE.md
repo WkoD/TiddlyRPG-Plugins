@@ -387,7 +387,7 @@ the tiddler title:
   `$:/graph/`, so not in the dropdown of the graph sidebar); the vis-network extensions
   `graph/map-fit.js` (`module-type: vis-property`, graph property `trpgMapFit`),
   `graph/map-pin.js` (`vis-property`, node property `trpgPin`),
-  `graph/pill.js` (`vis-property`, node property `trpgPill`: a node like a tag pill - its colour
+  `graph/pill.js` (`vis-property`, node properties `trpgPill` and `trpgDead`: a node like a tag pill - its colour
   as the border, light inside, the label in the font colour of the graph; set by all three graph
   templates) and
   `graph/map-fit-message.js` (`vis-message`, `trpg-map-fit`). The thin view definitions

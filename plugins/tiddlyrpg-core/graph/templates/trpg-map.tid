@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261015160005000
+modified: 20261015161851000
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -75,8 +75,8 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
-<$properties $filter="[tag[Person]trpg.dead[]]"       color="#dddddd" borderColor={{Person!!color}}>
-<$properties $filter="[tag[Organisation]trpg.dead[]]" color="#dddddd" borderColor={{Organisation!!color}}>
+<$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
 
 <%if [<trpg-hidden>is[blank]] %>
 
