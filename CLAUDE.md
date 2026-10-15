@@ -119,6 +119,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     with macros, refresh
     on the rules and plugin configs
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`
+  - `inputs` - every `$edit-text` of the plugins keeps its widget while typing (`h.typeInto`):
+    a case per input, and a scan of the wikitext of `tiddlyrpg-core` and `staticfiles` that
+    fails for an input without its case (see "Inputs keep their focus")
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
     label), the relation list forward and back, included types, symmetric types, family,
     who leads a location as present there
@@ -225,6 +228,14 @@ these fields in TiddlyWiki format (UTC, `YYYYMMDDHHMMSSmmm`). When editing direc
 the same care applies as in the wiki repos - see their `CLAUDE.md` -> "Timestamps when editing
 tiddlers" (new file: `created`=`modified`=now; content change: only `modified`; mechanical mass
 renames/migrations excepted).
+
+**Inputs keep their focus:** nothing around an `$edit-text` may read what it edits - no `$let`,
+`$set`, `$vars`, `%if`, `$list` or filtered attribute that depends on the edited tiddler or
+field. A change of such a variable renders everything inside anew, the input too, and in the
+browser it loses the focus after every key. What follows the input (a result, a button, a hint)
+reads the value itself, beside or after the input, as in `Calendar`, `Currency` and
+`templates/quest-body`. A new input gets its case in `test/inputs.test.js`; the test fails
+without it.
 
 **Naming:** internal names are English - tags/hubs (`Location`, `Item`, ...), fields
 (`location`, `owner`, ...), macros, functions, files (`kebab-case`). Everything a reader sees comes

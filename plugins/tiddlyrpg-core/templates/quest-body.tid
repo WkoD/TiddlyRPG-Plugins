@@ -1,5 +1,5 @@
 created: 20261015122743000
-modified: 20261015134500000
+modified: 20261015185332000
 title: $:/plugins/tiddlyrpg-core/templates/quest-body
 type: text/vnd.tiddlywiki
 
@@ -10,7 +10,8 @@ type: text/vnd.tiddlywiki
      with it; the history as a timeline: every marker the view sees, newest first, its date
      beside a line with a point (a diamond where a status is set), its event (a jump to the
      section), the status and what it holds through trpg-body. Also the details of a card of the
-     hub (templates/quest-card). -->
+     hub (templates/quest-card). The new name is read after the input only: a variable around it
+     would render the input anew on every key and lose the focus. -->
 \whitespace trim
 <$let trpg-quest=<<currentTiddler>> trpg-rename={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/quest-rename/]] }}}>
 <%if [<trpg-quest>is[tiddler]] %>
@@ -20,13 +21,13 @@ type: text/vnd.tiddlywiki
 <%else%>
 <div class="trpg-quest-hint"><$text text={{{ [[Quest/Rumour/Hint]trpgtranslate[]] }}}/></div>
 <%if [{$:/status/IsReadOnly}!match[yes]] %>
-<$let trpg-new={{{ [<trpg-rename>get[text]trim[]] }}}>
 <div class="trpg-quest-tools">
 <$button class="trpg-quest-create" tooltip={{{ [[Quest/Create]trpgtranslate[]] }}}>
 <$action-createtiddler $basetitle=<<trpg-quest>> tags="Quest"/>
 <$text text={{{ [[Quest/Create]trpgtranslate[]] }}}/>
 </$button>
 <$edit-text tiddler=<<trpg-rename>> tag="input" class="trpg-quest-rename" placeholder={{{ [[Quest/Rename/Placeholder]trpgtranslate[]] }}}/>
+<$let trpg-new={{{ [<trpg-rename>get[text]trim[]] }}}>
 <%if [<trpg-new>!is[blank]!match<trpg-quest>] %>
 <$button class="trpg-quest-rename-do">
 <$action-sendmessage $message="tm-relink-tiddler" from=<<trpg-quest>> to=<<trpg-new>>/>
@@ -38,8 +39,8 @@ type: text/vnd.tiddlywiki
 <span class="trpg-quest-rename-exists"><$text text={{{ [[Quest/Rename/Exists]trpgtranslate[]] }}}/></span>
 <%endif%>
 <%endif%>
-</div>
 </$let>
+</div>
 <%endif%>
 <%endif%>
 <$list filter="[<trpg-quest>questlinks[]] +[limit[1]]" variable="ignore">

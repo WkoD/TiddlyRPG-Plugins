@@ -39,12 +39,6 @@ test.describe("de-DE", function() {
 		assert.equal(colour("Grum"), "#00a600");
 	});
 
-	test("calendar hub: the calculator keeps its inputs while typing", function() {
-		var result = h.typeInto(wiki, "Calendar", {title: "$:/temp/tiddlyrpg/calendar", calc_date: "1351-07-30", calc_day: "1"});
-		assert.ok(result.kept, "the same input fields after a change");
-		assert.ok(result.text.indexOf("Mittsommer (07/08)") !== -1, "the result follows");
-	});
-
 	test("calendar hub: calculator written out", function() {
 		h.add(wiki, {title: "$:/temp/tiddlyrpg/calendar", calc_date: "1351-07-30", calc_day: "1"});
 		try {

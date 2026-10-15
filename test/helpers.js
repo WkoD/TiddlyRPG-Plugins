@@ -198,10 +198,11 @@ exports.filter = function(wiki, text, variables) {
 // Renders a tiddler into a fake DOM, sets the fields of a temp tiddler as typing would and
 // refreshes: {kept, text} - kept is whether every input field ($edit-text) is still the same
 // widget (one rendered anew loses the focus in the browser), text the text of the page after it.
-// Removes the temp tiddler.
-exports.typeInto = function(wiki, title, fields) {
+// Removes the temp tiddler. variables (optional) are set around the tiddler, e.g. currentTiddler
+// for a template.
+exports.typeInto = function(wiki, title, fields, variables) {
 	var container = $tw.fakeDocument.createElement("div"),
-		widget = wiki.makeTranscludeWidget(title, {document: $tw.fakeDocument, importPageMacros: true});
+		widget = wiki.makeTranscludeWidget(title, {document: $tw.fakeDocument, importPageMacros: true, variables: variables || {}});
 	var inputs = function(w, list) {
 		if(w.parseTreeNode && w.parseTreeNode.type === "edit-text") {
 			list.push(w);
