@@ -666,7 +666,6 @@ out every message of its level. An id that is no rule is a hint.
 | `dates/phases` | hint | a phase of a non-event without an end before a later one, `..` as start |
 | `dates/event` | hint | an event without date, without `<<date>>` at the start, sections without heading, text before the first `<<date>>` |
 | `dates/placeholders` | error, hint | `<<date n>>` beyond the sections of the field (error); two `<<date>>` for one section, `---` right before one (hints) |
-| `events/participants` | hint | an event links a player character it is not tagged with |
 | `expected/image` | hint | a person, player character or location without image |
 | `expected/map` | hint | a location without map |
 | `expected/player` | hint | a player character without the field `player` |
@@ -679,7 +678,6 @@ out every message of its level. An id that is no rule is a hint.
 | `locations/structure` | error | a location in two places or in a cycle, naming no location, with a parent hidden from someone who sees it; a person in two places; an artifact in two places, with two owners, or with owner and location |
 | `locations/led` | hint | `location` names a location `leader` already holds |
 | `locations/tag` | error | a location as tag |
-| `locations/organisation` | hint | the location of a person is none of the places of its organisations, nor within or above one |
 | `macros/rules` | error | a rules macro with a text the ruleset does not understand |
 | `macros/unknown` | error | a macro nothing defines |
 | `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
@@ -698,6 +696,7 @@ out every message of its level. An id that is no rule is a hint.
 | `secrets/transclusion` | error | a secret tiddler is transcluded where someone sees it who may not see the secret (fine inside a tiddler or section locked for the same players or fewer) |
 | `sections/structure` | error | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker |
 | `spots/spotlink` | error | a `<<spotlink>>` whose location does not exist or does not have the spot |
+| `spots/joinedtext` | hint | a spot joined to a tiddler has a text of its own - it shows only in the location, not where the spot leads; move it into the tiddler |
 | `spots/similar` | hint | a spot without tiddler whose name looks like a title written another way (as `quests/similar`) |
 | `types/missing` | hint | a tiddler without type tag |
 

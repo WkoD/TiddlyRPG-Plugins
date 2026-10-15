@@ -3,12 +3,13 @@ title: $:/plugins/tiddlyrpg-core/modules/types.js
 type: application/javascript
 module-type: library
 created: 20261015194724000
-modified: 20261015194724000
+modified: 20261015201837000
 
 The type tags: a tiddler tagged with one of them has a type. They are the hubs (tag Index: Person,
 Location, Organisation, Event, Quest, the item categories, ...) and the item categories of the
-campaign (tag $:/tags/tiddlyrpg/ItemKind); the hub Index itself is none. Secret is no type: it
-locks, it does not tell what a tiddler is. Used by checks/types.js.
+campaign (tag $:/tags/tiddlyrpg/ItemKind); the hub Index itself is none, nor is Campaign (the
+pinned start page, not tagged Index). Secret is no type: it locks, it does not tell what a
+tiddler is. Used by checks/types.js.
 
   list(wiki)          the type tags, sorted (global cache)
   typed(wiki,title)   whether <title> has a type tag

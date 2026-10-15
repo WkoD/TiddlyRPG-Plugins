@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/locations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015194724000
+modified: 20261015201837000
 
 Checks of where a tiddler is (the rules of filters/location.js; modules/checks.js runs them).
 
@@ -16,8 +16,6 @@ Checks of where a tiddler is (the rules of filters/location.js; modules/checks.j
   locations/led         hint: location names a location leader already holds (whoever controls
                         a location is present there)
   locations/tag         error: a location as tag (locations are never tags)
-  locations/organisation  hint: the location of a person is none of the places of its
-                        organisations (member, officer, leader), nor within or above one
 
 \*/
 
@@ -122,42 +120,6 @@ exports.rules = [
 			}).map(function(tag) {
 				return {level: "error", key: "Check/Locations/Tag", params: {tag: tag}};
 			});
-		}
-	},
-	{
-		id: "locations/organisation",
-		run: function(wiki,title,view) {
-			var t = wiki.getTiddler(title);
-			if(!t || !(t.hasTag("Person") || t.hasTag("Player"))) {
-				return [];
-			}
-			var own = list(t,"location").filter(function(place) {
-					return isLocation(wiki,place);
-				}),
-				organisations = [],
-				seats = [];
-			$tw.utils.each(["member","officer","leader"],function(field) {
-				$tw.utils.each(list(t,field),function(organisation) {
-					var o = wiki.getTiddler(organisation);
-					if(o && o.hasTag("Organisation") && organisations.indexOf(organisation) === -1 && visibility.visible(wiki,organisation,view)) {
-						organisations.push(organisation);
-						seats = seats.concat(list(o,"location").filter(function(place) {
-							return isLocation(wiki,place);
-						}));
-					}
-				});
-			});
-			if(!own.length || !seats.length) {
-				return [];
-			}
-			// A place fits a seat if it is the seat, lies in it, or the seat lies in it
-			var fits = own.some(function(place) {
-				var above = location.path(wiki,place).path;
-				return seats.some(function(seat) {
-					return seat === place || above.indexOf(seat) !== -1 || location.path(wiki,seat).path.indexOf(place) !== -1;
-				});
-			});
-			return fits ? [] : [{level: "hint", key: "Check/Locations/Organisation", params: {place: own.join(", "), organisations: organisations.join(", ")}}];
 		}
 	}
 ];

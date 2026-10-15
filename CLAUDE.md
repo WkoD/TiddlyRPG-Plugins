@@ -81,8 +81,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-wiki.js` against fixtures in a
     temp folder
   - `location` - parents and places within (`filters/location.js`), occupants (items too), the
-    messages of `checks/locations.js` (artifacts too, a location as tag, the places of the
-    organisations), the path below the title, the relation list of a
+    messages of `checks/locations.js` (artifacts too, a location as tag), the path below the title, the relation list of a
     location, the events of the places within, the maps (one without tabs, several as tabs named
     after their files, the first with the graph), the spots below them with their images and
     maps (not for a joined spot, not in the tooltip), the field image (tabs from two images on,
@@ -111,7 +110,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
     marks below the maps, spots in notes of the DM; `<<spotlink>>`: link, pill, the messages on a
     missing spot or location (`checks/spots.js`), the events referencing a place; a spot one letter
-    off a title
+    off a title, a joined spot with a text of its own
   - `text-sections` - the sections of a body (`modules/sections.js`, `widgets/sections.js`):
     short and block forms, numbering over both, nesting (with a kind registered in the test),
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
@@ -144,8 +143,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     text in the wiki language, the messages below the title (`viewtemplates/checks`; not in the
     published copy, not for system tiddlers or tiddlers the view does not see), `trpg-noerror`
     and `trpg-noinfo`, the rules of scope wiki at the titles they name, what a message leaves
-    out for a view, and the rules without a topic of their own (links, types, events, expected
-    fields)
+    out for a view, and the rules without a topic of their own (links, types, expected fields)
   - `check-wiki` - `scripts/check-wiki.js`: the report (ids, levels, exit code), themes,
     `--github`, the switches; the config of the plugin types, the core version a plugin needs,
     unknown macros and rules macros not understood, images and maps on disk,
@@ -403,12 +401,14 @@ the tiddler title:
   `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
   `texts` (template texts).
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Campaign, Calendar, Currency, Ruleset, Information, Index,
-  Quest; titles without prefix, tag `Index`; the item categories also tagged
-  `$:/tags/tiddlyrpg/ItemKind`, see "Items"): type tags carry the `color` field from which graph nodes,
-  tiddler borders and tag pills take their colour; `caption` is `<<trpg.title ...>>`. The hub
-  `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or frame
-  what it locks.
+  Material, Book, Consumable, Equipment, Event, Information, Index, Quest: titles without prefix,
+  tag `Index`; the item categories also tagged `$:/tags/tiddlyrpg/ItemKind`, see "Items"; plus
+  Campaign, Calendar, Currency, Ruleset, CampaignSetting): the hubs tagged `Index` are the types
+  (`modules/types.js`) - their `color` field gives graph nodes, tiddler borders and tag pills
+  their colour; `caption` is `<<trpg.title ...>>`. `Campaign` is the pinned start page and no
+  type: tag `$:/tags/Pinned` only, its colour is the one of campaign events in the timeline. The
+  hub `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or
+  frame what it locks.
 - **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
   + relink field types; the function edge types `rules` (leader -> location, "controls"),
   `spots` (a spot that is a location -> the location it is part of, dashed) and a copy of

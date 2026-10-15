@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015200756000
+modified: 20261015201958000
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -19,7 +19,6 @@ Dates/Rule: Check the text: "---" right before <<date>> of section $n$ - the hea
 Dates/StartAfterEnd: Check the date: $section$ - the start is after the end
 Dates/Twice: Check the text: two <<date>> for section $n$
 Dates/Unreadable: Check the date: cannot read $parts$
-Events/Participant: Check the event: it links the player character $name$, who is not tagged - a tag means taking part
 Expected/Image: Check the fields: no image yet (field image)
 Expected/Map: Check the fields: no map yet (field map)
 Expected/Player: Check the fields: who plays this character? (field player)
@@ -31,7 +30,6 @@ Images/NoFolder: Check the text: <<image "$files$">> in a tiddler without type -
 Images/SpotImage: Check the spot $spot$: its image $path$ does not exist
 Images/SpotMap: Check the spot $spot$: its map $path$ does not exist
 Links/Missing: Check the link: $target$ does not exist - create it, unlink it or leave it on purpose
-Locations/Organisation: Check the location: $place$ is none of the places of $organisations$, nor within or above one
 Locations/Tag: Check the tags: $tag$ is a location - locations are never tags, the place goes into the field location
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
@@ -52,5 +50,6 @@ Relations/Siblings: Check the family: $other$ is a child of $parent$ too, but no
 Relations/Symmetric: Check the field $field$: $other$ names this tiddler, here $other$ is missing
 Secrets/Transclusion: Check the text: it transcludes the secret tiddler $target$ - every view that sees this tiddler sees it
 Secrets/View: Check the text: it asks the view itself - lock with the tag Secret, <<secret>> or <$secret>
+Spots/JoinedText: Check the spot: $spot$ is joined to $target$ - its text shows only here, not where the spot leads; move it into $target$
 Spots/Similar: Check the spot: $spot$ is close to the tiddler $title$ - a typo? With the same name the spot joins it
 Types/Missing: Check the tags: no type tag (person, location, event, ...) - it shows in no hub

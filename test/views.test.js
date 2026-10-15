@@ -300,7 +300,7 @@ test.describe("sweep", function() {
 				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>, [[Qx7 Lücke]].\n\n<<image \"Qx7pic.png, Qx7pic2.png\">>\n\n<<secret>><<spot \"Qx7 Akt\">>\n\nA spot one letter off Qx7 Akte."},
 			// The messages below the title that name another tiddler (checks/relations.js,
 			// checks/locations.js): the other side of an enmity, a sibling, an organisation that
-			// leadership includes and whose place does not fit, a location as tag, a second leader -
+			// leadership includes, a location as tag, a second leader -
 			// each of them locked; with the dead link and the similar spot of Sweep Regeln above
 			{title: "Qx7 Feind", tags: "Person Secret", enmity: "[[Sweep Wache]]", text: "Qx7 enemy."},
 			{title: "Sweep Mutter", tags: "Person", text: "A mother."},
@@ -388,7 +388,7 @@ test.describe("sweep", function() {
 			return h.checks(wiki, title).map(function(message) { return message.id + " " + message.text; }).join("\n");
 		};
 		var wache = texts("Sweep Wache");
-		["relations/symmetric", "relations/included", "locations/organisation", "locations/tag"].forEach(function(id) {
+		["relations/symmetric", "relations/included", "locations/tag"].forEach(function(id) {
 			assert.match(wache, new RegExp(id + " .*Qx7"), id);
 		});
 		assert.match(texts("Sweep Kind"), /relations\/siblings .*Qx7 Bruder/);

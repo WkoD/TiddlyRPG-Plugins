@@ -4,7 +4,7 @@
  * (viewtemplates/checks: classes, the id as tooltip; not in the published copy, not for system
  * tiddlers or tiddlers the view does not see), the fields trpg-noerror and trpg-noinfo, the rules
  * of scope wiki at the titles they name, what a message leaves out for a view, and the rules
- * without a topic of their own (links, types, events, expected fields). The other rules are
+ * without a topic of their own (links, types, expected fields). The other rules are
  * tested with their topic (dates, locations, items, spots, relations, ...), the report of
  * scripts/check-wiki.js in check-wiki.test.js.
  */
@@ -54,7 +54,7 @@ test.describe("registry", function() {
 
 	test("the themes are the first parts of the ids", function() {
 		var themes = Array.from(checks.themes());
-		["checks", "dates", "events", "expected", "images", "items", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
+		["checks", "dates", "expected", "images", "items", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
 			assert.ok(themes.indexOf(theme) !== -1, theme);
 		});
 	});
@@ -262,14 +262,11 @@ test.describe("content", function() {
 		});
 	});
 
-	test("events/participants: a linked player character that is not tagged", function() {
-		withTiddlers([
-			{title: "Mit Frigg", tags: "Event", date: "1351", text: "<<date>>\n\n[[Frigg]] at [[Baile]]."},
-			{title: "Frigg dabei", tags: "Event Frigg", date: "1351", text: "<<date>>\n\n[[Frigg]] at [[Baile]]."}
-		], function() {
-			assert.deepEqual(h.checks(wiki, "Mit Frigg", "events").map(function(m) { return m.text; }),
-				["Ereignis prüfen: Es verlinkt die Spielerfigur Frigg, die nicht als Tag dabei ist – der Tag heißt: war dabei"]);
-			assert.deepEqual(h.checkKeys(wiki, "Frigg dabei", "events"), []);
+	test("types/missing: Campaign is the start page, no type", function() {
+		var types = Array.from($tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/types.js").list(wiki));
+		assert.ok(types.indexOf("Campaign") === -1 && types.indexOf("Index") === -1, types.join());
+		withTiddlers([{title: "Kampagnennotiz", tags: "Campaign", text: "A note."}], function() {
+			assert.deepEqual(h.checkKeys(wiki, "Kampagnennotiz", "types"), ["Check/Types/Missing"]);
 		});
 	});
 

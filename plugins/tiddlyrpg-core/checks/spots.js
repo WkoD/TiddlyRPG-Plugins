@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/spots.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015200756000
+modified: 20261015201958000
 
 Checks of spots and of the references to them (modules/spots.js; modules/checks.js runs them).
 
@@ -14,6 +14,10 @@ Checks of spots and of the references to them (modules/spots.js; modules/checks.
                       another way (checks.similar(): case, spaces and punctuation aside, or one
                       letter or two swapped in longer names) - a typo makes a point of its own
                       instead of joining the tiddler
+  spots/joinedtext    hint: a spot joined to a tiddler that has a text of its own - the text shows
+                      only in the location (below its maps), not where the spot leads: the map,
+                      <<spotlink>> and the relation list open the tiddler. Move the text into
+                      the tiddler; nothing of it shows there by itself
 
 \*/
 
@@ -53,6 +57,26 @@ exports.rules = [
 		}
 	},
 	{
+		id: "spots/joinedtext",
+		run: function(wiki,title,view) {
+			var tiddler = wiki.getTiddler(title);
+			if(!tiddler || !tiddler.hasTag("Location")) {
+				return [];
+			}
+			var text = tiddler.fields.text || "",
+				model = sections.read(wiki,title),
+				messages = [];
+			$tw.utils.each(spots.visibleSpots(wiki,title,view),function(spot) {
+				var target = spots.targetOf(wiki,spot),
+					record = model.records[spot.id];
+				if(target && target !== title && wiki.tiddlerExists(target) && visibility.visible(wiki,target,view) && record && ownText(text,record)) {
+					messages.push({level: "hint", key: "Check/Spots/JoinedText", params: {spot: spot.plain, target: target}});
+				}
+			});
+			return messages;
+		}
+	},
+	{
 		id: "spots/similar",
 		run: function(wiki,title,view) {
 			var tiddler = wiki.getTiddler(title);
@@ -77,6 +101,16 @@ exports.rules = [
 		}
 	}
 ];
+
+// The text of a spot without its marker: after <<spot>> to the end of its section, inside
+// <$spot>...</$spot>
+function ownText(text,record) {
+	var part = text.slice(record.form === "block" ? record.from : record.end,record.to);
+	if(record.form === "block") {
+		part = part.replace(/^<\$spot\b[^>]*>/,"").replace(/<\/\$spot>\s*$/,"");
+	}
+	return part.trim();
+}
 
 // The titles that are no system tiddlers, by the length of their plain form (global cache)
 function plainTitles(wiki) {

@@ -228,4 +228,19 @@ test.describe("messages on spots", function() {
 			wiki.deleteTiddler("Harbour Town");
 		}
 	});
+
+	test("a spot joined to a tiddler with a text of its own: a hint to move it, nothing in the tiddler", function() {
+		h.add(wiki, {title: "Hafenviertel", tags: "Location", text: "A quarter.\n\n<<spot \"Tavern\">>\n\nWhere sailors drink.\n\n<<spot \"Barkeep\">>\n\n<$spot name=\"Guildmaster\">\n\nIn the block.\n\n</$spot>\n\n<<spot \"Kai\">>\n\nNo tiddler of its own.\n\n<<secret>><<spot \"Grum\">>\n\nLocked."});
+		try {
+			var found = h.checks(wiki, "Hafenviertel", "spots").filter(function(m) { return m.id === "spots/joinedtext"; });
+			assert.deepEqual(found.map(function(m) { return m.params.spot; }), ["Tavern", "Guildmaster", "Grum"], "not Barkeep (no text), not Kai (no tiddler)");
+			assert.equal(found[0].text, "Spot prüfen: Tavern ist mit Tavern verbunden – sein Text erscheint nur hier, nicht dort, wohin der Spot führt; in Tavern umziehen");
+			assert.ok(h.view(wiki, "Tavern").indexOf("Where sailors drink") === -1, "nothing shows in the tiddler");
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(h.checks(wiki, "Hafenviertel", "spots").filter(function(m) { return m.id === "spots/joinedtext"; }).map(function(m) { return m.params.spot; }), ["Tavern", "Guildmaster"], "not a locked spot");
+			});
+		} finally {
+			wiki.deleteTiddler("Hafenviertel");
+		}
+	});
 });
