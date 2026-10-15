@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015191942000
+modified: 20261015194724000
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -20,6 +20,10 @@ Dates/Rule: Text prüfen: „---“ direkt vor <<date>> von Abschnitt $n$ – di
 Dates/StartAfterEnd: Datum prüfen: $section$ – der Anfang liegt nach dem Ende
 Dates/Twice: Text prüfen: zweimal <<date>> für Abschnitt $n$
 Dates/Unreadable: Datum prüfen: $parts$ ist nicht lesbar
+Events/Participant: Ereignis prüfen: Es verlinkt die Spielerfigur $name$, die nicht als Tag dabei ist – der Tag heißt: war dabei
+Expected/Image: Felder prüfen: noch kein Bild (Feld image)
+Expected/Map: Felder prüfen: noch keine Karte (Feld map)
+Expected/Player: Felder prüfen: Wer spielt diese Figur? (Feld player)
 Images/Image: Bild prüfen: $path$ gibt es nicht
 Images/Joined: Spot prüfen: $spot$ ist mit $target$ verbunden – seine Bilder und Karten erscheinen dort, also dort eintragen
 Images/Macro: Text prüfen: <<image>> zeigt $path$, das gibt es nicht
@@ -31,6 +35,9 @@ Legacy/Dateformat: Ereignis prüfen: ein Datum im Text statt im Feld: $calls$
 Legacy/Datelong: Ereignis prüfen: Ein Aufruf von datelong steht noch im Text – das Datum gehört ins Feld
 Legacy/DeadFilter: Filter prüfen: search:date[.] ist die alte Marke der Toten – trpg.dead[] verwenden
 Legacy/Link: Felder prüfen: Das Feld link wird nicht mehr gezeigt – woher die Bilder stammen, steht im Feld source
+Links/Missing: Link prüfen: $target$ gibt es nicht – anlegen, entlinken oder bewusst stehen lassen
+Locations/Organisation: Ort prüfen: $place$ ist keiner der Orte von $organisations$ und liegt weder darin noch darüber
+Locations/Tag: Tags prüfen: $tag$ ist ein Ort – Orte sind nie Tags, der Ort gehört ins Feld location
 Plugins/Reference: Geldsystem prüfen: Die Münze der Preise des Regelwerks ist $reference$, das ist keine seiner Münzen ($coins$)
 Plugins/disabled: Auswahl prüfen: $configured$ ist deaktiviert – aktiv ist $active$
 Plugins/missing: Auswahl prüfen: $configured$ ist nicht installiert – aktiv ist $active$
@@ -38,5 +45,17 @@ Plugins/type: Auswahl prüfen: $configured$ ist kein Plugin dieses Typs – akti
 Quests/NoMarker: Quest prüfen: Es hat noch keinen Marker – in einem Ereignis markieren: <<quest "$name$">>
 Quests/SimilarQuest: Namen prüfen: Er gleicht fast dem Quest $other$ – ein Quest zweimal verschieden geschrieben?
 Quests/SimilarRumour: Namen prüfen: Er gleicht fast dem Gerücht $other$ – ein Quest zweimal verschieden geschrieben?
+Relations/Ancestor: Familie prüfen: Die Linie der Eltern erreicht den Vorfahren $other$ schon
+Relations/DeadLeader: Felder prüfen: tot, aber führt noch $targets$ – wer folgte?
+Relations/Family: Familie prüfen: family nennt $other$, das ist schon Elternteil, Vorfahr, Ehepartner oder Geschwister
+Relations/Former: Felder prüfen: $field$ und former nennen beide $target$ – es ist eins von beiden
+Relations/Included: Felder prüfen: $field$ nennt $target$, das $other$ schon einschließt
+Relations/Leaders: Organisation prüfen: Mehrere führen sie ($leaders$) – ein Rat oder einer zu viel?
+Relations/Missing: Feld $field$ prüfen: $target$ gibt es nicht
+Relations/MissingSpot: Feld $field$ prüfen: $target$ ist kein Tiddler, nur ein Spot von $place$ – ein Tiddler namens $target$ verbindet den Spot
+Relations/Siblings: Familie prüfen: $other$ ist auch ein Kind von $parent$, aber kein Geschwister – echte Geschwister, Halbgeschwister oder bewusst?
+Relations/Symmetric: Feld $field$ prüfen: $other$ nennt diesen Tiddler, hier fehlt $other$
 Secrets/Transclusion: Text prüfen: Er transkludiert den geheimen Tiddler $target$ – jede Sicht, die diesen Tiddler sieht, sieht ihn
 Secrets/View: Text prüfen: Er fragt die Sicht selbst ab – mit dem Tag Secret, <<secret>> oder <$secret> sperren
+Spots/Similar: Spot prüfen: $spot$ gleicht fast dem Tiddler $title$ – ein Tippfehler? Mit gleichem Namen wird der Spot mit ihm verbunden
+Types/Missing: Tags prüfen: kein Typ-Tag (Person, Ort, Ereignis, …) – er erscheint in keiner Übersicht

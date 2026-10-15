@@ -59,7 +59,7 @@ test("a clean wiki: no finding, the calendar of the setting applies", function()
 test("an unknown macro and a rules macro the ruleset does not understand: errors", function() {
 	write("tiddlers/Notiz.tid", "title: Notiz\n\nA <<nope>> B, <<term wis bogus>>, <<term wis save>>, <<unit \"5 gp\">>.\n");
 	try {
-		var result = check();
+		var result = check(["macros"]);
 		assert.equal(result.status, 1, result.out);
 		assert.match(result.out, /Notiz\n {2}error {2}Check the text: <<term wis>> has no variant "bogus" {2}\[macros\/rules\]\n {2}error {2}Check the text: <<nope>> is no known macro {2}\[macros\/unknown\]\n/);
 		assert.match(result.out, /2 errors, 0 hints/);
@@ -72,7 +72,7 @@ test("phases of a non-event: a death before the return is fine, a phase without 
 	write("tiddlers/Hati.tid", "title: Hati\ntags: Person\ndate: ./1351-08-04, 1355\n\nA wolf.\n");
 	write("tiddlers/Twice.tid", "title: Twice\ntags: Person\ndate: 1300, 1310/1320\n\nTwo starts.\n");
 	try {
-		var result = check();
+		var result = check(["dates"]);
 		assert.equal(result.status, 0, result.out);
 		assert.doesNotMatch(result.out, /^Hati$/m);
 		assert.match(result.out, /Twice\n {2}hint {2}Check the date: the phase 1300 has no end, but a later one follows {2}\[dates\/phases\]\n/);
@@ -116,7 +116,7 @@ test("images and maps: a missing file, images at a joined spot; battlemap is no 
 test("the field link: a hint, it is shown no more", function() {
 	write("tiddlers/Baile.tid", "title: Baile\ntags: Location\nlink: https://example.org/baile\n\nTown.\n");
 	try {
-		var result = check();
+		var result = check(["legacy"]);
 		assert.equal(result.status, 0, result.out);
 		assert.match(result.out, /Baile\n {2}hint {2}Check the fields: the field link is shown no more - where the images come from goes into the field source {2}\[legacy\/link\]\n/);
 	} finally {

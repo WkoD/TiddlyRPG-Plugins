@@ -216,3 +216,16 @@ test.describe("spotlink", function() {
 		assert.ok(h.view(wiki, "Neighbour").indexOf("Well Night") === -1);
 	});
 });
+
+test.describe("messages on spots", function() {
+	test("a spot without tiddler whose name is one letter off a title: a hint", function() {
+		h.add(wiki, {title: "Harbour Town", tags: "Location", text: "A port.\n\n<<spot \"Tavrn\">>\n\nA typo.\n\n<<spot \"Pier\">>\n\nFine."});
+		try {
+			var found = h.checks(wiki, "Harbour Town", "spots");
+			assert.deepEqual(found.map(function(m) { return m.key; }), ["Check/Spots/Similar"]);
+			assert.equal(found[0].text, "Spot prüfen: Tavrn gleicht fast dem Tiddler Tavern – ein Tippfehler? Mit gleichem Namen wird der Spot mit ihm verbunden");
+		} finally {
+			wiki.deleteTiddler("Harbour Town");
+		}
+	});
+});

@@ -3,8 +3,9 @@
  * the messages of a tiddler with their level and text in the wiki language, below the title
  * (viewtemplates/checks: classes, the id as tooltip; not in the published copy, not for system
  * tiddlers or tiddlers the view does not see), the fields trpg-noerror and trpg-noinfo, the rules
- * of scope wiki at the titles they name, and what a message leaves out for a view. The single
- * rules are tested with their topic (dates, locations, items, spots, ...), the report of
+ * of scope wiki at the titles they name, what a message leaves out for a view, and the rules
+ * without a topic of their own (links, types, events, expected fields). The other rules are
+ * tested with their topic (dates, locations, items, spots, relations, ...), the report of
  * scripts/check-wiki.js in check-wiki.test.js.
  */
 var test = require("node:test"),
@@ -53,7 +54,7 @@ test.describe("registry", function() {
 
 	test("the themes are the first parts of the ids", function() {
 		var themes = Array.from(checks.themes());
-		["checks", "dates", "images", "items", "legacy", "locations", "macros", "plugins", "quests", "secrets", "sections", "spots"].forEach(function(theme) {
+		["checks", "dates", "events", "expected", "images", "items", "legacy", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
 			assert.ok(themes.indexOf(theme) !== -1, theme);
 		});
 	});
@@ -167,6 +168,9 @@ test.describe("rules of scope wiki", function() {
 
 test.describe("what a message leaves out for a view", function() {
 	test("a transcluded secret only for a view that sees it", function() {
+		var ids = function(title) {
+			return h.checks(wiki, title, "secrets").map(function(message) { return message.id; });
+		};
 		withTiddlers([{title: "Einbindung", text: "{{Hideout}}"}], function() {
 			assert.deepEqual(ids("Einbindung"), ["secrets/transclusion"]);
 			h.inView(wiki, "public", function() {
@@ -187,6 +191,57 @@ test.describe("what a message leaves out for a view", function() {
 			h.inView(wiki, "public", function() {
 				assert.ok(h.checkKeys(wiki, "Open Town", "locations").indexOf("Location/Check/LockedParent") === -1);
 			});
+		});
+	});
+});
+
+test.describe("content", function() {
+	test("links/missing: a link to a tiddler that does not exist, once; not in a section the view does not see", function() {
+		withTiddlers([{title: "Verweise", tags: "Event Frigg", date: "1351, 1352", text: "<<date>>\n\n[[Nirgendwo]], [[Nirgendwo]], [[Baile]], [[$:/Fehlt]].\n\n<<secret>><<date>>\n\n[[Geheimort]]."}], function() {
+			assert.deepEqual(h.checks(wiki, "Verweise", "links").map(function(m) { return m.params.target; }), ["Nirgendwo", "Geheimort"]);
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(h.checks(wiki, "Verweise", "links").map(function(m) { return m.params.target; }), ["Nirgendwo"]);
+			});
+		});
+	});
+
+	test("types/missing: a tiddler without type tag; not a hub, a data tiddler or one with a type", function() {
+		withTiddlers([
+			{title: "Ohne Typ", tags: "Secret", text: "Loose."},
+			{title: "Daten", type: "application/json", text: "{}"},
+			{title: "Kategorie", tags: "$:/tags/tiddlyrpg/ItemKind", text: "A category of the campaign."},
+			{title: "Mit Kategorie", tags: "Kategorie Item", text: "Typed through the base type."}
+		], function() {
+			assert.deepEqual(h.checkKeys(wiki, "Ohne Typ", "types"), ["Check/Types/Missing"]);
+			assert.deepEqual(h.checkKeys(wiki, "Daten", "types"), []);
+			assert.deepEqual(h.checkKeys(wiki, "Mit Kategorie", "types"), []);
+			assert.deepEqual(h.checkKeys(wiki, "Person", "types"), [], "a hub");
+			assert.deepEqual(h.checkKeys(wiki, "Baile", "types"), []);
+		});
+	});
+
+	test("events/participants: a linked player character that is not tagged", function() {
+		withTiddlers([
+			{title: "Mit Frigg", tags: "Event", date: "1351", text: "<<date>>\n\n[[Frigg]] at [[Baile]]."},
+			{title: "Frigg dabei", tags: "Event Frigg", date: "1351", text: "<<date>>\n\n[[Frigg]] at [[Baile]]."}
+		], function() {
+			assert.deepEqual(h.checks(wiki, "Mit Frigg", "events").map(function(m) { return m.text; }),
+				["Ereignis prüfen: Es verlinkt die Spielerfigur Frigg, die nicht als Tag dabei ist – der Tag heißt: war dabei"]);
+			assert.deepEqual(h.checkKeys(wiki, "Frigg dabei", "events"), []);
+		});
+	});
+
+	test("expected: image of persons, player characters and locations, map of locations, player of player characters", function() {
+		withTiddlers([
+			{title: "Ohne Bild", tags: "Person", text: "Someone."},
+			{title: "Mit Bild", tags: "Person", image: "a.jpg", text: "Someone."},
+			{title: "Neue Figur", tags: "Player", text: "Unplayed."}
+		], function() {
+			assert.deepEqual(h.checkKeys(wiki, "Ohne Bild", "expected"), ["Check/Expected/Image"]);
+			assert.deepEqual(h.checkKeys(wiki, "Mit Bild", "expected"), []);
+			assert.deepEqual(h.checkKeys(wiki, "Neue Figur", "expected"), ["Check/Expected/Image", "Check/Expected/Player"]);
+			assert.deepEqual(h.checkKeys(wiki, "Nowhere", "expected"), ["Check/Expected/Image", "Check/Expected/Map"]);
+			assert.deepEqual(h.checkKeys(wiki, "Tavern", "expected"), ["Check/Expected/Map"]);
 		});
 	});
 });

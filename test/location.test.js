@@ -573,3 +573,33 @@ test.describe("without calendar", function() {
 		assert.ok(avalon.indexOf(">07<") !== -1 && avalon.indexOf(">01<") !== -1);
 	});
 });
+
+test.describe("messages on where a tiddler is", function() {
+	test("a location as tag: an error", function() {
+		h.add(wiki, {title: "Tagged", tags: "Person Baile", text: "Someone."});
+		try {
+			assert.deepEqual(keys("Tagged"), ["Check/Locations/Tag"]);
+		} finally {
+			wiki.deleteTiddler("Tagged");
+		}
+	});
+
+	test("the location of a person and the places of its organisations", function() {
+		var add = function(list) { list.forEach(function(fields) { h.add(wiki, fields); }); };
+		add([
+			{title: "Port Guild", tags: "Organisation", location: "Kingdom", text: "Traders."},
+			{title: "Inside", tags: "Person", location: "Town", member: "[[Port Guild]]", text: "In the town, which lies in the kingdom."},
+			{title: "Above", tags: "Person", location: "Continent", member: "[[Port Guild]]", text: "In the continent around it."},
+			{title: "Away", tags: "Person", location: "Baile", member: "[[Port Guild]]", text: "Somewhere else."},
+			{title: "Free", tags: "Person", location: "Baile", text: "No organisation."}
+		]);
+		try {
+			assert.deepEqual(keys("Inside"), []);
+			assert.deepEqual(keys("Above"), []);
+			assert.deepEqual(keys("Away"), ["Check/Locations/Organisation"]);
+			assert.deepEqual(keys("Free"), []);
+		} finally {
+			["Port Guild", "Inside", "Above", "Away", "Free"].forEach(function(title) { wiki.deleteTiddler(title); });
+		}
+	});
+});

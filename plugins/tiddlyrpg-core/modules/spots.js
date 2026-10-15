@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/spots.js
 type: application/javascript
 module-type: library
 created: 20261006064449000
-modified: 20261014194538000
+modified: 20261015194724000
 
 Spots: the places of interest of a location, written in its body - the one place of these rules.
 Used by the spot filters (filters/spots.js), the location rules (filters/location.js) and the
@@ -129,11 +129,13 @@ exports.linksVisibly = function(wiki,linker,place,view) {
 Index over all locations (global cache, recomputed after any change), whatever the view:
   owners    {<title>: [locations that have <title> as a joined spot]}
   linkers   {<place>: [tiddlers that reference a spot of <place> with <<spotlink>>]}
+  names     {<plain name>: [locations with a spot of that name]}
 */
 exports.index = function(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-spot-index",function() {
 		var owners = Object.create(null),
-			linkers = Object.create(null);
+			linkers = Object.create(null),
+			names = Object.create(null);
 		wiki.each(function(tiddler,title) {
 			var text = tiddler.fields.text || "";
 			if(text.indexOf("spot") === -1 || tiddler.isDraft()) {
@@ -142,6 +144,10 @@ exports.index = function(wiki) {
 			var data = read(wiki,title);
 			if(tiddler.hasTag("Location")) {
 				$tw.utils.each(data.spots,function(spot) {
+					var named = names[spot.plain] = names[spot.plain] || [];
+					if(named.indexOf(title) === -1) {
+						named.push(title);
+					}
 					var target = targetOf(wiki,spot);
 					if(target && target !== title) {
 						var list = owners[target] = owners[target] || [];
@@ -160,6 +166,6 @@ exports.index = function(wiki) {
 				}
 			});
 		});
-		return {owners: owners, linkers: linkers};
+		return {owners: owners, linkers: linkers, names: names};
 	});
 };

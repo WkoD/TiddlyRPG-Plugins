@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015191942000
+modified: 20261015194724000
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -20,6 +20,10 @@ Dates/Rule: Check the text: "---" right before <<date>> of section $n$ - the hea
 Dates/StartAfterEnd: Check the date: $section$ - the start is after the end
 Dates/Twice: Check the text: two <<date>> for section $n$
 Dates/Unreadable: Check the date: cannot read $parts$
+Events/Participant: Check the event: it links the player character $name$, who is not tagged - a tag means taking part
+Expected/Image: Check the fields: no image yet (field image)
+Expected/Map: Check the fields: no map yet (field map)
+Expected/Player: Check the fields: who plays this character? (field player)
 Images/Image: Check the image: $path$ does not exist
 Images/Joined: Check the spot: $spot$ is joined to $target$ - its images and maps show there, set them in that tiddler
 Images/Macro: Check the text: <<image>> shows $path$, which does not exist
@@ -31,6 +35,9 @@ Legacy/Dateformat: Check the event: a date in the text instead of the field: $ca
 Legacy/Datelong: Check the event: a datelong call is left in the text - the date belongs in the field
 Legacy/DeadFilter: Check the filter: search:date[.] is the old marker of the dead - use trpg.dead[]
 Legacy/Link: Check the fields: the field link is shown no more - where the images come from goes into the field source
+Links/Missing: Check the link: $target$ does not exist - create it, unlink it or leave it on purpose
+Locations/Organisation: Check the location: $place$ is none of the places of $organisations$, nor within or above one
+Locations/Tag: Check the tags: $tag$ is a location - locations are never tags, the place goes into the field location
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
 Plugins/missing: Check the choice: $configured$ is not installed - active is $active$
@@ -38,5 +45,17 @@ Plugins/type: Check the choice: $configured$ is no plugin of this type - active 
 Quests/NoMarker: Check the quest: it has no marker yet - mark it in an event: <<quest "$name$">>
 Quests/SimilarQuest: Check the name: it is close to the quest $other$ - one quest written two ways?
 Quests/SimilarRumour: Check the name: it is close to the rumour $other$ - one quest written two ways?
+Relations/Ancestor: Check the family: the line of parents already reaches the ancestor $other$
+Relations/DeadLeader: Check the fields: dead, but still leads $targets$ - who followed?
+Relations/Family: Check the family: family names $other$, who is already parent, ancestor, spouse or sibling
+Relations/Former: Check the fields: $field$ and former both name $target$ - it is one of them
+Relations/Included: Check the fields: $field$ names $target$, whom $other$ already includes
+Relations/Leaders: Check the organisation: several lead it ($leaders$) - a council, or one too many?
+Relations/Missing: Check the field $field$: $target$ does not exist
+Relations/MissingSpot: Check the field $field$: $target$ is no tiddler, only a spot of $place$ - a tiddler named $target$ joins the spot
+Relations/Siblings: Check the family: $other$ is a child of $parent$ too, but no sibling - true siblings, half siblings or on purpose?
+Relations/Symmetric: Check the field $field$: $other$ names this tiddler, here $other$ is missing
 Secrets/Transclusion: Check the text: it transcludes the secret tiddler $target$ - every view that sees this tiddler sees it
 Secrets/View: Check the text: it asks the view itself - lock with the tag Secret, <<secret>> or <$secret>
+Spots/Similar: Check the spot: $spot$ is close to the tiddler $title$ - a typo? With the same name the spot joins it
+Types/Missing: Check the tags: no type tag (person, location, event, ...) - it shows in no hub

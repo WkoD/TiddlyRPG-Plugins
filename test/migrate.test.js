@@ -100,7 +100,7 @@ test.describe("after --write", function() {
 	});
 
 	test("checker: the date left in the body is an error, the intro a hint", function() {
-		var result = run("check-wiki.js", [dir]);
+		var result = run("check-wiki.js", [dir, "dates", "legacy"]);
 		assert.equal(result.status, 1, result.out);
 		assert.match(result.out, /Turm\n(.*\n)*\s+error  Check the event: a date in the text instead of the field: <<dateformat "1351-08-09">>/);
 		assert.match(result.out, /Intro\n(.*\n)*\s+hint  Check the event: no <<date>> for section 1/);
@@ -111,7 +111,7 @@ test.describe("after --write", function() {
 		tid("Turm", {title: "Turm", tags: "Campaign Event", date: "1351-07-01, 1351-07-11, 1351-08-09/.."},
 			"<<date>>\n\nA.\n\n<<date label:\"Zweiter\">>\n\nB.\n\n<<date>>\n\nC.\n");
 		tid("Intro", {title: "Intro", tags: "Event", date: "1351-08-15, 1351-11-12"}, "<<date>>\n\nZuerst.\n\n<<date>>\n\nDann.\n");
-		var result = run("check-wiki.js", [dir]);
+		var result = run("check-wiki.js", [dir, "dates", "legacy"]);
 		assert.equal(result.status, 0, result.out);
 		assert.match(result.out, /0 errors, 0 hints/);
 	});

@@ -297,7 +297,19 @@ test.describe("sweep", function() {
 				image: "Qx7a.jpg, Qx7b.jpg", map: "Qx7m1.jpg, Qx7m2.jpg"},
 			// Rules macros in a locked section: their text and the hint on what is not understood
 			{title: "Sweep Regeln", tags: "Location", location: "Baile",
-				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>.\n\n<<image \"Qx7pic.png, Qx7pic2.png\">>"},
+				text: "Open, <<unit \"30 ft\">>.\n\n<<secret>><<spot \"Qx7 Ecke\">>\n\n<<term Qx7rule>> and <<damage \"1d6 Qx7dmg\">>, [[Qx7 Lücke]].\n\n<<image \"Qx7pic.png, Qx7pic2.png\">>\n\n<<secret>><<spot \"Qx7 Akt\">>\n\nA spot one letter off Qx7 Akte."},
+			// The messages below the title that name another tiddler (checks/relations.js,
+			// checks/locations.js): the other side of an enmity, a sibling, an organisation that
+			// leadership includes and whose place does not fit, a location as tag, a second leader -
+			// each of them locked; with the dead link and the similar spot of Sweep Regeln above
+			{title: "Qx7 Feind", tags: "Person Secret", enmity: "[[Sweep Wache]]", text: "Qx7 enemy."},
+			{title: "Sweep Mutter", tags: "Person", text: "A mother."},
+			{title: "Sweep Kind", tags: "Person", parent: "[[Sweep Mutter]]", text: "A child."},
+			{title: "Qx7 Bruder", tags: "Person Secret", parent: "[[Sweep Mutter]]", text: "Qx7 brother."},
+			{title: "Qx7 Orden", tags: "Organisation Secret", location: "Town", text: "Qx7 order."},
+			{title: "Sweep Gilde", tags: "Organisation", location: "Town", text: "A guild."},
+			{title: "Qx7 Meister", tags: "Person Secret", leader: "[[Sweep Gilde]]", text: "Qx7 master."},
+			{title: "Sweep Wache", tags: "Person [[Qx7 Ort]]", location: "Baile", member: "[[Qx7 Orden]]", leader: "[[Qx7 Orden]] [[Sweep Gilde]]", text: "A guard."},
 			// Quests: a quest tagged Secret with a marker in an open section (the marker is hidden
 			// with it), a rumour whose only marker stands in a locked section, and the end of an
 			// open rumour in that locked section - hub, cards, history and the event leave them out;
@@ -369,6 +381,20 @@ test.describe("sweep", function() {
 			return item.where + ": …" + item.text.substring(Math.max(0, at - 80), at + 40) + "…";
 		});
 		assert.deepEqual(leaks, []);
+	});
+
+	test("the DM: the messages name the locked tiddlers, so the sweep reaches them", function() {
+		var texts = function(title) {
+			return h.checks(wiki, title).map(function(message) { return message.id + " " + message.text; }).join("\n");
+		};
+		var wache = texts("Sweep Wache");
+		["relations/symmetric", "relations/included", "locations/organisation", "locations/tag"].forEach(function(id) {
+			assert.match(wache, new RegExp(id + " .*Qx7"), id);
+		});
+		assert.match(texts("Sweep Kind"), /relations\/siblings .*Qx7 Bruder/);
+		assert.match(texts("Sweep Gilde"), /relations\/leaders .*Qx7 Meister/);
+		assert.match(texts("Sweep Regeln"), /links\/missing .*Qx7 Lücke/);
+		assert.match(texts("Sweep Regeln"), /spots\/similar .*Qx7 Akt/);
 	});
 
 	test("the DM: every secret shows, so the sweep reaches them", function() {
