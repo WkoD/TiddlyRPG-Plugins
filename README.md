@@ -478,10 +478,6 @@ below the title.
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
 body (PDF), not for a secret the active view does not see.
 
-**Upgrading from 1.x.** `Book` was a type of its own and is now a category: every book needs
-`Artifact` (unique) or `Item` (several copies) as well. A book whose body ends in
-`<embed ... src="data/book/<file>">` gets the field `data` instead.
-
 ## Images and sources
 
 `image: Baile.jpg` shows an image from `images/<folder>/` (the folder of the type, e.g.
@@ -576,10 +572,6 @@ narrowest matching section, nothing without a match):
 A jump target is any element with `data-trpg-anchor` inside the opened tiddler; so far only the
 section headings (`date-<n>`) carry one. Without a target (edit mode, folded, a section the
 view does not see) the link opens the tiddler as usual.
-
-**Upgrading from 1.x.** `node scripts/migrate-dates.js <wiki>` converts the former `.`
-notation mechanically (dry run first, `--write` applies); `node scripts/check-wiki.js <wiki>`
-then reports what is left to decide or fix by hand. Both have a header with the details.
 
 ## Calendar
 

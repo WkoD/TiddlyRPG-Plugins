@@ -69,7 +69,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   (the plugins of the smoke edition plus the fixture plugins of `test/fixtures/plugins`, e.g.
   `fixture-setting-harptos` with a calendar in the style of Harptos), adds the fixture
   tiddlers and offers `render`/`view`/`body`/`filter`, and `graph` (see below). One file per topic:
-  - `calendar-engine` - the engine against the former hard-wired Harptos arithmetic and an own
+  - `calendar-engine` - the engine against Harptos arithmetic written out by hand and an own
     leap rule
   - `dates` - syntax of the date field, `dateformat`/`dateadd`/`datediff`/`dateended`/
     `datecheck` in de-DE and en-GB, and without a calendar; `datesection`; the order month
@@ -78,8 +78,6 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     relink, rule, hints),
     locations per section, subtitle without modifier, event table (rows and title cells),
     jump marks and the wrapper `trpg-jump`
-  - `migrate` - `scripts/migrate-dates.js` and `scripts/check-wiki.js` against fixtures in a
-    temp folder
   - `location` - parents and places within (`filters/location.js`), occupants (items too), the
     messages of `checks/locations.js` (artifacts too, a location as tag), the path below the
     title (small pills, arrows, the places of a line side by side), the relation list of a
@@ -154,7 +152,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `check-wiki` - `scripts/check-wiki.js`: the report (ids, levels, exit code), themes,
     `--github`, the switches; the config of the plugin types, the core version a plugin needs,
     unknown macros and rules macros not understood, images and maps on disk,
-    plugins from the packages in the wiki's `node_modules`, the phases of a non-event, quest names
+    plugins from the packages in the wiki's `node_modules`, the phases of a non-event, quest names,
+    the dated sections of an event, the locks in the text
   - `markdown` - the content type `text/x-tiddlyrpg-markdown` (`modules/markdown.js`): the
     markers, what of Markdown it reads, that nothing becomes wikitext, the real `README.md` as
     the tab "readme"
@@ -806,10 +805,9 @@ mind when changing it:
   their days: of several the narrowest wins, on a tie the first; "."/".." are open sides. It
   never falls back to "the section before" - a jump to the whole event is better than one to
   the wrong section.
-- `scripts/migrate-dates.js` converts the 1.x notation (dots), `scripts/check-wiki.js` checks a
-  wiki with the rules of "Checks" (boots it with the plugins of this repo and of the packages in
-  its `node_modules`, so its calendar applies). The migration and the checks of dates after it
-  are tested in `test/migrate.test.js`, the report in `test/check-wiki.test.js`.
+- `scripts/check-wiki.js` checks a wiki with the rules of "Checks" (boots it with the plugins of
+  this repo and of the packages in its `node_modules`, so its calendar applies). Its report and
+  its checks are tested in `test/check-wiki.test.js`.
 
 ## Jump marks
 
@@ -1321,5 +1319,5 @@ its `CLAUDE.md`.)
    Breaking format changes (e.g. renamed relation fields) belong in the release notes explicitly -
    consumer wikis otherwise silently lose graph edges. A new language belongs there too (the wikis
    list the supported languages in their README).
-7. Consumers (TiddlyRPG repo family) raise their pin themselves (`#1.4.1` -> `#2.0.0`), run
+7. Consumers (TiddlyRPG repo family) raise their pin themselves (e.g. `#2.0.0` -> `#2.1.0`), run
    `npm install` and bump their own `package.json` `version`.

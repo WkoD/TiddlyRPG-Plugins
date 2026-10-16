@@ -8,7 +8,6 @@
     "smoke": "node scripts/tw.js editions/smoke --verbose --version",
     "test": "node --test \"test/**/*.test.js\"",
     "test-lang": "node --test \"test/lang/*.test.js\"",
-    "migrate-dates": "node scripts/migrate-dates.js",
     "check-wiki": "node scripts/check-wiki.js"
   },
   "devDependencies": {

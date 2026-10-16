@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261015193638000
+modified: 20261016215428659
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline
@@ -29,9 +29,6 @@ stays open ("1322" = born 1322, alive). A non-event whose last section is a rang
 other than ".." has ended (dead/destroyed, trpg.dead). Several sections of a non-event are its
 phases, each but the last ended: "./1351, 1355" died 1351 and is back since 1355 (alive),
 "./1351, ./1380" came back at an unknown time and died again 1380 (openPhases, formatLast).
-
-The old format (tiddlyrpg-core before 2.0) separated everything by "." - isOld() recognises it;
-scripts/migrate-dates.js converts it.
 
 Dated sections of a body: <<date>> stands for the next section of the date field, <<date 3>>
 for section 3 (the following ones count on from there), <<date label:"Caption">> or
@@ -175,11 +172,6 @@ exports.parse = function(text) {
 	cache[text] = result;
 	cacheSize++;
 	return result;
-};
-
-// The format before 2.0: "." between the parts, no "/" and no ","
-exports.isOld = function(text) {
-	return /\./.test(text || "") && !/[\/,]/.test(text);
 };
 
 // Numeric order of two points (missing month/day count as 0)

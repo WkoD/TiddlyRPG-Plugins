@@ -68,11 +68,6 @@ test.describe("syntax", function() {
 		assert.equal(dates.parse("1351, x").invalid.join(), "x");
 	});
 
-	test("old format recognised", function() {
-		assert.ok(dates.isOld(".1339") && dates.isOld("1351-07-01.1351-07-11") && dates.isOld("."));
-		assert.ok(!dates.isOld("./1339") && !dates.isOld("1351") && !dates.isOld("1351, 1352"));
-	});
-
 	test("calendar check", function() {
 		var cal = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/calendar.js").active(wiki);
 		assert.equal(dates.check(cal, dates.parse("1351-07-31, 1352-07-32")).join(), "");

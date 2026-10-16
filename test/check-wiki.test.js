@@ -4,8 +4,7 @@
  * fields trpg-noerror and trpg-noinfo, and what it checks beyond dates: the config of the plugin
  * types ruleset and setting, the tiddlyrpg-core version a plugin needs, the reference coin of
  * the currency, unknown macros and rules macros not understood, images and maps on disk, the plugins of the packages in the wiki's node_modules and the phases of a non-event,
- * the messages on quest names.
- * The checks of dates and sections before and after the 1.x migration: migrate.test.js.
+ * the messages on quest names, the dated sections of an event and the locks in the text.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -79,6 +78,42 @@ test("phases of a non-event: a death before the return is fine, a phase without 
 	} finally {
 		fs.rmSync(path.join(dir, "tiddlers/Hati.tid"), {force: true});
 		fs.rmSync(path.join(dir, "tiddlers/Twice.tid"), {force: true});
+	}
+});
+
+test("dated sections: text before the first <<date>> is a hint, clean once every section has one", function() {
+	write("tiddlers/Intro.tid", "title: Intro\ntags: Event\ndate: 1351-08-15, 1351-11-12\n\nZuerst.\n\n<<date 2>>\n\nDann.\n");
+	write("tiddlers/Zwei.tid", "title: Zwei\ntags: Campaign Event\ndate: 1351-07-01, 1351-07-11, 1351-08-09/..\n\n" +
+		"<<date>>\n\nA.\n\n<<date label:\"Zweiter\">>\n\nB.\n\n<<date>>\n\nC.\n");
+	try {
+		var result = check(["dates"]);
+		assert.match(result.out, /Intro\n(.*\n)*\s+hint  Check the event: no <<date>> for section 1/);
+		assert.doesNotMatch(result.out, /cannot read/);
+		assert.doesNotMatch(result.out, /^Zwei$/m);
+		write("tiddlers/Intro.tid", "title: Intro\ntags: Event\ndate: 1351-08-15, 1351-11-12\n\n<<date>>\n\nZuerst.\n\n<<date>>\n\nDann.\n");
+		result = check(["dates"]);
+		assert.equal(result.status, 0, result.out);
+		assert.match(result.out, /0 errors, 0 hints/);
+	} finally {
+		["Intro.tid", "Zwei.tid"].forEach(function(file) {
+			fs.rmSync(path.join(dir, "tiddlers", file), {force: true});
+		});
+	}
+});
+
+test("locks: asking the view, a transcluded secret, a <<secret>> in a dated section", function() {
+	write("tiddlers/Geheim.tid", "title: Geheim\ntags: Event Secret\ndate: 1351\n\n<<date>>\n\nNur DM.\n");
+	write("tiddlers/Nutzer.tid", "title: Nutzer\ntags: Person\n\n{{Geheim}}\n\n<$list filter=\"[{$:/state/tiddlyrpg/view}]\">x</$list>\n");
+	write("tiddlers/Mitte.tid", "title: Mitte\ntags: Event\ndate: 1351\n\n<<date>>\n\nA <<secret>> B.\n");
+	try {
+		var result = check();
+		assert.match(result.out, /Nutzer\n(.*\n)*\s+error  Check the text: it asks the view itself/);
+		assert.match(result.out, /Nutzer\n(.*\n)*\s+error  Check the text: it transcludes the secret tiddler Geheim/);
+		assert.match(result.out, /Mitte\n(.*\n)*\s+error  .*<<secret>>/);
+	} finally {
+		["Geheim.tid", "Nutzer.tid", "Mitte.tid"].forEach(function(file) {
+			fs.rmSync(path.join(dir, "tiddlers", file), {force: true});
+		});
 	}
 });
 

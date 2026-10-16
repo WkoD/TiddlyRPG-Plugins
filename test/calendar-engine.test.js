@@ -16,7 +16,7 @@ test.before(function() {
 	});
 });
 
-// Former hard-wired Harptos arithmetic (tiddlyrpg-core 1.4.1, macros/library.js) as reference
+// Harptos arithmetic written out by hand, independent of the engine, as reference
 var reference = (function() {
 	function daysInMonth(year, month) {
 		var months = [31, 30, 30, 31, 30, 30, 31, 30, 31, 30, 31, 30],
