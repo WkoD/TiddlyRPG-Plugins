@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261016233000000
+modified: 20261016184211000
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back

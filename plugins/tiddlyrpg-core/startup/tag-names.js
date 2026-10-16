@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/tag-names.js
 type: application/javascript
 module-type: startup
 created: 20261001095424000
-modified: 20261016090000000
+modified: 20261016184211000
 
 Hook th-saving-tiddler: a tag typed under its translated name ("Ort") is stored under the internal
 name ("Location"). Works across all loaded language packs, not only the active one

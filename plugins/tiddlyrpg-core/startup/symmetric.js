@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/startup/symmetric.js
 type: application/javascript
 module-type: startup
-created: 20261016090000000
-modified: 20261016233000000
+created: 20261016184211000
+modified: 20261016184211000
 
 Hook th-saving-tiddler: a symmetric relation saved in the editor goes to the other end as well,
 an entry taken out leaves it there too (modules/symmetric.js). Compared with the tiddler as it

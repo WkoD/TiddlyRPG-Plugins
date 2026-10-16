@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261015144343000
+modified: 20261015145856000
 
 Rendering of the sections of a body (modules/sections.js).
 

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/dates.js
 type: application/javascript
 module-type: library
 created: 20261002082222000
-modified: 20261015193623000
+modified: 20261015193638000
 
 The date field and the dated sections of a body - the one place of these rules. Used by the date
 filters (filters/date.js), the event table (filters/eventrows.js), the timeline

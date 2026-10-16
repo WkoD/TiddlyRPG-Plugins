@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/plugins.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261015191942000
+created: 20261015193638000
+modified: 20261015193638000
 
 Checks of the plugins of the wiki (modules/plugin-types.js, modules/currency.js;
 modules/checks.js runs them). The titles are system tiddlers: in the wiki the same problems show

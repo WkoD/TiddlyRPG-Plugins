@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/checks.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261015191942000
+created: 20261015193638000
+modified: 20261015193638000
 
 A check of the switches themselves (modules/checks.js runs it).
 

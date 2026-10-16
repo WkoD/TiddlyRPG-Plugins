@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/images.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261015204450000
+created: 20261015193638000
+modified: 20261015204520000
 
 Checks of images and maps (modules/images.js; modules/checks.js runs them).
 

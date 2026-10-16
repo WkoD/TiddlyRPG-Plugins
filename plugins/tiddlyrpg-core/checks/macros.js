@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/macros.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261015191942000
+created: 20261015193638000
+modified: 20261015193638000
 
 Checks of the macro calls of a body (modules/checks.js runs them).
 

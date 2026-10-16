@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/types.js
 type: application/javascript
 module-type: library
-created: 20261015194724000
-modified: 20261016200000000
+created: 20261015194805000
+modified: 20261016184211000
 
 The type tags: a tiddler tagged with one of them has a type. They are the hubs (tag Index: Person,
 Location, Organisation, Event, Quest, the item categories, ...) and the item categories of the

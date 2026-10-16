@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/filters/quests.js
 type: application/javascript
 module-type: filteroperator
-created: 20261015122743000
-modified: 20261015200000000
+created: 20261015143331000
+modified: 20261015181607000
 
 Filter operators of the quests (modules/quests.js), all for the active view:
 

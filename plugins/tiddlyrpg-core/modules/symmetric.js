@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/symmetric.js
 type: application/javascript
 module-type: library
-created: 20261016090000000
-modified: 20261016233000000
+created: 20261016184211000
+modified: 20261016184211000
 
 Symmetric relations on both ends (tiddlyrpg-symmetric: spouse, sibling, family, alliance, bond,
 enmity; modules/relations.js): what a tiddler gains or loses in such a field, the other end gains

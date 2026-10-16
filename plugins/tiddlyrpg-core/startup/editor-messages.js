@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/startup/editor-messages.js
 type: application/javascript
 module-type: startup
-created: 20261016090000000
-modified: 20261016090000000
+created: 20261016184211000
+modified: 20261016184211000
 
 Messages of the editor that the edit-text widget does not handle, so they reach the root widget:
 

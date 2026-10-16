@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015194724000
-modified: 20261016233000000
+created: 20261015194805000
+modified: 20261016184211000
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type

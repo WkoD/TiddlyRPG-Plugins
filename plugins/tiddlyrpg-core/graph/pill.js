@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/graph/pill.js
 type: application/javascript
 module-type: vis-property
-created: 20261015160005000
-modified: 20261015184552000
+created: 20261015160225000
+modified: 20261015184949000
 
 Node property trpgPill (tw5-vis-network, like its own properties/color.js): a node drawn like a
 tag pill (tag-pill-styles in functions) - its colour as the border, inside that colour at 18 %

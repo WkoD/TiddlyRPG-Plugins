@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/map-fit.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261015200000000
+modified: 20261015182958000
 
 Graph properties for the map of a location (graph/templates/trpg-map), in the manner of the
 properties of tw5-vis-network (properties/background.js):

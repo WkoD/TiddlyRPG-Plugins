@@ -1,7 +1,7 @@
 caption: Quest
-created: 20261015170052000
+created: 20261015170750000
 filter: [<currentNode>]
-modified: 20261015170052000
+modified: 20261015170750000
 template: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 title: $:/plugins/tiddlyrpg-core/graph/quest
 type: application/json

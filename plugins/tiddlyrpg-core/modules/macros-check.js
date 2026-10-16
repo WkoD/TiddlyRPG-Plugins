@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/macros-check.js
 type: application/javascript
 module-type: library
 created: 20261010065649000
-modified: 20261015193623000
+modified: 20261015193638000
 
 Check for unknown macros: a call <<name>> (also <$transclude $variable="name">, <$macrocall
 $name="name"> and <<name>> as an attribute value) in the body of a tiddler whose name nothing

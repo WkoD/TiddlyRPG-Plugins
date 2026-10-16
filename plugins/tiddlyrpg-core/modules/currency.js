@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261016233000000
+modified: 20261016184211000
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting

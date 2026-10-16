@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261016233000000
+modified: 20261016184211000
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the

@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/quests.js
 type: application/javascript
 module-type: library
-created: 20261015122743000
-modified: 20261015180105000
+created: 20261015143331000
+modified: 20261015180520000
 
 Quests - the one place of these rules. A quest is a name; its markers stand in events
 (<<quest "Name">>, <$quest name="Name">, modules/sections.js). A tiddler with the name tagged

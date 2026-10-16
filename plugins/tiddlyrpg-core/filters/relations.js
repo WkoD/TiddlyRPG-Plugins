@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/relations.js
 type: application/javascript
 module-type: filteroperator
 created: 20261008062202000
-modified: 20261016233000000
+modified: 20261016184211000
 
 Filters over the relation rules (modules/relations.js). <selected> is a title list of the
 relation types in play (a graph view may draw only some); empty or missing: all.

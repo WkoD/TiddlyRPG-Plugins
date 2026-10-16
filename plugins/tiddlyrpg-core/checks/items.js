@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/items.js
 type: application/javascript
 module-type: trpg-check
-created: 20261006154328000
-modified: 20261015191942000
+created: 20261015193638000
+modified: 20261015193638000
 
 The item rules - the one place of them (modules/checks.js runs them). An item has one base type
 and any number of categories:

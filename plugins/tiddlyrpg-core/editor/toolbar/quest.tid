@@ -2,12 +2,12 @@ actions: <$action-sendmessage $message="tm-trpg-probe" kind="quest"/>
 button-classes: trpg-toolbar-button
 caption: <<trpg.t Editor/Quest/Caption>>
 condition: [<targetTiddler>trpgwikitext[]trpgtypes[]match[Event]]
-created: 20261016090000000
+created: 20261016184211000
 description: <<trpg.t Editor/Quest/Hint>>
 dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/quest-dropdown
 icon: $:/core/images/star-filled
 list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/date
-modified: 20261016190000000
+modified: 20261016184211000
 shortcuts: ((trpg-quest))
 tags: $:/tags/EditorToolbar
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/quest

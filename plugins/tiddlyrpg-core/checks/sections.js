@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/sections.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261016233000000
+created: 20261015193638000
+modified: 20261016184211000
 
 Checks of the sections of a body (modules/sections.js check(); modules/checks.js runs them).
 

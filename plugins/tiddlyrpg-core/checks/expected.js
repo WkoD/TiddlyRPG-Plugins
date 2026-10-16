@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/expected.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015194724000
-modified: 20261015204450000
+created: 20261015194805000
+modified: 20261015204520000
 
 Fields a tiddler of a type is better with (modules/checks.js runs them). All hints: a tiddler
 is fine without them; trpg-noinfo switches one off for a tiddler that never gets it. An event

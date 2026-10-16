@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/locations.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261016233000000
+created: 20261015193638000
+modified: 20261016184211000
 
 Checks of where a tiddler is (the rules of filters/location.js; modules/checks.js runs them).
 

@@ -1,8 +1,8 @@
 caption: <<trpg.t Settings/Editor/Caption>>
 condition: [[yes]]
-created: 20261016090000000
+created: 20261016184211000
 list-after: $:/plugins/tiddlyrpg-core/ui/settings-rules
-modified: 20261016233000000
+modified: 20261016184211000
 tags: $:/tags/tiddlyrpg/SettingsTab
 title: $:/plugins/tiddlyrpg-core/ui/settings-editor
 type: text/vnd.tiddlywiki

@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/dates.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261015200756000
+created: 20261015193638000
+modified: 20261015201123000
 
 Checks of the field date and of the dated sections of an event (modules/dates.js;
 modules/checks.js runs them).

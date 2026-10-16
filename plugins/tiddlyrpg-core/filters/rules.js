@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261015193623000
+modified: 20261015193638000
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 

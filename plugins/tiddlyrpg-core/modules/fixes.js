@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/fixes.js
 type: application/javascript
 module-type: library
-created: 20261016090000000
-modified: 20261016090000000
+created: 20261016184211000
+modified: 20261016184211000
 
 The fixes of the messages of the checks (field fix, modules/checks.js) on a draft in the editor:
 the button of a message in the form (editor/form) sends tm-trpg-fix, startup/editor-messages.js

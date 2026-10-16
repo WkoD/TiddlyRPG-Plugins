@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/checks.js
 type: application/javascript
 module-type: library
-created: 20261015191942000
-modified: 20261016233000000
+created: 20261015193638000
+modified: 20261016184211000
 
 Checks: the problems of the tiddlers of a wiki - the one place that runs them. The same rules
 give the messages below the title (viewtemplates/checks, filter trpgcheck) and the report of

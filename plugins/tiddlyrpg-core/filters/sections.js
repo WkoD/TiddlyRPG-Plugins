@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/sections.js
 type: application/javascript
 module-type: filteroperator
 created: 20261007170000000
-modified: 20261015193623000
+modified: 20261015193638000
 
 Filter operators on the sections of a body (modules/sections.js):
 

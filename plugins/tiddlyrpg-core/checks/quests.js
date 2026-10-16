@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/quests.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015191942000
-modified: 20261015200756000
+created: 20261015193638000
+modified: 20261015201123000
 
 Checks of quests and rumours over the whole wiki (modules/quests.js; modules/checks.js runs
 them). The problems of a single marker are those of its section (checks/sections.js).

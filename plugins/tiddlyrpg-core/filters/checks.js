@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/filters/checks.js
 type: application/javascript
 module-type: filteroperator
-created: 20261015191942000
-modified: 20261016233000000
+created: 20261015193638000
+modified: 20261016184211000
 
 [<title>trpgcheck[]]          the messages of each input tiddler for the active view
                               (modules/checks.js), errors first, each as JSON

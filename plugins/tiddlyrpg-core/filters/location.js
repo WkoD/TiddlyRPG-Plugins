@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261015193623000
+modified: 20261015193638000
 
 The location rules - the one place of them. A location lies in another one in two ways:
 

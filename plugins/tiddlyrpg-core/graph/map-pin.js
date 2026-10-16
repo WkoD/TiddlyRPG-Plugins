@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/map-pin.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261015162528000
+modified: 20261015163258000
 
 Node property trpgPin (tw5-vis-network, like its own properties/nodes.js): a node of the map of a
 location (graph/templates/trpg-map) drawn as a pin - a dot at its position and its name in a pill

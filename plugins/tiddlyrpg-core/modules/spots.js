@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/spots.js
 type: application/javascript
 module-type: library
 created: 20261006064449000
-modified: 20261015194724000
+modified: 20261015194805000
 
 Spots: the places of interest of a location, written in its body - the one place of these rules.
 Used by the spot filters (filters/spots.js), the location rules (filters/location.js) and the

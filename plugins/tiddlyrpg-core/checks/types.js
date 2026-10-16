@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/types.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015194724000
-modified: 20261016200000000
+created: 20261015194805000
+modified: 20261016184211000
 
 Checks of the type of a tiddler (modules/types.js; modules/checks.js runs them).
 
