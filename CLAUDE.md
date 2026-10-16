@@ -1304,8 +1304,8 @@ its `CLAUDE.md`.)
    same version to show they fit together: raise `TiddlyRPG-DnD` (its `package.json` and every
    `plugin.info`) to the same value and release it right after. A breaking change of a contract
    for data plugins (domain types, data formats, keys) also raises `tiddlyrpg-core-version` of
-   the plugins there, and the dependency of `TiddlyRPG-DnD` on this repo once it has one in its
-   `package.json`.
+   the plugins there. `TiddlyRPG-DnD` raises its pin of this repo (`devDependencies`) to the new
+   tag before its own release.
 2. Raise `version` in `package.json` to the same value.
 3. Run `npm install` -> brings `package-lock.json` to the same version. Do not skip it: otherwise
    the lockfile version drifts permanently.
