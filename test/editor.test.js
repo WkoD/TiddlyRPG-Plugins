@@ -237,6 +237,62 @@ test.describe("after the walk through (2026-10-16)", function() {
 		assert.deepEqual(plain(plainNew.create), {title: "Gasse", tags: ["Location"], location: "[[Old Town]]", text: ""});
 		assert.equal(editor.apply(wiki, input("Town.|\n", ["Location"]), {kind: "newsublocation", name: "town"}).error, "Editor/Sublocation/Taken");
 	});
+	test("a new sub-location from whole paragraphs leaves no gap behind", function() {
+		var r = editor.apply(wiki, $tw.utils.extend(input("Town.\n\n|The tower stands here.|\n\nRest.\n", ["Location"]), {title: "Town"}), {kind: "newsublocation", name: "Turm"});
+		assert.equal(r.text, "Town.\n\nRest.\n");
+		assert.equal(r.create.text, "The tower stands here.");
+		var last = editor.apply(wiki, $tw.utils.extend(input("Town.\n\n|The tower.|\n", ["Location"]), {title: "Town"}), {kind: "newsublocation", name: "Turm"});
+		assert.equal(last.text, "Town.\n\n");
+	});
+});
+
+test.describe("behind the last paragraph (2026-10-16)", function() {
+	test("a new date goes to the cursor, for the paragraph the DM writes next; the cursor behind it", function() {
+		var r = apply("<<date>>\n\nA.\n\n|", {kind: "date", op: "insert", date: "1351-07-05"}, ["Event"], {date: "1351-07-01"});
+		assert.equal(r.text, "<<date>>\n\nA.\n\n<<date>>\n\n");
+		assert.equal(r.fields.date, "1351-07-01, 1351-07-05");
+		assert.equal(r.selStart, r.text.length);
+		assert.equal(r.selEnd, r.text.length);
+	});
+	test("one line break is enough to leave the paragraph; at its end the cursor still stands in it", function() {
+		assert.equal(apply("<<date>>\n\nA.\n|", {kind: "date", op: "insert", date: "d2"}, ["Event"], {date: "d1"}).text, "<<date>>\n\nA.\n\n<<date>>\n\n");
+		assert.equal(apply("<<date>>\n\nA.|", {kind: "date", op: "insert", date: "d2"}, ["Event"], {date: "d1"}).text, "<<date>>\n\n<<date>>\n\nA.");
+	});
+	test("the probe behind the last paragraph offers a new date, not the one of the section before", function() {
+		var p = probe("<<date>>\n\nA.\n\n|", "date", ["Event"], {date: "d1"});
+		assert.equal(p.form, "");
+		assert.equal(p.number, 2);
+		assert.equal(p.prev, "d1");
+	});
+	test("in the gap between two paragraphs the marker stays before the next one", function() {
+		assert.equal(apply("<<date>>\n\nA.\n\n|\n\nB.\n", {kind: "date", op: "insert", date: "d2"}, ["Event"], {date: "d1"}).text, "<<date>>\n\nA.\n\n\n\n<<date>>\n\nB.\n");
+	});
+	test("inside a block: behind its last paragraph, before its end", function() {
+		var r = apply("<$secret for=\"Bran\">\n\nA.\n\n|\n\n</$secret>\n", {kind: "date", op: "insert", date: "d1"}, ["Event"], {});
+		assert.equal(r.text, "<$secret for=\"Bran\">\n\nA.\n\n<<date>>\n\n\n\n</$secret>\n");
+	});
+	test("a spot and a quest go to the cursor as well; a lock is an empty block with the cursor inside", function() {
+		assert.equal(apply("Ort.\n\n|", {kind: "spot", op: "insert", name: "Markt"}, ["Location"]).text, "Ort.\n\n<<spot \"Markt\">>\n\n");
+		var q = apply("A.\n\n|", {kind: "quest", op: "insert", name: "Q"});
+		assert.equal(q.text, "A.\n\n<<quest \"Q\">>");
+		assert.equal(q.selStart, q.text.length);
+		var s = apply("<<date>>\n\nA.\n\n|", {kind: "secret", op: "insert", names: "Bran"}, ["Event"], {date: "d1"});
+		assert.equal(s.text, "<<date>>\n\nA.\n\n<$secret for=\"Bran\">\n\n\n\n</$secret>");
+		assert.equal(s.selStart, "<<date>>\n\nA.\n\n<$secret for=\"Bran\">\n\n".length);
+	});
+});
+
+test.describe("values with both quotes", function() {
+	test("a macro parameter in [[...]], read back as written", function() {
+		var r = apply("A|.", {kind: "date", op: "insert", date: "d1", label: "Ragna's \"Fest\""}, ["Event"], {});
+		assert.equal(r.text, "<<date label:[[Ragna's \"Fest\"]]>>\n\nA.");
+		assert.equal(probe("A|.", "date", ["Event"], {date: "d1"}).form, "");
+		assert.equal(probe(r.text.replace("A.", "A|."), "date", ["Event"], {date: "d1"}).params.label, "Ragna's \"Fest\"");
+	});
+	test("an attribute in \"\"\"...\"\"\" unless the value ends in \"; else nothing changes and the DM is told", function() {
+		assert.equal(apply("|A.|", {kind: "date", op: "insert", date: "d1", label: "It's \"x\" too"}, ["Event"], {}).text, "<$date label=\"\"\"It's \"x\" too\"\"\">\n\nA.\n\n</$date>");
+		assert.deepEqual(plain(apply("|A.|", {kind: "date", op: "insert", date: "d1", label: "Ragna's \"Fest\""}, ["Event"], {})), {error: "Editor/Error/Quotes"});
+	});
 });
 
 test.describe("fixes of hints on the text", function() {

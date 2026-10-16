@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261016204554000
+modified: 20261016214011000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -68,6 +68,7 @@ Editor/Error/NoName: A name is missing
 Editor/Error/NoQuest: No quest marker at the cursor
 Editor/Error/Nothing: Nothing to change at the cursor
 Editor/Error/QuestTwice: This quest is marked here already
+Editor/Error/Quotes: With both " and ' the value cannot be written here: change one of them
 Editor/Fix/Off: Do not report
 Editor/Fix/OffHint: Writes the rule into trpg-noinfo or trpg-noerror of this tiddler
 Editor/Fix/add: Add here
@@ -129,17 +130,19 @@ Editor/Spotlink/Place: Location
 Editor/Spotlink/Spot: Spot
 Editor/Sublocation/Caption: Sub-location
 Editor/Sublocation/Create: Create
-Editor/Sublocation/Empty: Created at once and opened
+Editor/Sublocation/Empty: Created at once and opened; cancelling takes it back
 Editor/Sublocation/FromSpot: Spot "$name$"
 Editor/Sublocation/Hint: A location inside this one, or the spot at the cursor as a location of its own
 Editor/Sublocation/Joined: The spot already has a tiddler
+Editor/Sublocation/Kept: Cancelled, kept (changed or open since): $titles$
 Editor/Sublocation/Make: Make it a location
-Editor/Sublocation/MakeHint: Created at once with its text, images and lock; the marker stays
+Editor/Sublocation/MakeHint: Created at once with its text, images and lock; the marker stays; cancelling takes it back
 Editor/Sublocation/New: New sub-location
 Editor/Sublocation/NoSpot: No spot at the cursor
 Editor/Sublocation/Placeholder: Name
+Editor/Sublocation/Removed: Cancelled, removed again: $titles$
 Editor/Sublocation/Taken: A tiddler of this name exists already (case aside)
-Editor/Sublocation/WithText: The selected text moves into the new location; it is created at once
+Editor/Sublocation/WithText: The selected text moves into the new location; it is created at once, cancelling takes it back
 Editor/Symmetric/Notice: Added or removed on the other end as well: $titles$
 Editor/Term/Caption: Rules
 Editor/Term/Hint: <<term>> and <<unit>> of the rules

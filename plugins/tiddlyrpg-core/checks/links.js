@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/checks/links.js
 type: application/javascript
 module-type: trpg-check
-created: 20261015194724000
-modified: 20261016233000000
+created: 20261015194805000
+modified: 20261016214011000
 
 Checks of the links in a body (the links of the model of modules/sections.js; modules/checks.js
 runs them).
@@ -12,7 +12,8 @@ runs them).
                   it on purpose. Linked from several tiddlers, the hint says from how many (a
                   target many link is likely worth a tiddler). The name of a spot: the hint names
                   its location and <<spotlink>>. Only links in sections the view sees, none to
-                  system tiddlers; the count and the spot only as far as the view sees them
+                  system tiddlers; the count and the spot only as far as the view sees them, a
+                  draft counted as the tiddler it is the draft of
 
 \*/
 
@@ -57,9 +58,16 @@ exports.rules = [
 					messages.push({level: "hint", key: "Check/Links/MissingSpot", params: {target: target, place: place}});
 					return;
 				}
-				var count = wiki.getTiddlerBacklinks(target).filter(function(linker) {
-					return linksVisibly(wiki,linker,target,view);
-				}).length;
+				// A draft counts as the tiddler it is the draft of: next to it once, not twice
+				var linkers = [];
+				$tw.utils.each(wiki.getTiddlerBacklinks(target),function(linker) {
+					var tiddler = wiki.getTiddler(linker),
+						as = (tiddler && tiddler.fields["draft.of"]) || linker;
+					if(linkers.indexOf(as) === -1 && linksVisibly(wiki,linker,target,view)) {
+						linkers.push(as);
+					}
+				});
+				var count = linkers.length;
 				messages.push(count > 1 ?
 					{level: "hint", key: "Check/Links/MissingOften", params: {target: target, count: count}, fix: {kind: "create", title: target, type: ""}} :
 					{level: "hint", key: "Check/Links/Missing", params: {target: target}, fix: {kind: "create", title: target, type: ""}});

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261016204554000
+modified: 20261016214011000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -68,6 +68,7 @@ Editor/Error/NoName: Es fehlt ein Name
 Editor/Error/NoQuest: Kein Quest-Marker am Cursor
 Editor/Error/Nothing: Am Cursor gibt es nichts zu ändern
 Editor/Error/QuestTwice: Dieser Quest ist hier schon markiert
+Editor/Error/Quotes: Mit " und ' zugleich lässt sich der Wert hier nicht schreiben: eines davon ändern
 Editor/Fix/Off: Nicht mehr melden
 Editor/Fix/OffHint: Trägt die Regel in trpg-noinfo bzw. trpg-noerror dieses Tiddlers ein
 Editor/Fix/add: Hier eintragen
@@ -129,17 +130,19 @@ Editor/Spotlink/Place: Ort
 Editor/Spotlink/Spot: Spot
 Editor/Sublocation/Caption: Unterort
 Editor/Sublocation/Create: Anlegen
-Editor/Sublocation/Empty: Wird sofort angelegt und geöffnet
+Editor/Sublocation/Empty: Wird sofort angelegt und geöffnet; Abbrechen nimmt ihn zurück
 Editor/Sublocation/FromSpot: Spot „$name$“
 Editor/Sublocation/Hint: Ein Ort in diesem, oder der Spot am Cursor als eigener Ort
 Editor/Sublocation/Joined: Der Spot hat schon einen Tiddler
+Editor/Sublocation/Kept: Abgebrochen, bleibt (seitdem geändert oder geöffnet): $titles$
 Editor/Sublocation/Make: Zum Unterort machen
-Editor/Sublocation/MakeHint: Wird sofort mit Text, Bildern und Sperre angelegt; der Marker bleibt
+Editor/Sublocation/MakeHint: Wird sofort mit Text, Bildern und Sperre angelegt; der Marker bleibt; Abbrechen nimmt ihn zurück
 Editor/Sublocation/New: Neuer Unterort
 Editor/Sublocation/NoSpot: Kein Spot am Cursor
 Editor/Sublocation/Placeholder: Name
+Editor/Sublocation/Removed: Abgebrochen, wieder entfernt: $titles$
 Editor/Sublocation/Taken: Ein Tiddler dieses Namens existiert bereits (Groß-/Kleinschreibung zählt nicht)
-Editor/Sublocation/WithText: Der markierte Text wandert in den neuen Ort; er wird sofort angelegt
+Editor/Sublocation/WithText: Der markierte Text wandert in den neuen Ort; er wird sofort angelegt, Abbrechen nimmt ihn zurück
 Editor/Symmetric/Notice: Auch am anderen Ende eingetragen bzw. entfernt: $titles$
 Editor/Term/Caption: Regeln
 Editor/Term/Hint: <<term>> und <<unit>> des Regelwerks

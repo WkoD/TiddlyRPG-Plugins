@@ -118,6 +118,45 @@ test.describe("fields of the form", function() {
 			assert.equal(wiki.tiddlerExists("$:/temp/tiddlyrpg-core/editor/input/Draft of 'Weg'"), false);
 		});
 	});
+	test("a tiddler the toolbar created goes again when its draft is cancelled, unless changed since; saving keeps it", function() {
+		var wait = function() { return new Promise(function(resolve) { setTimeout(resolve, 20); }); },
+			draft = "Draft of 'Burg'",
+			make = function(title) {
+				var tiddler = new $tw.Tiddler(wiki.getCreationFields(), {title: title, tags: ["Location"], location: "Burg", text: "T."}, wiki.getModificationFields());
+				wiki.addTiddler(tiddler);
+				form.noteCreated(wiki, draft, tiddler);
+			};
+		h.add(wiki, {title: draft, "draft.of": "Burg", tags: "Location", text: "Burg."});
+		h.add(wiki, {title: "$:/StoryList", list: "[[Draft of 'Burg']] Turm Keller Stall"});
+		make("Turm");
+		make("Keller");
+		make("Stall");
+		h.add(wiki, {title: "Draft of 'Stall'", "draft.of": "Stall", tags: "Location", text: "T."});
+		return wait().then(function() {
+			// Keller changed since: it stays
+			wiki.addTiddler(new $tw.Tiddler(wiki.getTiddler("Keller"), {text: "Changed."}, {modified: new Date(Date.now() + 1000)}));
+			wiki.deleteTiddler(draft);
+			return wait();
+		}).then(function() {
+			assert.equal(wiki.tiddlerExists("Turm"), false, "unchanged: gone");
+			assert.equal(wiki.tiddlerExists("Keller"), true, "changed since: kept");
+			assert.equal(wiki.tiddlerExists("Stall"), true, "open in the editor: kept");
+			assert.deepEqual(Array.from(wiki.getTiddler("$:/StoryList").fields.list), ["Draft of 'Burg'", "Keller", "Stall"]);
+			assert.equal(wiki.tiddlerExists("$:/temp/tiddlyrpg-core/editor/created/" + draft), false);
+			assert.match(wiki.getTiddlerText("$:/temp/tiddlyrpg-core/editor/notice"), /wieder entfernt: Turm[\s\S]*bleibt.*Keller, Stall/);
+			// Saved: the created tiddler stays
+			h.add(wiki, {title: draft, "draft.of": "Burg", tags: "Location", text: "Burg."});
+			make("Tor");
+			return wait();
+		}).then(function() {
+			$tw.hooks.invokeHook("th-saving-tiddler", new $tw.Tiddler({title: "Burg", tags: ["Location"], text: "Burg."}), wiki.getTiddler(draft));
+			wiki.deleteTiddler(draft);
+			return wait();
+		}).then(function() {
+			assert.equal(wiki.tiddlerExists("Tor"), true);
+			["Keller", "Stall", "Tor", "Draft of 'Stall'", "$:/StoryList"].forEach(function(title) { wiki.deleteTiddler(title); });
+		});
+	});
 	test("a change of type takes out the fields the new type does not have and names them; the first type changes nothing", function() {
 		var draft = "Draft of 'Kelch'",
 			extra = "$:/state/tiddlyrpg-core/form-extra/" + draft,
@@ -188,6 +227,13 @@ test.describe("fields of the form", function() {
 		assert.equal(f("[[member]relationcandidates[]]").indexOf("Ann"), -1);
 		assert.ok(f("[[leader]relationcandidates[]]").indexOf("Baile") !== -1);
 		assert.ok(f("[[bond]relationcandidates[]]").indexOf("Frigg") !== -1);
+	});
+	test("no draft is a candidate: another tiddler open in the editor would be a target that goes", function() {
+		h.add(wiki, {title: "Draft of 'Neue Person'", "draft.of": "Neue Person", "draft.title": "Neue Person", tags: "Person"});
+		assert.equal(f("[[spouse]relationcandidates[]]").indexOf("Draft of 'Neue Person'"), -1);
+		assert.equal(f("[[nosuchfield]relationcandidates[]]").indexOf("Draft of 'Neue Person'"), -1);
+		assert.ok(f("[[spouse]relationcandidates[]]").indexOf("Ann") !== -1);
+		wiki.deleteTiddler("Draft of 'Neue Person'");
 	});
 	test("the fields of the form are hidden in the field list of the core, and no system tiddler carries one", function() {
 		var hidden = Array.from(form.known(wiki));

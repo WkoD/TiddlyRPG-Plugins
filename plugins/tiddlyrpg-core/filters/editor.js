@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
-created: 20261016090000000
-modified: 20261016233000000
+created: 20261016184211000
+modified: 20261016214011000
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -21,7 +21,8 @@ picker (editor/procedures) and the kinds of the search.
 [trpgtermsearch<text>]         those whose id or term contains <text> (any case)
 [<text>trpgunitsuggest[]]      a number with the units that fit what follows it ("60 f" -> "60 ft")
 [<field>relationcandidates[]]  what the field may name (field tiddlyrpg-targets of its config,
-                               modules/relations.js); without it every typed tiddler
+                               modules/relations.js); without it every typed tiddler; never a
+                               draft (another tiddler open in the editor)
 [<t>kindselected<state>]       the input titles whose kind (relationkind, events as a kind of their
                                own) is in the field list of <state>; all of them for an empty list
 [<draft>trpgformfields[]]      the fields of the form for a draft (modules/form.js)
@@ -162,7 +163,8 @@ exports.relationcandidates = function(source,operator,options) {
 		var type = all[field],
 			filter = type && type.candidates ? type.candidates : "[all[tiddlers]!is[system]!is[draft]] :filter[trpgtypes[]]";
 		$tw.utils.each(wiki.filterTiddlers(filter),function(title) {
-			if(results.indexOf(title) === -1) {
+			var tiddler = wiki.getTiddler(title);
+			if(results.indexOf(title) === -1 && !(tiddler && tiddler.isDraft())) {
 				results.push(title);
 			}
 		});

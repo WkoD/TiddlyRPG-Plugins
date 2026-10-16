@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
-created: 20261016090000000
-modified: 20261016210000000
+created: 20261016184211000
+modified: 20261016214011000
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -39,6 +39,12 @@ both in step.
   dropped(wiki,title)       the known fields of <title> and of its form-extra its types do not
                             have; none if no type has a config
   states(wiki,draft)        the temp and state tiddlers of the editor that belong to <draft>
+  noteCreated(wiki,draft,tiddler)  remembers a tiddler the toolbar of <draft> saved at once (a
+                            sub-location), with its modified: cancelling <draft> takes it back
+  forgetCreated(wiki,draft) <draft> was saved: what it created stays
+  undoCreated(wiki,draft)   <draft> was cancelled: deletes what it created and is unchanged since
+                            (no later save, no draft open), and takes it out of the story;
+                            {removed, kept} - kept: changed since
 
 \*/
 
@@ -51,8 +57,9 @@ var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
 var GENERAL = exports.GENERAL = ["date","player","price","image","map"],
 	CONFIG = "$:/config/tiddlyrpg/form/",
 	EXTRA = "$:/state/tiddlyrpg-core/form-extra/",
+	CREATED = "$:/temp/tiddlyrpg-core/editor/created/",
 	STATES = ["$:/state/tiddlyrpg-core/form-extra/","$:/temp/tiddlyrpg-core/editor/probe/","$:/temp/tiddlyrpg-core/editor/input/",
-		"$:/temp/tiddlyrpg-core/pick/"],
+		"$:/temp/tiddlyrpg-core/pick/",CREATED],
 	SINGLE = exports.SINGLE = {
 		location: ["Location","Person","Player","Artifact"],
 		owner: ["Artifact"]
@@ -148,6 +155,63 @@ exports.states = function(wiki,draft) {
 			out.push(title);
 		});
 	});
+	return out;
+};
+
+// The tiddlers <draft> created at once: {title: modified as at creation}
+function created(wiki,draft) {
+	var tiddler = wiki.getTiddler(CREATED + draft);
+	try {
+		return tiddler ? JSON.parse(tiddler.fields.text || "{}") : {};
+	} catch(e) {
+		return {};
+	}
+}
+
+function stamp(tiddler) {
+	var modified = tiddler && tiddler.fields.modified;
+	return modified instanceof Date ? $tw.utils.stringifyDate(modified) : String(modified || "");
+}
+
+exports.noteCreated = function(wiki,draft,tiddler) {
+	var map = created(wiki,draft);
+	map[tiddler.fields.title] = stamp(tiddler);
+	wiki.addTiddler(new $tw.Tiddler({title: CREATED + draft, type: "application/json", text: JSON.stringify(map)}));
+};
+
+exports.forgetCreated = function(wiki,draft) {
+	wiki.deleteTiddler(CREATED + draft);
+};
+
+exports.undoCreated = function(wiki,draft) {
+	var map = created(wiki,draft),
+		out = {removed: [], kept: []},
+		drafts = [];
+	wiki.each(function(tiddler) {
+		if(tiddler.fields["draft.of"]) {
+			drafts.push(tiddler.fields["draft.of"]);
+		}
+	});
+	$tw.utils.each(map,function(modified,title) {
+		var tiddler = wiki.getTiddler(title);
+		if(!tiddler) {
+			return;
+		}
+		if(stamp(tiddler) === modified && drafts.indexOf(title) === -1) {
+			wiki.deleteTiddler(title);
+			out.removed.push(title);
+		} else {
+			out.kept.push(title);
+		}
+	});
+	if(out.removed.length) {
+		var story = wiki.getTiddler("$:/StoryList"),
+			list = story ? $tw.utils.parseStringArray(story.fields.list || "") || [] : [];
+		if(list.some(function(title) { return out.removed.indexOf(title) !== -1; })) {
+			wiki.addTiddler(new $tw.Tiddler(story,{list: list.filter(function(title) { return out.removed.indexOf(title) === -1; })}));
+		}
+	}
+	wiki.deleteTiddler(CREATED + draft);
 	return out;
 };
 

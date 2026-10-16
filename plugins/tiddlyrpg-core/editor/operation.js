@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/editor/operation.js
 type: application/javascript
 module-type: texteditoroperation
-created: 20261016090000000
-modified: 20261016090000000
+created: 20261016184211000
+modified: 20261016214011000
 
 The text operations of the buttons of the editor toolbar (editor/toolbar/*), sent as
 tm-edit-text-operation. They run in the edit-text widget, so they reach the text, the selection
@@ -18,7 +18,8 @@ and the draft (this.editTitle); the rules are modules/editor.js.
                dropdown edits
   trpg-edit    kind, op and the values of the dropdown (modules/editor.js apply): changes the
                text as the smallest replacement (undo keeps working), the fields of the draft,
-               creates a tiddler and opens it; why nothing changed is a notification
+               creates a tiddler and opens it (noted for the draft: cancelling the draft takes it
+               back while unchanged, modules/form.js); why nothing changed is a notification
 
 The tags of the draft count under their internal names (a tag typed as "Ereignis" is Event).
 
@@ -27,6 +28,7 @@ The tags of the draft count under their internal names (a tag typed as "Ereignis
 "use strict";
 
 var editor = require("$:/plugins/tiddlyrpg-core/modules/editor.js"),
+	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
 	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 var PROBE = "$:/temp/tiddlyrpg-core/editor/probe/",
@@ -101,7 +103,10 @@ exports["trpg-edit"] = function(event,operation) {
 		wiki.addTiddler(new $tw.Tiddler(wiki.getTiddler(this.editTitle),result.fields));
 	}
 	if(result.create) {
-		wiki.addTiddler(new $tw.Tiddler(wiki.getCreationFields(),result.create,wiki.getModificationFields()));
+		var created = new $tw.Tiddler(wiki.getCreationFields(),result.create,wiki.getModificationFields());
+		wiki.addTiddler(created);
+		// Cancelling the draft takes it back while it is unchanged (startup/editor-states.js)
+		form.noteCreated(wiki,this.editTitle,created);
 	}
 	if(result.navigate) {
 		this.dispatchEvent({type: "tm-navigate", navigateTo: result.navigate, navigateFromTitle: this.editTitle});

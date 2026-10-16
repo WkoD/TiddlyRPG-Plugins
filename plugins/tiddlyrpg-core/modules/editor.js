@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/modules/editor.js
 type: application/javascript
 module-type: library
-created: 20261016090000000
-modified: 20261016233000000
+created: 20261016184211000
+modified: 20261016214011000
 
 The buttons of the editor toolbar on the text in the editor (editor/operation.js) - the one place
 of these rules, plain functions on a text so the tests reach them without a browser.
@@ -15,7 +15,11 @@ Every kind of section (modules/sections.js) is set the same way:
                      of a block of a kind). A quest marker goes to the start of the paragraph or
                      list item itself. A lock goes before the marker of its section; where the
                      unit starts no section, the block form goes around the unit instead
-                     (<<secret>> in the middle of a section has no effect)
+                     (<<secret>> in the middle of a section has no effect). A cursor in the gap
+                     between two units stands at the next one. Behind the last unit of the level
+                     (the paragraph before it is left) the marker goes to the cursor, for the text
+                     the DM writes next, and the cursor behind it; a lock there is an empty block
+                     with the cursor inside
   with selection     the block form around it: date and spot around the whole units it touches,
                      secret and quest inline around the selection when it lies in one paragraph
                      (both may enclose part of a paragraph), else around the units
@@ -33,7 +37,8 @@ input   {text, selStart, selEnd, tags, fields, title}: the text in the editor, t
         of the draft, the title it is the draft of
 result  {text, selStart, selEnd, fields, create, navigate, error}: the new text, fields of the
         draft to change, a tiddler to create, a title to open, or the language key of why
-        nothing changed
+        nothing changed (Editor/Error/Quotes: a value with both quotes that no quoting holds -
+        in an attribute ending in " or holding """, in a macro parameter also holding ]])
 
   probe(wiki,input,kind)      what stands at the cursor for <kind>: form "short", "block" or ""
                               (nothing - an empty text, as jsonget reads JSON null as "null")
@@ -58,8 +63,15 @@ var STATUS_NEXT = {"": "complete", open: "complete", complete: "failed", failed:
 
 /* ---------- Text ---------- */
 
-// A value as macro parameter or attribute: "…", '…' or """…"""
-var quote = exports.quote = function(value) {
+// Thrown by quote() for a value no quoting holds; apply() turns it into Editor/Error/Quotes
+var UNQUOTABLE = {};
+
+/*
+A value as macro parameter or attribute: "…", '…' or """…""" ("""…""" ends at the first """, so
+not for a value ending in " or holding """); a macro parameter also [[…]] (not for a value holding
+]]). An attribute has no further form: then UNQUOTABLE.
+*/
+var quote = exports.quote = function(value,attribute) {
 	value = value || "";
 	if(value.indexOf("\"") === -1) {
 		return "\"" + value + "\"";
@@ -67,7 +79,13 @@ var quote = exports.quote = function(value) {
 	if(value.indexOf("'") === -1) {
 		return "'" + value + "'";
 	}
-	return "\"\"\"" + value + "\"\"\"";
+	if(value.indexOf("\"\"\"") === -1 && value.charAt(value.length - 1) !== "\"") {
+		return "\"\"\"" + value + "\"\"\"";
+	}
+	if(!attribute && value.indexOf("]]") === -1) {
+		return "[[" + value + "]]";
+	}
+	throw UNQUOTABLE;
 };
 
 // The end of the opening tag of a widget at <start> (after ">"), and whether it closes itself
@@ -191,13 +209,13 @@ function blockOpen(kind,params) {
 	params = params || {};
 	switch(kind) {
 		case "date":
-			return "<$date" + (params.n ? " section=" + quote(String(params.n)) : "") + (params.label ? " label=" + quote(params.label) : "") + ">";
+			return "<$date" + (params.n ? " section=" + quote(String(params.n),true) : "") + (params.label ? " label=" + quote(params.label,true) : "") + ">";
 		case "spot":
-			return "<$spot name=" + quote(params.name) + ">";
+			return "<$spot name=" + quote(params.name,true) + ">";
 		case "secret":
-			return "<$secret for=" + quote($tw.utils.stringifyList(params.names || [])) + ">";
+			return "<$secret for=" + quote($tw.utils.stringifyList(params.names || []),true) + ">";
 		case "quest":
-			return "<$quest name=" + quote(params.name) + (params.status ? " status=" + quote(params.status) : "") + ">";
+			return "<$quest name=" + quote(params.name,true) + (params.status ? " status=" + quote(params.status,true) : "") + ">";
 	}
 	return "";
 }
@@ -262,14 +280,21 @@ function unitAt(list,pos) {
 
 /*
 The level of the sections around <pos>: the body, or the content of a block of a kind that
-holds it. {list, index, unit, owner, ownerKind, blocks}: blocks are the blocks of kinds around
-<pos>, innermost last.
+holds it. {list, index, unit, owner, ownerKind, blocks, after}: blocks are the blocks of kinds
+around <pos>, innermost last. after: <pos> lies behind the last unit of the level on a line of its
+own (the paragraph before it is left, a single line break is enough) - then no unit, and index is
+the length of the list.
 */
 function levelAt(text,tree,pos) {
 	var list = units(tree),
 		owner = null,
 		blocks = [];
 	for(;;) {
+		var lastUnit = list[list.length - 1],
+			lastEnd = lastUnit && textEnd(text,lastUnit.start,lastUnit.end);
+		if(lastUnit && pos > lastEnd && text.substring(lastEnd,pos).indexOf("\n") !== -1) {
+			return {list: list, index: list.length, unit: null, owner: owner, blocks: blocks, after: true};
+		}
 		var index = unitAt(list,pos),
 			unit = index === -1 ? null : list[index],
 			kind = unit && sections.blockKind(unit);
@@ -343,7 +368,7 @@ function headOf(level) {
 		markers = m.concat(markers);
 	}
 	first = i < 0;
-	var own = markerUnit(level.unit) || leadOf(level.unit);
+	var own = level.unit ? markerUnit(level.unit) || leadOf(level.unit) : [];
 	return {markers: markers.concat(own), first: first, lines: lines};
 }
 
@@ -597,9 +622,24 @@ exports.probe = function(wiki,input,kind) {
 /* ---------- Apply ---------- */
 
 function insertShort(a,kind,params) {
-	var marker = shortMarker(kind,params),
-		at = a.level.unit ? a.level.unit.start : a.pos;
-	return [{from: at, to: at, text: marker + "\n\n"}];
+	var marker = shortMarker(kind,params);
+	if(!a.level.unit) {
+		return atCursor(a,marker + "\n\n");
+	}
+	return [{from: a.level.unit.start, to: a.level.unit.start, text: marker + "\n\n"}];
+}
+
+/*
+<text> at the cursor where it stands behind the last unit or in an empty level, as a block of its
+own: a blank line before it unless there is one. The cursor goes to <inner> in <text> (default:
+behind it), where the DM writes on; the edits carry it as cursor.
+*/
+function atCursor(a,text,inner) {
+	var before = a.text.substring(0,a.pos),
+		prefix = !/\S/.test(before) || /\n[ \t]*\n\s*$/.test(before) ? "" : (/\n[ \t]*$/.test(before) ? "\n" : "\n\n"),
+		edits = [{from: a.pos, to: a.pos, text: prefix + text}];
+	edits.cursor = a.pos + prefix.length + (inner === undefined ? text.length : inner);
+	return edits;
 }
 
 // The units a selection touches on the level of its start
@@ -678,8 +718,12 @@ function rewrite(a,kind,at,params) {
 	return [{from: at.parts.start, to: at.parts.openEnd, text: blockOpen(kind,params)}];
 }
 
+// The result of <edits>; the cursor where atCursor() put it
 function done(input,edits,extra) {
 	var out = edit(input,edits);
+	if(edits.cursor !== undefined) {
+		out.selStart = out.selEnd = edits.cursor;
+	}
 	return $tw.utils.extend(out,extra || {});
 }
 
@@ -688,6 +732,17 @@ function fail(key) {
 }
 
 exports.apply = function(wiki,input,action) {
+	try {
+		return applyAction(wiki,input,action);
+	} catch(e) {
+		if(e === UNQUOTABLE) {
+			return fail("Editor/Error/Quotes");
+		}
+		throw e;
+	}
+};
+
+function applyAction(wiki,input,action) {
 	var a = analyse(wiki,input),
 		kind = action.kind,
 		op = action.op;
@@ -739,11 +794,12 @@ exports.apply = function(wiki,input,action) {
 		return done(input,insertSecret(a,params));
 	}
 	return done(input,insertShort(a,kind,params));
-};
+}
 
 /*
 A lock without selection: before the marker of the section the unit starts, or at the start of
-the body or block; where the unit starts no section, the block form around the unit.
+the body or block; where the unit starts no section, the block form around the unit. Behind the
+last unit an empty block with the cursor in it, for the text the DM writes next.
 */
 function insertSecret(a,params) {
 	var head = headOf(a.level),
@@ -760,8 +816,12 @@ function insertSecret(a,params) {
 	if(head.first && a.level.unit) {
 		return [{from: a.level.unit.start, to: a.level.unit.start, text: shortMarker("secret",params) + "\n\n"}];
 	}
+	if(!a.level.unit && head.first) {
+		return atCursor(a,shortMarker("secret",params) + "\n\n");
+	}
 	if(!a.level.unit) {
-		return [{from: a.pos, to: a.pos, text: shortMarker("secret",params) + "\n\n"}];
+		var open = blockOpen("secret",params) + "\n\n";
+		return atCursor(a,open + "\n\n</$secret>",open.length);
 	}
 	return [
 		{from: a.level.unit.start, to: a.level.unit.start, text: blockOpen("secret",params) + "\n\n"},
@@ -812,8 +872,11 @@ function applyQuest(a,input,action) {
 		var last = at.all[at.all.length - 1];
 		return done(input,[{from: last.end, to: last.end, text: shortMarker("quest",params)}]);
 	}
-	var container = at.container || nestContainer(a.tree,a.pos,null),
-		where = container ? contentStart(container) : (a.level.unit ? a.level.unit.start : a.pos);
+	var container = at.container || nestContainer(a.tree,a.pos,null);
+	if(!container && !a.level.unit) {
+		return done(input,atCursor(a,shortMarker("quest",params)));
+	}
+	var where = container ? contentStart(container) : a.level.unit.start;
 	return done(input,[{from: where, to: where, text: shortMarker("quest",params)}]);
 }
 
@@ -886,7 +949,10 @@ function applyDate(wiki,a,input,action) {
 		split.sections.push("");
 	}
 	split.sections.splice(n - 1,0,date);
-	return done(input,edits.concat(renumber(a,from - 1,n,1)),{fields: {date: joinDate(split)}});
+	// The renumbered markers lie behind the new one, so the cursor of atCursor() stays
+	var all = edits.concat(renumber(a,from - 1,n,1));
+	all.cursor = edits.cursor;
+	return done(input,all,{fields: {date: joinDate(split)}});
 }
 
 /* ---------- Spot to location ---------- */
@@ -943,7 +1009,12 @@ function applyNewSublocation(wiki,a,input,action) {
 		edits = [];
 	if(a.selStart !== a.selEnd) {
 		fields.text = a.text.substring(a.selStart,a.selEnd).trim();
-		edits.push({from: a.selStart, to: a.selEnd, text: ""});
+		// Whole lines take the blank lines after them along, so no gap stays behind
+		var cut = a.selEnd;
+		if((a.selStart === 0 || a.text[a.selStart - 1] === "\n") && (cut === a.text.length || a.text[cut] === "\n")) {
+			cut = skipBlank(a.text,cut);
+		}
+		edits.push({from: a.selStart, to: cut, text: ""});
 		var holder = null;
 		$tw.utils.each(a.model.records,function(record) {
 			if(record.from !== undefined && record.from <= a.selStart && a.selEnd <= record.to) {
@@ -991,7 +1062,7 @@ function applySublocation(wiki,a,input) {
 	if(record.form === "block") {
 		var parts = blockParts(a.text,node,"spot");
 		body = parts.self ? "" : a.text.substring(parts.openEnd,parts.closeStart);
-		edits = [{from: parts.start, to: parts.end, text: "<$spot name=" + quote(record.params.name) + "/>"}];
+		edits = [{from: parts.start, to: parts.end, text: "<$spot name=" + quote(record.params.name,true) + "/>"}];
 	} else {
 		var to = textEnd(a.text,node.end,Math.max(record.to || node.end,node.end));
 		body = a.text.substring(node.end,to);
@@ -1013,8 +1084,22 @@ function applySublocation(wiki,a,input) {
 
 /* ---------- Fixes of hints ---------- */
 
+// A fix whose marker no quoting holds changes nothing (null)
+function orNull(fn) {
+	return function() {
+		try {
+			return fn.apply(this,arguments);
+		} catch(e) {
+			if(e === UNQUOTABLE) {
+				return null;
+			}
+			throw e;
+		}
+	};
+}
+
 // <<quest "Name" "complete">> -> <<quest "Name" status:"complete">> (the marker at <start>)
-exports.questStatusNamed = function(wiki,text,tags,start) {
+exports.questStatusNamed = orNull(function(wiki,text,tags,start) {
 	var tree = wiki.parseText("text/vnd.tiddlywiki",text).tree,
 		node = findNode(tree,start);
 	if(!node || sections.nestKind(node) !== "quest") {
@@ -1023,10 +1108,10 @@ exports.questStatusNamed = function(wiki,text,tags,start) {
 	var name = attr(node,"name") !== undefined ? attr(node,"name") : attr(node,"0") || "",
 		status = attr(node,"status") || attr(node,"1") || "";
 	return splice(text,node.start,node.end,shortMarker("quest",{name: name.trim(), status: status.trim() === "open" ? "" : status.trim()}));
-};
+});
 
 // <<date "Caption">> -> <<date label:"Caption">> (the marker at <start>)
-exports.dateLabelNamed = function(wiki,text,tags,start) {
+exports.dateLabelNamed = orNull(function(wiki,text,tags,start) {
 	var tree = wiki.parseText("text/vnd.tiddlywiki",text).tree,
 		node = findNode(tree,start);
 	if(!node || sections.shortKind(node) !== "date") {
@@ -1034,10 +1119,10 @@ exports.dateLabelNamed = function(wiki,text,tags,start) {
 	}
 	var p = sections.kind("date").params(node,"short");
 	return splice(text,node.start,node.end,shortMarker("date",{n: p.n, label: p.label || p.bad}));
-};
+});
 
 // The text of a short spot or block without what it holds (the marker stays), or null
-exports.spotEmptied = function(wiki,text,tags,start) {
+exports.spotEmptied = orNull(function(wiki,text,tags,start) {
 	var model = sections.readText(wiki,text,tags),
 		tree = wiki.parseText("text/vnd.tiddlywiki",text).tree,
 		record = model.byKey[start.toString()],
@@ -1047,10 +1132,10 @@ exports.spotEmptied = function(wiki,text,tags,start) {
 	}
 	if(record.form === "block") {
 		var parts = blockParts(text,node,"spot");
-		return splice(text,parts.start,parts.end,"<$spot name=" + quote(record.params.name) + "/>");
+		return splice(text,parts.start,parts.end,"<$spot name=" + quote(record.params.name,true) + "/>");
 	}
 	return splice(text,node.end,textEnd(text,node.end,Math.max(record.to || node.end,node.end)),"");
-};
+});
 
 // The text of the body of a spot (for the hint of a joined spot that holds the same text)
 exports.spotText = function(wiki,title,start) {

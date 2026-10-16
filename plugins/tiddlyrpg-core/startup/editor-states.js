@@ -2,8 +2,8 @@
 title: $:/plugins/tiddlyrpg-core/startup/editor-states.js
 type: application/javascript
 module-type: startup
-created: 20261016190000000
-modified: 20261016210000000
+created: 20261016184211000
+modified: 20261016214011000
 
 The states of the editor that belong to a draft (modules/form.js states: the fields added to the
 form, the values of the toolbar dropdowns, the pickers) go when the draft goes - saved, or
@@ -17,6 +17,11 @@ notification names those that had a value - so a price does not stay behind when
 becomes an event. Only a change from one type to another counts: the first type of a draft
 without one changes nothing; a draft whose type was taken out keeps its last types, so taking
 one out and setting another is one change. Cancelling brings the fields back.
+
+A tiddler the toolbar saved at once (a sub-location, modules/form.js noteCreated) goes again when
+its draft is cancelled - unless it was changed since or is open in the editor itself; a
+notification names what went and what stayed. Saving the draft (hook th-saving-tiddler) keeps
+it: the moved text is gone from the draft then, the tiddler holds it.
 
 \*/
 
@@ -63,13 +68,39 @@ function drop(wiki,draft) {
 	}
 }
 
+// The tiddlers a cancelled draft created at once: back out while unchanged, a notification
+function undoCreated(wiki,draft) {
+	var undone = form.undoCreated(wiki,draft),
+		lines = [];
+	if(undone.removed.length) {
+		lines.push(language.format(language.t(wiki,"Editor/Sublocation/Removed"),{titles: undone.removed.join(", ")}));
+	}
+	if(undone.kept.length) {
+		lines.push(language.format(language.t(wiki,"Editor/Sublocation/Kept"),{titles: undone.kept.join(", ")}));
+	}
+	if(lines.length) {
+		wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: lines.join("\n\n")}));
+		if($tw.notifier) {
+			$tw.notifier.display(NOTICE);
+		}
+	}
+}
+
 exports.startup = function() {
+	// Saved: what the draft created stays
+	$tw.hooks.addHook("th-saving-tiddler",function(newTiddler,draftTiddler) {
+		if(draftTiddler && draftTiddler.fields["draft.of"] !== undefined) {
+			form.forgetCreated($tw.wiki,draftTiddler.fields.title);
+		}
+		return newTiddler;
+	});
 	// Draft title -> its last types that were not none ("" while it had none)
 	var drafts = Object.create(null);
 	$tw.wiki.addEventListener("change",function(changes) {
 		$tw.utils.each(changes,function(change,title) {
 			if(change.deleted && drafts[title] !== undefined) {
 				delete drafts[title];
+				undoCreated($tw.wiki,title);
 				$tw.utils.each(form.states($tw.wiki,title),function(state) {
 					$tw.wiki.deleteTiddler(state);
 				});

@@ -649,13 +649,21 @@ tests reach it without a browser; the wikitext only asks and passes values.
   fields of the draft (the date field), create a tiddler (sub-location) and open it, or name a
   language key why nothing changed (a notification).
 - **Rules of the buttons** (header of `editor.js`): without selection the short form before the
-  unit at the cursor (a quest marker at the start of its paragraph or list item); with a
-  selection the block form (lock and quest inline within one paragraph). At an existing marker
+  unit at the cursor (a quest marker at the start of its paragraph or list item); behind the
+  last unit of a level, on a line of its own, at the cursor, and the cursor behind it (a lock:
+  an empty block with the cursor inside); with a selection the block form (lock and quest inline
+  within one paragraph). A value with both quotes that no quoting holds is refused
+  (`Editor/Error/Quotes`); a macro parameter falls back to `[[...]]`. At an existing marker
   the dropdown changes or removes it, never sets a second one. The quest status cycles open ->
   `complete` -> `failed` -> open and never removes the marker. A date keeps the field `date` in
   step (n-th marker = n-th section, explicit numbers count on). "Make a sub-location" saves
   the new tiddler at once with the text, images and lock of the spot and keeps the marker; a
-  title another tiddler has in any case is refused (`editor.taken`, files would clash).
+  title another tiddler has in any case is refused (`editor.taken`, files would clash). A tiddler
+  saved at once is noted for the draft (`form.noteCreated`,
+  `$:/temp/tiddlyrpg-core/editor/created/<draft>`): cancelling the draft deletes it again and takes it out of the story while it is unchanged and
+  not open in the editor (`startup/editor-states.js`, `form.undoCreated`), saving the draft keeps
+  it (hook `th-saving-tiddler`); a notification names what went and what stayed. A selection of
+  whole lines takes the blank lines after it along.
 - **Form** (`editor/form`, `$:/tags/EditTemplate` after the body; `modules/form.js`): per type
   `$:/config/tiddlyrpg/form/<type>` with `list` (the fields whose absence a check reports:
   `expected/*`, `dates/event` - `editor-form.test.js` keeps them in step) and `more` (the other
@@ -695,7 +703,7 @@ tests reach it without a browser; the wikitext only asks and passes values.
   picker, `trpgsimilar`, the "new name" pill); values that stand in the draft show as they are.
   The sweep in `test/views.test.js` renders the pickers and dropdowns with a draft.
 - **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, symmetric,
-  fixes), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
+  fixes, a created tiddler undone on cancelling), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
   every new input).
 
 ## Unknown macros
@@ -1223,7 +1231,7 @@ Current list:
 | File | Overrides | Plugin | Why no hook is enough |
 |---|---|---|---|
 | `tiddlyrpg-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `tiddlyrpg-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
-| `tiddlyrpg-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `tiddlyrpg-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`trpgtitlesearch`) and keeps only what the view sees (`trpg.visible`), the second searches with `trpgsearch` (only the text the view sees), hits use `search/item` (translated name). |
+| `tiddlyrpg-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `tiddlyrpg-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`trpgtitlesearch`) and keeps only what the view sees (`trpg.visible`), the second searches with `trpgsearch` (only the text the view sees), both keep only the kinds switched on above the list (`kindselected` on `$:/state/tiddlyrpg-core/search-kinds`, procedure `trpg.kindswitches`; none chosen is all), hits use `search/item` (translated name). |
 | `tiddlyrpg-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `tiddlyrpg-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes (field and function branch alike): the targets come from `relationtargets` (`modules/relations.js`: `tiddlyrpg-exclude` and included types; function filters run there too), with the types of the call passed as `trpgTypes`; an outer `$properties $for=edges` with the style of the axis of the type; an inner `$properties $for=edges label=...` from `relationlabel` (`Edge/<type>`); for a type whose config has `tiddlyrpg-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the type - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge of a symmetric type has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 
 | `tiddlyrpg-core/$__config_flibbles_graph_edges_functions_links.tid` | `$:/config/flibbles/graph/edges/functions/links` (tw5-graph) | `tiddlyrpg-core` | The edge type config of tw5-graph has no colour and no `tiddlyrpg-symmetric`; an edge type config is found by name only. Changes: `color` grey, `tiddlyrpg-symmetric: yes` (mutual links as one edge), filter `[visiblelinks[]]` instead of `[links[]]` (the core link index knows no lock: a link that stands only in a section the view does not see draws no edge, see "Sections"); label as in the original. |

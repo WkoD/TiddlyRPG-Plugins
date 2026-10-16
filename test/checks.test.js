@@ -265,6 +265,10 @@ test.describe("content", function() {
 			h.inView(wiki, "public", function() {
 				assert.ok(found().indexOf("Check/Links/MissingOften {\"target\":\"Ferne Insel\",\"count\":2}") !== -1, "the locked section does not count");
 			});
+			// A draft counts as the tiddler it is the draft of: open in the editor, still 3
+			h.add(wiki, {title: "Draft of 'Inselfahrt'", "draft.of": "Inselfahrt", tags: "Event", date: "1351", text: "<<date>>\n\nTo [[Ferne Insel]] again."});
+			assert.ok(found().indexOf("Check/Links/MissingOften {\"target\":\"Ferne Insel\",\"count\":3}") !== -1, "the draft next to its tiddler counts once");
+			wiki.deleteTiddler("Draft of 'Inselfahrt'");
 		});
 	});
 

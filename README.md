@@ -718,7 +718,8 @@ out every message of its level. An id that is no rule is a hint.
 
 In the editable wiki the editor of a tiddler knows the formats of this plugin. Everything below
 changes the draft only - cancelling takes it back - with two exceptions that save a new location
-at once ("Sub-location").
+at once ("Sub-location"); cancelling takes that location back as well, unless it was changed or
+opened in the editor since.
 
 **Buttons of the toolbar** (in the accent colour, each with a dropdown):
 
@@ -734,8 +735,10 @@ at once ("Sub-location").
 | Sub-location | locations | a new location inside this one, saved and opened at once - a selected text moves into it; with the cursor in a spot without tiddler: the spot as a location of its own, with its text, images and lock, the marker stays |
 | Rules | all | `<<term>>` by id or term, `<<unit>>` with the units of the ruleset that fit the number |
 
-Where a marker of the button already stands, the button changes it instead of setting a second
-one. Ctrl+Z undoes the text, not the field `date`. The buttons are switched on and off under
+With the cursor on a line of its own behind the last paragraph, a marker goes there - for the
+paragraph the DM writes next - and the cursor behind it; a lock there is an empty `<$secret>`
+with the cursor inside. Where a marker of the button already stands, the button changes it
+instead of setting a second one. Ctrl+Z undoes the text, not the field `date`. The buttons are switched on and off under
 ControlPanel -> Appearance -> Toolbars -> Editor Toolbar; keyboard shortcuts (none by default)
 under ControlPanel -> Keyboard Shortcuts.
 
