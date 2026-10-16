@@ -1,0 +1,69 @@
+created: 20261016090000000
+modified: 20261016190000000
+tags: $:/tags/Global
+title: $:/plugins/tiddlyrpg-core/ui/new-procedures
+type: text/vnd.tiddlywiki
+
+<!-- "+" on the hub of a type (viewtemplates/hub-new): a new draft with the type tag and nothing
+     else - the form in the editor shows the fields the type expects (editor/form). An event asks
+     for its date first (ui/new-event) and starts with the field date and <<date>> at the start of
+     the text. Items (the hub Item) and a category of items (tag $:/tags/tiddlyrpg/ItemKind, never
+     alone, items/base) offer the base types as a plain list. Only in the editable wiki. -->
+\procedure trpg.newbutton(type)
+\whitespace trim
+<$let trpg-popup=<<qualify "$:/state/popup/tiddlyrpg/new">>
+	trpg-hint={{{ [[New/Hub]trpgtranslate[]addsuffix[ ]] [<type>trpgtitle[]] +[join[]] }}}
+	trpg-kind={{{ [<type>tag[$:/tags/tiddlyrpg/ItemKind]then[yes]] }}}>
+<%if [<type>match[Event]] [<type>match[Item]] [<trpg-kind>match[yes]] +[limit[1]] %>
+<span class="tc-popup-keep">
+<$button popup=<<trpg-popup>> class="tc-btn-invisible trpg-hub-plus" tooltip=<<trpg-hint>> aria-label=<<trpg-hint>> selectedClass="tc-selected">{{$:/core/images/new-button}}</$button>
+</span>
+<$reveal state=<<trpg-popup>> type="popup" position="belowleft" animate="yes">
+<div class="tc-drop-down tc-popup-keep">
+<%if [<type>match[Event]] %>
+<div class="trpg-editor-dropdown">
+<div class="trpg-editor-head"><$text text=<<trpg-hint>>/></div>
+<$let trpg-input=<<qualify "$:/temp/tiddlyrpg-core/new-event">>>
+<$transclude $tiddler="$:/plugins/tiddlyrpg-core/ui/new-event"/>
+</$let>
+</div>
+<%else%>
+<$list filter="Artifact Item Material" variable="trpg-base">
+<$button class="tc-btn-invisible">
+<$action-sendmessage $message="tm-new-tiddler" tags={{{ [<trpg-kind>match[yes]then<type>] [<trpg-base>] +[format:titlelist[]join[ ]] }}}/>
+<$action-deletetiddler $tiddler=<<trpg-popup>>/>
+<$text text={{{ [<trpg-base>trpgtitle[]] }}}/>
+</$button>
+</$list>
+<%endif%>
+</div>
+</$reveal>
+<%else%>
+<$button class="tc-btn-invisible trpg-hub-plus" tooltip=<<trpg-hint>> aria-label=<<trpg-hint>>>
+<$action-sendmessage $message="tm-new-tiddler" tags={{{ [<type>format:titlelist[]] }}}/>
+{{$:/core/images/new-button}}
+</$button>
+<%endif%>
+</$let>
+\end
+
+<!-- Read after the date input (ui/new-event; focus) -->
+\procedure trpg.neweventbutton()
+\whitespace trim
+<$let trpg-date={{{ [<trpg-input>get[text]trim[]] }}}
+	trpg-out={{{ [<trpg-date>dateformat[]] }}}>
+<%if [<trpg-date>!is[blank]] %>
+<div class={{{ [<trpg-date>datecheck[]then[trpg-editor-reading trpg-editor-bad]else[trpg-editor-reading]] }}}><$text text={{{ [<trpg-date>datecheck[]then[Editor/Date/Bad]trpgtranslate[]] ~[[Editor/Output]trpgtranslate[]addsuffix[ ]addsuffix<trpg-out>] }}}/></div>
+<%endif%>
+<div class="trpg-editor-actions">
+<$button class="trpg-do" disabled={{{ [<trpg-date>is[blank]then[yes]else[no]] }}}>
+<$action-sendmessage $message="tm-new-tiddler" tags="Event" date=<<trpg-date>> text="""<<date>>
+
+"""/>
+<$action-deletetiddler $tiddler=<<trpg-input>>/>
+<$action-deletetiddler $filter="[prefix[$:/state/popup/tiddlyrpg/new]]"/>
+<$text text={{{ [[New/Create]trpgtranslate[]] }}}/>
+</$button>
+</div>
+</$let>
+\end

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/locations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015201837000
+modified: 20261016233000000
 
 Checks of where a tiddler is (the rules of filters/location.js; modules/checks.js runs them).
 
@@ -105,20 +105,26 @@ exports.rules = [
 		id: "locations/led",
 		run: function(wiki,title) {
 			var t = wiki.getTiddler(title),
-				leads = list(t,"leader");
-			return list(t,"location").some(function(place) {
-				return leads.indexOf(place) !== -1 && isLocation(wiki,place);
-			}) ? [{level: "hint", key: "Location/Check/LedAndLocation"}] : [];
+				leads = list(t,"leader"),
+				places = list(t,"location").filter(function(place) {
+					return leads.indexOf(place) !== -1 && isLocation(wiki,place);
+				});
+			return places.length ? [{level: "hint", key: "Location/Check/LedAndLocation", fix: {kind: "remove", field: "location", value: places[0]}}] : [];
 		}
 	},
 	{
 		id: "locations/tag",
 		run: function(wiki,title,view) {
-			var tiddler = wiki.getTiddler(title);
+			var tiddler = wiki.getTiddler(title),
+				placed = list(tiddler,"location").length > 0;
 			return (tiddler ? tiddler.fields.tags || [] : []).filter(function(tag) {
 				return isLocation(wiki,tag) && visibility.visible(wiki,tag,view);
 			}).map(function(tag) {
-				return {level: "error", key: "Check/Locations/Tag", params: {tag: tag}};
+				var message = {level: "error", key: "Check/Locations/Tag", params: {tag: tag}};
+				if(!placed) {
+					message.fix = {kind: "tagToLocation", tag: tag};
+				}
+				return message;
 			});
 		}
 	}

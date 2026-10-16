@@ -100,7 +100,7 @@ test.describe("coins in the style of Faerûn", function() {
 
 	test("check: with a currency a price needs a coin of it", function() {
 		assert.equal(f("[<p>pricecheck[]]", {p: "50"}), "Item/Check/PriceNoCurrency");
-		assert.equal(f("[<p>pricecheck[]]", {p: "50 xp"}), "Item/Check/PriceCurrency");
+		assert.equal(f("[<p>pricecheck[]]", {p: "50 xp"}), "Item/Check/PriceUnit");
 		assert.equal(f("[<p>pricecheck[]]", {p: "fifty"}), "Item/Check/PriceCurrency");
 		assert.equal(f("[<p>pricecheck[]]", {p: "50 gp"}), "");
 		assert.equal(f("[<p>pricecheck[]]", {p: "3 gp 5 sp"}), "");
@@ -151,7 +151,7 @@ test.describe("other settings", function() {
 			assert.equal(f("[currency[reference]]"), "stl");
 			assert.equal(price("2 stl 5 sp"), "2 St 5 SM");
 			assert.equal(f("[<p>priceconvert[gp]]", {p: "2 stl 5 sp"}), "5");
-			assert.equal(f("[<p>pricecheck[]]", {p: "50 ep"}), "Item/Check/PriceCurrency", "no electrum on Krynn");
+			assert.equal(f("[<p>pricecheck[]]", {p: "50 ep"}), "Item/Check/PriceUnit", "no electrum on Krynn");
 		});
 	});
 });

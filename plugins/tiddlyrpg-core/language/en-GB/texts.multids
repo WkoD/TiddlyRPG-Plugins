@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015193623000
+modified: 20261016210000000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -49,6 +49,108 @@ Date/Order: dm
 Date/SectionHint: Section unknown - give its number, e.g. <<date 3>>
 Date/SectionMissing: Section $n$ is missing in the date field
 Date/Time: $time$
+Editor/Change: Change
+Editor/Date/Bad: Date not readable or not in the calendar
+Editor/Date/Caption: Dated section
+Editor/Date/Change: Dated section $n$
+Editor/Date/Date: Date
+Editor/Date/Hint: Dated section: <<date>> before the paragraph or <$date> around the selection, with its date in the field date
+Editor/Date/Insert: New dated section $n$
+Editor/Date/Label: Caption
+Editor/Date/LabelPlaceholder: optional
+Editor/Date/Next: After it:
+Editor/Date/Original: Was:
+Editor/Date/Placeholder: YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD
+Editor/Date/Prev: Before it:
+Editor/Error/InDate: Inside a <$date> block: no further date there
+Editor/Error/NoDate: A dated section needs a date
+Editor/Error/NoName: A name is missing
+Editor/Error/NoQuest: No quest marker at the cursor
+Editor/Error/Nothing: Nothing to change at the cursor
+Editor/Error/QuestTwice: This quest is marked here already
+Editor/Fix/Off: Do not report
+Editor/Fix/OffHint: Writes the rule into trpg-noinfo or trpg-noerror of this tiddler
+Editor/Fix/add: Add here
+Editor/Fix/create: Create
+Editor/Fix/dateLabel: Name it label
+Editor/Fix/questStatus: Name it status
+Editor/Fix/remove: Remove the entry
+Editor/Fix/spotEmpty: Remove the spot text
+Editor/Fix/tagToLocation: Make it the location
+Editor/Form/Add: Add …
+Editor/Form/Change: Change …
+Editor/Form/DateCount: $sections$ sections in the field, $markers$ dated sections in the text
+Editor/Form/DatePlaceholder: YYYY-MM-DD, sections with a comma
+Editor/Form/Dropped: Type changed, removed: $fields$
+Editor/Form/Empty: empty - not saved
+Editor/Form/ImagePlaceholder: file names, with a comma
+Editor/Form/Kinds: Category
+Editor/Form/More: More fields
+Editor/Form/Remove: Remove
+Editor/Form/RemoveField: Remove the field
+Editor/Form/Type: Type
+Editor/Group/All: Whole party
+Editor/Group/Caption: Party
+Editor/Group/Head: Player characters who were there
+Editor/Group/Hint: The player characters who were there (their tags)
+Editor/Insert: Insert
+Editor/Name/Taken: A tiddler of this name exists already: $title$
+Editor/Output: Output:
+Editor/Picker/New: A new name - nothing has it yet
+Editor/Picker/Similar: Written almost alike
+Editor/Quest/At: Quest marker "$name$"
+Editor/Quest/Caption: Quest marker
+Editor/Quest/Hint: Quest marker at the start of the paragraph or around the selection
+Editor/Quest/Insert: New quest marker
+Editor/Quest/Link: Link a further quest
+Editor/Quest/Placeholder: Quest or rumour
+Editor/Quest/Rename: Other name for this marker
+Editor/Quest/Where: At the start of the paragraph or list item
+Editor/QuestStatus/Caption: Quest status
+Editor/QuestStatus/Hint: Status of the quest marker at the cursor: open, complete, failed
+Editor/Remove: Remove
+Editor/Secret/Caption: Lock
+Editor/Secret/Change: Lock at the cursor
+Editor/Secret/DM: DM only
+Editor/Secret/Hint: Lock for player characters or the DM only
+Editor/Secret/Insert: New lock
+Editor/Secret/Where: Before the marker of the section, else around the paragraph
+Editor/Spot/At: Spot "$name$"
+Editor/Spot/Caption: Spot
+Editor/Spot/Hint: Spot: <<spot>> before the paragraph or <$spot> around the selection
+Editor/Spot/Insert: New spot
+Editor/Spot/Name: Name
+Editor/Spot/Where: Before the paragraph; holds the text up to the next marker
+Editor/Spotlink/Caption: Link to a spot
+Editor/Spotlink/Hint: <<spotlink>>: a spot of a location; a selection becomes the text of the link
+Editor/Spotlink/Insert: Link to a spot
+Editor/Spotlink/NoSpots: This location has no spots
+Editor/Spotlink/Place: Location
+Editor/Spotlink/Spot: Spot
+Editor/Sublocation/Caption: Sub-location
+Editor/Sublocation/Create: Create
+Editor/Sublocation/Empty: Created at once and opened
+Editor/Sublocation/FromSpot: Spot "$name$"
+Editor/Sublocation/Hint: A location inside this one, or the spot at the cursor as a location of its own
+Editor/Sublocation/Joined: The spot already has a tiddler
+Editor/Sublocation/Make: Make it a location
+Editor/Sublocation/MakeHint: Created at once with its text, images and lock; the marker stays
+Editor/Sublocation/New: New sub-location
+Editor/Sublocation/NoSpot: No spot at the cursor
+Editor/Sublocation/Placeholder: Name
+Editor/Sublocation/Taken: A tiddler of this name exists already (case aside)
+Editor/Sublocation/WithText: The selected text moves into the new location; it is created at once
+Editor/Symmetric/Notice: Added or removed on the other end as well: $titles$
+Editor/Term/Caption: Rules
+Editor/Term/Hint: <<term>> and <<unit>> of the rules
+Editor/Term/Insert: Term
+Editor/Term/None: No term found
+Editor/Term/Placeholder: Id or term
+Editor/Unit/Insert: Value with unit
+Editor/Unit/None: No unit fits
+Editor/Unit/Placeholder: e.g. 60 ft
+Editor/Where/Around: Around the selection
+Editor/Where/Before: Before the paragraph
 Event/Continued: (continued)
 Event/End: (end)
 Event/Event: Event
@@ -57,6 +159,7 @@ Event/Timeline: Timeline
 Item/Check/NoBase: Check the item: a category such as Book needs a base type as well: Artifact (unique), Item (several) or Material
 Item/Check/PriceCurrency: Check the price: a number and a coin of the currency, e.g. 50 gp - or a plain number if the wiki has no currency
 Item/Check/PriceNoCurrency: Check the price: it needs a coin of the currency, e.g. 50 gp
+Item/Check/PriceUnit: Check the price: the currency has no such unit
 Item/Check/TwoBases: Check the item: it has one base type only: Artifact (unique), Item (several) or Material
 Item/Price: Price:
 Location/Check/ArtifactOwners: Check the location: an artifact is unique and has one owner (field owner has several entries)
@@ -76,11 +179,14 @@ Map/Fit: Fit map
 Map/Quests/Empty: No open quests or rumours lead here.
 Map/Quests/Spot: spot
 Map/Tab: Map
+New/Create: Create
+New/Hub: New:
 Number/Decimal: .
 Player/Active: Player characters
 Player/Former: Former characters
 Player/Player: Player:
 Quest/Create: Create quest
+Quest/Create/Hint: Opens a draft with the player characters of its events
 Quest/History: History
 Quest/Kind/Quest: Quest
 Quest/Kind/Rumour: Rumour
@@ -91,6 +197,7 @@ Quest/List/Rumours: Rumours
 Quest/Marks: $n$ markers
 Quest/Rename: Rename
 Quest/Rename/Exists: Exists already - renaming merges both
+Quest/Rename/NoQuest: A tiddler of this name is no quest - they cannot be merged
 Quest/Rename/Placeholder: New name
 Quest/Rumour/Hint: A rumour: no tiddler of its own yet.
 Quest/Show: Show:
@@ -149,6 +256,9 @@ Settings/Dates/Order: Day and month
 Settings/Dates/Order/dm: day before month
 Settings/Dates/Order/md: month before day
 Settings/Dates/Order/wiki: as in the wiki language
+Settings/Editor/Caption: Editor
+Settings/Editor/Symmetric: Saving writes symmetric relations (spouse, sibling, family, alliance, bond, enmity) to the other end as well
+Settings/Editor/Toolbar: The buttons of the editor are switched on and off under Appearance -> Toolbars -> Editor Toolbar, their shortcuts under Keyboard Shortcuts.
 Settings/Hint: Settings of tiddlyrpg-core for this wiki. They are saved with the wiki and apply to everyone who reads it.
 Settings/Problem/NoChoice: Several are installed and none is chosen - active is the first by title, $1$.
 Settings/Problem/disabled: Set is $1$, which is disabled - active is $2$.
@@ -173,7 +283,6 @@ Settings/RulesetOptions/Hub: All terms:
 Settings/SettingOptions/Caption: Campaign setting options
 Settings/SettingOptions/Hint: Settings of the campaign setting for this wiki: in which language the names of the calendar and the coins are shown, and the order of day and month in dates.
 Settings/SettingOptions/Hub: All names:
-Snippet/DateSection: Dated Section
 Source/Label: Source:
 Spot/Missing: Spot "$spot$" not found at $place$
 Spot/PlaceMissing: Location "$place$" does not exist

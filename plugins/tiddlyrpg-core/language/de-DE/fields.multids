@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261008071815000
+modified: 20261016090000000
 title: $:/tiddlyrpg/language/de-DE/Field/
 
 alliance: Allianz
@@ -7,17 +7,22 @@ ancestor: Vorfahren
 bond: Bund
 component: Bestandteile
 creator: Erschaffer
+date: Datum
 enmity: Feindschaft
 family: Familie
 former: Ehemals bei
+image: Bilder
 leader: Führt
 location: Ort
+map: Karten
 member: Mitglied von
 mentor: Mentor
 officer: Amt in
 owner: Besitzer
 parent: Eltern
 patron: Patron
+player: Spieler
+price: Preis
 rules: Kontrolliert
 sibling: Geschwister
 spouse: Ehe

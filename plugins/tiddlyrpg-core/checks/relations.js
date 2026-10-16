@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194724000
-modified: 20261015203416000
+modified: 20261016233000000
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type
@@ -96,7 +96,8 @@ exports.rules = [
 					}) : [];
 					messages.push(places.length ?
 						{level: "error", key: "Check/Relations/MissingSpot", params: {field: type.name, target: target, place: places[0]}} :
-						{level: "error", key: "Check/Relations/Missing", params: {field: type.name, target: target}});
+						{level: "error", key: "Check/Relations/Missing", params: {field: type.name, target: target},
+							fix: {kind: "create", title: target, type: type.name === "location" ? "Location" : ""}});
 				});
 			});
 			return messages;
@@ -112,7 +113,8 @@ exports.rules = [
 					$tw.utils.each(type.impliedBy,function(other) {
 						if(all[other] && all[other].kind === "field" && relations.targets(wiki,other,title).indexOf(target) !== -1 &&
 							visibility.visible(wiki,target,view)) {
-							messages.push({level: "hint", key: "Check/Relations/Included", params: {field: type.name, other: other, target: target}});
+							messages.push({level: "hint", key: "Check/Relations/Included", params: {field: type.name, other: other, target: target},
+								fix: {kind: "remove", field: type.name, value: target}});
 						}
 					});
 				});
@@ -151,7 +153,8 @@ exports.rules = [
 				var own = list(wiki,title,type.name);
 				$tw.utils.each(wiki.findListingsOfTiddler(title,type.name),function(other) {
 					if(other !== title && own.indexOf(other) === -1 && others(wiki,other) && visibility.visible(wiki,other,view)) {
-						messages.push({level: "hint", key: "Check/Relations/Symmetric", params: {field: type.name, other: other}});
+						messages.push({level: "hint", key: "Check/Relations/Symmetric", params: {field: type.name, other: other},
+							fix: {kind: "add", field: type.name, value: other}});
 					}
 				});
 			});
@@ -185,7 +188,7 @@ exports.rules = [
 					return list(wiki,title,field).indexOf(other) !== -1 || list(wiki,other,field).indexOf(title) !== -1;
 				});
 			}).map(function(other) {
-				return {level: "hint", key: "Check/Relations/Family", params: {other: other}};
+				return {level: "hint", key: "Check/Relations/Family", params: {other: other}, fix: {kind: "remove", field: "family", value: other}};
 			});
 		}
 	},

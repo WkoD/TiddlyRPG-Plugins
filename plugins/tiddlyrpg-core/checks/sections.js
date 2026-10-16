@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/sections.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015191942000
+modified: 20261016233000000
 
 Checks of the sections of a body (modules/sections.js check(); modules/checks.js runs them).
 
@@ -24,7 +24,11 @@ exports.rules = [
 		id: "sections/structure",
 		run: function(wiki,title,view) {
 			return sections.check(wiki,title,view).map(function(problem) {
-				return {level: "error", key: problem.key, params: problem.params};
+				var message = {level: "error", key: problem.key, params: problem.params};
+				if(problem.fix) {
+					message.fix = problem.fix;
+				}
+				return message;
 			});
 		}
 	}

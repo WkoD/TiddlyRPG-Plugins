@@ -1,6 +1,7 @@
 created: 20260715125428000
+modified: 20261016233000000
 tiddlyrpg-implies: member
-modified: 20261008062202000
+tiddlyrpg-targets: [tag[Organisation]]
 title: $:/config/flibbles/graph/edges/fields/officer
 type: application/json
 

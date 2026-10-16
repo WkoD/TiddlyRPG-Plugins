@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/checks.js
 type: application/javascript
 module-type: library
 created: 20261015191942000
-modified: 20261015200756000
+modified: 20261016233000000
 
 Checks: the problems of the tiddlers of a wiki - the one place that runs them. The same rules
 give the messages below the title (viewtemplates/checks, filter trpgcheck) and the report of
@@ -16,9 +16,18 @@ A rule lives in a module of type trpg-check (checks/<theme>.js), which exports r
             is what a DM writes into trpg-noerror or trpg-noinfo
     scope   "tiddler" (default): run(wiki,title,view) gives the messages of <title>;
             "wiki": run(wiki,view) gives messages over the whole wiki, each with its title
-    message {level, key, params} (scope wiki: also title) - level "error" (something is broken
+    message {level, key, params, fix} (scope wiki: also title) - level "error" (something is broken
             or does not work as meant) or "hint" (fine, but better with ...); key a language key,
-            params its $name$ values
+            params its $name$ values; fix (optional) what the button of the message in the form
+            of the editor changes in the draft (editor/form, startup/editor-messages.js):
+              {kind: "remove", field, value}   take <value> out of <field>
+              {kind: "add", field, value}      put <value> into <field>
+              {kind: "tagToLocation", tag}    the tag <tag> becomes the field location
+              {kind: "questStatus", start}    status by position -> status:"…" (the marker at start)
+              {kind: "dateLabel", start}      caption by position -> label:"…"
+              {kind: "spotEmpty", start}      the text of the spot at <start> goes (the location
+                                               it is joined to holds it already)
+              {kind: "create", title, type}   a new draft of that title (and type tag)
 
 Every rule takes the view (modules/visibility.js) and leaves out a whole message that names a
 title the view does not see, or that repeats text of a section it does not see. The script runs
@@ -32,6 +41,10 @@ message of that level.
   themes()                      the themes, sorted
   text(wiki,message)            the text of a message in the wiki language
   forTiddler(wiki,title,view)   the messages of a tiddler, errors first (global cache)
+  forDraft(wiki,draft,view)     the messages of a draft in the editor: the rules of scope tiddler
+                                on the draft, those that read what other tiddlers say about it
+                                (SAVED) on the title it is the draft of; a message whose fix the
+                                draft has already made is left out
   all(wiki,view,themes)         {title: messages} over the wiki: every tiddler that is no system
                                 tiddler (graph views aside) and no draft, plus the titles the
                                 rules of scope wiki name; themes (optional) limits the rules
@@ -115,10 +128,13 @@ function selected(rule,scope,themes) {
 // Messages of the rules: the id added, duplicates left out
 function collect(list,rule,messages) {
 	$tw.utils.each(messages,function(message) {
-		var entry = {id: rule.id, level: message.level, key: message.key, params: message.params || {}},
-			same = list.some(function(other) {
-				return other.id === entry.id && other.key === entry.key && JSON.stringify(other.params) === JSON.stringify(entry.params);
-			});
+		var entry = {id: rule.id, level: message.level, key: message.key, params: message.params || {}};
+		if(message.fix) {
+			entry.fix = message.fix;
+		}
+		var same = list.some(function(other) {
+			return other.id === entry.id && other.key === entry.key && JSON.stringify(other.params) === JSON.stringify(entry.params);
+		});
 		if(!same) {
 			list.push(entry);
 		}
@@ -166,6 +182,47 @@ exports.forTiddler = function(wiki,title,view) {
 	view = view || visibility.current(wiki);
 	return wiki.getGlobalCache("tiddlyrpg-checks/" + view.name + "/" + title,function() {
 		return finish(wiki,title,runTiddler(wiki,title,view).concat(runWiki(wiki,view)[title] || []));
+	});
+};
+
+// The rules that read what other tiddlers say about a tiddler: on a draft they run on the title
+// it is the draft of
+var SAVED = ["relations/symmetric","relations/siblings","relations/family","relations/ancestor","relations/leaders","relations/deadleader"];
+
+// Whether a draft has already made the fix of a message
+function made(tiddler,fix) {
+	var values = $tw.utils.parseStringArray((fix && fix.field && tiddler.fields[fix.field]) || "") || [];
+	if(fix && fix.kind === "add") {
+		return values.indexOf(fix.value) !== -1;
+	}
+	if(fix && fix.kind === "remove") {
+		return values.indexOf(fix.value) === -1;
+	}
+	return false;
+}
+
+exports.forDraft = function(wiki,draft,view) {
+	view = view || visibility.current(wiki);
+	var tiddler = wiki.getTiddler(draft);
+	if(!tiddler) {
+		return [];
+	}
+	var of = tiddler.fields["draft.of"];
+	return wiki.getGlobalCache("tiddlyrpg-checks-draft/" + view.name + "/" + draft,function() {
+		var list = [];
+		$tw.utils.each(rules(),function(rule) {
+			if(rule.scope !== "tiddler") {
+				return;
+			}
+			if(SAVED.indexOf(rule.id) === -1) {
+				collect(list,rule,rule.run(wiki,draft,view));
+			} else if(of && wiki.tiddlerExists(of)) {
+				collect(list,rule,rule.run(wiki,of,view).filter(function(message) {
+					return !made(tiddler,message.fix);
+				}));
+			}
+		});
+		return finish(wiki,draft,list);
 	});
 };
 

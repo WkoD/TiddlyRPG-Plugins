@@ -1,0 +1,14 @@
+button-classes: trpg-toolbar-button
+caption: <<trpg.t Editor/Term/Caption>>
+condition: [<targetTiddler>trpgwikitext[]]
+created: 20261016090000000
+description: <<trpg.t Editor/Term/Hint>>
+dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown
+icon: $:/core/images/info-button
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/sublocation
+modified: 20261016190000000
+shortcuts: ((trpg-term))
+tags: $:/tags/EditorToolbar
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/term
+type: text/vnd.tiddlywiki
+

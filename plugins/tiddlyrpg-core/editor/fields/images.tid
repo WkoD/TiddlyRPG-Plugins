@@ -1,0 +1,23 @@
+created: 20261016090000000
+modified: 20261016090000000
+title: $:/plugins/tiddlyrpg-core/editor/fields/images
+type: text/vnd.tiddlywiki
+
+<!-- Editor of the fields image and map: the file names, comma separated, and a preview of each
+     file in its folder (image: images/<folder of the type>/, map: images/map/; modules/images.js).
+     The browser cannot list the folder, so the names are typed; a missing file shows as a broken
+     image. Read after the input (focus). Variables: currentTiddler (the draft), currentField. -->
+\procedure trpg.imagepreview()
+\whitespace trim
+<$let trpg-folder={{{ [<currentField>match[map]then[map]] ~[<currentTiddler>imagefolder[]] }}}>
+<div class="trpg-field-images">
+<$list filter="[<currentTiddler>get<currentField>imagelist<trpg-folder>]" variable="trpg-entry">
+<span class="trpg-field-image" title={{{ [<trpg-entry>jsonget[label]] }}}><$image source={{{ [<trpg-entry>jsonget[path]] }}}/></span>
+</$list>
+</div>
+</$let>
+\end
+
+\whitespace trim
+<$edit-text tiddler=<<currentTiddler>> field=<<currentField>> tag="input" class="tc-edit-texteditor tc-edit-fieldeditor trpg-field-input" placeholder={{{ [[Editor/Form/ImagePlaceholder]trpgtranslate[]] }}}/>
+<$transclude $variable="trpg.imagepreview"/>

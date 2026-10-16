@@ -1,0 +1,15 @@
+created: 20261016090000000
+list-before: $:/core/ui/ViewTemplate/body
+modified: 20261016190000000
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/hub-new
+type: text/vnd.tiddlywiki
+
+<!-- "+" on the hub of a type (a type tag, modules/types.js): a new tiddler of that type
+     (procedure trpg.newbutton, ui/new-procedures). Only in the editable wiki; shows no titles. -->
+\whitespace trim
+<%if [{$:/status/IsReadOnly}!match[yes]] %>
+<%if [trpgtypelist[]match<currentTiddler>] %>
+<div class="trpg-hub-new"><$transclude $variable="trpg.newbutton" type=<<currentTiddler>>/></div>
+<%endif%>
+<%endif%>

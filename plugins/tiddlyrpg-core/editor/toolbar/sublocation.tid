@@ -1,0 +1,15 @@
+actions: <$action-sendmessage $message="tm-trpg-probe" kind="sublocation"/>
+button-classes: trpg-toolbar-button
+caption: <<trpg.t Editor/Sublocation/Caption>>
+condition: [<targetTiddler>trpgwikitext[]trpgtypes[]match[Location]]
+created: 20261016090000000
+description: <<trpg.t Editor/Sublocation/Hint>>
+dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/sublocation-dropdown
+icon: $:/core/images/new-here-button
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/spotlink
+modified: 20261016190000000
+shortcuts: ((trpg-sublocation))
+tags: $:/tags/EditorToolbar
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/sublocation
+type: text/vnd.tiddlywiki
+

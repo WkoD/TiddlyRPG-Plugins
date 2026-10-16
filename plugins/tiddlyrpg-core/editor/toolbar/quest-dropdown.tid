@@ -1,0 +1,55 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/quest-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Quest marker (editor/toolbar/quest). Without a marker at the cursor:
+     the name, a quest or rumour (questnames) or a new one (a yellow pill, as are names written
+     almost alike - a typo makes a new rumour); it goes to the start of the paragraph or list item,
+     or around the selection (modules/editor.js). At markers: another name for the first one,
+     another quest linked to them (a further marker), and each marker at the cursor as a pill with
+     × to remove just that one. A quest already marked here is no choice: marked twice it would
+     not count. The status is the button Quest status (editor/toolbar/quest-status). -->
+\whitespace trim
+<$let trpg-form=<<trpg.editor-form>>
+	trpg-probe=<<trpg.editor-probe>>
+	trpg-names={{{ [<trpg-probe>jsonget[names]] }}}
+	trpg-name={{{ [<trpg-probe>jsonget[params],[name]] }}}>
+<div class="trpg-editor-dropdown">
+<%if [<trpg-form>is[blank]] %>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Quest/Insert]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.picker" id={{{ [<targetTiddler>addsuffix[/quest]] }}} candidates="[questnames[]] -[enlist<trpg-names>]" free="yes"
+	placeholder={{{ [[Editor/Quest/Placeholder]trpgtranslate[]] }}}
+	actions="""<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="quest" op="insert" name=<<trpg-pick>>/><$action-deletetiddler $tiddler=<<dropdown-state>>/>"""/>
+<div class="trpg-editor-hint"><$text text={{{ [<trpg-probe>jsonget[selection]match[true]then[Editor/Where/Around]else[Editor/Quest/Where]trpgtranslate[]] }}}/></div>
+<%else%>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Quest/At]trpgtranslate[]search-replace[$name$],<trpg-name>] }}}/></div>
+<div class="trpg-editor-label"><$text text={{{ [[Editor/Quest/Rename]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.picker" id={{{ [<targetTiddler>addsuffix[/quest-change]] }}} candidates="[questnames[]] -[enlist<trpg-names>]" free="yes"
+	placeholder={{{ [[Editor/Quest/Placeholder]trpgtranslate[]] }}}
+	actions="""<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="quest" op="change" name=<<trpg-pick>>/><$action-deletetiddler $tiddler=<<dropdown-state>>/>"""/>
+<%if [<trpg-form>match[short]] %>
+<div class="trpg-editor-label"><$text text={{{ [[Editor/Quest/Link]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.picker" id={{{ [<targetTiddler>addsuffix[/quest-add]] }}} candidates="[questnames[]] -[enlist<trpg-names>]" free="yes"
+	placeholder={{{ [[Editor/Quest/Placeholder]trpgtranslate[]] }}}
+	actions="""<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="quest" op="add" name=<<trpg-pick>>/><$action-deletetiddler $tiddler=<<dropdown-state>>/>"""/>
+<%endif%>
+<div class="trpg-editor-label trpg-remove-label"><$text text={{{ [[Editor/Remove]trpgtranslate[]] }}}/></div>
+<div class="trpg-pills">
+<$list filter="[<trpg-probe>jsonindexes[markers]]" variable="trpg-i">
+<$let trpg-marker-name={{{ [<trpg-probe>jsonget[markers],<trpg-i>,[name]] }}}
+	trpg-marker-start={{{ [<trpg-probe>jsonget[markers],<trpg-i>,[start]] }}}>
+<span class="trpg-pick-pill" style={{{ [<trpg-marker-name>questreal[]then[--trpg-kind:#e6b400]else[--trpg-kind:var(--trpg-rumour, #9aa1aa)]] }}}>
+<$text text=<<trpg-marker-name>>/>
+<$button class="tc-btn-invisible trpg-pill-x" tooltip={{{ [[Editor/Form/Remove]trpgtranslate[]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="quest" op="remove" start=<<trpg-marker-start>>/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+×
+</$button>
+</span>
+</$let>
+</$list>
+</div>
+<%endif%>
+</div>
+</$let>

@@ -1,0 +1,38 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/fields/relation
+type: text/vnd.tiddlywiki
+
+<!-- Editor of a relation field (and location) in the form and in the field list of the core:
+     the entries as pills in the colour of their type with × to take one out (the last one takes
+     the field with it), and the picker over what the field may name (relationcandidates:
+     tiddlyrpg-targets of its config), without the entries and the tiddler itself. A field that
+     holds one entry for the type (modules/form.js single: location of a person, a location or an
+     artifact, owner of an artifact) is replaced - its input says "Change" then -, any other one
+     added to. Variables: currentTiddler (the draft), currentField. -->
+\whitespace trim
+<$let trpg-single={{{ [<currentTiddler>trpgformsingle<currentField>then[yes]else[no]] }}}
+	trpg-self={{{ [<currentTiddler>get[draft.of]] ~[<currentTiddler>] }}}
+	trpg-has={{{ [<currentTiddler>has<currentField>then[yes]else[no]] }}}>
+<span class="trpg-field-relation">
+<$list filter="[<currentTiddler>get<currentField>enlist-input[]]" variable="trpg-value">
+<$let trpg-rest={{{ [<currentTiddler>get<currentField>enlist-input[]] -[<trpg-value>] +[format:titlelist[]join[ ]] }}}>
+<span class="trpg-pick-pill" style={{{ [trpg.pillstyle<trpg-value>] }}}>
+<$transclude $variable="trpg.pickname" title=<<trpg-value>>/>
+<$button class="tc-btn-invisible trpg-pill-x" tooltip={{{ [[Editor/Form/Remove]trpgtranslate[]] }}}>
+<%if [<trpg-rest>is[blank]] %>
+<$action-deletefield $tiddler=<<currentTiddler>> $field=<<currentField>>/>
+<%else%>
+<$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value=<<trpg-rest>>/>
+<%endif%>
+×
+</$button>
+</span>
+</$let>
+</$list>
+<$transclude $variable="trpg.picker" id={{{ [<currentTiddler>addsuffix[/]addsuffix<currentField>] }}}
+	candidates="[<currentField>relationcandidates[]] -[<currentTiddler>get<currentField>enlist-input[]] -[<trpg-self>] -[<currentTiddler>]"
+	placeholder={{{ [<trpg-single>match[yes]] :filter[<trpg-has>match[yes]] +[then[Editor/Form/Change]else[Editor/Form/Add]trpgtranslate[]] }}}
+	actions="""<%if [<trpg-single>match[yes]] %><$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value={{{ [<trpg-pick>format:titlelist[]] }}}/><%else%><$action-listops $tiddler=<<currentTiddler>> $field=<<currentField>> $subfilter="[<trpg-pick>]"/><%endif%>"""/>
+</span>
+</$let>

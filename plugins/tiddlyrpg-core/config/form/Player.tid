@@ -1,0 +1,8 @@
+created: 20261016090000000
+list: player image
+modified: 20261016210000000
+more: location date member officer leader former under patron mentor parent ancestor spouse sibling family alliance bond enmity
+title: $:/config/tiddlyrpg/form/Player
+type: text/vnd.tiddlywiki
+
+The form in the editor for a tiddler tagged Player (modules/form.js): list - the fields whose absence a check reports, shown also while empty; more - the other fields it offers under "More fields".

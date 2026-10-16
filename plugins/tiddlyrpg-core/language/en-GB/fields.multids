@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261008071815000
+modified: 20261016090000000
 title: $:/tiddlyrpg/language/en-GB/Field/
 
 alliance: Alliance
@@ -7,17 +7,22 @@ ancestor: Ancestors
 bond: Bond
 component: Components
 creator: Creator
+date: Date
 enmity: Enmity
 family: Family
 former: Formerly with
+image: Images
 leader: Leads
 location: Location
+map: Maps
 member: Member of
 mentor: Mentor
 officer: Officer of
 owner: Owner
 parent: Parents
 patron: Patron
+player: Player
+price: Price
 rules: Controls
 sibling: Siblings
 spouse: Spouse

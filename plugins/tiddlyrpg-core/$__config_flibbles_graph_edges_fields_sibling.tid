@@ -1,6 +1,7 @@
 created: 20261008071815000
+modified: 20261016233000000
 tiddlyrpg-symmetric: yes
-modified: 20261008071815000
+tiddlyrpg-targets: [tag[Person]] [tag[Player]] [tag[Deity]]
 title: $:/config/flibbles/graph/edges/fields/sibling
 type: application/json
 

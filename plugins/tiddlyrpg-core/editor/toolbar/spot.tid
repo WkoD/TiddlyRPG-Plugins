@@ -1,0 +1,15 @@
+actions: <$action-sendmessage $message="tm-trpg-probe" kind="spot"/>
+button-classes: trpg-toolbar-button
+caption: <<trpg.t Editor/Spot/Caption>>
+condition: [<targetTiddler>trpgwikitext[]trpgtypes[]match[Location]]
+created: 20261016090000000
+description: <<trpg.t Editor/Spot/Hint>>
+dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/spot-dropdown
+icon: $:/plugins/tiddlyrpg-core/editor/icons/spot
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/secret
+modified: 20261016190000000
+shortcuts: ((trpg-spot))
+tags: $:/tags/EditorToolbar
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/spot
+type: text/vnd.tiddlywiki
+

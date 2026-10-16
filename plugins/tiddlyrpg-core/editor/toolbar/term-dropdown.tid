@@ -1,0 +1,56 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Rules (editor/toolbar/term): a search over the terms of the rules
+     (trpgtermsearch: id or term, as the hub Ruleset lists them) - a pill sets <<term id>> at the
+     cursor; a value with its unit - the units of the rules that fit what follows the number
+     (trpgunitsuggest) as pills, one sets <<unit "…">>. Without a ruleset there are neither. -->
+\procedure trpg.termhits()
+\whitespace trim
+<$let trpg-query={{{ [<trpg-input>get[term]trim[]] }}}>
+<%if [<trpg-query>!is[blank]] %>
+<div class="trpg-pills">
+<$list filter="[trpgtermsearch<trpg-query>limit[15]]" variable="trpg-id" emptyMessage=<<trpg.t Editor/Term/None>>>
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-neutral" tooltip=<<trpg-id>>>
+<$action-sendmessage $message="tm-edit-text-operation" $param="insert-text" text={{{ [<trpg-id>addprefix[<<term ]addsuffix[>>]] }}}/>
+<$action-setfield $tiddler=<<trpg-input>> term=""/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [<trpg-id>trpgterm[]] }}}/> <code><$text text=<<trpg-id>>/></code>
+</$button>
+</$list>
+</div>
+<%endif%>
+</$let>
+\end
+
+\procedure trpg.unithits()
+\whitespace trim
+<$let trpg-unit={{{ [<trpg-input>get[unit]trim[]] }}}>
+<%if [<trpg-unit>!is[blank]] %>
+<div class="trpg-pills">
+<$list filter="[<trpg-unit>trpgunitsuggest[]limit[12]]" variable="trpg-value" emptyMessage=<<trpg.t Editor/Unit/None>>>
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-neutral">
+<$action-sendmessage $message="tm-edit-text-operation" $param="insert-text" text={{{ [<trpg-value>addprefix[<<unit "]addsuffix[">>]] }}}/>
+<$action-setfield $tiddler=<<trpg-input>> unit=""/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text=<<trpg-value>>/>
+</$button>
+</$list>
+</div>
+<%endif%>
+</$let>
+\end
+
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>>
+<div class="trpg-editor-dropdown">
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Term/Insert]trpgtranslate[]] }}}/></div>
+<div class="trpg-editor-row"><$edit-text tiddler=<<trpg-input>> field="term" tag="input" class="trpg-editor-input" placeholder={{{ [[Editor/Term/Placeholder]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.termhits"/>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Unit/Insert]trpgtranslate[]] }}}/></div>
+<div class="trpg-editor-row"><$edit-text tiddler=<<trpg-input>> field="unit" tag="input" class="trpg-editor-input" placeholder={{{ [[Editor/Unit/Placeholder]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.unithits"/>
+</div>
+</$let>

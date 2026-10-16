@@ -1,0 +1,46 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/spot-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Spot (editor/toolbar/spot). Without a spot at the cursor: its name;
+     Insert sets <<spot>> before the paragraph - the spot holds the text up to the next marker -
+     or <$spot> around the selection (modules/editor.js). At a spot: remove it; its text stays and
+     belongs to the section before. A spot becomes a location of its own with the button
+     Sub-location (editor/toolbar/sublocation). -->
+\procedure trpg.spotactions()
+\whitespace trim
+<$let trpg-name={{{ [<trpg-input>get[name]trim[]] }}}>
+<div class="trpg-editor-actions">
+<span class="trpg-editor-hint"><$text text={{{ [<trpg-probe>jsonget[selection]match[true]then[Editor/Where/Around]else[Editor/Spot/Where]trpgtranslate[]] }}}/></span>
+<$button class="trpg-do" disabled={{{ [<trpg-name>is[blank]then[yes]else[no]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="spot" op="insert" name=<<trpg-name>>/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Insert]trpgtranslate[]] }}}/>
+</$button>
+</div>
+</$let>
+\end
+
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>
+	trpg-form=<<trpg.editor-form>>
+	trpg-probe=<<trpg.editor-probe>>
+	trpg-at={{{ [<trpg-probe>jsonget[params],[name]] }}}>
+<div class="trpg-editor-dropdown">
+<%if [<trpg-form>is[blank]] %>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Spot/Insert]trpgtranslate[]] }}}/></div>
+<div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Spot/Name]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> field="name" tag="input" class="trpg-editor-input"/></div>
+<$transclude $variable="trpg.spotactions"/>
+<%else%>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Spot/At]trpgtranslate[]search-replace[$name$],<trpg-at>] }}}/></div>
+<div class="trpg-editor-actions">
+<$button class="tc-btn-invisible trpg-remove">
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="spot" op="remove"/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Remove]trpgtranslate[]] }}}/>
+</$button>
+</div>
+<%endif%>
+</div>
+</$let>

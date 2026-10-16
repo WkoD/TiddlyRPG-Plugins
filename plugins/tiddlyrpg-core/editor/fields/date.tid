@@ -1,0 +1,33 @@
+created: 20261016090000000
+modified: 20261016090000000
+title: $:/plugins/tiddlyrpg-core/editor/fields/date
+type: text/vnd.tiddlywiki
+
+<!-- Editor of the field date: the input, below it the reading of every section (dateformat with
+     its number, what cannot be read in the colour of an error) and for an event how many dated
+     sections the text has - the n-th <<date>> is the n-th section. Read after the input (focus).
+     Variables: currentTiddler (the draft), currentField. -->
+\procedure trpg.datefieldreading()
+\whitespace trim
+<$let trpg-value={{{ [<currentTiddler>get<currentField>] }}}>
+<%if [<trpg-value>!is[blank]] %>
+<div class="trpg-field-reading">
+<$list filter="[<trpg-value>split[,]trim[]!match[.]!match[..]]" variable="trpg-part" counter="trpg-n">
+<span class={{{ [<trpg-part>datecheck[]then[trpg-field-section trpg-editor-bad]else[trpg-field-section]] }}}><$text text={{{ [<trpg-n>addsuffix[: ]] [<trpg-part>dateformat[]] +[join[]] }}}/></span>
+</$list>
+</div>
+<%endif%>
+<%if [<currentTiddler>trpgtypes[]match[Event]] %>
+<$let trpg-sections={{{ [<trpg-value>split[,]trim[]!match[.]!match[..]!is[blank]count[]] }}}
+	trpg-markers={{{ [<currentTiddler>trpgdatemarkers[]] }}}>
+<div class={{{ [<trpg-sections>match<trpg-markers>then[trpg-field-count]else[trpg-field-count trpg-editor-bad]] }}}>
+<$text text={{{ [[Editor/Form/DateCount]trpgtranslate[]search-replace[$sections$],<trpg-sections>search-replace[$markers$],<trpg-markers>] }}}/>
+</div>
+</$let>
+<%endif%>
+</$let>
+\end
+
+\whitespace trim
+<$edit-text tiddler=<<currentTiddler>> field=<<currentField>> tag="input" class="tc-edit-texteditor tc-edit-fieldeditor trpg-field-input" placeholder={{{ [[Editor/Form/DatePlaceholder]trpgtranslate[]] }}}/>
+<$transclude $variable="trpg.datefieldreading"/>

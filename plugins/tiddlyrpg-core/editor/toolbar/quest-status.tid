@@ -1,0 +1,14 @@
+actions: <$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="quest" op="cycle"/>
+button-classes: trpg-toolbar-button
+caption: <<trpg.t Editor/QuestStatus/Caption>>
+condition: [<targetTiddler>trpgwikitext[]trpgtypes[]match[Event]]
+created: 20261016090000000
+description: <<trpg.t Editor/QuestStatus/Hint>>
+icon: $:/core/images/done-button
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/quest
+modified: 20261016190000000
+shortcuts: ((trpg-quest-status))
+tags: $:/tags/EditorToolbar
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/quest-status
+type: text/vnd.tiddlywiki
+

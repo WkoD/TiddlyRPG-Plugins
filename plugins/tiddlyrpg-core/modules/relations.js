@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261008072856000
+modified: 20261016233000000
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -38,7 +38,8 @@ the relation list, forward), FieldInverse/<type> (the way back: "Members").
 
 "use strict";
 
-var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	quests = require("$:/plugins/tiddlyrpg-core/modules/quests.js");
 
 var FIELDS = "$:/config/flibbles/graph/edges/fields/",
 	FUNCTIONS = "$:/config/flibbles/graph/edges/functions/",
@@ -74,6 +75,7 @@ var types = exports.types = function(wiki) {
 					implies: list(fields["tiddlyrpg-implies"]),
 					impliedBy: [],
 					via: fields["tiddlyrpg-via"] || "",
+					candidates: fields["tiddlyrpg-targets"] || "",
 					axis: "",
 					order: Infinity
 				};
@@ -190,6 +192,33 @@ exports.sources = function(wiki,name,to,selected) {
 	return wiki.findListingsOfTiddler(to,field).filter(function(from) {
 		return targets(wiki,name,from).indexOf(to) !== -1 && !included(wiki,name,from,to,selected);
 	});
+};
+
+// The kinds of the switches (relations block, map, search), by tag; the first that fits counts
+var KINDS = [["Player","player"],["Person","person"],["Organisation","organisation"],["Deity","person"],
+	["Location","location"],["Artifact","item"],["Item","item"],["Material","item"],["Quest","quest"]];
+
+/*
+The kind of a title: player, person (deities too), organisation, location, item (artifacts and
+materials too), quest (a quest or a rumour, a name with markers), with <events> also event;
+else other.
+*/
+exports.kindOf = function(wiki,title,events) {
+	var tiddler = wiki.getTiddler(title),
+		kind = "other";
+	if(tiddler) {
+		$tw.utils.each(KINDS,function(entry) {
+			if(kind === "other" && tiddler.hasTag(entry[0])) {
+				kind = entry[1];
+			}
+		});
+		if(kind === "other" && events && tiddler.hasTag("Event")) {
+			kind = "event";
+		}
+	} else if(quests.index(wiki).names.indexOf(title) !== -1) {
+		kind = "quest";
+	}
+	return kind;
 };
 
 // The edge label of a type (Edge/<type>), or "" if the language has none

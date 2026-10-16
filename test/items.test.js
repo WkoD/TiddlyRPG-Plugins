@@ -117,7 +117,7 @@ test.describe("price", function() {
 
 	test("a coin the currency does not have, or a text: a hint", function() {
 		withTiddlers([{title: "Trank", tags: "Item", price: "50 xp"}, {title: "Trank2", tags: "Item", price: "teuer"}], function() {
-			assert.deepEqual(keys("Trank"), ["Item/Check/PriceCurrency"]);
+			assert.deepEqual(keys("Trank"), ["Item/Check/PriceUnit"]);
 			assert.deepEqual(keys("Trank2"), ["Item/Check/PriceCurrency"]);
 		});
 	});

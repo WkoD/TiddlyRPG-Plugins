@@ -1,0 +1,10 @@
+created: 20261016090000000
+first-search-filter: [subfilter<trpg-candidates>trpgpickmatch<userInput>] :filter[trpg.visible[]] +[sort[]limit[50]]
+modified: 20261016190000000
+second-search-filter: [[]] -[[]]
+title: $:/plugins/tiddlyrpg-core/editor/picker
+type: text/vnd.tiddlywiki
+
+The config of the picker (procedure trpg.picker, editor/procedures): the filter of its hits, read
+by keyboard-driven-input of the core for the arrow keys - every candidate the view sees for an
+empty input, else those whose name contains what is typed. The second list is empty.

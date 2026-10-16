@@ -1,0 +1,13 @@
+created: 20261016090000000
+modified: 20261016090000000
+title: $:/config/ShortcutInfo/
+
+trpg-date: <<trpg.t Editor/Date/Hint>>
+trpg-quest: <<trpg.t Editor/Quest/Hint>>
+trpg-quest-status: <<trpg.t Editor/QuestStatus/Hint>>
+trpg-group: <<trpg.t Editor/Group/Hint>>
+trpg-secret: <<trpg.t Editor/Secret/Hint>>
+trpg-spot: <<trpg.t Editor/Spot/Hint>>
+trpg-spotlink: <<trpg.t Editor/Spotlink/Hint>>
+trpg-sublocation: <<trpg.t Editor/Sublocation/Hint>>
+trpg-term: <<trpg.t Editor/Term/Hint>>

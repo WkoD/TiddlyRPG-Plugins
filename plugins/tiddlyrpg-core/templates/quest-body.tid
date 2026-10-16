@@ -1,12 +1,17 @@
 created: 20261015122743000
-modified: 20261015185332000
+modified: 20261016220000000
 title: $:/plugins/tiddlyrpg-core/templates/quest-body
 type: text/vnd.tiddlywiki
 
 <!-- Body of a quest (a tiddler tagged Quest) or of a rumour (a name without tiddler that has
      markers), modules/quests.js; chosen by viewtemplates/body-filter-quest. The text of the
      tiddler (the planning), for a rumour a hint and in the editable wiki the buttons to create
-     the quest or rename the rumour (tm-relink-tiddler rewrites every marker); the quests linked
+     the quest (a draft in the editor, tagged Quest and with the player characters of the events
+     of its markers chosen - questplayers; nothing exists before saving) or rename the rumour
+     (tm-relink-tiddler rewrites every marker; while typing the names that contain the text, to
+     take one, and those written almost alike, checks.similar). Where a tiddler is named like the
+     rumour or the new name in another case (trpgtaken - the files would clash), or the new name
+     is a tiddler but no quest, a red line says so instead of the button; the quests linked
      with it; the history as a timeline: every marker the view sees, newest first, its date
      beside a line with a point (a diamond where a status is set), its event (a jump to the
      section), the status and what it holds through trpg-body. Also the details of a card of the
@@ -22,14 +27,25 @@ type: text/vnd.tiddlywiki
 <div class="trpg-quest-hint"><$text text={{{ [[Quest/Rumour/Hint]trpgtranslate[]] }}}/></div>
 <%if [{$:/status/IsReadOnly}!match[yes]] %>
 <div class="trpg-quest-tools">
-<$button class="trpg-quest-create" tooltip={{{ [[Quest/Create]trpgtranslate[]] }}}>
-<$action-createtiddler $basetitle=<<trpg-quest>> tags="Quest"/>
+<$let trpg-taken={{{ [<trpg-quest>trpgtaken[]] }}}>
+<%if [<trpg-taken>is[blank]] %>
+<$button class="trpg-do trpg-quest-create" tooltip={{{ [[Quest/Create/Hint]trpgtranslate[]] }}}>
+<$action-sendmessage $message="tm-new-tiddler" title=<<trpg-quest>> tags={{{ [[Quest]] [<trpg-quest>questplayers[]] +[format:titlelist[]join[ ]] }}}/>
 <$text text={{{ [[Quest/Create]trpgtranslate[]] }}}/>
 </$button>
+<%else%>
+<span class="trpg-quest-create-taken trpg-editor-bad"><$text text={{{ [[Editor/Name/Taken]trpgtranslate[]search-replace[$title$],<trpg-taken>] }}}/></span>
+<%endif%>
+</$let>
 <$edit-text tiddler=<<trpg-rename>> tag="input" class="trpg-quest-rename" placeholder={{{ [[Quest/Rename/Placeholder]trpgtranslate[]] }}}/>
-<$let trpg-new={{{ [<trpg-rename>get[text]trim[]] }}}>
+<$let trpg-new={{{ [<trpg-rename>get[text]trim[]] }}} trpg-taken={{{ [<trpg-new>trpgtaken[]] }}}>
 <%if [<trpg-new>!is[blank]!match<trpg-quest>] %>
-<$button class="trpg-quest-rename-do">
+<%if [<trpg-new>is[tiddler]!tag[Quest]] %>
+<span class="trpg-quest-rename-exists trpg-editor-bad"><$text text={{{ [[Quest/Rename/NoQuest]trpgtranslate[]] }}}/></span>
+<%elseif [<trpg-taken>!is[blank]!match<trpg-new>] %>
+<span class="trpg-quest-rename-exists trpg-editor-bad"><$text text={{{ [[Editor/Name/Taken]trpgtranslate[]search-replace[$title$],<trpg-taken>] }}}/></span>
+<%else%>
+<$button class="trpg-do trpg-quest-rename-do">
 <$action-sendmessage $message="tm-relink-tiddler" from=<<trpg-quest>> to=<<trpg-new>>/>
 <$action-deletetiddler $tiddler=<<trpg-rename>>/>
 <$action-navigate $to=<<trpg-new>>/>
@@ -38,6 +54,17 @@ type: text/vnd.tiddlywiki
 <%if [<trpg-new>is[tiddler]] [<trpg-new>questmarked[]] +[limit[1]] %>
 <span class="trpg-quest-rename-exists"><$text text={{{ [[Quest/Rename/Exists]trpgtranslate[]] }}}/></span>
 <%endif%>
+<%endif%>
+<%endif%>
+<%if [<trpg-new>!is[blank]] %>
+<div class="trpg-pills trpg-quest-rename-hits">
+<$list filter="[questnames[]] -[<trpg-quest>] :filter[trpgtitlesearch<trpg-new>] -[<trpg-new>] +[limit[6]]" variable="trpg-hit">
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-off" style={{{ [<trpg-hit>questreal[]then[--trpg-kind:#e6b400]else[--trpg-kind:var(--trpg-rumour, #9aa1aa)]] }}} set=<<trpg-rename>> setTo=<<trpg-hit>>><$text text=<<trpg-hit>>/></$button>
+</$list>
+<$list filter="[questnames[]] -[<trpg-quest>] -[<trpg-new>] +[trpgsimilar<trpg-new>] +[limit[3]]" variable="trpg-like">
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-warn" tooltip={{{ [[Editor/Picker/Similar]trpgtranslate[]] }}} set=<<trpg-rename>> setTo=<<trpg-like>>><$text text=<<trpg-like>>/></$button>
+</$list>
+</div>
 <%endif%>
 </$let>
 </div>

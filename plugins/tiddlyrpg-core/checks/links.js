@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/links.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194724000
-modified: 20261015204450000
+modified: 20261016233000000
 
 Checks of the links in a body (the links of the model of modules/sections.js; modules/checks.js
 runs them).
@@ -61,8 +61,8 @@ exports.rules = [
 					return linksVisibly(wiki,linker,target,view);
 				}).length;
 				messages.push(count > 1 ?
-					{level: "hint", key: "Check/Links/MissingOften", params: {target: target, count: count}} :
-					{level: "hint", key: "Check/Links/Missing", params: {target: target}});
+					{level: "hint", key: "Check/Links/MissingOften", params: {target: target, count: count}, fix: {kind: "create", title: target, type: ""}} :
+					{level: "hint", key: "Check/Links/Missing", params: {target: target}, fix: {kind: "create", title: target, type: ""}});
 			});
 			return messages;
 		}

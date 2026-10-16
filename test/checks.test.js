@@ -302,6 +302,11 @@ test.describe("content", function() {
 		withTiddlers([{title: "Kampagnennotiz", tags: "Campaign", text: "A note."}], function() {
 			assert.deepEqual(h.checkKeys(wiki, "Kampagnennotiz", "types"), ["Check/Types/Missing"]);
 		});
+		// The start page itself needs no type: no hint, also where the campaign has its own copy
+		assert.deepEqual(h.checkKeys(wiki, "Campaign", "types"), []);
+		withTiddlers([{title: "Campaign", tags: "$:/tags/Pinned", text: "Our campaign."}], function() {
+			assert.deepEqual(h.checkKeys(wiki, "Campaign", "types"), []);
+		});
 	});
 
 	test("expected: image of persons, player characters and locations, map of locations, player of player characters", function() {

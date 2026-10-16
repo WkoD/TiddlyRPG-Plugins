@@ -643,7 +643,9 @@ published copy, not for system tiddlers and not for a tiddler the view does not 
 - **hints** (muted): fine, but better with what the hint names.
 
 Hovering a message shows the id of its rule. A message that would name a tiddler the view does
-not see, or repeat text of a section it does not see, is left out for that view.
+not see, or repeat text of a section it does not see, is left out for that view. In the editor
+the messages of the draft stand below the form, with a button where the fix is clear (see
+"Editing").
 
 **The whole wiki at once:** `node scripts/check-wiki.js <wiki folder>` in this repo, or in a wiki
 that has this package in `node_modules` the npm script `"check": "node
@@ -700,7 +702,60 @@ out every message of its level. An id that is no rule is a hint.
 | `spots/spotlink` | error | a `<<spotlink>>` whose location does not exist or does not have the spot |
 | `spots/joinedtext` | hint | a spot joined to another location has a text of its own - it shows only here, not where the spot leads; move it into that location (a spot joined to an organisation or a person keeps its text) |
 | `spots/similar` | hint | a spot without tiddler whose name looks like a title written another way (as `quests/similar`) |
-| `types/missing` | hint | a tiddler without type tag |
+| `types/missing` | hint | a tiddler without type tag (not the start page `Campaign`) |
+
+## Editing
+
+In the editable wiki the editor of a tiddler knows the formats of this plugin. Everything below
+changes the draft only - cancelling takes it back - with two exceptions that save a new location
+at once ("Sub-location").
+
+**Buttons of the toolbar** (in the accent colour, each with a dropdown):
+
+| Button | In | What it does |
+|---|---|---|
+| Date section | events | `<<date>>` before the paragraph or `<$date>` around the selection, its date in the field `date` at the right place; at a date: change or remove both |
+| Quest marker | events | `<<quest>>` at the start of the paragraph or list item, `<$quest>` around a selection; the names of quests and rumours to pick, a new name and names written almost alike in yellow; at a marker: another name, a further quest linked, remove one |
+| Quest status | events | at the marker of the paragraph: open -> complete -> failed -> open |
+| Party | events, quests | the player characters who were there (their tags), one by one or the whole party |
+| Lock | all | `<<secret>>` before the marker of the section, else `<$secret>` around the paragraph or the selection; for chosen player characters or the DM only |
+| Spot | locations | `<<spot>>` before the paragraph (it holds the text up to the next marker) or `<$spot>` around the selection; at a spot: remove |
+| Link to a spot | all | `<<spotlink>>`: a location, then one of its spots; a selection becomes the text of the link |
+| Sub-location | locations | a new location inside this one, saved and opened at once - a selected text moves into it; with the cursor in a spot without tiddler: the spot as a location of its own, with its text, images and lock, the marker stays |
+| Rules | all | `<<term>>` by id or term, `<<unit>>` with the units of the ruleset that fit the number |
+
+Where a marker of the button already stands, the button changes it instead of setting a second
+one. Ctrl+Z undoes the text, not the field `date`. The buttons are switched on and off under
+ControlPanel -> Appearance -> Toolbars -> Editor Toolbar; keyboard shortcuts (none by default)
+under ControlPanel -> Keyboard Shortcuts.
+
+**The form** below the text shows the fields of the type: those whose absence a check reports
+(the image of a person, the player of a player character, the map of a location, the date of an
+event) also while empty, every other field of the type under "More fields". A relation field
+picks from what it may name, as pills with ×, a location with its path; a person, a location
+and an artifact have one `location`, an artifact one `owner`. The date shows the reading of
+each section, an event also how many `<<date>>` its text has; a price its output and the coin;
+images and maps a preview. An item gets one category. A draft without type gets the types to
+choose; a change of type takes out the fields the new type does not have. Below the fields the
+messages of the draft, with a button where the fix is clear, "Create" for a missing tiddler and
+"Do not report" (the rule into `trpg-noinfo` or `trpg-noerror`). What the pickers offer is what
+the active view sees.
+
+**Symmetric relations** (`spouse`, `sibling`, `family`, `alliance`, `bond`, `enmity`): saving
+in the editor writes the other end too, takes it out there too and follows a rename. Switched
+off under ControlPanel -> Settings -> TiddlyRPG -> Editor. Files written by hand still need
+both ends.
+
+**New tiddlers:** "+" on the hub of a type opens a draft of that type; an event asks for its
+date first, an item or a category for the base type. A name that another tiddler has, in any
+case, is refused with a red line where it is typed (sub-location, rumour).
+
+**Search:** switches of the kinds above the hits choose what to show - none chosen is all; the
+link button of the editor shows them too.
+
+**Rumours:** "Create quest" opens a draft tagged `Quest` with the player characters of its
+events chosen; "Rename" offers the names that contain what is typed and those written almost
+alike.
 
 ## Licenses in the wiki
 

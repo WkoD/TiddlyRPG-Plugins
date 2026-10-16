@@ -234,7 +234,7 @@ test.describe("messages on spots", function() {
 		try {
 			var found = h.checks(wiki, "Hafenviertel", "spots").filter(function(m) { return m.id === "spots/joinedtext"; });
 			assert.deepEqual(found.map(function(m) { return m.params.spot; }), ["Tavern", "Twice", "Nowhere"], "not Baile (no text), not Guild (an organisation keeps its text), not Kai (no tiddler)");
-			assert.equal(found[0].text, "Spot prüfen: Tavern ist mit Tavern verbunden – sein Text erscheint nur hier, nicht dort, wohin der Spot führt; in Tavern umziehen");
+			assert.equal(found[0].text, "Spot prüfen: Tavern ist mit einem Tiddler verbunden – der Spottext erscheint nur hier, Text in Tiddler Tavern umziehen");
 			assert.ok(h.view(wiki, "Tavern").indexOf("Where sailors drink") === -1, "nothing shows in the tiddler");
 			h.inView(wiki, "public", function() {
 				assert.deepEqual(h.checks(wiki, "Hafenviertel", "spots").filter(function(m) { return m.id === "spots/joinedtext"; }).map(function(m) { return m.params.spot; }), ["Tavern", "Twice"], "not a locked spot");

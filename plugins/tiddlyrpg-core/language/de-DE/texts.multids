@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015193623000
+modified: 20261016210000000
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -49,6 +49,108 @@ Date/Order: dm
 Date/SectionHint: Abschnitt unbekannt - Nummer angeben, z. B. <<date 3>>
 Date/SectionMissing: Abschnitt $n$ fehlt im Feld date
 Date/Time: $time$ Uhr
+Editor/Change: Ändern
+Editor/Date/Bad: Datum nicht lesbar oder nicht im Kalender
+Editor/Date/Caption: Datumsabschnitt
+Editor/Date/Change: Datumsabschnitt $n$
+Editor/Date/Date: Datum
+Editor/Date/Hint: Datumsabschnitt: <<date>> vor den Absatz oder <$date> um die Markierung, mit Datum im Feld date
+Editor/Date/Insert: Neuer Datumsabschnitt $n$
+Editor/Date/Label: Überschrift
+Editor/Date/LabelPlaceholder: optional
+Editor/Date/Next: Danach:
+Editor/Date/Original: Ursprünglich:
+Editor/Date/Placeholder: JJJJ-MM-TT oder JJJJ-MM-TT/JJJJ-MM-TT
+Editor/Date/Prev: Davor:
+Editor/Error/InDate: Innerhalb eines <$date>-Blocks: dort kein weiteres Datum
+Editor/Error/NoDate: Ein Datumsabschnitt braucht ein Datum
+Editor/Error/NoName: Es fehlt ein Name
+Editor/Error/NoQuest: Kein Quest-Marker am Cursor
+Editor/Error/Nothing: Am Cursor gibt es nichts zu ändern
+Editor/Error/QuestTwice: Dieser Quest ist hier schon markiert
+Editor/Fix/Off: Nicht mehr melden
+Editor/Fix/OffHint: Trägt die Regel in trpg-noinfo bzw. trpg-noerror dieses Tiddlers ein
+Editor/Fix/add: Hier eintragen
+Editor/Fix/create: Anlegen
+Editor/Fix/dateLabel: Als label benennen
+Editor/Fix/questStatus: Als status benennen
+Editor/Fix/remove: Eintrag entfernen
+Editor/Fix/spotEmpty: Spottext entfernen
+Editor/Fix/tagToLocation: Als Ort eintragen
+Editor/Form/Add: Hinzufügen …
+Editor/Form/Change: Ändern …
+Editor/Form/DateCount: $sections$ Abschnitte im Feld, $markers$ Datumsabschnitte im Text
+Editor/Form/DatePlaceholder: JJJJ-MM-TT, Abschnitte mit Komma
+Editor/Form/Dropped: Typ gewechselt, entfernt: $fields$
+Editor/Form/Empty: leer – wird nicht gespeichert
+Editor/Form/ImagePlaceholder: Dateinamen, mit Komma
+Editor/Form/Kinds: Kategorie
+Editor/Form/More: Weitere Felder
+Editor/Form/Remove: Entfernen
+Editor/Form/RemoveField: Feld entfernen
+Editor/Form/Type: Typ
+Editor/Group/All: Ganze Gruppe
+Editor/Group/Caption: Gruppe
+Editor/Group/Head: Spielerfiguren, die dabei waren
+Editor/Group/Hint: Die Spielerfiguren, die dabei waren (ihre Tags)
+Editor/Insert: Einsetzen
+Editor/Name/Taken: Ein Tiddler dieses Namens existiert bereits: $title$
+Editor/Output: Ausgabe:
+Editor/Picker/New: Neuer Name – gibt es noch nicht
+Editor/Picker/Similar: Fast gleich geschrieben
+Editor/Quest/At: Quest-Marker „$name$“
+Editor/Quest/Caption: Quest-Marker
+Editor/Quest/Hint: Quest-Marker an den Absatzanfang oder um die Markierung
+Editor/Quest/Insert: Neuer Quest-Marker
+Editor/Quest/Link: Weiteren Quest verbinden
+Editor/Quest/Placeholder: Quest oder Gerücht
+Editor/Quest/Rename: Anderer Name für diesen Marker
+Editor/Quest/Where: An den Anfang des Absatzes bzw. Listenpunkts
+Editor/QuestStatus/Caption: Quest-Status
+Editor/QuestStatus/Hint: Status des Quest-Markers am Cursor: offen, abgeschlossen, fehlgeschlagen
+Editor/Remove: Entfernen
+Editor/Secret/Caption: Sperre
+Editor/Secret/Change: Sperre am Cursor
+Editor/Secret/DM: Nur DM
+Editor/Secret/Hint: Sperre für Spielerfiguren oder nur den DM
+Editor/Secret/Insert: Neue Sperre
+Editor/Secret/Where: Vor den Marker des Abschnitts, sonst um den Absatz
+Editor/Spot/At: Spot „$name$“
+Editor/Spot/Caption: Spot
+Editor/Spot/Hint: Spot: <<spot>> vor den Absatz oder <$spot> um die Markierung
+Editor/Spot/Insert: Neuer Spot
+Editor/Spot/Name: Name
+Editor/Spot/Where: Vor den Absatz; umfasst den Text bis zum nächsten Marker
+Editor/Spotlink/Caption: Link auf einen Spot
+Editor/Spotlink/Hint: <<spotlink>>: ein Spot eines Orts; eine Markierung wird Text des Links
+Editor/Spotlink/Insert: Link auf einen Spot
+Editor/Spotlink/NoSpots: Dieser Ort hat keine Spots
+Editor/Spotlink/Place: Ort
+Editor/Spotlink/Spot: Spot
+Editor/Sublocation/Caption: Unterort
+Editor/Sublocation/Create: Anlegen
+Editor/Sublocation/Empty: Wird sofort angelegt und geöffnet
+Editor/Sublocation/FromSpot: Spot „$name$“
+Editor/Sublocation/Hint: Ein Ort in diesem, oder der Spot am Cursor als eigener Ort
+Editor/Sublocation/Joined: Der Spot hat schon einen Tiddler
+Editor/Sublocation/Make: Zum Unterort machen
+Editor/Sublocation/MakeHint: Wird sofort mit Text, Bildern und Sperre angelegt; der Marker bleibt
+Editor/Sublocation/New: Neuer Unterort
+Editor/Sublocation/NoSpot: Kein Spot am Cursor
+Editor/Sublocation/Placeholder: Name
+Editor/Sublocation/Taken: Ein Tiddler dieses Namens existiert bereits (Groß-/Kleinschreibung zählt nicht)
+Editor/Sublocation/WithText: Der markierte Text wandert in den neuen Ort; er wird sofort angelegt
+Editor/Symmetric/Notice: Auch am anderen Ende eingetragen bzw. entfernt: $titles$
+Editor/Term/Caption: Regeln
+Editor/Term/Hint: <<term>> und <<unit>> des Regelwerks
+Editor/Term/Insert: Begriff
+Editor/Term/None: Kein Begriff gefunden
+Editor/Term/Placeholder: ID oder Begriff
+Editor/Unit/Insert: Wert mit Einheit
+Editor/Unit/None: Keine passende Einheit
+Editor/Unit/Placeholder: z. B. 60 ft
+Editor/Where/Around: Um die Markierung
+Editor/Where/Before: Vor den Absatz
 Event/Continued: (Fortsetzung)
 Event/End: (Ende)
 Event/Event: Ereignis
@@ -57,6 +159,7 @@ Event/Timeline: Zeitstrahl
 Item/Check/NoBase: Gegenstand prüfen: Eine Kategorie wie Buch braucht dazu einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
 Item/Check/PriceCurrency: Preis prüfen: eine Zahl und eine Münze des Geldsystems, z. B. 50 gp - oder eine reine Zahl, wenn das Wiki kein Geldsystem hat
 Item/Check/PriceNoCurrency: Preis prüfen: Er braucht eine Münze des Geldsystems, z. B. 50 gp
+Item/Check/PriceUnit: Preis prüfen: die Einheit ist im Münzsystem unbekannt
 Item/Check/TwoBases: Gegenstand prüfen: Er hat nur einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
 Item/Price: Preis:
 Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat einen Besitzer (Feld owner hat mehrere Einträge)
@@ -76,11 +179,14 @@ Map/Fit: Karte einpassen
 Map/Quests/Empty: Keine offenen Quests oder Gerüchte führen hierher.
 Map/Quests/Spot: Spot
 Map/Tab: Karte
+New/Create: Anlegen
+New/Hub: Neu:
 Number/Decimal: ,
 Player/Active: Spielerfiguren
 Player/Former: Frühere Figuren
 Player/Player: Spieler:
 Quest/Create: Quest anlegen
+Quest/Create/Hint: Öffnet einen Entwurf mit den Spielerfiguren seiner Ereignisse
 Quest/History: Verlauf
 Quest/Kind/Quest: Quest
 Quest/Kind/Rumour: Gerücht
@@ -91,6 +197,7 @@ Quest/List/Rumours: Gerüchte
 Quest/Marks: $n$ Marker
 Quest/Rename: Umbenennen
 Quest/Rename/Exists: Gibt es schon – Umbenennen führt beide zusammen
+Quest/Rename/NoQuest: Ein Tiddler dieses Namens ist kein Quest – nicht zusammenführbar
 Quest/Rename/Placeholder: Neuer Name
 Quest/Rumour/Hint: Ein Gerücht: noch ohne eigenen Tiddler.
 Quest/Show: Zeigen:
@@ -149,6 +256,9 @@ Settings/Dates/Order: Tag und Monat
 Settings/Dates/Order/dm: Tag vor Monat
 Settings/Dates/Order/md: Monat vor Tag
 Settings/Dates/Order/wiki: wie in der Wiki-Sprache
+Settings/Editor/Caption: Editor
+Settings/Editor/Symmetric: Speichern trägt symmetrische Beziehungen (spouse, sibling, family, alliance, bond, enmity) auch am anderen Ende ein
+Settings/Editor/Toolbar: Die Knöpfe des Editors schaltet man unter Aussehen -> Werkzeugleisten -> Editor-Werkzeugleiste, ihre Tastenkürzel unter Tastaturkürzel.
 Settings/Hint: Einstellungen von tiddlyrpg-core für dieses Wiki. Sie werden mit dem Wiki gespeichert und gelten für alle, die es lesen.
 Settings/Problem/NoChoice: Mehrere sind installiert und keins ist gewählt – aktiv ist das erste nach Titel, $1$.
 Settings/Problem/disabled: Festgelegt ist $1$, das ist deaktiviert – aktiv ist $2$.
@@ -173,7 +283,6 @@ Settings/RulesetOptions/Hub: Alle Begriffe:
 Settings/SettingOptions/Caption: Kampagnenwelt Einstellungen
 Settings/SettingOptions/Hint: Einstellungen der Kampagnenwelt für dieses Wiki: in welcher Sprache die Namen des Kalenders und der Münzen angezeigt werden, und die Reihenfolge von Tag und Monat in Daten.
 Settings/SettingOptions/Hub: Alle Namen:
-Snippet/DateSection: Abschnitt mit Datum
 Source/Label: Quelle:
 Spot/Missing: Spot „$spot$“ in $place$ nicht gefunden
 Spot/PlaceMissing: Ort „$place$“ gibt es nicht

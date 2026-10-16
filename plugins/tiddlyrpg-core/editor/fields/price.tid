@@ -1,0 +1,56 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/fields/price
+type: text/vnd.tiddlywiki
+
+<!-- Editor of the field price: the input; a plain number gets the reference coin of the active
+     currency (currency reference, the one the prices of the ruleset are written in) shown pale
+     behind it while typing, and written behind it when the input is left - without a currency
+     nothing. Below the price as the wiki shows it (priceformat) or why it cannot be read
+     (pricecheck, the same rule as items/price). Read after the input (focus). Variables:
+     currentTiddler (the draft), currentField. -->
+\function trpg.pricecoin() [currency[reference]]
+\procedure trpg.pricenumber() ^\d+(?:[.,]\d+)?$
+
+\procedure trpg.priceleave()
+<$let trpg-value={{{ [<currentTiddler>get<currentField>trim[]] }}}>
+<%if [<trpg-value>regexp<trpg.pricenumber>] :filter[trpg.pricecoin[]!is[blank]] %>
+<$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value={{{ [<trpg-value>addsuffix[ ]addsuffix<trpg.pricecoin>] }}}/>
+<%endif%>
+</$let>
+\end
+
+\procedure trpg.pricecoinhint()
+\whitespace trim
+<$let trpg-value={{{ [<currentTiddler>get<currentField>trim[]] }}}>
+<%if [<trpg-value>regexp<trpg.pricenumber>] %>
+<span class="trpg-field-unit"><$text text=<<trpg.pricecoin>>/></span>
+<%endif%>
+</$let>
+\end
+
+\procedure trpg.pricereading()
+\whitespace trim
+<$let trpg-value={{{ [<currentTiddler>get<currentField>trim[]] }}}
+	trpg-full={{{ [<trpg-value>regexp<trpg.pricenumber>] :filter[trpg.pricecoin[]!is[blank]] +[addsuffix[ ]addsuffix<trpg.pricecoin>] ~[<trpg-value>] }}}
+	trpg-problem={{{ [<trpg-full>pricecheck[]] }}}>
+<%if [<trpg-value>!is[blank]] %>
+<div class="trpg-field-reading">
+<%if [<trpg-problem>!is[blank]] %>
+<span class="trpg-editor-bad"><$text text={{{ [<trpg-problem>trpgtranslate[]] }}}/></span>
+<%else%>
+<$text text={{{ [[Editor/Output]trpgtranslate[]addsuffix[ ]] [<trpg-full>priceformat[]] +[join[]] }}}/>
+<%endif%>
+</div>
+<%endif%>
+</$let>
+\end
+
+\whitespace trim
+<span class="trpg-field-price">
+<$eventcatcher selector="input" $focusout=<<trpg.priceleave>> tag="span">
+<$edit-text tiddler=<<currentTiddler>> field=<<currentField>> tag="input" class="tc-edit-texteditor tc-edit-fieldeditor trpg-field-input"/>
+</$eventcatcher>
+<$transclude $variable="trpg.pricecoinhint"/>
+</span>
+<$transclude $variable="trpg.pricereading"/>

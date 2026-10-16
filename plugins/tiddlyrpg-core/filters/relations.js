@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/relations.js
 type: application/javascript
 module-type: filteroperator
 created: 20261008062202000
-modified: 20261015155038000
+modified: 20261016233000000
 
 Filters over the relation rules (modules/relations.js). <selected> is a title list of the
 relation types in play (a graph view may draw only some); empty or missing: all.
@@ -24,14 +24,15 @@ relation types in play (a graph view may draw only some); empty or missing: all.
                                                 relations block: player, person (deities too),
                                                 organisation, location, item (artifacts and
                                                 materials too), quest (a quest or rumour), else
-                                                other
+                                                other (modules/relations.js kindOf)
+[<titles>relationkind[events]]                  the same, events as a kind of their own (the
+                                                kinds of the search)
 
 \*/
 
 "use strict";
 
-var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
-	quests = require("$:/plugins/tiddlyrpg-core/modules/quests.js");
+var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js");
 
 function selection(operator,index) {
 	return $tw.utils.parseStringArray((operator.operands || [])[index] || "") || [];
@@ -115,25 +116,12 @@ exports.relationneighbours = function(source,operator,options) {
 	return results;
 };
 
-// The kinds of the filter of the relations block, by their tag; the first that fits counts
-var KINDS = [["Player","player"],["Person","person"],["Organisation","organisation"],["Deity","person"],
-	["Location","location"],["Artifact","item"],["Item","item"],["Material","item"],["Quest","quest"]];
-
 exports.relationkind = function(source,operator,options) {
 	var wiki = options.wiki,
+		events = operator.operand === "events",
 		results = [];
 	source(function(tiddler,title) {
-		var kind = "other";
-		if(tiddler) {
-			$tw.utils.each(KINDS,function(entry) {
-				if(kind === "other" && tiddler.hasTag(entry[0])) {
-					kind = entry[1];
-				}
-			});
-		} else if(quests.index(wiki).names.indexOf(title) !== -1) {
-			kind = "quest";
-		}
-		results.push(kind);
+		results.push(relations.kindOf(wiki,title,events));
 	});
 	return results;
 };

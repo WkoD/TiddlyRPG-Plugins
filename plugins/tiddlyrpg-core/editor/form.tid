@@ -1,0 +1,133 @@
+created: 20261016090000000
+list-after: $:/core/ui/EditTemplate/body
+modified: 20261016230000000
+tags: $:/tags/EditTemplate
+title: $:/plugins/tiddlyrpg-core/editor/form
+type: text/vnd.tiddlywiki
+
+<!-- The form below the text in the editor (modules/form.js), in the controls of the editor
+     (editor/procedures): the fields the type expects and every field of the form the draft has,
+     labelled (Field/<field>), each with its editor (trpgfieldeditor: editor/fields/*). An empty
+     field is not saved: its label is in italics; × takes a field out (its value and the place in the
+     form). "More fields" offers the fields of the type as pills (trpgformoffered). An item gets
+     its categories as pills to choose (tag $:/tags/tiddlyrpg/ItemKind), one at most: another
+     replaces it, a second click takes it out. A draft without a type tag
+     gets the types as pills instead. Below the fields the messages of the checks for the draft
+     with their fixes (procedure trpg.formchecks). Not for system tiddlers, hubs (tag Index) or
+     what is no wikitext. -->
+\procedure trpg.formmore()
+\whitespace trim
+<$list filter="[<currentTiddler>trpgformoffered[]] +[limit[1]]" variable="ignore">
+<div class="trpg-form-row">
+<span class="trpg-form-label"><$text text={{{ [[Editor/Form/More]trpgtranslate[]] }}}/></span>
+<span class="trpg-pills">
+<$list filter="[<currentTiddler>trpgformoffered[]]" variable="trpg-field">
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-off trpg-neutral">
+<$action-listops $tiddler=<<trpg-extra>> $field="list" $subfilter="[<trpg-field>]"/>
+<$text text={{{ [<trpg-field>addprefix[Field/]trpgtranslate[]addprefix[+ ]] }}}/>
+</$button>
+</$list>
+</span>
+</div>
+</$list>
+\end
+
+<!-- The label of a field: in italics while empty (an empty field is not saved), × when it has a value
+     or was added - a procedure of its own beside the editor, so a first value does not render the
+     input anew (focus) -->
+\procedure trpg.formlabel()
+\whitespace trim
+<$let trpg-has={{{ [<currentTiddler>has<trpg-field>then[yes]else[no]] }}}
+	trpg-added={{{ [<trpg-extra>get[list]enlist-input[]match<trpg-field>then[yes]else[no]] }}}>
+<span class={{{ [[trpg-form-label]] [<trpg-has>match[no]then[trpg-form-empty]] +[join[ ]] }}} title={{{ [<trpg-has>match[no]then[Editor/Form/Empty]trpgtranslate[]] }}}>
+<$text text={{{ [<trpg-field>addprefix[Field/]trpgtranslate[]] }}}/>
+<%if [<trpg-has>match[yes]] [<trpg-added>match[yes]] +[limit[1]] %>
+<$button class="tc-btn-invisible trpg-pill-x" tooltip={{{ [[Editor/Form/RemoveField]trpgtranslate[]] }}}>
+<$action-deletefield $tiddler=<<currentTiddler>> $field=<<trpg-field>>/>
+<$action-listops $tiddler=<<trpg-extra>> $field="list" $subfilter="-[<trpg-field>]"/>
+×
+</$button>
+<%endif%>
+</span>
+</$let>
+\end
+
+\procedure trpg.formkinds()
+\whitespace trim
+<%if [<currentTiddler>trpgtypes[]] :intersection[enlist[Artifact Item Material]] +[limit[1]] %>
+<div class="trpg-form-row">
+<span class="trpg-form-label"><$text text={{{ [[Editor/Form/Kinds]trpgtranslate[]] }}}/></span>
+<span class="trpg-pills">
+<$list filter="[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]!is[draft]] :sort:string[trpgtitle[]]" variable="trpg-kind">
+<$transclude $variable="trpg.choicepill" tiddler=<<currentTiddler>> field="tags" value=<<trpg-kind>> label={{{ [<trpg-kind>trpgtitle[]] }}} style={{{ [<trpg-kind>get[color]addprefix[--trpg-kind:]] }}} others="[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]]"/>
+</$list>
+</span>
+</div>
+<%endif%>
+\end
+
+<!-- The messages of the checks for the draft (trpgdraftcheck, modules/checks.js forDraft), each
+     with its fix (modules/fixes.js, through tm-trpg-fix: only the draft changes), "Create" for a
+     missing tiddler (a new draft) and "Do not report" (the id of the rule into trpg-noinfo or
+     trpg-noerror of the draft). -->
+\procedure trpg.formchecks()
+\whitespace trim
+<$list filter="[<currentTiddler>trpgdraftcheck[]] +[limit[1]]" variable="ignore">
+<div class="trpg-form-checks">
+<$list filter="[<currentTiddler>trpgdraftcheck[]]" variable="trpg-check">
+<$let trpg-level={{{ [<trpg-check>jsonget[level]] }}}
+	trpg-id={{{ [<trpg-check>jsonget[id]] }}}
+	trpg-fix={{{ [<trpg-check>jsonget[fix]] }}}
+	trpg-kind={{{ [<trpg-fix>jsonget[kind]] }}}>
+<div class={{{ [<trpg-level>addprefix[trpg-check trpg-check-]] }}} title=<<trpg-id>>>
+<$text text={{{ [<trpg-check>jsonget[text]] }}}/>
+<span class="trpg-form-check-buttons">
+<%if [<trpg-kind>match[create]] %>
+<$button class="trpg-do trpg-small">
+<$action-sendmessage $message="tm-new-tiddler" title={{{ [<trpg-fix>jsonget[title]] }}} tags={{{ [<trpg-fix>jsonget[type]format:titlelist[]] }}}/>
+<$text text={{{ [[Editor/Fix/create]trpgtranslate[]] }}}/>
+</$button>
+<%elseif [<trpg-kind>!is[blank]] %>
+<$button class="trpg-do trpg-small">
+<$action-sendmessage $message="tm-trpg-fix" draft=<<currentTiddler>> fix=<<trpg-fix>>/>
+<$text text={{{ [<trpg-kind>addprefix[Editor/Fix/]trpgtranslate[]] }}}/>
+</$button>
+<%endif%>
+<$button class="trpg-do-2 trpg-small" tooltip={{{ [[Editor/Fix/OffHint]trpgtranslate[]] }}}>
+<$action-listops $tiddler=<<currentTiddler>> $field={{{ [<trpg-level>match[hint]then[trpg-noinfo]else[trpg-noerror]] }}} $subfilter="[<trpg-id>]"/>
+<$text text={{{ [[Editor/Fix/Off]trpgtranslate[]] }}}/>
+</$button>
+</span>
+</div>
+</$let>
+</$list>
+</div>
+</$list>
+\end
+
+\whitespace trim
+<%if [<currentTiddler>trpgwikitext[]!is[system]!tag[Index]] :filter[get[draft.of]is[system]then[no]else[yes]match[yes]] %>
+<$let trpg-extra={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/form-extra/]] }}}>
+<div class="trpg-form">
+<%if [<currentTiddler>trpgtypes[]count[]match[0]] %>
+<div class="trpg-form-row">
+<span class="trpg-form-label"><$text text={{{ [[Editor/Form/Type]trpgtranslate[]] }}}/></span>
+<span class="trpg-pills">
+<$list filter="[trpgtypelist[]] -[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]] :sort:string[trpgtitle[]]" variable="trpg-type">
+<$transclude $variable="trpg.choicepill" tiddler=<<currentTiddler>> field="tags" value=<<trpg-type>> label={{{ [<trpg-type>trpgtitle[]] }}} style={{{ [<trpg-type>get[color]addprefix[--trpg-kind:]] }}}/>
+</$list>
+</span>
+</div>
+<%endif%>
+<$transclude $variable="trpg.formkinds"/>
+<$list filter="[<currentTiddler>trpgformfields[]]" variable="trpg-field">
+<div class="trpg-form-row">
+<$transclude $variable="trpg.formlabel"/>
+<span class="trpg-form-value"><$let currentField=<<trpg-field>>><$transclude $tiddler={{{ [<trpg-field>trpgfieldeditor[]] ~[[$:/core/ui/EditTemplate/fieldEditor/default]] }}}/></$let></span>
+</div>
+</$list>
+<$transclude $variable="trpg.formmore"/>
+<$transclude $variable="trpg.formchecks"/>
+</div>
+</$let>
+<%endif%>

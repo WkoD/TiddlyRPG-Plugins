@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015204450000
+modified: 20261016190000000
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -55,6 +55,6 @@ Relations/Siblings: Familie prüfen: $other$ ist auch ein Kind von $parent$, abe
 Relations/Symmetric: Feld $field$ prüfen: $other$ nennt diesen Tiddler, hier fehlt $other$
 Secrets/Transclusion: Text prüfen: Er transkludiert den geheimen Tiddler $target$ – jede Sicht, die diesen Tiddler sieht, sieht ihn
 Secrets/View: Text prüfen: Er fragt die Sicht selbst ab – mit dem Tag Secret, <<secret>> oder <$secret> sperren
-Spots/JoinedText: Spot prüfen: $spot$ ist mit $target$ verbunden – sein Text erscheint nur hier, nicht dort, wohin der Spot führt; in $target$ umziehen
+Spots/JoinedText: Spot prüfen: $spot$ ist mit einem Tiddler verbunden – der Spottext erscheint nur hier, Text in Tiddler $target$ umziehen
 Spots/Similar: Spot prüfen: $spot$ gleicht fast dem Tiddler $title$ – ein Tippfehler? Mit gleichem Namen wird der Spot mit ihm verbunden
 Types/Missing: Tags prüfen: kein Typ-Tag (Person, Ort, Ereignis, …) – er erscheint in keiner Übersicht

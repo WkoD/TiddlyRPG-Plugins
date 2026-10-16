@@ -1,0 +1,164 @@
+created: 20261016090000000
+modified: 20261016233000000
+tags: $:/tags/Global
+title: $:/plugins/tiddlyrpg-core/editor/procedures
+type: text/vnd.tiddlywiki
+
+<!-- Procedures of the editor (editor/toolbar, editor/form, editor/fields, the hubs). One system
+     of controls (styles/editor):
+       choose   a pill in the colour of its type (trpg-pick-pill): filled when chosen, only the
+                outline when not (trpg-off); a pill in yellow (trpg-warn) where a choice needs a
+                second look - a new name, a name written almost alike
+       do       one button in the accent colour (trpg-do) per dropdown, at the right of its last
+                row; a second, outlined (trpg-do-2)
+       take out × at a pill (trpg-pill-x); a button "Remove", red text in a red outline
+                (trpg-remove), at the left of the last row -->
+
+<!-- The input state of the dropdowns of a draft: the probe (tm-trpg-probe) fills it with what
+     stands at the cursor (fields date, label, name, status, names, dm), the dropdown edits it -->
+\function trpg.editor-input() [<targetTiddler>addprefix[$:/temp/tiddlyrpg-core/editor/input/]]
+\function trpg.editor-probe() [<targetTiddler>addprefix[$:/temp/tiddlyrpg-core/editor/probe/]get[text]]
+\function trpg.editor-form() [trpg.editor-probe[]jsonget[form]]
+
+<!-- The style of a pill in the colour of the type of <title> (the hub of a type tag); a rumour (a
+     name with markers, no tiddler) in the silver of the rumours -->
+\function trpg.pillstyle(title) [<title>tags[]is[shadow]tag[Index]has[color]first[]get[color]addprefix[--trpg-kind:]] ~[<title>!is[tiddler]questmarked[]then[--trpg-kind:var(--trpg-rumour, #9aa1aa)]]
+
+<!-- The picker: an input, and while it has the focus the candidates (filter <candidates>) the
+     view sees, all of them for an empty input, else those whose name contains what is typed
+     (trpgpickmatch: also the translated name), as pills; arrow keys and Enter like the tag picker
+     of the core (keyboard-driven-input, config editor/picker). Leaving the input hides the list
+     and keeps what is typed. A pill runs <actions> with the variable trpg-pick on mousedown,
+     before the input loses the focus. With free="yes" what is typed and is no candidate is a
+     yellow pill of its own (a new name), and the candidates written almost alike (trpgsimilar)
+     follow as yellow pills. The states are $:/temp/tiddlyrpg-core/pick/<id>/...; the list is read
+     after the input only, so typing does not render the input anew (focus). -->
+\procedure trpg.picker(id,candidates,actions,placeholder,free)
+\whitespace trim
+<$let trpg-pick-base={{{ [<id>addprefix[$:/temp/tiddlyrpg-core/pick/]] }}}
+	trpg-pick-input={{{ [<trpg-pick-base>addsuffix[/value]] }}}
+	trpg-pick-store={{{ [<trpg-pick-base>addsuffix[/input]] }}}
+	trpg-pick-selected={{{ [<trpg-pick-base>addsuffix[/selected]] }}}
+	trpg-pick-refresh={{{ [<trpg-pick-base>addsuffix[/refresh]] }}}
+	trpg-pick-open={{{ [<trpg-pick-base>addsuffix[/open]] }}}
+	trpg-candidates=<<candidates>>
+	trpg-pick-actions=<<actions>>
+	trpg-pick-free=<<free>>>
+<$eventcatcher selector=".trpg-picker-input" $focusin=<<trpg.picker-show>> $focusout=<<trpg.picker-hide>> tag="span" class="trpg-picker">
+<$eventcatcher selector=".trpg-picker-hit" $mousedown=<<trpg.picker-mousedown>> tag="span" class="trpg-picker-inner">
+<$transclude $variable="keyboard-driven-input"
+	tiddler=<<trpg-pick-input>>
+	storeTitle=<<trpg-pick-store>>
+	refreshTitle=<<trpg-pick-refresh>>
+	selectionStateTitle=<<trpg-pick-selected>>
+	inputAcceptActions=<<trpg.picker-accept>>
+	inputCancelActions=<<trpg.picker-clear>>
+	tag="input"
+	placeholder=<<placeholder>>
+	class="trpg-picker-input"
+	filterMinLength="0"
+	configTiddlerFilter="[[$:/plugins/tiddlyrpg-core/editor/picker]]"/>
+<$transclude $variable="trpg.picker-list"/>
+</$eventcatcher>
+</$eventcatcher>
+</$let>
+\end
+
+\procedure trpg.picker-show() <$action-setfield $tiddler=<<trpg-pick-open>> text="yes"/>
+\procedure trpg.picker-hide() <$action-deletetiddler $tiddler=<<trpg-pick-open>>/>
+
+\procedure trpg.picker-list()
+\whitespace trim
+<%if [<trpg-pick-open>get[text]match[yes]] %>
+<$let userInput={{{ [<trpg-pick-store>get[text]] }}}
+	trpg-selected={{{ [<trpg-pick-selected>get[text]] }}}
+	trpg-typed={{{ [<trpg-pick-store>get[text]trim[]] }}}>
+<div class="trpg-picker-list">
+<$list filter="[subfilter{$:/plugins/tiddlyrpg-core/editor/picker!!first-search-filter}]" variable="trpg-pick">
+<span class={{{ [[trpg-picker-hit trpg-pick-pill]] [<trpg-pick>addsuffix[-primaryList]match<trpg-selected>then[tc-list-item-selected]] +[join[ ]] }}} style={{{ [trpg.pillstyle<trpg-pick>] }}} data-pick=<<trpg-pick>> role="option"><$transclude $variable="trpg.pickname" title=<<trpg-pick>>/></span>
+</$list>
+<%if [<trpg-pick-free>match[yes]] :filter[<trpg-typed>!is[blank]] %>
+<%if [subfilter<trpg-candidates>match<trpg-typed>] :filter[trpg.visible[]] +[count[]match[0]] %>
+<span class="trpg-picker-hit trpg-pick-pill trpg-warn" data-pick=<<trpg-typed>> role="option" title={{{ [[Editor/Picker/New]trpgtranslate[]] }}}><$text text=<<trpg-typed>>/></span>
+<$list filter="[subfilter<trpg-candidates>trpgsimilar<trpg-typed>] :filter[trpg.visible[]] +[limit[5]]" variable="trpg-like">
+<span class="trpg-picker-hit trpg-pick-pill trpg-warn" data-pick=<<trpg-like>> role="option" title={{{ [[Editor/Picker/Similar]trpgtranslate[]] }}}><$text text=<<trpg-like>>/></span>
+</$list>
+<%endif%>
+<%endif%>
+</div>
+</$let>
+<%endif%>
+\end
+
+\procedure trpg.picker-mousedown()
+<$let trpg-pick=<<dom-data-pick>>><<trpg.picker-do>></$let>
+\end
+
+\procedure trpg.picker-do()
+<<trpg-pick-actions>>
+<<trpg.picker-clear>>
+\end
+
+\procedure trpg.picker-clear()
+<$action-deletetiddler $filter="[<trpg-pick-input>] [<trpg-pick-store>] [<trpg-pick-selected>] [<trpg-pick-refresh>]"/>
+\end
+
+\procedure trpg.picker-accept()
+<$let userInput={{{ [<trpg-pick-store>get[text]] }}}
+	trpg-typed={{{ [<trpg-pick-input>get[text]trim[]] }}}
+	trpg-first={{{ [subfilter{$:/plugins/tiddlyrpg-core/editor/picker!!first-search-filter}first[]] }}}>
+<%if [subfilter<trpg-candidates>match<trpg-typed>] :filter[trpg.visible[]] +[limit[1]] %>
+<$let trpg-pick=<<trpg-typed>>><<trpg.picker-do>></$let>
+<%elseif [<trpg-pick-free>match[yes]] :filter[<trpg-typed>!is[blank]] %>
+<$let trpg-pick=<<trpg-typed>>><<trpg.picker-do>></$let>
+<%elseif [<trpg-first>!is[blank]] %>
+<$let trpg-pick=<<trpg-first>>><<trpg.picker-do>></$let>
+<%endif%>
+</$let>
+\end
+
+<!-- The name of a pick: the translated name, a location after its path (the steps the view
+     sees) -->
+\procedure trpg.pickname(title)
+\whitespace trim
+<$list filter="[<title>tag[Location]locationpath[]] :filter[trpg.visible[]]" variable="trpg-step"><span class="trpg-pick-path"><$text text={{{ [<trpg-step>trpgtitle[]addsuffix[ › ]] }}}/></span></$list>
+<$text text={{{ [<title>trpgtitle[]] }}}/>
+\end
+
+<!-- A pick as a pill in the colour of its type, with the translated name and path -->
+\procedure trpg.pickpill(title)
+\whitespace trim
+<span class="trpg-pick-pill" style={{{ [trpg.pillstyle<title>] }}}><$transclude $variable="trpg.pickname" title=<<title>>/></span>
+\end
+
+<!-- A pill to choose: filled when <value> is in the title list <field> of <tiddler>, else only
+     the outline; a click adds or takes it out. <style> the colour, <label> the text. <others> a
+     filter of the values that exclude each other (one of them at most, e.g. the categories of an
+     item): adding <value> takes them out -->
+\procedure trpg.choicepill(tiddler,field,value,label,style,tooltip,others)
+\whitespace trim
+<$let trpg-on={{{ [<tiddler>get<field>enlist-input[]match<value>then[yes]else[no]] }}}>
+<$button class={{{ [[tc-btn-invisible trpg-pick-pill trpg-choice]] [<trpg-on>match[no]then[trpg-off]] +[join[ ]] }}} style=<<style>> tooltip=<<tooltip>> aria-pressed={{{ [<trpg-on>match[yes]then[true]else[false]] }}}>
+<%if [<trpg-on>match[no]] :filter[<others>!is[blank]] %>
+<$action-listops $tiddler=<<tiddler>> $field=<<field>> $subfilter="-[subfilter<others>] [<value>]"/>
+<%else%>
+<$action-listops $tiddler=<<tiddler>> $field=<<field>> $subfilter="+[toggle<value>]"/>
+<%endif%>
+<$text text=<<label>>/>
+</$button>
+</$let>
+\end
+
+<!-- Pills of the player characters the view sees, active ones (tag Player) first, then former
+     ones (field player, in italics), into the title list <field> of <tiddler> -->
+\procedure trpg.charpills(tiddler,field)
+\whitespace trim
+<div class="trpg-pills">
+<$list filter="[all[tiddlers]tag[Player]!is[draft]] :filter[trpg.visible[]] +[sort[]]" variable="trpg-char">
+<$transclude $variable="trpg.choicepill" tiddler=<<tiddler>> field=<<field>> value=<<trpg-char>> label={{{ [<trpg-char>trpgtitle[]] }}} style={{{ [[Player]get[color]addprefix[--trpg-kind:]] }}}/>
+</$list>
+<$list filter="[all[tiddlers]has[player]!tag[Player]!is[draft]] :filter[trpg.visible[]] +[sort[]]" variable="trpg-char">
+<span class="trpg-char-former"><$transclude $variable="trpg.choicepill" tiddler=<<tiddler>> field=<<field>> value=<<trpg-char>> label={{{ [<trpg-char>trpgtitle[]] }}} style={{{ [trpg.pillstyle<trpg-char>] }}}/></span>
+</$list>
+</div>
+\end

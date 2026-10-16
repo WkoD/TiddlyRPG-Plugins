@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261011172757439
+modified: 20261016233000000
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
@@ -201,8 +201,8 @@ exports.convert = function(wiki,cur,text,coin) {
 /*
 The problem of a price as language key, or null:
   - Item/Check/PriceNoCurrency: a currency is active and the price has no unit
-  - Item/Check/PriceCurrency: a unit the currency does not have, a unit without currency, or a
-    text that cannot be read
+  - Item/Check/PriceUnit: a unit the currency does not have
+  - Item/Check/PriceCurrency: a unit without currency, or a text that cannot be read
 Without currency a plain number is right.
 */
 exports.check = function(wiki,cur,text) {
@@ -213,6 +213,9 @@ exports.check = function(wiki,cur,text) {
 	var parsed = parse(wiki,cur,text);
 	if(parsed.plain) {
 		return cur ? "Item/Check/PriceNoCurrency" : null;
+	}
+	if(cur && parsed.unknown && !parsed.invalid) {
+		return "Item/Check/PriceUnit";
 	}
 	return parsed.invalid || parsed.unknown || !cur ? "Item/Check/PriceCurrency" : null;
 };

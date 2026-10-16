@@ -1,7 +1,8 @@
 created: 20260715103636000
+modified: 20261016233000000
 tiddlyrpg-exclude: [tag[Location]]
 tiddlyrpg-implies: officer member
-modified: 20261008062202000
+tiddlyrpg-targets: [tag[Organisation]] [tag[Location]]
 title: $:/config/flibbles/graph/edges/fields/leader
 type: application/json
 

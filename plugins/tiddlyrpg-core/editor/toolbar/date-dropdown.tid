@@ -1,0 +1,73 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/date-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Date (editor/toolbar/date). Without a date at the cursor: the date of
+     the new section - below the input its output and the dates of the sections before and after
+     it as the field has them - and a caption; Insert sets <<date>> before the paragraph or
+     <$date> around the selection and puts the date into the field date at its place
+     (modules/editor.js). At a date: its date (with the one the field had) and caption to change,
+     or remove it with its section of the field. What follows the inputs reads their values, so
+     typing does not render the inputs anew (focus). -->
+\procedure trpg.datereading()
+\whitespace trim
+<$let trpg-date={{{ [<trpg-input>get[date]trim[]] }}}>
+<div class="trpg-editor-reading">
+<%if [<trpg-date>is[blank]] %>
+<%elseif [<trpg-date>datecheck[]] %>
+<span class="trpg-editor-bad"><$text text={{{ [[Editor/Date/Bad]trpgtranslate[]] }}}/></span>
+<%else%>
+<$text text={{{ [[Editor/Output]trpgtranslate[]addsuffix[ ]] [<trpg-date>dateformat[]] +[join[]] }}}/>
+<%endif%>
+</div>
+<%if [<trpg-form>is[blank]] %>
+<$list filter="[<trpg-probe>jsonget[prev]!is[blank]]" variable="trpg-prev"><div class="trpg-editor-reading"><$text text={{{ [[Editor/Date/Prev]trpgtranslate[]addsuffix[ ]addsuffix<trpg-prev>] }}}/></div></$list>
+<$list filter="[<trpg-probe>jsonget[next]!is[blank]]" variable="trpg-next"><div class="trpg-editor-reading"><$text text={{{ [[Editor/Date/Next]trpgtranslate[]addsuffix[ ]addsuffix<trpg-next>] }}}/></div></$list>
+<%else%>
+<$list filter="[<trpg-probe>jsonget[date]!is[blank]]" variable="trpg-was"><div class="trpg-editor-reading"><$text text={{{ [[Editor/Date/Original]trpgtranslate[]addsuffix[ ]addsuffix<trpg-was>] }}}/></div></$list>
+<%endif%>
+</$let>
+\end
+
+\procedure trpg.dateactions()
+\whitespace trim
+<$let trpg-date={{{ [<trpg-input>get[date]trim[]] }}}
+	trpg-label={{{ [<trpg-input>get[label]trim[]] }}}>
+<div class="trpg-editor-actions">
+<%if [<trpg-form>is[blank]] %>
+<span class="trpg-editor-hint"><$text text={{{ [<trpg-probe>jsonget[selection]match[true]then[Editor/Where/Around]else[Editor/Where/Before]trpgtranslate[]] }}}/></span>
+<$button class="trpg-do" disabled={{{ [<trpg-date>is[blank]then[yes]else[no]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="date" op="insert" date=<<trpg-date>> label=<<trpg-label>>/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Insert]trpgtranslate[]] }}}/>
+</$button>
+<%else%>
+<$button class="tc-btn-invisible trpg-remove">
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="date" op="remove"/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Remove]trpgtranslate[]] }}}/>
+</$button>
+<$button class="trpg-do">
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="date" op="change" date=<<trpg-date>> label=<<trpg-label>>/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Change]trpgtranslate[]] }}}/>
+</$button>
+<%endif%>
+</div>
+</$let>
+\end
+
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>
+	trpg-form=<<trpg.editor-form>>
+	trpg-probe=<<trpg.editor-probe>>
+	trpg-n={{{ [trpg.editor-probe[]jsonget[number]] }}}>
+<div class="trpg-editor-dropdown">
+<div class="trpg-editor-head"><$text text={{{ [<trpg-form>!is[blank]then[Editor/Date/Change]else[Editor/Date/Insert]trpgtranslate[]search-replace[$n$],<trpg-n>] }}}/></div>
+<div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Date/Date]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> field="date" tag="input" class="trpg-editor-input" placeholder={{{ [[Editor/Date/Placeholder]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.datereading"/>
+<div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Date/Label]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> field="label" tag="input" class="trpg-editor-input" placeholder={{{ [[Editor/Date/LabelPlaceholder]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.dateactions"/>
+</div>
+</$let>

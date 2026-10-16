@@ -1,0 +1,342 @@
+created: 20261016090000000
+modified: 20261016220000000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/editor
+type: text/vnd.tiddlywiki
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
+/* The controls of the editor (editor/procedures): the toolbar buttons in the accent colour, the
+   dropdowns (editor/toolbar), the picker and its pills, the form (editor/form, editor/fields), "+"
+   on the hubs (viewtemplates/hub-new), renaming a rumour (templates/quest-body).
+   One system of controls:
+     choose    .trpg-pick-pill - the colour of its type (--trpg-kind); .trpg-off only the outline;
+               .trpg-warn yellow (a new name, a name written almost alike); .trpg-neutral grey
+     do        .trpg-do - filled in the accent colour (primary of the palette); .trpg-do-2 outlined
+     take out  .trpg-pill-x - × at a pill; .trpg-remove - red text in a red outline
+   The core colours every button in the editor toolbar (.tc-editor-toolbar button), also those in
+   its dropdowns, so the rules for the dropdowns name the toolbar.
+   Text - labels, hints, readings, the names on pills - is --trpg-ink: black with a light palette,
+   the foreground of a dark one (field color-scheme of the palette); a state shows in the fill or
+   outline of a control, never in pale text. Only the coin a price gets while typing is pale. */
+
+:root {
+	--trpg-ink: {{{ [{$:/palette}get[color-scheme]match[dark]then[var(--tpc-foreground, #ddd)]else[#000]] }}};
+	--trpg-accent: var(--tpc-primary, #5778d8);
+	--trpg-on-accent: var(--tpc-background, #fff);
+	--trpg-warn: #d9a400;
+	--trpg-remove: var(--tpc-alert-highlight, #b00);
+}
+
+/* The toolbar buttons of TiddlyRPG: tinted in the accent colour, filled while open or hovered */
+.tc-editor-toolbar button.trpg-toolbar-button {
+	background-color: color-mix(in srgb, var(--trpg-accent) 20%, var(--tpc-tiddler-background, #fff));
+	color: var(--trpg-accent);
+	fill: var(--trpg-accent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--trpg-accent) 45%, transparent);
+}
+.tc-editor-toolbar button.trpg-toolbar-button:hover,
+.tc-editor-toolbar button.trpg-toolbar-button.tc-selected {
+	background-color: var(--trpg-accent);
+	color: var(--trpg-on-accent);
+	fill: var(--trpg-on-accent);
+}
+
+/* The dropdowns: text in the colour of the page, buttons as the system says, not as the toolbar */
+.trpg-editor-dropdown {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4em;
+	min-width: 18em;
+	max-width: 28em;
+	padding: 0.5em 0.7em;
+	white-space: normal;
+	color: var(--trpg-ink);
+	text-align: left;
+}
+.tc-editor-toolbar .trpg-editor-dropdown button,
+.tc-drop-down .trpg-editor-dropdown button {
+	background: transparent;
+	color: var(--trpg-ink);
+	fill: currentColor;
+	margin: 0;
+	padding: 0;
+	width: auto;
+	display: inline-block;
+	border-radius: 0;
+	vertical-align: baseline;
+}
+.trpg-editor-head {
+	font-weight: bold;
+}
+.trpg-editor-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	flex-wrap: wrap;
+}
+.trpg-editor-label {
+	font-size: 0.9em;
+	color: var(--trpg-ink);
+}
+.trpg-editor-row input.trpg-editor-input,
+.trpg-editor-row input.trpg-picker-input {
+	flex: 1 1 10em;
+	min-width: 8em;
+}
+.trpg-editor-reading,
+.trpg-field-reading {
+	font-size: 0.9em;
+}
+.trpg-editor-hint,
+.trpg-settings-hint {
+	font-size: 0.85em;
+	color: var(--trpg-ink);
+}
+.trpg-editor-bad {
+	color: var(--trpg-remove);
+}
+/* The last row: Remove at the left, the one button at the right */
+.trpg-editor-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.6em;
+	flex-wrap: wrap;
+	margin-top: 0.2em;
+}
+.trpg-editor-actions .trpg-do,
+.tc-editor-toolbar .trpg-editor-dropdown .trpg-editor-actions button.trpg-do,
+.tc-drop-down .trpg-editor-dropdown .trpg-editor-actions button.trpg-do {
+	margin-left: auto;
+}
+.trpg-remove-label {
+	color: var(--trpg-remove);
+}
+
+/* Do: one button in the accent colour; a second one outlined */
+button.trpg-do,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-do,
+.tc-drop-down .trpg-editor-dropdown button.trpg-do {
+	background: var(--trpg-accent);
+	color: var(--trpg-on-accent);
+	fill: var(--trpg-on-accent);
+	border: 1px solid var(--trpg-accent);
+	border-radius: 4px;
+	padding: 0.15em 0.9em;
+	font-weight: 600;
+	cursor: pointer;
+}
+button.trpg-do-2 {
+	background: transparent;
+	color: var(--trpg-accent);
+	border: 1px solid var(--trpg-accent);
+	border-radius: 4px;
+	padding: 0.15em 0.9em;
+	cursor: pointer;
+}
+button.trpg-do[disabled],
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-do[disabled] {
+	opacity: 0.45;
+	cursor: default;
+}
+button.trpg-small {
+	font-size: 0.8em;
+	padding: 0 0.6em;
+	font-weight: normal;
+}
+/* Take out: a button with red text in a red outline, filled while hovered */
+button.trpg-remove,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-remove,
+.tc-drop-down .trpg-editor-dropdown button.trpg-remove {
+	color: var(--trpg-remove);
+	border: 1px solid var(--trpg-remove);
+	border-radius: 4px;
+	padding: 0.15em 0.9em;
+	cursor: pointer;
+}
+button.trpg-remove:hover,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-remove:hover,
+.tc-drop-down .trpg-editor-dropdown button.trpg-remove:hover {
+	background: var(--trpg-remove);
+	color: var(--trpg-on-accent);
+}
+
+/* Choose: pills in the colour of the type */
+.trpg-pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 6px;
+}
+.trpg-pick-pill,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-pick-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 0 8px;
+	border: 1px solid var(--trpg-kind, var(--tpc-tag-background, #999));
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 22%, var(--tpc-tiddler-background, #fff));
+	color: var(--trpg-ink);
+	font-size: 0.9em;
+	line-height: 1.6;
+}
+.trpg-pick-pill.trpg-off,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-pick-pill.trpg-off {
+	background: transparent;
+	color: var(--trpg-ink);
+}
+.trpg-pick-pill.trpg-warn,
+.tc-editor-toolbar .trpg-editor-dropdown .trpg-pick-pill.trpg-warn {
+	--trpg-kind: var(--trpg-warn);
+}
+.trpg-pick-pill.trpg-neutral {
+	--trpg-kind: var(--tpc-muted-foreground, #999);
+}
+.trpg-pick-pill.trpg-choice,
+.trpg-picker-hit {
+	cursor: pointer;
+}
+.trpg-pick-pill.trpg-choice:hover,
+.trpg-picker-hit:hover,
+.trpg-picker-hit.tc-list-item-selected {
+	background: color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 45%, var(--tpc-tiddler-background, #fff));
+}
+.trpg-pick-path {
+	font-size: 0.85em;
+}
+.trpg-char-former .trpg-pick-pill {
+	font-style: italic;
+}
+button.trpg-pill-x,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-pill-x {
+	margin-left: 3px;
+	padding: 0 2px;
+	color: var(--trpg-ink);
+	cursor: pointer;
+}
+button.trpg-pill-x:hover {
+	color: var(--trpg-remove);
+}
+
+/* The picker: the input, the list while it has the focus */
+.trpg-picker {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 0.3em;
+	min-width: 12em;
+}
+.trpg-picker-inner {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3em;
+}
+.trpg-picker-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 6px;
+	max-height: 12em;
+	overflow-y: auto;
+	padding: 2px 0;
+}
+
+/* The form below the text */
+.trpg-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45em;
+	margin: 0.6em 0;
+	padding: 0.5em 0.7em;
+	border: 1px solid var(--tpc-tiddler-editor-border, #ccc);
+	border-radius: 4px;
+	color: var(--trpg-ink);
+}
+.trpg-form-row {
+	display: grid;
+	grid-template-columns: 9em minmax(0, 1fr);
+	gap: 0.6em;
+	align-items: start;
+}
+.trpg-form-label {
+	padding-top: 0.2em;
+	color: var(--trpg-ink);
+}
+/* An empty field (not saved) in italics */
+.trpg-form-label.trpg-form-empty {
+	font-style: italic;
+}
+.trpg-form-value {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25em;
+	min-width: 0;
+}
+.trpg-field-relation {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 4px 6px;
+}
+.trpg-field-section {
+	margin-right: 0.8em;
+}
+.trpg-field-count {
+	font-size: 0.85em;
+}
+.trpg-field-count.trpg-editor-bad {
+	color: var(--trpg-remove);
+}
+.trpg-field-images {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+.trpg-field-image img {
+	max-width: 6em;
+	max-height: 4em;
+}
+.trpg-field-price {
+	display: flex;
+	align-items: center;
+	gap: 0.4em;
+}
+.trpg-field-unit {
+	opacity: 0.5;
+}
+.trpg-form-checks {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25em;
+}
+.trpg-form-check-buttons {
+	margin-left: 0.6em;
+	white-space: nowrap;
+	display: inline-flex;
+	gap: 0.4em;
+}
+
+/* "+" on the hubs, in the accent colour like the toolbar */
+.trpg-hub-new {
+	margin-bottom: 0.4em;
+}
+button.trpg-hub-plus {
+	background-color: color-mix(in srgb, var(--trpg-accent) 20%, var(--tpc-tiddler-background, #fff));
+	fill: var(--trpg-accent);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--trpg-accent) 45%, transparent);
+	border-radius: 4px;
+	padding: 2px 4px;
+	line-height: 1;
+}
+button.trpg-hub-plus:hover,
+button.trpg-hub-plus.tc-selected {
+	background-color: var(--trpg-accent);
+	fill: var(--trpg-on-accent);
+}
+button.trpg-hub-plus svg {
+	width: 1.1em;
+	height: 1.1em;
+}
+
+/* Renaming a rumour: the names that contain the text, those written almost alike */
+.trpg-quest-rename-hits {
+	margin-top: 0.3em;
+}

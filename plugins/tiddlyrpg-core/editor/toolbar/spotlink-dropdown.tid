@@ -1,0 +1,37 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/spotlink-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Link to a spot (editor/toolbar/spotlink): first the location (the
+     picker over the locations, with their path), then one of its spots the view sees, as pills;
+     it sets <<spotlink "Location" "Spot">> at the cursor, a selection becomes the text of the link
+     (modules/editor.js). The chosen location is the field place of the input state; × at its pill
+     chooses another. -->
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>
+	trpg-place={{{ [<trpg-input>get[place]] }}}>
+<div class="trpg-editor-dropdown">
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Spotlink/Insert]trpgtranslate[]] }}}/></div>
+<%if [<trpg-place>is[blank]] %>
+<$transclude $variable="trpg.picker" id={{{ [<targetTiddler>addsuffix[/spotlink]] }}} candidates="[all[tiddlers]tag[Location]!is[draft]]"
+	placeholder={{{ [[Editor/Spotlink/Place]trpgtranslate[]] }}}
+	actions="""<$action-setfield $tiddler=<<trpg-input>> place=<<trpg-pick>>/>"""/>
+<%else%>
+<div class="trpg-pills">
+<span class="trpg-pick-pill" style={{{ [trpg.pillstyle<trpg-place>] }}}><$transclude $variable="trpg.pickname" title=<<trpg-place>>/><$button class="tc-btn-invisible trpg-pill-x" set={{{ [<trpg-input>addsuffix[!!place]] }}} setTo="">×</$button></span>
+</div>
+<div class="trpg-editor-label"><$text text={{{ [[Editor/Spotlink/Spot]trpgtranslate[]] }}}/></div>
+<div class="trpg-pills">
+<$list filter="[<trpg-place>spots[]]" variable="trpg-spot" emptyMessage=<<trpg.t Editor/Spotlink/NoSpots>>>
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice" style={{{ [trpg.pillstyle<trpg-place>] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="spotlink" place=<<trpg-place>> spot=<<trpg-spot>>/>
+<$action-setfield $tiddler=<<trpg-input>> place=""/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text=<<trpg-spot>>/>
+</$button>
+</$list>
+</div>
+<%endif%>
+</div>
+</$let>

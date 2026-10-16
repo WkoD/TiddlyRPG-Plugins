@@ -1,0 +1,7 @@
+created: 20261016090000000
+modified: 20261016210000000
+more: location image date leader patron mentor parent ancestor spouse sibling family alliance bond enmity
+title: $:/config/tiddlyrpg/form/Deity
+type: text/vnd.tiddlywiki
+
+The form in the editor for a tiddler tagged Deity (modules/form.js): list - the fields whose absence a check reports, shown also while empty; more - the other fields it offers under "More fields".

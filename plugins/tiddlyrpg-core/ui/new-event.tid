@@ -1,0 +1,10 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/ui/new-event
+type: text/vnd.tiddlywiki
+
+<!-- A new event ("+" on the hub, procedure trpg.newbutton): its date first; the reading of the date
+     and the button follow the input (focus). Variable trpg-input: the temp tiddler of the date. -->
+\whitespace trim
+<div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Date/Date]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> tag="input" class="trpg-editor-input" placeholder={{{ [[Editor/Date/Placeholder]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.neweventbutton"/>

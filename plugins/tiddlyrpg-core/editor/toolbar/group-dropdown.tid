@@ -1,0 +1,19 @@
+created: 20261016090000000
+modified: 20261016190000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/group-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Party (editor/toolbar/group), in the editor of an event or a quest:
+     the player characters who were there are its tags. The pills choose each one, former ones
+     too; "Whole party" tags every active one (tag Player) the view sees. -->
+\whitespace trim
+<div class="trpg-editor-dropdown">
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Group/Head]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.charpills" tiddler=<<targetTiddler>> field="tags"/>
+<div class="trpg-editor-actions">
+<$button class="trpg-do">
+<$action-listops $tiddler=<<targetTiddler>> $tags="[all[tiddlers]tag[Player]!is[draft]] :filter[trpg.visible[]]"/>
+<$text text={{{ [[Editor/Group/All]trpgtranslate[]] }}}/>
+</$button>
+</div>
+</div>

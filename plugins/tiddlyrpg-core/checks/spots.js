@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/spots.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015191942000
-modified: 20261015202716000
+modified: 20261016233000000
 
 Checks of spots and of the references to them (modules/spots.js; modules/checks.js runs them).
 
@@ -28,7 +28,8 @@ Checks of spots and of the references to them (modules/spots.js; modules/checks.
 var spots = require("$:/plugins/tiddlyrpg-core/modules/spots.js"),
 	sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
 	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
-	checks = require("$:/plugins/tiddlyrpg-core/modules/checks.js");
+	checks = require("$:/plugins/tiddlyrpg-core/modules/checks.js"),
+	editor = require("$:/plugins/tiddlyrpg-core/modules/editor.js");
 
 function exists(wiki,title) {
 	return !!title && (wiki.tiddlerExists(title) || wiki.isShadowTiddler(title));
@@ -73,7 +74,13 @@ exports.rules = [
 					record = model.records[spot.id];
 				var joined = target && target !== title && wiki.getTiddler(target);
 				if(joined && joined.hasTag("Location") && visibility.visible(wiki,target,view) && record && ownText(text,record)) {
-					messages.push({level: "hint", key: "Check/Spots/JoinedText", params: {spot: spot.plain, target: target}});
+					var message = {level: "hint", key: "Check/Spots/JoinedText", params: {spot: spot.plain, target: target}},
+						body = editor.spotText(wiki,title,record.start);
+					// The location holds the text already (a spot made a location of its own): it may go
+					if(body && (joined.fields.text || "").indexOf(body) !== -1) {
+						message.fix = {kind: "spotEmpty", start: record.start};
+					}
+					messages.push(message);
 				}
 			});
 			return messages;

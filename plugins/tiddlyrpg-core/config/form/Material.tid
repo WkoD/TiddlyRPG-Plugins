@@ -1,0 +1,7 @@
+created: 20261016090000000
+modified: 20261016210000000
+more: price location image owner creator component
+title: $:/config/tiddlyrpg/form/Material
+type: text/vnd.tiddlywiki
+
+The form in the editor for a tiddler tagged Material (modules/form.js): list - the fields whose absence a check reports, shown also while empty; more - the other fields it offers under "More fields".

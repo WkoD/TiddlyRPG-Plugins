@@ -369,6 +369,19 @@ test.describe("sweep", function() {
 			out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/sidebar\" $mode=\"block\"/>"))});
 			out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/sidebar-recent}}")});
 			out.push({where: "ControlPanel License", text: seen(h.render(wiki, "text/html", "{{$:/plugins/tiddlyrpg-core/ui/controlpanel-license}}"))});
+			// The editor: the hits of the picker for every field of the form, the quests and
+			// rumours and the locations of a link to a spot, with the names written almost alike;
+			// the spots of each location (link to a spot), the player characters (lock, party),
+			// (+ on the hubs is in the view of each hub)
+			f("[trpgformknown[]]").map(function(field) {
+				return "[[" + field + "]relationcandidates[]]";
+			}).concat(["[questnames[]]", "[all[tiddlers]tag[Location]!is[draft]]"]).forEach(function(candidates) {
+				out.push({where: "picker " + candidates, text: seen(h.render(wiki, "text/html",
+					"<$let trpg-candidates=\"" + candidates + "\" userInput=\"" + WORD + "\"><$list filter={{$:/plugins/tiddlyrpg-core/editor/picker!!first-search-filter}} variable=\"trpg-pick\"><$transclude $variable=\"trpg.pickpill\" title=<<trpg-pick>>/>|</$list></$let>" +
+					"<$list filter=\"[subfilter[" + candidates + "]trpgsimilar[Qx7 Fadn]] [subfilter[" + candidates + "]trpgsimilar[Qx7 Akt]] :filter[trpg.visible[]]\"><<currentTiddler>>|</$list>"))});
+			});
+			out.push({where: "spots of the locations", text: h.render(wiki, "text/plain", "<$list filter=\"[all[tiddlers]tag[Location]]\" variable=\"place\"><$list filter=\"[<place>spots[]]\"><<currentTiddler>>|</$list></$list>")});
+			out.push({where: "player characters", text: seen(h.render(wiki, "text/html", "<$transclude $variable=\"trpg.charpills\" tiddler=\"$:/temp/sweep\" field=\"names\"/>"))});
 			return out;
 		});
 	}

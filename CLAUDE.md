@@ -271,9 +271,12 @@ the tiddler title:
   tiddler, with `trpg.images` and `trpg.image`, see "Locations"), `trpg.locationpath` (where
   a tiddler is, below its title, see "Locations") and the tag pill macros `tag-pill-styles`
   (with `trpg.pillcolour`, `trpg.pillbase`, `trpg.pilltext`), `tag-pill-stripes` and
-  `tag-pill-inner` (see "Core overrides").
+  `tag-pill-inner` (see "Core overrides"). The controls of the editor in `editor/procedures`
+  (`trpg.picker`, `trpg.choicepill`, `trpg.charpills`, `trpg.pickname`, `trpg.pickpill`,
+  `trpg.pillstyle`, see "Editor") and the "+" of the hubs in `ui/new-procedures`
+  (`trpg.newbutton`, `trpg.neweventbutton`), both tagged `$:/tags/Global` too.
 - **Library modules** (`modules/*`): `language.js` (key lookup with fallback, display names,
-  `$name$` patterns), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
+  `$name$` patterns, `internalTitle` - "Ort" -> `Location` over all language packs), `calendar.js` (calendar engine, see "Calendar engine"), `dates.js` (see
   "Dates": parser of the `date` field, calendar check, short form, the dated sections of a body
   from the model of `sections.js` - the one place of these rules, used by the date filters,
   `eventrows`, the timeline and `trpg-date`), `sections.js` (see "Sections": the
@@ -286,7 +289,8 @@ the tiddler title:
   lock, campaign events), `markdown.js` (Markdown of a README as wikitext, see "Readme and
   license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`),
   `checks.js` (see "Checks": the registry and the run of the rules), `types.js` (the type tags:
-  the hubs and the item categories of the campaign).
+  the hubs and the item categories of the campaign; `UNTYPED`: pages that need no type),
+  `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor").
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
@@ -326,12 +330,15 @@ the tiddler title:
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
   `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgunit`,
   `trpgdice`, `trpgdamage`, `trpgterm`, see "Language system" -> "Rules language" and "Rules
-  engine"), `checks.js` (`trpgcheck`, see "Checks").
+  engine"), `checks.js` (`trpgcheck`, `trpgdraftcheck`, see "Checks"), `editor.js` (the
+  filters of the editor, listed in its header, see "Editor").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
-  tab "Recent"), see "Views".
+  tab "Recent"), see "Views"; `new-procedures` and `new-event` ("+" on the hubs) and
+  `settings-editor` (a tab of the settings), see "Editor".
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
-  ("Ort") under the internal name (`Location`). `startup/plugin-types.js`: the switchers of the
+  ("Ort") under the internal name (`Location`). `startup/symmetric.js`,
+  `startup/editor-messages.js`, `startup/editor-states.js`: see "Editor". `startup/plugin-types.js`: the switchers of the
   plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting").
 - **Licenses**: `ui/controlpanel-license` (ControlPanel -> License, `$:/tags/ControlPanel`)
   and `config/licenses` (`$:/config/tiddlyrpg/licenses`), see "Readme and license of a plugin";
@@ -366,10 +373,10 @@ the tiddler title:
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs), `secret` (marker of a secret above the title: whom it is
   for), `player`
-  (the field `player` of any figure). Order via `list-after`/`list-before`. Plus `body-filter`
+  (the field `player` of any figure), `hub-new` ("+" on a hub, see "Editor"). Order via
+  `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-sections` (cascade, see below), `body-filter-quest` (a quest or rumour, see
   "Quests").
-- **Snippets** (`snippets/*`, tag `$:/tags/TextEditor/Snippet`): `date-section`.
 - **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   heading of a dated section, location pills), `location` (path, spot pills, spots, map buttons; static
@@ -378,9 +385,9 @@ the tiddler title:
   `checks` (the messages below the title: a bar on the left, an error in the alert colour, a
   hint muted; static CSS), `sections` (the frames of the sections - a line on the left in the
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
-  and the frame of a locked tiddler outside the frame of its type; wikitext for the colours) and
+  and the frame of a locked tiddler outside the frame of its type; wikitext for the colours),
   `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
-  `Player`).
+  `Player`) and `editor` (the controls of the editor, see "Editor").
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/quest-body`, `templates/quest-card`, `templates/quest-list` (see "Quests"),
@@ -393,13 +400,21 @@ the tiddler title:
   `class-pinned`, `class-readonly`,
   `class-view`, `title-translated`, `subtitle`, `view-tags` - see below; `dm-published`
   (`$:/config/tiddlyrpg/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
-  sidebar tabs, see "Views").
+  sidebar tabs, see "Views"); for the editor `form/<type>`, `form-fields-hidden`,
+  `field-editors`, `shortcut-info` and `symmetric` (see "Editor").
 - **Search** (override of `$:/core/ui/DefaultSearchResultList` plus `search/item`): core search
-  plus hubs whose translated name matches, hits shown with translated names.
+  plus hubs whose translated name matches, hits shown with translated names; switches of the
+  kinds above the hits (`trpg.kindswitches` in mode `select`, filter `kindselected`, state
+  `$:/state/tiddlyrpg-core/search-kinds`): none chosen is all. The link dropdown of the editor
+  uses the same list.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
   (`Plural/<hub>`), `fields` (`Field/<type>`, a relation in the relation list, forward),
   `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
   `texts` (template texts).
+- **Editor** (`editor/*`): the toolbar buttons `editor/toolbar/<name>` with their dropdowns
+  `editor/toolbar/<name>-dropdown`, the icon `editor/icons/spot`, the text operations
+  `editor/operation.js`, the form `editor/form` with the field editors `editor/fields/*`, the
+  config of the picker `editor/picker` - see "Editor".
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
   Material, Book, Consumable, Equipment, Event, Information, Index, Quest: titles without prefix,
   tag `Index`; the item categories also tagged `$:/tags/tiddlyrpg/ItemKind`, see "Items"; plus
@@ -409,8 +424,8 @@ the tiddler title:
   type: tag `$:/tags/Pinned` only, its colour is the one of campaign events in the timeline. The
   hub `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or
   frame what it locks.
-- **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`)
-  + relink field types; the function edge types `rules` (leader -> location, "controls"),
+- **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`,
+  with `tiddlyrpg-targets`: what the field may name, see "Relations") + relink field types; the function edge types `rules` (leader -> location, "controls"),
   `spots` (a spot that is a location -> the location it is part of, dashed) and a copy of
   `links` of tw5-graph (grey, symmetric); the axes
   `$:/config/tiddlyrpg/graph/axes[/<axis>]` (see "Relations"); relink of the macro parameters
@@ -592,10 +607,86 @@ The problems of a tiddler are rules in modules of type `trpg-check` (`checks/<th
   system tiddler (graph views aside) and no draft, plus the titles of the scope `wiki`.
 - Files: `images/files` needs the folder of the wiki (`checks.setFolder()`, set by the script);
   in the browser it gives nothing. Everything else needs no file system.
+- Fixes: a message may carry `fix` (its kinds in the header of `modules/checks.js`): what its
+  button in the form of the editor changes in the draft (`modules/fixes.js`), or `create` (a new
+  draft). Only where the change is clear; what needs a decision stays a message. `forDraft()`
+  runs the rules on a draft; those that read what other tiddlers say about it (`SAVED`) run on
+  the title it is the draft of and leave out what the draft has fixed already.
+- `types/missing` leaves out the pages in `types.UNTYPED` (`Campaign`, the start page).
 - A new rule: a module (or an entry in the module of its theme) with the rules in its header, its
   keys in `language/<code>/checks.multids` of every language, its row in the table of the
   README, tests in the file of its topic (`checks.test.js` for one without a topic). A new theme
   goes into the list of `test/checks.test.js`.
+
+## Editor
+
+The editor of a tiddler is where the DM changes things; the view gets no buttons that change
+anything, except "+" on the hubs and the buttons of a rumour ("Create quest" opens a draft,
+"Rename" - a rumour has no editor). What the buttons do to a text lives **once** in
+`modules/editor.js` as plain functions on `{text, selStart, selEnd, tags, fields, title}`, so the
+tests reach it without a browser; the wikitext only asks and passes values.
+
+- **Toolbar** (`editor/toolbar/*`, `$:/tags/EditorToolbar`): `condition` on the type of the draft
+  (`trpgtypes`, also a translated tag) and on wikitext (`trpgwikitext`). A button with a dropdown
+  sends `tm-trpg-probe` (kind): `startup/editor-messages.js` finds the edit-text widget among
+  the parents and runs `trpg-probe` of `editor/operation.js` on `engine.createTextOperation()` -
+  not as a text operation, whose focus would close the dropdown just opened. The probe writes
+  `$:/temp/tiddlyrpg-core/editor/probe/<draft>` (JSON: form `short`/`block`/`""`, params,
+  date number, quest markers, the spot of a sub-location) and the values to edit into
+  `$:/temp/tiddlyrpg-core/editor/input/<draft>`. The dropdown acts with
+  `tm-edit-text-operation` `trpg-edit` (kind, op, values): `editor.apply()`, then the smallest
+  replacement, so Ctrl+Z works (not in Firefox, whose engine has no undo). A result may change
+  fields of the draft (the date field), create a tiddler (sub-location) and open it, or name a
+  language key why nothing changed (a notification).
+- **Rules of the buttons** (header of `editor.js`): without selection the short form before the
+  unit at the cursor (a quest marker at the start of its paragraph or list item); with a
+  selection the block form (lock and quest inline within one paragraph). At an existing marker
+  the dropdown changes or removes it, never sets a second one. The quest status cycles open ->
+  `complete` -> `failed` -> open and never removes the marker. A date keeps the field `date` in
+  step (n-th marker = n-th section, explicit numbers count on). "Make a sub-location" saves
+  the new tiddler at once with the text, images and lock of the spot and keeps the marker; a
+  title another tiddler has in any case is refused (`editor.taken`, files would clash).
+- **Form** (`editor/form`, `$:/tags/EditTemplate` after the body; `modules/form.js`): per type
+  `$:/config/tiddlyrpg/form/<type>` with `list` (the fields whose absence a check reports:
+  `expected/*`, `dates/event` - `editor-form.test.js` keeps them in step) and `more` (the other
+  fields of the type). It shows `list`, the fields added (`$:/state/tiddlyrpg-core/form-extra/
+  <draft>`) and every field it knows that the draft has; the field list of the core hides those
+  (`config/form-fields-hidden`, global). The field editors (`editor/fields/*`) come through the
+  cascade `$:/config/FieldEditorFilters/tiddlyrpg` (`trpgfieldeditor`), so "add field" of the
+  core gets them too. A relation field picks from `tiddlyrpg-targets` of its config
+  (`relationcandidates`); `form.SINGLE` (one `location`, one `owner`) follows
+  `locations/structure`. An item gets its categories as pills, one at most. Below the fields
+  the messages of the draft (`trpgdraftcheck`) with their fixes (`tm-trpg-fix`,
+  `modules/fixes.js`) and "Do not report".
+- **States** (`startup/editor-states.js`): the temp and state tiddlers of a draft go when it
+  goes (saved, or cancelled and confirmed - a change listener, the hook of cancelling runs
+  before the confirmation). A change of type (from one type to another, not the first type)
+  takes out the known fields the new type has neither in `list` nor in `more`, with a
+  notification of those that had a value.
+- **Symmetric relations** (`startup/symmetric.js`, `modules/symmetric.js`): hook
+  `th-saving-tiddler` compares with the tiddler the draft was of and writes the other ends
+  (and their open drafts), also on a rename; switch `$:/config/tiddlyrpg/editor/symmetric`
+  (`ui/settings-editor`). Ways past the navigator do not run it: they must not write symmetric
+  fields.
+- **Controls** (`editor/procedures`, `styles/editor`): choose - pills in the colour of the type,
+  outlined when not chosen, yellow for a new name or one written almost alike; do - one button
+  in the accent colour at the right; take out - × at a pill, "Remove" as a red outlined button
+  at the left. Text in `--trpg-ink` (black, or the foreground of a dark palette). The picker
+  (`trpg.picker`) is `keyboard-driven-input` with the config `editor/picker`; its list shows
+  while the input has the focus and runs its actions on `mousedown`.
+- **Focus**: anything that reads what an input holds is a procedure transcluded after the
+  input, never a variable around it - that would render the input anew on every key.
+- **Wikitext pitfalls met here**: `{{{ }}}` cannot nest (use `$let`); a regexp operand cannot
+  hold `]` (put it into a procedure variable); `\whitespace trim` eats spaces between elements
+  (`addprefix`/`addsuffix` in the filter); `:filter` sets `currentTiddler` to each item;
+  `count[]` gives `0` on empty input; `jsonget` reads JSON null as `null`; the core styles every
+  button in `.tc-editor-toolbar`, also those of its dropdowns.
+- **Visibility**: every list of candidates goes through `trpg.visible` (the config of the
+  picker, `trpgsimilar`, the "new name" pill); values that stand in the draft show as they are.
+  The sweep in `test/views.test.js` renders the pickers and dropdowns with a draft.
+- **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, symmetric,
+  fixes), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
+  every new input).
 
 ## Unknown macros
 
@@ -863,6 +954,10 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
 - Included types (`tiddlyrpg-implies` on the config, every included type named, no chains:
   `leader: officer member`): where A -> B has both, the included one is neither drawn nor
   listed (`shown()`, `sources()`).
+- What a field type may name: `tiddlyrpg-targets` on its config, a filter of the candidates
+  (measured against the campaigns, 2026-10-16), read by `relationcandidates` for the pickers of
+  the editor. Without it every typed tiddler. `kindOf()` gives the kind of a title for the
+  switches (relations block, map, search; the search adds `event`).
 - Every type draws its own edges; two types between the same tiddlers are two edges (decided
   2026-10-08 against merging them into one labelled edge).
 - The types in play: a graph view draws only some types (`edges.fields`/`edges.functions`);

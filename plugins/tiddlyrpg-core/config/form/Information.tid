@@ -1,0 +1,7 @@
+created: 20261016090000000
+modified: 20261016210000000
+more: date image
+title: $:/config/tiddlyrpg/form/Information
+type: text/vnd.tiddlywiki
+
+The form in the editor for a tiddler tagged Information (modules/form.js): list - the fields whose absence a check reports, shown also while empty; more - the other fields it offers under "More fields".

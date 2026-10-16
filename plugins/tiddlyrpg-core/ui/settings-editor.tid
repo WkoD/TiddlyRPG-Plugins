@@ -1,0 +1,17 @@
+caption: <<trpg.t Settings/Editor/Caption>>
+condition: [[yes]]
+created: 20261016090000000
+list-after: $:/plugins/tiddlyrpg-core/ui/settings-rules
+modified: 20261016233000000
+tags: $:/tags/tiddlyrpg/SettingsTab
+title: $:/plugins/tiddlyrpg-core/ui/settings-editor
+type: text/vnd.tiddlywiki
+
+<!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the editor. Whether saving writes the other end
+of a symmetric relation ($:/config/tiddlyrpg/editor/symmetric, modules/symmetric.js). The buttons
+of the editor toolbar are switched on and off like those of the core, under ControlPanel ->
+Appearance -> Toolbars -> Editor Toolbar; their keyboard shortcuts under Keyboard Shortcuts. -->
+\whitespace trim
+<$checkbox tiddler="$:/config/tiddlyrpg/editor/symmetric" field="text" checked="yes" unchecked="no" default="yes" disabled={{{ [{$:/status/IsReadOnly}match[yes]then[yes]else[no]] }}}><$text text={{{ [[Settings/Editor/Symmetric]trpgtranslate[]addprefix[ ]] }}}/></$checkbox>
+
+<div class="trpg-settings-hint"><$text text={{{ [[Settings/Editor/Toolbar]trpgtranslate[]] }}}/></div>

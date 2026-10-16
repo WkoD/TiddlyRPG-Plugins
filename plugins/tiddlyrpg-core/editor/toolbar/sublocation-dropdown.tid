@@ -1,0 +1,62 @@
+created: 20261016090000000
+modified: 20261016220000000
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/sublocation-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Sub-location (editor/toolbar/sublocation), only in the editor of a
+     location. With the cursor in a spot that has no tiddler: make the spot a location of its own.
+     Always: a new location inside this one (field location). Either is created at once and opened,
+     not for editing (modules/editor.js); a new one takes the selected text along, out of this
+     text, with its lock; a spot takes its text, images and lock, the marker stays. A name a
+     tiddler has in any case (trpgtaken - the files would clash) gets a red line with that tiddler
+     and no button, so another name can be typed. The name is read after the input (focus). -->
+\procedure trpg.newsubactions()
+\whitespace trim
+<$let trpg-name={{{ [<trpg-input>get[name]trim[]] }}} trpg-taken={{{ [<trpg-name>trpgtaken[]] }}}>
+<%if [<trpg-taken>!is[blank]] %>
+<div class="trpg-editor-bad"><$text text={{{ [[Editor/Name/Taken]trpgtranslate[]search-replace[$title$],<trpg-taken>] }}}/></div>
+<%endif%>
+<div class="trpg-editor-actions">
+<span class="trpg-editor-hint"><$text text={{{ [<trpg-probe>jsonget[selection]match[true]then[Editor/Sublocation/WithText]else[Editor/Sublocation/Empty]trpgtranslate[]] }}}/></span>
+<$button class="trpg-do" disabled={{{ [<trpg-name>is[blank]] [<trpg-taken>!is[blank]] +[limit[1]then[yes]else[no]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="newsublocation" name=<<trpg-name>>/>
+<$action-setfield $tiddler=<<trpg-input>> name=""/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Sublocation/Create]trpgtranslate[]] }}}/>
+</$button>
+</div>
+</$let>
+\end
+
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>
+	trpg-probe=<<trpg.editor-probe>>
+	trpg-spot={{{ [<trpg-probe>jsonget[spot],[name]] }}}
+	trpg-problem={{{ [<trpg-probe>jsonget[spot],[problem]] }}}>
+<div class="trpg-editor-dropdown">
+<%if [<trpg-spot>!is[blank]] %>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Sublocation/FromSpot]trpgtranslate[]search-replace[$name$],<trpg-spot>] }}}/></div>
+<%if [<trpg-problem>is[blank]] %>
+<div class="trpg-editor-actions">
+<span class="trpg-editor-hint"><$text text={{{ [[Editor/Sublocation/MakeHint]trpgtranslate[]] }}}/></span>
+<$button class="trpg-do">
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="sublocation"/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Sublocation/Make]trpgtranslate[]] }}}/>
+</$button>
+</div>
+<%else%>
+<%if [<trpg-problem>match[Editor/Sublocation/Taken]] %>
+<$let trpg-taken={{{ [<trpg-probe>jsonget[spot],[title]trpgtaken[]] }}}>
+<div class="trpg-editor-bad"><$text text={{{ [[Editor/Name/Taken]trpgtranslate[]search-replace[$title$],<trpg-taken>] }}}/></div>
+</$let>
+<%else%>
+<div class="trpg-editor-hint"><$text text={{{ [<trpg-problem>trpgtranslate[]] }}}/></div>
+<%endif%>
+<%endif%>
+<%endif%>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Sublocation/New]trpgtranslate[]] }}}/></div>
+<div class="trpg-editor-row"><$edit-text tiddler=<<trpg-input>> field="name" tag="input" class="trpg-editor-input" placeholder={{{ [[Editor/Sublocation/Placeholder]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.newsubactions"/>
+</div>
+</$let>

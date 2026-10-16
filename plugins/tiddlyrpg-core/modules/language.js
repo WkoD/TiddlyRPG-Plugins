@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261015200000000
+modified: 20261016233000000
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back
@@ -80,6 +80,45 @@ exports.title = function(wiki,title) {
 		}
 	}
 	return title;
+};
+
+// Translated title -> internal title, over all loaded language packs (keys Title/<name>), not
+// only the active one; the first pack that names a text wins
+var translatedNames = exports.translatedNames = function(wiki) {
+	return wiki.getGlobalCache("tiddlyrpg-translated-names",function() {
+		var map = Object.create(null),
+			add = function(tiddler,title) {
+				if(title.indexOf(PREFIX) !== 0) {
+					return;
+				}
+				var rest = title.substr(PREFIX.length),
+					pos = rest.indexOf("/Title/");
+				if(pos === -1) {
+					return;
+				}
+				var name = rest.substr(pos + "/Title/".length),
+					text = tiddler.fields.text;
+				if(text && text !== name && !map[text]) {
+					map[text] = name;
+				}
+			};
+		wiki.each(add);
+		wiki.eachShadow(add);
+		return map;
+	});
+};
+
+/*
+The internal name of a title written under its translated name ("Ort" -> "Location"): a title
+that exists stays as it is. Used for tags on saving (startup/tag-names.js) and for the tags of a
+draft not saved yet (the editor).
+*/
+exports.internalTitle = function(wiki,title) {
+	if(wiki.tiddlerExists(title) || wiki.isShadowTiddler(title)) {
+		return title;
+	}
+	var name = translatedNames(wiki)[title];
+	return name && (wiki.tiddlerExists(name) || wiki.isShadowTiddler(name)) ? name : title;
 };
 
 // The registered rules domains: {name: data}, the parsed JSON of the domain tiddlers (shadows of

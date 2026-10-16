@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261015193623000
+modified: 20261016233000000
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -416,190 +416,208 @@ The model of a body (cached per tiddler):
 var read = exports.read = function(wiki,title) {
 	return wiki.getCacheForTiddler(title,"tiddlyrpg-section-model",function() {
 		var tiddler = wiki.getTiddler(title),
-			text = (tiddler && tiddler.fields.text) || "",
-			parser = tiddler ? wiki.parseTiddler(title) : null,
-			records = [],
-			links = [],
-			spotlinks = [],
-			errors = [],
-			byKey = Object.create(null);
-		var add = function(kind,form,node,parent,prefix,nodes,key) {
-			var range = rangeOf(nodes),
-				record = {
-					id: records.length,
-					kind: kind,
-					form: form,
-					key: key,
-					start: node ? node.start : range.from,
-					end: node ? node.end : range.to,
-					params: node && KINDS[kind] ? KINDS[kind].params(node,form) : {},
-					parent: parent,
-					locks: prefix.map(function(marker) { return KINDS.secret.params(marker,"short").names; }),
-					from: range.from,
-					to: range.to,
-					counts: true
-				};
-			records.push(record);
-			byKey[key] = record;
-			return record;
-		};
-		var visitNode, visitContainer;
-		/*
-		A short marker of a kind with nest (a quest) at <index> among the children of <container>:
-		it holds the rest of the container (a paragraph, a list item, the content of a block). With
-		nothing after it, it marks nothing. A marker standing alone on its level (container null)
-		marks nothing.
-		*/
-		var addNest = function(kind,marker,parent,container,index) {
-			var siblings = container ? container.children || [] : [],
-				rest = false;
-			for(var j = index + 1; j < siblings.length; j++) {
-				if(!isBlank(siblings[j]) && !nestKind(siblings[j])) {
-					rest = true;
-				}
-			}
-			var record = add(kind,"short",marker,parent,[],[marker],marker.start.toString());
-			record.from = marker.start;
-			record.to = container && container.end !== undefined ? container.end : marker.end;
-			if(!rest) {
-				errors.push({key: "Section/Check/NestEmpty", kind: kind, start: marker.start});
-			}
-			return record;
-		};
-		// The children of a node: a marker of a kind with nest begins a section that holds the
-		// rest of them
-		var visitChildren = function(node,section) {
-			var current = section;
-			$tw.utils.each(node.children,function(child,index) {
-				var nk = nestKind(child);
-				if(nk) {
-					current = addNest(nk,child,current,node,index).id;
-				} else {
-					visitNode(child,current);
-				}
-			});
-		};
-		var visitBlock = function(node,parent,prefix) {
-			var kind = blockKind(node),
-				record = add(kind,"block",node,parent,prefix,[node],node.start.toString());
-			if(kind === "secret") {
-				record.locks.push(record.params.names);
-			}
-			visitContainer(node.children || [],record.id,record);
-		};
-		var visitFrame = function(node,section) {
-			$tw.utils.each(node.children,function(child) {
-				if(child.type === "link" && attribute(child,"to")) {
-					links.push({to: attribute(child,"to"), section: section, frame: true});
-				}
-				visitFrame(child,section);
-			});
-		};
-		visitNode = function(node,section) {
-			if(isFrame(node)) {
-				visitFrame(node,section);
-				return;
-			}
-			if(shortKind(node)) {
-				return;
-			}
-			if(nestKind(node)) {
-				addNest(nestKind(node),node,section,null,0);
-				return;
-			}
-			if(blockKind(node)) {
-				visitBlock(node,section,[]);
-				return;
-			}
-			if(node.type === "link" && attribute(node,"to")) {
-				links.push({to: attribute(node,"to"), section: section, frame: false});
-			} else if(node.type === "transclude" && attribute(node,"$variable") === "spotlink" && node.start !== undefined) {
-				var place = attribute(node,"location"),
-					spec = attribute(node,"spot");
-				spotlinks.push({place: (place === undefined ? attribute(node,"0") || "" : place).trim(), spec: spec === undefined ? attribute(node,"1") || "" : spec, start: node.start, section: section});
-			}
-			visitChildren(node,section);
-		};
-		visitContainer = function(nodes,parent,owner) {
-			var result = group(unwrap(nodes));
-			$tw.utils.each(result.errors,function(error) {
-				errors.push({key: error.key, kind: error.kind, start: error.node.start});
-			});
-			$tw.utils.each(result.groups,function(g) {
-				var section = parent;
-				if(g.form === "block") {
-					visitBlock(g.marker,parent,g.prefix);
-					return;
-				}
-				if(g.kind) {
-					section = add(g.kind,"short",g.marker,parent,g.prefix,g.nodes,g.marker.start.toString()).id;
-				} else if(g.prefix.length) {
-					if(owner) {
-						owner.locks = owner.locks.concat(g.prefix.map(function(marker) { return KINDS.secret.params(marker,"short").names; }));
-					} else {
-						section = add("intro",null,null,parent,g.prefix,g.nodes,"intro").id;
-					}
-				}
-				// Inside a block (<$quest>, <$secret>) a marker with nest holds the rest of the block
-				if(owner) {
-					visitChildren({children: g.nodes, end: owner.to},section);
-				} else {
-					$tw.utils.each(g.nodes,function(node) {
-						visitNode(node,section);
-					});
-				}
-			});
-		};
-		visitContainer(parser && parser.tree ? parser.tree : [],-1,null);
-		records.sort(function(a,b) { return (a.start || 0) - (b.start || 0); });
-		var index = Object.create(null);
-		$tw.utils.each(records,function(record,i) {
-			index[record.id] = i;
+			parser = tiddler ? wiki.parseTiddler(title) : null;
+		return build(tiddler ? tiddler.fields.text || "" : "",parser && parser.tree ? parser.tree : [],function(tag) {
+			return !!tiddler && tiddler.hasTag(tag);
 		});
-		$tw.utils.each(records,function(record) {
-			record.id = index[record.id];
-			record.parent = record.parent === -1 ? -1 : index[record.parent];
-		});
-		$tw.utils.each(links,function(link) {
-			link.section = link.section === -1 ? -1 : index[link.section];
-		});
-		$tw.utils.each(spotlinks,function(link) {
-			link.section = link.section === -1 ? -1 : index[link.section];
-		});
-		// Kinds in the wrong tiddler, kinds within the same kind
-		$tw.utils.each(records,function(record) {
-			var def = KINDS[record.kind];
-			if(!def) {
-				return;
-			}
-			if(def.types && !(tiddler && def.types.some(function(tag) { return tiddler.hasTag(tag); }))) {
-				record.counts = false;
-				errors.push({key: "Section/Check/WrongType", kind: record.kind, start: record.start});
-			}
-			// A kind with nest may stand in one of its kind with another name (two quests linked)
-			for(var up = record.parent; up !== -1; up = records[up].parent) {
-				if(records[up].kind === record.kind && (!def.nest || records[up].params.name === record.params.name)) {
-					record.counts = false;
-					errors.push({key: "Section/Check/Nested", kind: record.kind, start: record.start});
-					break;
-				}
-			}
-		});
-		// Numbers of the dates, counting on in document order over both forms
-		var number = 0;
-		$tw.utils.each(records,function(record) {
-			if(record.kind === "date" && record.counts) {
-				record.explicit = record.params.n !== null;
-				number = record.explicit ? record.params.n : number + 1;
-				record.number = number;
-				record.label = record.params.label;
-				record.first = text.substring(0,record.start).replace(/^[ \t]*\\.*$/mg,"").trim() === "";
-			}
-		});
-		errors.sort(function(a,b) { return (a.start || 0) - (b.start || 0); });
-		return {records: records, links: links, spotlinks: spotlinks, errors: errors, byKey: byKey};
 	});
 };
+
+/*
+The model of a text that is no tiddler (the text in the editor, modules/editor.js), not cached:
+<tags> are the tags it is read with (a date counts only with Event). The tree is parsed with
+positions, so start and end are offsets in <text>.
+*/
+exports.readText = function(wiki,text,tags) {
+	var parser = wiki.parseText("text/vnd.tiddlywiki",text || "");
+	tags = tags || [];
+	return build(text || "",parser && parser.tree ? parser.tree : [],function(tag) {
+		return tags.indexOf(tag) !== -1;
+	});
+};
+
+function build(text,tree,hasTag) {
+	var records = [],
+		links = [],
+		spotlinks = [],
+		errors = [],
+		byKey = Object.create(null);
+	var add = function(kind,form,node,parent,prefix,nodes,key) {
+		var range = rangeOf(nodes),
+			record = {
+				id: records.length,
+				kind: kind,
+				form: form,
+				key: key,
+				start: node ? node.start : range.from,
+				end: node ? node.end : range.to,
+				params: node && KINDS[kind] ? KINDS[kind].params(node,form) : {},
+				parent: parent,
+				locks: prefix.map(function(marker) { return KINDS.secret.params(marker,"short").names; }),
+				from: range.from,
+				to: range.to,
+				counts: true
+			};
+		records.push(record);
+		byKey[key] = record;
+		return record;
+	};
+	var visitNode, visitContainer;
+	/*
+	A short marker of a kind with nest (a quest) at <index> among the children of <container>:
+	it holds the rest of the container (a paragraph, a list item, the content of a block). With
+	nothing after it, it marks nothing. A marker standing alone on its level (container null)
+	marks nothing.
+	*/
+	var addNest = function(kind,marker,parent,container,index) {
+		var siblings = container ? container.children || [] : [],
+			rest = false;
+		for(var j = index + 1; j < siblings.length; j++) {
+			if(!isBlank(siblings[j]) && !nestKind(siblings[j])) {
+				rest = true;
+			}
+		}
+		var record = add(kind,"short",marker,parent,[],[marker],marker.start.toString());
+		record.from = marker.start;
+		record.to = container && container.end !== undefined ? container.end : marker.end;
+		if(!rest) {
+			errors.push({key: "Section/Check/NestEmpty", kind: kind, start: marker.start});
+		}
+		return record;
+	};
+	// The children of a node: a marker of a kind with nest begins a section that holds the
+	// rest of them
+	var visitChildren = function(node,section) {
+		var current = section;
+		$tw.utils.each(node.children,function(child,index) {
+			var nk = nestKind(child);
+			if(nk) {
+				current = addNest(nk,child,current,node,index).id;
+			} else {
+				visitNode(child,current);
+			}
+		});
+	};
+	var visitBlock = function(node,parent,prefix) {
+		var kind = blockKind(node),
+			record = add(kind,"block",node,parent,prefix,[node],node.start.toString());
+		if(kind === "secret") {
+			record.locks.push(record.params.names);
+		}
+		visitContainer(node.children || [],record.id,record);
+	};
+	var visitFrame = function(node,section) {
+		$tw.utils.each(node.children,function(child) {
+			if(child.type === "link" && attribute(child,"to")) {
+				links.push({to: attribute(child,"to"), section: section, frame: true});
+			}
+			visitFrame(child,section);
+		});
+	};
+	visitNode = function(node,section) {
+		if(isFrame(node)) {
+			visitFrame(node,section);
+			return;
+		}
+		if(shortKind(node)) {
+			return;
+		}
+		if(nestKind(node)) {
+			addNest(nestKind(node),node,section,null,0);
+			return;
+		}
+		if(blockKind(node)) {
+			visitBlock(node,section,[]);
+			return;
+		}
+		if(node.type === "link" && attribute(node,"to")) {
+			links.push({to: attribute(node,"to"), section: section, frame: false});
+		} else if(node.type === "transclude" && attribute(node,"$variable") === "spotlink" && node.start !== undefined) {
+			var place = attribute(node,"location"),
+				spec = attribute(node,"spot");
+			spotlinks.push({place: (place === undefined ? attribute(node,"0") || "" : place).trim(), spec: spec === undefined ? attribute(node,"1") || "" : spec, start: node.start, section: section});
+		}
+		visitChildren(node,section);
+	};
+	visitContainer = function(nodes,parent,owner) {
+		var result = group(unwrap(nodes));
+		$tw.utils.each(result.errors,function(error) {
+			errors.push({key: error.key, kind: error.kind, start: error.node.start});
+		});
+		$tw.utils.each(result.groups,function(g) {
+			var section = parent;
+			if(g.form === "block") {
+				visitBlock(g.marker,parent,g.prefix);
+				return;
+			}
+			if(g.kind) {
+				section = add(g.kind,"short",g.marker,parent,g.prefix,g.nodes,g.marker.start.toString()).id;
+			} else if(g.prefix.length) {
+				if(owner) {
+					owner.locks = owner.locks.concat(g.prefix.map(function(marker) { return KINDS.secret.params(marker,"short").names; }));
+				} else {
+					section = add("intro",null,null,parent,g.prefix,g.nodes,"intro").id;
+				}
+			}
+			// Inside a block (<$quest>, <$secret>) a marker with nest holds the rest of the block
+			if(owner) {
+				visitChildren({children: g.nodes, end: owner.to},section);
+			} else {
+				$tw.utils.each(g.nodes,function(node) {
+					visitNode(node,section);
+				});
+			}
+		});
+	};
+	visitContainer(tree,-1,null);
+	records.sort(function(a,b) { return (a.start || 0) - (b.start || 0); });
+	var index = Object.create(null);
+	$tw.utils.each(records,function(record,i) {
+		index[record.id] = i;
+	});
+	$tw.utils.each(records,function(record) {
+		record.id = index[record.id];
+		record.parent = record.parent === -1 ? -1 : index[record.parent];
+	});
+	$tw.utils.each(links,function(link) {
+		link.section = link.section === -1 ? -1 : index[link.section];
+	});
+	$tw.utils.each(spotlinks,function(link) {
+		link.section = link.section === -1 ? -1 : index[link.section];
+	});
+	// Kinds in the wrong tiddler, kinds within the same kind
+	$tw.utils.each(records,function(record) {
+		var def = KINDS[record.kind];
+		if(!def) {
+			return;
+		}
+		if(def.types && !def.types.some(hasTag)) {
+			record.counts = false;
+			errors.push({key: "Section/Check/WrongType", kind: record.kind, start: record.start});
+		}
+		// A kind with nest may stand in one of its kind with another name (two quests linked)
+		for(var up = record.parent; up !== -1; up = records[up].parent) {
+			if(records[up].kind === record.kind && (!def.nest || records[up].params.name === record.params.name)) {
+				record.counts = false;
+				errors.push({key: "Section/Check/Nested", kind: record.kind, start: record.start});
+				break;
+			}
+		}
+	});
+	// Numbers of the dates, counting on in document order over both forms
+	var number = 0;
+	$tw.utils.each(records,function(record) {
+		if(record.kind === "date" && record.counts) {
+			record.explicit = record.params.n !== null;
+			number = record.explicit ? record.params.n : number + 1;
+			record.number = number;
+			record.label = record.params.label;
+			record.first = text.substring(0,record.start).replace(/^[ \t]*\\.*$/mg,"").trim() === "";
+		}
+	});
+	errors.sort(function(a,b) { return (a.start || 0) - (b.start || 0); });
+	return {records: records, links: links, spotlinks: spotlinks, errors: errors, byKey: byKey};
+}
 
 /* ---------- Views ---------- */
 
@@ -677,10 +695,10 @@ exports.hiddenRanges = function(wiki,title,view) {
 };
 
 /*
-The problems of a body, each {key, params} (checks/sections.js): the rules above, and names in a
-lock that are no player characters. What repeats text of a section (a caption, the name of a
-quest) only for a view that sees the section. None for editor snippets
-($:/tags/TextEditor/Snippet): they are templates.
+The problems of a body, each {key, params, fix} (checks/sections.js; fix: modules/checks.js):
+the rules above, and names in a lock that are no player characters. What repeats text of a
+section (a caption, the name of a quest) only for a view that sees the section. None for editor
+snippets ($:/tags/TextEditor/Snippet): they are templates.
 */
 exports.check = function(wiki,title,view) {
 	var tiddler = wiki.getTiddler(title),
@@ -703,11 +721,15 @@ exports.check = function(wiki,title,view) {
 		var def = KINDS[record.kind];
 		if(def && def.check && record.counts && visible(wiki,title,record.id,view)) {
 			$tw.utils.each(def.check(wiki,model,record),function(problem) {
-				problems.push({key: problem.key, params: problem.params || {}});
+				var entry = {key: problem.key, params: problem.params || {}};
+				if(problem.key === "Section/Check/QuestPosition" && record.form === "short") {
+					entry.fix = {kind: "questStatus", start: record.start};
+				}
+				problems.push(entry);
 			});
 		}
 		if(record.kind === "date" && record.params.bad && visible(wiki,title,record.id,view)) {
-			problems.push({key: "Section/Check/DateLabel", params: {text: record.params.bad}});
+			problems.push({key: "Section/Check/DateLabel", params: {text: record.params.bad}, fix: record.form === "short" ? {kind: "dateLabel", start: record.start} : undefined});
 		}
 		$tw.utils.each(record.locks,function(list) {
 			$tw.utils.each(list,function(name) {

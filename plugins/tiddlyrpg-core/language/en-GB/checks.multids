@@ -1,5 +1,5 @@
 created: 20261015191942000
-modified: 20261015204450000
+modified: 20261016190000000
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -55,6 +55,6 @@ Relations/Siblings: Check the family: $other$ is a child of $parent$ too, but no
 Relations/Symmetric: Check the field $field$: $other$ names this tiddler, here $other$ is missing
 Secrets/Transclusion: Check the text: it transcludes the secret tiddler $target$ - every view that sees this tiddler sees it
 Secrets/View: Check the text: it asks the view itself - lock with the tag Secret, <<secret>> or <$secret>
-Spots/JoinedText: Check the spot: $spot$ is joined to $target$ - its text shows only here, not where the spot leads; move it into $target$
+Spots/JoinedText: Check the spot: $spot$ is joined to a tiddler - the text of the spot shows only here, move it into the tiddler $target$
 Spots/Similar: Check the spot: $spot$ is close to the tiddler $title$ - a typo? With the same name the spot joins it
 Types/Missing: Check the tags: no type tag (person, location, event, ...) - it shows in no hub
