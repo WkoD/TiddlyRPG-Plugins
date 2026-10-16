@@ -1,0 +1,13 @@
+created: 20261016204554000
+modified: 20261016204554000
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/path
+type: text/vnd.tiddlywiki
+
+\rules only transcludeinline
+/* The path below the title (procedure trpg.locationpath, the rest in styles/location) sits
+   outside the body of the tiddler: it takes the font size of the body, so its pills relate to
+   those of the relation list as in the theme. */
+.trpg-location-path {
+	font-size: {{$:/themes/tiddlywiki/vanilla/metrics/bodyfontsize}};
+}

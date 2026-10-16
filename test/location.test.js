@@ -217,7 +217,7 @@ test.describe("items", function() {
 	});
 
 	test("relation list of a location: a place with only an item starts folded", function() {
-		assert.match(list("Town"), /<details class="trpg-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Cellar<\/a><\/summary><div class="trpg-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barrel<\/a>/);
+		assert.match(list("Town"), /<details class="trpg-tree"><summary><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Cellar<\/span><\/a><\/span><span class="trpg-tree-count">\(1\)<\/span><\/summary><div class="trpg-tree-children"><div class="trpg-relations-group">Anwesend<span class="trpg-relations-count"> · 1<\/span><\/div><div class="trpg-pills"><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Barrel<\/span>/);
 	});
 });
 
@@ -244,12 +244,29 @@ test.describe("de-DE", function() {
 		assert.ok(path.indexOf(">Kingdom<") !== -1 && path.indexOf(">Town<") === -1, path);
 	});
 
-	// The lines below the title as text: "A › B › C, D"
+	// The lines below the title as text: "A › B › C, D" - an arrow as "›", two pills without an
+	// arrow between them (the places of a line) with ","
 	function pathLines(html) {
-		return (html.match(/<div class="trpg-location-path">.*?<\/div>/g) || []).map(function(line) {
-			return line.replace(/<[^>]+>/g, "").replace(/›/g, " › ").replace(/,/g, ", ");
+		return (html.match(/<div class="trpg-location-path"[^>]*>.*?<\/div>/g) || []).map(function(line) {
+			return line.replace(/<span class="trpg-arrow"><\/span>/g, " › ")
+				.replace(/<\/a><\/span><span class="trpg-pill-item">/g, "</a></span>, <span class=\"trpg-pill-item\">")
+				.replace(/<[^>]+>/g, "");
 		});
 	}
+
+	test("path below the title: small pills, an arrow between two steps, the places of a line side by side", function() {
+		h.add(wiki, {title: "Market Guild", tags: "Organisation", location: "Town Neighbour"});
+		try {
+			var line = (h.view(wiki, "Market Guild").match(/<div class="trpg-location-path"[^>]*>.*?<\/div>/) || [""])[0];
+			assert.match(line, /^<div class="trpg-location-path" style="--trpg-location:#ff2b2b;">/);
+			assert.equal((line.match(/class="tc-tag-label trpg-pill trpg-pill-small"/g) || []).length, 4, line);
+			assert.equal((line.match(/<span class="trpg-arrow"><\/span>/g) || []).length, 2, line);
+			assert.match(line, /<span class="trpg-location-path-places"><span class="trpg-pill-item">.*?>Town<\/span><\/a><\/span><span class="trpg-pill-item">.*?>Neighbour<\/span><\/a><\/span><\/span><\/div>$/);
+			assert.ok(line.replace(/<[^>]+>/g, "").indexOf(",") === -1 && line.indexOf("›") === -1, line);
+		} finally {
+			wiki.deleteTiddler("Market Guild");
+		}
+	});
 
 	test("organisation: location and the locations it leads in one, grouped by their parents", function() {
 		assert.deepEqual(pathLines(h.view(wiki, "Guild")), ["Continent › Kingdom › Town", "Continent › Kingdom"]);
@@ -308,7 +325,8 @@ test.describe("de-DE", function() {
 	test("relation list of a location: who is there, a spot as a branch of the tree", function() {
 		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Town", currentTiddler: "Town"});
 		assert.ok(list.indexOf(">Wanderer<") !== -1 && list.indexOf(">Guild<") !== -1);
-		assert.match(list, /<summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a><span class="trpg-via"> \(Spot\)<\/span><\/summary><div class="trpg-tree-children"><div class="tc-menu-list-subitem"><a [^>]*>Barkeep<\/a>/);
+		assert.match(list, /<summary><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill trpg-pill-spot" title="Spot"[^>]*>Tavern<\/span><\/a><\/span><span class="trpg-tree-count">\(\d+\)<\/span><\/summary><div class="trpg-tree-children">.*?>Barkeep<\/span>/);
+		assert.ok(list.indexOf("(Spot)") === -1, "the spot dashed, no text");
 	});
 
 	test("relation list of a location: the places within as a tree, the parent left out", function() {
@@ -323,15 +341,43 @@ test.describe("de-DE", function() {
 
 	test("relation list of a location: every place with entries starts folded", function() {
 		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"});
-		assert.match(list, /<details class="trpg-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Town<\/a>/);
-		assert.match(list, /<details class="trpg-tree"><summary class="tc-menu-list-subitem"><a [^>]*>Tavern<\/a>/);
+		assert.match(list, /<details class="trpg-tree"><summary><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Town<\/span>/);
+		assert.match(list, /<details class="trpg-tree"><summary><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill[^"]*"[^>]*>Tavern<\/span>/);
+		// A place with nothing in it: a leaf, no arrow, no number
+		h.add(wiki, {title: "Empty Lot", tags: "Location", location: "Kingdom"});
+		try {
+			var kingdom = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Kingdom", currentTiddler: "Kingdom"});
+			assert.match(kingdom, /<div class="trpg-tree-leaf"><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Empty Lot<\/span><\/a><\/span><\/div>/);
+		} finally {
+			wiki.deleteTiddler("Empty Lot");
+		}
 		assert.ok(list.indexOf("open=") === -1, list);
+	});
+
+	test("tabs: a state per tiddler - one shows its choice, another one the default (graph, timeline)", function() {
+		var states = ["$:/state/tiddlyrpg-core/relations-tab/", "$:/state/tiddlyrpg-core/events-tab/"],
+			titles = ["Wanderer", "Barkeep", "Insel Avalon", "Baile"],
+			view = function(title) {
+				return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/core/ui/ViewTemplate\" mode=\"block\"/>", {currentTiddler: title, storyTiddler: title});
+			};
+		h.graph(wiki, "");
+		titles.forEach(function(title) { states.forEach(function(state) { wiki.deleteTiddler(state + title); }); });
+		try {
+			h.add(wiki, {title: states[0] + "Wanderer", text: "$:/plugins/tiddlyrpg-core/viewtemplates/relations/list"});
+			assert.ok(view("Wanderer").indexOf("trpg-relations-list") !== -1, "the list where it was chosen");
+			assert.ok(view("Barkeep").indexOf("trpg-relations-list") === -1, "the graph elsewhere");
+			h.add(wiki, {title: states[1] + "Insel Avalon", text: "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list"});
+			assert.ok(view("Insel Avalon").indexOf("<table><tr><th") !== -1, "the table where it was chosen");
+			assert.ok(view("Baile").indexOf("<table><tr><th") === -1 && view("Baile").indexOf("trpg-tl") !== -1, "the timeline elsewhere");
+		} finally {
+			titles.forEach(function(title) { states.forEach(function(state) { wiki.deleteTiddler(state + title); }); });
+		}
 	});
 
 	test("relation list: Rules and Leader apart", function() {
 		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Guild", currentTiddler: "Guild"}),
 			leader = list.slice(list.indexOf(">Anführer<"));
-		leader = leader.slice(0, leader.indexOf("<h3"));
+		leader = leader.slice(0, leader.indexOf("trpg-relations-group"));
 		var rules = list.slice(list.indexOf(">Kontrolliert<"));
 		assert.ok(leader.indexOf(">Guildmaster<") !== -1 && leader.indexOf(">Town<") === -1, leader);
 		assert.ok(rules.indexOf(">Town<") !== -1, rules);
@@ -522,6 +568,7 @@ test.describe("de-DE", function() {
 	test("activity line after a death and a return: the last phase only, alive", function() {
 		h.add(wiki, {title: "Back Again", tags: "Person", date: "./1351-08-04, 1355", text: "A wolf."});
 		try {
+			h.openTabs(wiki, "Back Again");
 			var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/core/ui/StoryTiddlerTemplate\" mode=\"block\"/>", {currentTiddler: "Back Again", storyTiddler: "Back Again"});
 			assert.ok(html.indexOf("<div class=\"trpg-dateline\">1355 DR</div>") !== -1, html);
 			assert.ok(html.indexOf("trpg-dead") === -1);

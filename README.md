@@ -304,8 +304,8 @@ relation list show the way back by themselves.
 
 | Axis | Field | On the dependent, e.g. | Edge | List forward / back |
 |---|---|---|---|---|
-| place | `leader` (on a location) | `leader: Baile` (organisation) | controls | Controls / - |
-| | `location` | `location: Baile` | in | Location / Present |
+| place | `leader` (on a location) | `leader: Baile` (organisation) | controls | Controls / Control (on the location) |
+| | `location` | `location: Baile` | in | Location / Influence (organisations), Present (the rest), Locations (places) |
 | power | `leader` | `leader: [[Haus Eiree]]` (person) | leads | Leads / Leaders |
 | | `officer` | `officer: Guild` | officer of | Officer of / Officers |
 | | `member` | `member: Guild` | member of | Member of / Members |
@@ -348,6 +348,11 @@ relation list show the way back by themselves.
   organisations, locations, items, quests with rumours), in the colour of the kind - split at
   45° where a switch holds two colours; all on at first, a click leaves that kind out of the
   graph and the list of this tiddler (not saved). The tiddler itself always stays.
+- **The list** shows every relation as a small heading with the number of its entries, the
+  entries as pills in the colour of their type (like the tag pills and the nodes of the
+  graph), the deceased and destroyed striped. Each tiddler keeps its own choice of graph or
+  list (and of timeline or list for its events); a tiddler opened the first time shows the
+  graph.
 
 ## Locations
 
@@ -357,7 +362,7 @@ location - tags carry no meaning for places.
 | Where | Field / syntax | Meaning |
 |---|---|---|
 | Person, player, deity | `location: Baile` | where they are most likely found - the most precise place that is still true; someone who moves around gets the region (one entry) |
-| Organisation | `location: [[Cair Di]] Baile` | the places where it sits or is present (several, all equal); below the title one line per parent path: `… › Königreich von Vandalia › Cair Di, Baile` |
+| Organisation | `location: [[Cair Di]] Baile` | the places where it sits or is present (several, all equal); below the title one line per parent path: `… ▸ Königreich von Vandalia ▸ Cair Di Baile` |
 | Location | `location: [[Königreich von Vandalia]]` | lies in ("liegt in"): a place of its own within a larger one |
 | Location | `<<spot "Tavern">>` in the body of Baile | part of ("Teil von"): the tavern is a part of Baile - who is in the tavern is found in Baile |
 | Organisation, person | `leader: Baile` | leads or controls the location ("Controls") and is present there - no `location` to the same place needed |
@@ -365,12 +370,16 @@ location - tags carry no meaning for places.
 | Item, material | `location: Briarwood Riganwald` | where it lies or is found (several, all equal); an item may have several owners as well |
 
 A location has one parent: the location that has it as a spot, otherwise its field `location`.
-Below the title every tiddler shows the path of its parents ("Andu Falas › Königreich von
-Vandalia › Baile"); a hint appears for a cycle, a spot of two locations, a person with
+Below the title every tiddler shows the path of its parents as small pills in the colour of
+their type, with an arrow between them ("Andu Falas ▸ Königreich von Vandalia ▸ Baile"); the
+places of one line stand side by side. A hint appears for a cycle, a spot of two locations, a person with
 two locations, an artifact with an owner and a location and the like (not in the published
 copy). The event list of a location also contains the events of every place within it. Its
-graph shows the places within it, its list shows them as a tree with who is there (people and
-items alike).
+graph shows the places within it. Its list shows who is there in four groups - "Control" (who
+leads it), "Influence" (the other organisations there), "Present" (people, deities and items)
+and "Locations" (the places within) - each one only with entries, everyone in one of them; the
+places within form a tree with the same groups inside, folded, with the number of their
+entries.
 
 **Secret presence.** An organisation (or anyone else) that is somewhere in secret needs no
 tiddler of its own for that: one entry of its `location` points to a location tagged `Secret`
@@ -417,7 +426,8 @@ location gives a hint for the editor.
 - Every location has the tabs "Map" (further maps beside it) and "Quests and rumours": the
   open quests and rumours that lead to it, each with the reason - what its newest marker links
   (a location, a spot, someone or something there - only what stands in that marker itself)
-  and the place of the map it leads to.
+  and the place of the map it leads to, as pills (a spot as "Spot (Location)", it jumps to the
+  spot on the map).
 - The map (also of a location without a map image, spots or places within) shows a graph: the
   spots and the places within at fixed positions, each a dot with its name in a pill below it
   (filled for a tiddler, white and dashed for a spot without a tiddler of its own); they keep

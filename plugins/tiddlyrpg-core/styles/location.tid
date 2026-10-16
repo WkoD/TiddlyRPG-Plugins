@@ -1,27 +1,109 @@
 created: 20261006064449000
-modified: 20261015184552000
+modified: 20261016204554000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/location
 type: text/css
 
-/* Locations: the path below the title (procedure trpg.locationpath), the pill of a <<spotlink>>
-   in a section (trpg.spotpill), the spots of a location (procedure spot, tab "Map"), the map
-   with its buttons (viewtemplates/location/map) and the relations block (its switches by kind,
-   the group headings, the tree). Palette colours via --tpc-*. */
-.trpg-location-path {
-	color: var(--tpc-muted-foreground, #888);
-	font-size: 0.85em;
-	margin: -0.3em 0 0.4em;
+/* Locations and relations: the pill of a tiddler (procedure trpg.pill) and the pill of a
+   <<spotlink>> in a section (trpg.spotpill), the path below the title (procedure
+   trpg.locationpath; its font size: styles/path), the spots of a location (procedure spot, tab
+   "Map"), the map with its buttons (viewtemplates/location/map), the tab "Quests and rumours"
+   (viewtemplates/location/quests) and the relations block (its switches by kind, the groups,
+   the tree; viewtemplates/relations/list, relations/quest-list). Palette colours via --tpc-*,
+   the colour of the hub Location via --trpg-location (set by the templates). */
+
+/* The pill of a tiddler, like a tag pill (tag-pill-styles in functions): an outline in its
+   colour (--trpg-pill), light inside. 22px high - a whole number, so rows of pills do not land
+   on half pixels; an item (the pill and a text behind it) and a row are as high as the pill, so
+   the gap between two rows is the gap of the row only. */
+.trpg-pill-item,
+a.trpg-pill-link {
+	display: inline-flex;
+	align-items: center;
 }
-.trpg-location-path a.tc-tiddlylink {
+a.trpg-pill-link,
+a.trpg-pill-link:hover {
+	text-decoration: none;
 	font-weight: normal;
 }
-.trpg-location-path-sep {
-	margin: 0 0.35em;
+.tc-tag-label.trpg-pill {
+	display: inline-block;
+	background-color: color-mix(in srgb, var(--trpg-pill) 18%, var(--tpc-background, #fff));
+	box-shadow: inset 0 0 0 1px var(--trpg-pill);
+	color: var(--tpc-foreground, #333);
+	border-radius: 1em;
+	padding: 0 0.55em;
+	font-size: 0.9em;
+	line-height: 22px;
+	white-space: nowrap;
 }
-.trpg-location-path-comma {
-	margin: 0 0.35em 0 0;
+a.trpg-pill-link:hover .trpg-pill {
+	box-shadow: inset 0 0 0 2px var(--trpg-pill);
 }
+/* Deceased/destroyed: striped like its tag pill (tag-pill-stripes in functions) */
+.trpg-pill.trpg-pill-dead {
+	background-image: repeating-linear-gradient(45deg,
+		color-mix(in srgb, var(--tpc-foreground, #333) 18%, var(--tpc-background, #fff)) 0 24px,
+		color-mix(in srgb, var(--trpg-pill) 18%, var(--tpc-background, #fff)) 24px 48px);
+}
+/* A place that is a spot of the location above it: dashed, like the edge of a spot */
+.trpg-pill.trpg-pill-spot,
+a.trpg-pill-link:hover .trpg-pill.trpg-pill-spot {
+	box-shadow: none;
+	outline: 1px dashed var(--trpg-pill);
+	outline-offset: -1px;
+}
+/* A text behind a pill (a date, an event): a flex item drops the space at its start */
+.trpg-pill-item > .trpg-via {
+	margin-left: 0.25em;
+}
+/* Pills side by side, 4px between two rows */
+.trpg-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 6px;
+	margin: 4px 0;
+}
+
+/* The path below the title: small pills (16px, the font in styles/path), between two steps the
+   arrow of a folded place (5 x 6px); aligned at the top, so the path stays on the first row of
+   a block of places that wraps, the arrow moved down to the middle of a pill: (16 - 6) / 2 */
+.trpg-location-path {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 2px 4px;
+	margin: -0.2em 0 0.4em;
+}
+.trpg-location-path .tc-tag-label.trpg-pill.trpg-pill-small {
+	line-height: 16px;
+	font-size: 0.733em;
+	padding: 0 0.4em;
+}
+.trpg-location-path > .trpg-arrow {
+	border-width: 3px 0 3px 5px;
+	margin-top: 5px;
+}
+/* The places of a line: one block that wraps in itself, its second row below its first pill;
+   with less than 12em left it moves to the next row as a whole */
+.trpg-location-path-places {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: inherit;
+	flex: 1 1 12em;
+	min-width: 0;
+}
+/* The arrow of a folded place, pointing right, in the colour of locations */
+.trpg-arrow {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 5px 0 5px 8px;
+	border-color: transparent transparent transparent var(--trpg-location, #ff2b2b);
+}
+
 /* The switches above the relations block (viewtemplates/relations): one per kind, a point in the
    colour of its hub; switched off it fades. */
 .trpg-kind-switches {
@@ -83,11 +165,125 @@ type: text/css
 		radial-gradient(circle, var(--tpc-tiddler-background, #fff) 0 0.15em, transparent 0.16em),
 		linear-gradient(45deg, var(--trpg-kind) 50%, var(--trpg-kind2) 50%);
 }
-/* Group heading of the relation list: only the first letter, a label of several words keeps
-   its small letters. */
+
+/* Group heading of the relation list: small and muted, the number of its entries behind it;
+   only the first letter upper case, a label of several words keeps its small letters. */
+.trpg-relations-group {
+	margin: 0.7em 0 0.2em;
+	font-size: 0.8em;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--tpc-muted-foreground, #888);
+}
 .trpg-relations-group::first-letter {
 	text-transform: uppercase;
 }
+.trpg-relations-count,
+.trpg-tree-count {
+	font-weight: normal;
+	color: var(--tpc-muted-foreground, #888);
+}
+.trpg-tree-count {
+	margin-left: 0.25em;
+	font-size: 0.9em;
+}
+/* The event of a quest as a pill above what its markers there link */
+.trpg-quest-event {
+	display: flex;
+	margin: 0.7em 0 0;
+}
+.trpg-quest-event + .trpg-pills {
+	margin-left: 1.2em;
+}
+
+/* The tree of a location (procedure trpg.place). All relative to the left edge of a place:
+   - the arrow 0..10px, its tip and its middle at x = 5px;
+   - the line of the children 4..6px (margin 4px, border 2px), its middle at x = 5px;
+   - the pill of a place, a leaf and the entries of a child from 16px.
+   Opened, the arrow points down and the line starts at its tip (summary::after bridges to the
+   children). Rows 4px apart, as in a group. */
+.trpg-tree,
+.trpg-tree-leaf {
+	margin: 4px 0;
+}
+.trpg-tree-leaf {
+	display: flex;
+	align-items: center;
+	padding-left: 16px;
+}
+details.trpg-tree > summary {
+	display: flex;
+	align-items: center;
+	position: relative;
+	padding-left: 16px;
+	list-style: none;
+	cursor: pointer;
+}
+details.trpg-tree > summary::-webkit-details-marker {
+	display: none;
+}
+details.trpg-tree > summary::before {
+	content: "";
+	position: absolute;
+	left: 1px;
+	top: 50%;
+	margin-top: -5px;
+	border-style: solid;
+	border-width: 5px 0 5px 8px;
+	border-color: transparent transparent transparent var(--trpg-location, #ff2b2b);
+}
+details.trpg-tree[open] > summary::before {
+	left: 0;
+	margin-top: -3px;
+	border-width: 8px 5px 0 5px;
+	border-color: var(--trpg-location, #ff2b2b) transparent transparent transparent;
+}
+details.trpg-tree[open] > summary::after {
+	content: "";
+	position: absolute;
+	left: 4px;
+	width: 2px;
+	top: calc(50% + 5px);
+	bottom: 0;
+	background: var(--trpg-tree-line);
+}
+.trpg-relations-list {
+	--trpg-tree-line: color-mix(in srgb, var(--trpg-location, #ff2b2b) 55%, var(--tpc-tiddler-background, #fff));
+}
+.trpg-tree-children {
+	margin-left: 4px;
+	padding-left: 10px;
+	border-left: 2px solid var(--trpg-tree-line);
+}
+.trpg-tree-children > :first-child {
+	margin-top: 0;
+	padding-top: 4px;
+}
+
+/* The tab "Quests and rumours" (viewtemplates/location/quests): the label of a quest and its
+   routes as rows 4px apart, half a pill (11px) between two quests; the pill of a spot as high
+   as a pill */
+.trpg-map-quests {
+	display: flex;
+	flex-direction: column;
+	gap: 11px;
+}
+.trpg-map-quest {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+}
+.trpg-map-quest-route {
+	display: flex;
+	align-items: center;
+	gap: 0.35em;
+}
+.trpg-map-quest-route .tc-tag-label.trpg-spot-pill {
+	line-height: 22px;
+	padding: 0 0.55em;
+}
+
 /* Like a tag pill (tag-pill-styles in functions): an outline in the colour of the location,
    light inside */
 .tc-tag-label.trpg-spot-pill {
@@ -104,13 +300,6 @@ type: text/css
 .trpg-via {
 	color: var(--tpc-muted-foreground, #888);
 	font-size: 0.9em;
-}
-/* The tree of a location in the relation list (viewtemplates/relations/list, trpg.tree) */
-details.trpg-tree > summary {
-	cursor: pointer;
-}
-.trpg-tree-children {
-	margin-left: 1.2em;
 }
 .trpg-spot {
 	margin: 1em 0 0.3em;

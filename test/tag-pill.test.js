@@ -50,6 +50,7 @@ test.describe("de-DE", function() {
 
 	test("the whole page: translated, and again after a change of the language", function() {
 		h.add(wiki, {title: "$:/StoryList", list: "[[Insel Avalon]]"});
+		h.openTabs(wiki, "Insel Avalon");
 		var container = $tw.fakeDocument.createElement("div"),
 			widget = wiki.makeTranscludeWidget("$:/core/ui/RootTemplate", {
 				document: $tw.fakeDocument, parentWidget: $tw.rootWidget, recursionMarker: "no", importPageMacros: true

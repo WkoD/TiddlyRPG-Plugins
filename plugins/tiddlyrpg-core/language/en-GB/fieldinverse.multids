@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261008062202000
+modified: 20261016204554000
 title: $:/tiddlyrpg/language/en-GB/FieldInverse/
 
 ancestor: Descendants
@@ -14,4 +14,5 @@ officer: Officers
 owner: Possessions
 parent: Children
 patron: Followers
+rules: Control
 under: Subordinates

@@ -58,11 +58,7 @@ function fixtures(wiki) {
 		{title: "Hafenfest", tags: "Event", date: "1351-07-05", text: "At [[Insel Avalon]]."},
 		{title: "Sage", tags: "Event", text: "Undated."},
 		{title: "Friggs Traum", tags: "Event Frigg Secret", date: "1351-07-03", text: "At [[Insel Avalon]]."},
-		{title: "PlayerLevel", tags: "Information", text: "100000 EXP"},
-		// The graph widget needs a browser; the relation tests use the list tab
-		{title: "$:/state/tiddlyrpg-core/relations-tab", text: "$:/plugins/tiddlyrpg-core/viewtemplates/relations/list"},
-		// The history checks read the table; the timeline is checked on its own
-		{title: "$:/state/tiddlyrpg-core/events-tab", text: "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list"}
+		{title: "PlayerLevel", tags: "Information", text: "100000 EXP"}
 	].forEach(function(fields) {
 		fields.created = T;
 		fields.modified = T;
@@ -107,8 +103,28 @@ function render(wiki, type, text, variables) {
 }
 exports.render = render;
 
-// A tiddler through the story view template, as the browser shows it
+// The tabs exports.view opens, as a reader would have chosen them: the relations block "list" or
+// "graph", the events "list" or "timeline". The tab state is per tiddler
+// ($:/state/tiddlyrpg-core/relations-tab/<title>, events-tab/<title>); the default of the
+// plugin, graph and timeline, is no use here: the graph widget needs a browser, and the history
+// checks read the table (the timeline is checked on its own).
+exports.tabs = {relations: "list", events: "list"};
+
+// Sets the tab states of <title> to exports.tabs (only a state that differs: every change of the
+// wiki clears the caches)
+exports.openTabs = function(wiki, title) {
+	[["$:/state/tiddlyrpg-core/relations-tab/", "$:/plugins/tiddlyrpg-core/viewtemplates/relations/" + exports.tabs.relations],
+		["$:/state/tiddlyrpg-core/events-tab/", "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/" + exports.tabs.events]].forEach(function(state) {
+		if(wiki.getTiddlerText(state[0] + title) !== state[1]) {
+			exports.add(wiki, {title: state[0] + title, text: state[1]});
+		}
+	});
+};
+
+// A tiddler through the story view template, as the browser shows it, with the tabs of
+// exports.tabs
 exports.view = function(wiki, title) {
+	exports.openTabs(wiki, title);
 	return render(wiki, "text/html", "<$transclude $tiddler=\"$:/core/ui/ViewTemplate\" mode=\"block\"/>", {currentTiddler: title, storyTiddler: title});
 };
 

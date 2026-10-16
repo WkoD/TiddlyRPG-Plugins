@@ -1,5 +1,5 @@
 created: 20261015122743000
-modified: 20261015170622000
+modified: 20261016204554000
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/quest
 type: text/vnd.tiddlywiki
@@ -65,6 +65,21 @@ div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.
 	left: -4px;
 	width: 4px;
 	background: repeating-linear-gradient(45deg, #e6b400 0 64px, var(--trpg-rumour) 64px 128px);
+}
+/* Where a marked paragraph shows without its frame - on a card (trpg-quest-card-text) and in the
+   history (trpg-quest-mark-body), below - a quest and a rumour together lose it too: the two
+   rules above are more specific than those of card and history and draw the line as ::before,
+   which kept stripes and a line close to the words. As specific as they, and no line. */
+.trpg-quest-card-text div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest),
+.trpg-quest-mark-body div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest) {
+	border-left: none;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}
+.trpg-quest-card-text div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest)::before,
+.trpg-quest-mark-body div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest)::before {
+	content: none;
 }
 /* A list item: the line at the edge of the text like the other frames, back over the indent of
    its lists (40px each), the text where it was */

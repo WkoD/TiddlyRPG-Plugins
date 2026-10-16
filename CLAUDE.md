@@ -81,8 +81,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `migrate` - `scripts/migrate-dates.js` and `scripts/check-wiki.js` against fixtures in a
     temp folder
   - `location` - parents and places within (`filters/location.js`), occupants (items too), the
-    messages of `checks/locations.js` (artifacts too, a location as tag), the path below the title, the relation list of a
-    location, the events of the places within, the maps (one without tabs, several as tabs named
+    messages of `checks/locations.js` (artifacts too, a location as tag), the path below the
+    title (small pills, arrows, the places of a line side by side), the relation list of a
+    location (the tree: a place within as a branch with its number or as a leaf, a spot dashed),
+    the tab states per tiddler, the events of the places within, the maps (one without tabs, several as tabs named
     after their files, the first with the graph), the spots below them with their images and
     maps (not for a joined spot, not in the tooltip), the field image (tabs from two images on,
     folder by type), map buttons, event history, the lock, person view
@@ -90,10 +92,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     former characters), the default view, the choices, campaign events through player
     characters, the page control, the page class, the marker of a secret, the `Player` hub, and
     every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs), a
-    secret presence; the sweep (see "Visibility - check with every change"; it
+    secret presence, the groups of a location without what the view does not see (no pill, no
+    number, no empty group, no arrow); the sweep (see "Visibility - check with every change"; it
     also renders ControlPanel -> License).
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
-    `$:/status/IsReadOnly`)
+    `$:/status/IsReadOnly`). `h.view` opens the tabs of `h.tabs` for the tiddler it renders (the
+    tab states are per tiddler, `h.openTabs`): the list of the relations block and of the events,
+    since the graph widget needs a browser; the sweep renders both tabs of each
   - `items` - base type and categories and their messages (`checks/items.js`), the price
     with the currency of the fixture setting, the hub lists of `Item` and of a category, a
     category of the campaign, the file of a book (field `data`), colour and image folder
@@ -119,13 +124,15 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the band of the tiddler itself (one per phase, apart), the section lines as links, captions
     with macros, refresh
     on the rules and plugin configs
-  - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`
+  - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`; `trpg.link`
+    and `trpg.pill` (type colour, rumour silver, dead striped, spot dashed, a text behind)
   - `inputs` - every `$edit-text` of the plugins keeps its widget while typing (`h.typeInto`):
     a case per input, and a scan of the wikitext of `tiddlyrpg-core` and `staticfiles` that
     fails for an input without its case (see "Inputs keep their focus")
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
-    label), the relation list forward and back, included types, symmetric types, family,
-    who leads a location as present there, the messages of `checks/relations.js`
+    label), the relation list forward and back (headings with their number, pills), included
+    types, symmetric types, family, the groups of a location (Control, Influence, Present,
+    Locations; everyone once, in every opened place too), the messages of `checks/relations.js`
   - `graph` - through the nodes and edges of the real templates (`h.graph`): the
     `edges.typed` override (`tiddlyrpg-exclude`, symmetric edges, style from the edge type
     config and its axis, included types, every type its own edge, the types of a view), the function edges `rules`, `spots` and `links`, the ego graph (type colours, the dead, a location as centre,
@@ -260,7 +267,7 @@ name, `kebab-case`). Macros are called by their `exports.name` (e.g. `<<image>>`
 the tiddler title:
 
 - **Functions and procedures** (`functions`, tag `$:/tags/Global`): `trpg.visible`, `trpg.dead`,
-  `trpg.link` (see "Functions & cascades"), `trpg.t`, `trpg.title`, `trpg.plural` (language
+  `trpg.link`, `trpg.pill` (see "Functions & cascades"), `trpg.t`, `trpg.title`, `trpg.plural` (language
   system), the procedures `dateformat`, `dateadd`, `datediff` (calendar), `unit`, `dice`, `damage`, `term`
   (rules engine), `date` (dated section in a body,
   with `widgets/date.js`), `trpg.places` (location pills of a section, with the pills of
@@ -269,7 +276,7 @@ the tiddler title:
   `spotlink` (reference to a spot, with `trpg.spotjump`),
   `secret` (a lock, draws nothing itself, see "Sections"), `image` (images in a text or of a
   tiddler, with `trpg.images` and `trpg.image`, see "Locations"), `trpg.locationpath` (where
-  a tiddler is, below its title, see "Locations") and the tag pill macros `tag-pill-styles`
+  a tiddler is, below its title, as small pills, see "Locations") and the tag pill macros `tag-pill-styles`
   (with `trpg.pillcolour`, `trpg.pillbase`, `trpg.pilltext`), `tag-pill-stripes` and
   `tag-pill-inner` (see "Core overrides"). The controls of the editor in `editor/procedures`
   (`trpg.picker`, `trpg.choicepill`, `trpg.charpills`, `trpg.pickname`, `trpg.pickpill`,
@@ -365,13 +372,14 @@ the tiddler title:
   field `source`: where the images come from, "Source: …" below the body),
   `location` (map block of every location, as tabs: "Map" - the first map with `location/map`,
   map graph, switches, buttons -, every further map, "Quests and rumours" (`location/quests`:
-  the open quests that lead here and why, `questroutes`); tab state per location; below it the
+  the open quests that lead here and why, `questroutes`, as pills); tab state per location; below it the
   spots, see "Locations"), `image` (the
   field `image` through `trpg.images`: one image on its own, several as tabs),
   `location-path` (path below the title), `checks` (the messages below it, see "Checks"),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
-  one type scope filter for both tabs), `secret` (marker of a secret above the title: whom it is
+  one type scope filter for both tabs; a tab state per tiddler, like "Timeline"/"List" of
+  `event-list/tabs` - `$:/state/` is neither synced nor saved), `secret` (marker of a secret above the title: whom it is
   for), `player`
   (the field `player` of any figure), `hub-new` ("+" on a hub, see "Editor"). Order via
   `list-after`/`list-before`. Plus `body-filter`
@@ -379,9 +387,11 @@ the tiddler title:
   "Quests").
 - **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
-  heading of a dated section, location pills), `location` (path, spot pills, spots, map buttons; static
-  CSS, `type: text/css`), `quest` (the frame of a marker in gold or silver, stripes for a
-  quest and a rumour together, the cards and history; wikitext for the silver of the palette),
+  heading of a dated section, location pills), `location` (the pill of `trpg.pill`, the path,
+  spot pills, spots, map buttons, the tab "Quests and rumours", the relation list: group
+  headings, the tree with its arrow and line; static CSS, `type: text/css`), `path` (the font
+  size of the path below the title from the theme; wikitext), `quest` (the frame of a marker in gold or silver, stripes for a
+  quest and a rumour together, none on a card and in the history; wikitext for the silver of the palette),
   `checks` (the messages below the title: a bar on the left, an error in the alert colour, a
   hint muted; static CSS), `sections` (the frames of the sections - a line on the left in the
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
@@ -839,9 +849,13 @@ only call their operators.
   in the tree of the relation list and for the folding in the ego graph.
 - The path below the title (`trpg.locationpath`, filter `locationgroups`): for a location its
   parents; for every other type the places of `location` and the locations of `leader`
-  together, one line per parent path, the places of a line comma separated ("Materielle
-  Ebene › Andu Falas › Königreich von Vandalia › Cair Di, Golwyn"). It says where a tiddler is,
-  not how it is tied to a place - that stays in the relation list.
+  together, one line per parent path, the places of a line side by side ("Materielle Ebene ▸
+  Andu Falas ▸ Königreich von Vandalia ▸ Cair Di Golwyn"). Every step a small pill
+  (`trpg.pill`, class `trpg-pill-small`), between two steps the arrow of a folded place in the
+  relation list (`span.trpg-arrow`); the places of a line one block that wraps in itself
+  (`trpg-location-path-places`), its second row below its first pill. The font size comes from
+  the body (`styles/path`): the path sits outside it. It says where a tiddler is, not how it is
+  tied to a place - that stays in the relation list.
 - Secret presence: an entry of `location` that points to a `Secret` location is missing in the
   views that do not see it - in `trpg.locationpath` the place, and its line if no other place
   is left in it (the path above it would tell where it lies), and the occupant among the places above, since the walk of `occupants` only
@@ -914,7 +928,7 @@ only call their operators.
 - Leading a location: `leader` pointing to a `Location` is drawn by the function edge `rules`,
   not by the field edge `leader` (its config has `tiddlyrpg-exclude: [tag[Location]]`, applied by
   `modules/relations.js`). Who leads a location is present there: `occupants` reads `leader`
-  like `location`, the tree of the relation list marks them ("kontrolliert"); `rules` includes
+  like `location`, the relation list of the place has them under "Control"; `rules` includes
   `location` (see "Relations"), and `locations/led` hints at a `location` to a place the field
   `leader` already holds (`Location/Check/LedAndLocation`). The relation list shows the places
   led as the group "Controls".
@@ -970,8 +984,18 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   (`tiddlyrpg-via`, `rules`: `leader`).
 - Relation list (`viewtemplates/relations/list`): per type in order a group forward
   (`Field/<type>`) and back (`FieldInverse/<type>`, falls back to `Field/<type>`), one group
-  for a symmetric type; on a location the way back of `location` is the tree, `rules` has no
-  way back there (the tree marks who leads); last the group "Quests".
+  for a symmetric type; last the group "Quests". A group: a small heading with the number of
+  its entries, the entries as pills (`trpg.pill`) side by side. On a location the way back of
+  `location` gives the groups of the place (procedure `trpg.place`), in this order and only
+  with entries, everyone in one of them: "Control" (`FieldInverse/rules`: who leads it),
+  "Influence" (`Relations/Influence`: the other organisations there), "Present"
+  (`FieldInverse/location`: everyone else), "Locations" (the places within as a tree - a
+  branch with the number of its entries and the same groups inside, a leaf without; a spot
+  dashed). `rules` has no way back anywhere else.
+- The tree (`styles/location`): the arrow of a branch a CSS triangle in the colour of `Location`
+  (`--trpg-location`, set by the template), pointing down when open, its tip on the line of the
+  children; the measures in the comment there. Rows of pills are 4px apart everywhere (the pill
+  22px high, a whole number); keep it when adding to the list.
 - Quests are no relation type: the open quests whose visible markers link the tiddler
   (`questsabout`, `questmentions`, `modules/quests.js`) come into the ego graph as nodes of their
   own (`graph/templates/trpg-ego`) and into the list. Switches by kind above the block
@@ -980,10 +1004,12 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   out of graph and list alike; the centre stays.
 - A quest or rumour has the relations block too, with tabs of its own
   (`viewtemplates/relations/quest-graph`, `.../quest-list`, state
-  `$:/state/tiddlyrpg-core/quest-relations-tab`): the events of its visible markers (edge with
+  `$:/state/tiddlyrpg-core/quest-relations-tab/<title>`): the events of its visible markers (edge with
   the date of the section, the newest with a thick border), what the markers there link
   (`questmentions<event>`), the quests linked with it at their event (`questlinkat`); the same
-  switches, the events always shown (`graph/templates/trpg-quest`).
+  switches, the events always shown (`graph/templates/trpg-quest`). In the list all of them
+  pills: the event with its date, below it what its markers link, then "Connected"
+  (`Relations/Quest/LinkedWith`) with the linked quests in gold or silver.
 
 ## Sections
 
@@ -1099,8 +1125,13 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
   `trpg-dead`, stylesheet `styles/dead`), the graph templates, the atlas views of the
   wikis and `trpg.link`.
 - **`trpg.link`** - a link to a tiddler, struck through when `trpg.dead` holds (class
-  `trpg-dead-link`, stylesheet `styles/dead`). The type hubs, the relation list and the path
-  below the title (`trpg.locationpath`) list their titles with it.
+  `trpg-dead-link`, stylesheet `styles/dead`). The type hubs list their titles with it.
+- **`trpg.pill`** - a tiddler as a pill in the colour of its type, a link to it: the colour of
+  the cascade `$:/tags/TiddlerColourFilter`, a rumour in the silver of the rumours, else
+  `tag-background`; striped when `trpg.dead` holds (class `trpg-pill-dead`, like its tag pill);
+  extra classes (`trpg-pill-small`, `trpg-pill-spot`: dashed, tooltip "Spot") and a muted text
+  behind it. The relation list, the list of a quest, the tab "Quests and rumours" and the path
+  below the title list their titles with it (`styles/location`).
 
 More cascade entries instead of core overrides:
 

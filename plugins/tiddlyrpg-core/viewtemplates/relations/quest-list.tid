@@ -1,28 +1,29 @@
 caption: <<trpg.t Relations/List>>
 created: 20261015170052000
-modified: 20261015170052000
+modified: 20261016204554000
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list
 type: text/vnd.tiddlywiki
 
 <!-- The list of a quest or rumour `self` (viewtemplates/relations), what its graph shows
      (graph/templates/trpg-quest): per event of its markers the view sees, newest first, the event
-     with the date of its section and what the markers there link; then the quests linked with it,
-     each with the event where their markers are stacked. Only the kinds switched on above the
-     block (trpg.egoshown). -->
+     as a pill with the date of its section and below it what the markers there link, as pills;
+     then the quests linked with it ("Connected"), each as a pill - gold or silver - with the
+     event where their markers are stacked. Only the kinds switched on above the block
+     (trpg.egoshown). Pills: trpg.pill in functions.tid, styles/location. -->
 \whitespace trim
 \function trpg.mentioned(event) [<self>questmentions<event>] -[<self>] :filter[is[tiddler]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[sort[title]]
 
+<div class="trpg-relations-list">
 <$list filter="[<self>questevents[]]" variable="trpg-event">
 <$let trpg-number={{{ [<self>questmarks[]] :filter[questmark:event[]match<trpg-event>] +[first[]questmark:number[]] }}}>
-<h3 class="trpg-relations-group"><$transclude $variable="trpg.link" title=<<trpg-event>>/><span class="trpg-via"><$text text={{{ [<trpg-event>get[date]dateformat<trpg-number>addprefix[ (]addsuffix[)]] }}}/></span></h3>
-<$list filter="[trpg.mentioned<trpg-event>]">
-<div class="tc-menu-list-subitem"><$transclude $variable="trpg.link" title=<<currentTiddler>>/></div>
-</$list>
+<div class="trpg-quest-event"><$transclude $variable="trpg.pill" title=<<trpg-event>> after={{{ [<trpg-event>get[date]dateformat<trpg-number>addprefix[(]addsuffix[)]] }}}/></div>
+<%if [trpg.mentioned<trpg-event>] %>
+<div class="trpg-pills trpg-quest-event-entries"><$list filter="[trpg.mentioned<trpg-event>]" variable="trpg-entry"><$transclude $variable="trpg.pill" title=<<trpg-entry>>/></$list></div>
+<%endif%>
 </$let>
 </$list>
 <$list filter="[<self>questlinks[]] :filter[trpg.egoshown<self>] +[limit[1]]" variable="ignore">
-<h3 class="trpg-relations-group"><$text text={{{ [[Relations/Quest/LinkedWith]trpgtranslate[]] }}}/></h3>
-<$list filter="[<self>questlinks[]] :filter[trpg.egoshown<self>]" variable="trpg-other">
-<div class="tc-menu-list-subitem"><$transclude $variable="trpg.link" title=<<trpg-other>>/><span class="trpg-via"><$text text={{{ [<self>questlinkat<trpg-other>first[]addprefix[ (]addsuffix[)]] }}}/></span></div>
+<div class="trpg-relations-group"><$text text={{{ [[Relations/Quest/LinkedWith]trpgtranslate[]] }}}/></div>
+<div class="trpg-pills"><$list filter="[<self>questlinks[]] :filter[trpg.egoshown<self>]" variable="trpg-other"><$transclude $variable="trpg.pill" title=<<trpg-other>> after={{{ [<self>questlinkat<trpg-other>first[]addprefix[(]addsuffix[)]] }}}/></$list></div>
 </$list>
-</$list>
+</div>

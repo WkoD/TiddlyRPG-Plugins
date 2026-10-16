@@ -39,16 +39,19 @@ function list(self) {
 	return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
 }
 
-// The groups of a relation list: {heading: [titles]}
+// The groups of a relation list: {heading: [titles of its pills]}, the heading without its number;
+// a heading that comes again (a group of a place within) keeps its first group
 function groups(html) {
 	var result = {};
-	html.split("<h3 class=\"trpg-relations-group\">").slice(1).forEach(function(part) {
-		var heading = part.slice(0, part.indexOf("</h3>")),
+	html.split("<div class=\"trpg-relations-group\">").slice(1).forEach(function(part) {
+		var heading = part.slice(0, part.indexOf("<span class=\"trpg-relations-count\">")),
 			titles = [];
-		part.replace(/<a [^>]*>([^<]*)<\/a>/g, function(match, title) {
+		part.replace(/<span class="tc-tag-label trpg-pill[^"]*"[^>]*>([^<]*)<\/span>/g, function(match, title) {
 			titles.push(title);
 		});
-		result[heading] = titles;
+		if(!(heading in result)) {
+			result[heading] = titles;
+		}
 	});
 	return result;
 }
@@ -122,17 +125,41 @@ test("relation list: the headings in the order of the axes", function() {
 	});
 });
 
-test("who leads a location is present there, marked in the tree", function() {
+test("relation list: a heading with the number of its entries, the entries as pills", function() {
+	var html = list("Guild");
+	assert.match(html, /<div class="trpg-relations-group">Anführer<span class="trpg-relations-count"> · 1<\/span><\/div><div class="trpg-pills">/);
+	assert.ok(html.indexOf("<h3") === -1 && html.indexOf("tc-menu-list-subitem") === -1, html);
+});
+
+test("who leads a location is there: Control, then Influence, Present, Locations - everyone once", function() {
 	h.add(wiki, {title: "Watch", tags: "Organisation", leader: "Tavern", text: "Keeps order."});
+	h.add(wiki, {title: "Gang", tags: "Organisation", location: "Town", text: "Hangs around."});
 	try {
 		assert.ok(f("[[Tavern]occupants[]]").indexOf("Watch") !== -1);
 		assert.ok(f("[[Town]occupants[]]").indexOf("Watch") !== -1, "through the spot");
-		var town = list("Town");
-		assert.match(town, /<a [^>]*>Guild<\/a><span class="trpg-via"> \(kontrolliert\)<\/span>/);
-		assert.match(town, /<a [^>]*>Watch<\/a><span class="trpg-via"> \(kontrolliert\)<\/span>/);
-		assert.ok(town.indexOf(">Wanderer</a><span") === -1, "someone who is only there: no mark");
+		var html = list("Town"),
+			town = groups(html);
+		assert.deepEqual(Object.keys(town).slice(0, 4), ["Kontrolle", "Einfluss", "Anwesend", "Orte"]);
+		assert.deepEqual(town["Kontrolle"], ["Guild"]);
+		assert.deepEqual(town["Einfluss"], ["Gang"]);
+		assert.ok(town["Anwesend"].indexOf("Wanderer") !== -1 && town["Anwesend"].indexOf("Guild") === -1 && town["Anwesend"].indexOf("Gang") === -1, town["Anwesend"].join());
+		// In the branch of the Tavern its own groups: who leads the Tavern under Control
+		var tavern = html.slice(html.indexOf(">Tavern<"));
+		assert.match(tavern, /<div class="trpg-relations-group">Kontrolle<span class="trpg-relations-count"> · 1<\/span><\/div><div class="trpg-pills"><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Watch</);
+		assert.ok(html.indexOf("kontrolliert") === -1, "no mark");
 	} finally {
 		wiki.deleteTiddler("Watch");
+		wiki.deleteTiddler("Gang");
+	}
+});
+
+test("the groups of a location in English", function() {
+	h.setLanguage(wiki, "en-GB");
+	try {
+		var town = groups(list("Town"));
+		assert.deepEqual(Object.keys(town).slice(0, 2), ["Control", "Present"]);
+	} finally {
+		h.setLanguage(wiki, "de-DE");
 	}
 });
 

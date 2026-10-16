@@ -1,6 +1,6 @@
 caption: <<trpg.t Relations/List>>
 created: 20260713135021000
-modified: 20261015154229000
+modified: 20261016204554000
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
@@ -10,34 +10,38 @@ type: text/vnd.tiddlywiki
 \function trpg.at(place) [<currentTiddler>get[location]enlist-input[]] [<currentTiddler>get[leader]enlist-input[]] +[match<place>]
 \function trpg.here(place) [<place>occupants[]] :filter[trpg.at<place>] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[!match<self>sort[title]]
 \function trpg.within(place) [<place>sublocations[]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[sort[title]]
+\function trpg.control(place) [trpg.here<place>] :filter[get[leader]enlist-input[]match<place>]
+\function trpg.influence(place) [trpg.here<place>tag[Organisation]] -[trpg.control<place>]
+\function trpg.present(place) [trpg.here<place>] -[trpg.control<place>] -[trpg.influence<place>]
+
+\procedure trpg.heading(label,count)
+\whitespace trim
+<div class="trpg-relations-group"><$text text=<<label>>/><span class="trpg-relations-count"><$text text={{{ [<count>addprefix[ · ]] }}}/></span></div>
+\end
 
 \procedure trpg.group(label)
+\whitespace trim
 <%if [(hits)] %>
-<h3 class="trpg-relations-group"><$text text=<<label>>/></h3>
-<$list filter="[(hits)]">
-<div class="tc-menu-list-subitem"><<trpg.link title={{!!title}}>></div>
-</$list>
+<$transclude $variable="trpg.heading" label=<<label>> count={{{ [(hits)count[]] }}}/>
+<div class="trpg-pills"><$list filter="[(hits)]" variable="trpg-entry"><$transclude $variable="trpg.pill" title=<<trpg-entry>>/></$list></div>
 <%endif%>
 \end
 
-\procedure trpg.tree.entry(place,sub)
+\procedure trpg.place(place,depth)
 \whitespace trim
-<$transclude $variable="trpg.link" title=<<sub>>/><%if [<sub>spotowner[]match<place>] %><span class="trpg-via"><$text text={{{ [[Relations/Spot]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%>
-\end
-
-\procedure trpg.tree(place,depth)
-\whitespace trim
-<$list filter="[trpg.here<place>]">
-<div class="tc-menu-list-subitem"><<trpg.link title={{!!title}}>><%if [<currentTiddler>get[leader]enlist-input[]match<place>] %><span class="trpg-via"><$text text={{{ [[Edge/rules]trpgtranslate[]addprefix[ (]addsuffix[)]] }}}/></span><%endif%></div>
-</$list>
-<%if [<depth>compare:number:lt[10]] %>
+<$let hits={{{ [trpg.control<place>] }}}><$transclude $variable="trpg.group" label={{{ [[FieldInverse/rules]trpgtranslate[]] }}}/></$let>
+<$let hits={{{ [trpg.influence<place>] }}}><$transclude $variable="trpg.group" label={{{ [[Relations/Influence]trpgtranslate[]] }}}/></$let>
+<$let hits={{{ [trpg.present<place>] }}}><$transclude $variable="trpg.group" label={{{ [[FieldInverse/location]trpgtranslate[]] }}}/></$let>
+<%if [trpg.within<place>] :filter[<depth>compare:number:lt[10]] %>
+<$transclude $variable="trpg.heading" label={{{ [trpg.plural[Location]] }}} count={{{ [trpg.within<place>count[]] }}}/>
 <$list filter="[trpg.within<place>]" variable="trpg-sub">
 <$let trpg-n={{{ [trpg.here<trpg-sub>] [trpg.within<trpg-sub>] +[count[]] }}}
-	trpg-next={{{ [<depth>add[1]] }}}>
+	trpg-next={{{ [<depth>add[1]] }}}
+	trpg-spot={{{ [<trpg-sub>spotowner[]match<place>then[trpg-pill-spot]] }}}>
 <%if [<trpg-n>match[0]] %>
-<div class="tc-menu-list-subitem"><$transclude $variable="trpg.tree.entry" place=<<place>> sub=<<trpg-sub>>/></div>
+<div class="trpg-tree-leaf"><$transclude $variable="trpg.pill" title=<<trpg-sub>> class=<<trpg-spot>>/></div>
 <%else%>
-<details class="trpg-tree"><summary class="tc-menu-list-subitem"><$transclude $variable="trpg.tree.entry" place=<<place>> sub=<<trpg-sub>>/></summary><div class="trpg-tree-children"><$transclude $variable="trpg.tree" place=<<trpg-sub>> depth=<<trpg-next>>/></div></details>
+<details class="trpg-tree"><summary><$transclude $variable="trpg.pill" title=<<trpg-sub>> class=<<trpg-spot>>/><span class="trpg-tree-count"><$text text={{{ [<trpg-n>addprefix[(]addsuffix[)]] }}}/></span></summary><div class="trpg-tree-children"><$transclude $variable="trpg.place" place=<<trpg-sub>> depth=<<trpg-next>>/></div></details>
 <%endif%>
 </$let>
 </$list>
@@ -50,24 +54,27 @@ type: text/vnd.tiddlywiki
      (Field/<type>: "Member of") from the own field, and the way back (FieldInverse/<type>:
      "Members") from who points here, via the indexed operator `listed`. A symmetric type shows
      one group, both ways together. The hits are held once in the multi-valued variable `hits`
-     and used for heading and list.
-     Locations (filters/location.js): on a location the way back of "location" is a tree
-     (procedure trpg.tree) instead of the locations above and below it: who is there - who leads
-     it marked -, then each place within (both kinds, a spot marked) with who is there and its
-     own places within, every depth. Every place with entries starts folded (<details>). The
-     parent is in the path below the title, the places a tiddler leads in the group of the
-     function type rules ("Controls").
+     and used for heading and pills. Every group: a small heading with the number of its
+     entries (trpg.heading), the entries as pills in the colour of their type side by side
+     (trpg.pill in functions.tid; styles/location).
+     Locations (filters/location.js): on a location the way back of "location" gives the groups
+     of the place (procedure trpg.place) instead of the locations above and below it, each only
+     with entries, everyone in one of them: "Control" (FieldInverse/rules: who leads it, field
+     leader), "Influence" (Relations/Influence: the other organisations there), "Present"
+     (FieldInverse/location: everyone else there - persons, players, deities, items), "Locations"
+     (the places within, both kinds, a spot dashed). Every place within with entries is a folded
+     branch (<details>) with the number of its entries, and the same groups inside; one without
+     is a leaf. The parent is in the path below the title, the places a tiddler leads in the
+     group of the function type rules ("Controls"), which has no way back.
      Last the group "Quests": the open quests that mention it (questsabout). Every entry only
      when its kind is switched on above the block (trpg.egoshown, viewtemplates/relations). -->
 
+<div class="trpg-relations-list" style={{{ [[Location]get[color]addprefix[--trpg-location:]] }}}>
 <$list filter="[relationtypes:list[]]" variable=type>
 <$let trpg-label={{{ [<type>addprefix[Field/]trpgtranslate[]] }}}
 	trpg-inverse={{{ [<type>addprefix[FieldInverse/]trpgtranslate[]] :filter[!prefix[FieldInverse/]] ~[<type>addprefix[Field/]trpgtranslate[]] }}}>
 <%if [<type>match[location]] :filter[<self>tag[Location]] %>
-<%if [<self>occupants[]] [<self>sublocations[]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[first[]] %>
-<h3 class="trpg-relations-group"><$text text=<<trpg-inverse>>/></h3>
-<$transclude $variable="trpg.tree" place=<<self>> depth="0"/>
-<%endif%>
+<$transclude $variable="trpg.place" place=<<self>> depth="0"/>
 <%elseif [<type>relationsymmetric[]] %>
 <$let hits={{{ [trpg.both<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-label>>/></$let>
 <%else%>
@@ -79,3 +86,4 @@ type: text/vnd.tiddlywiki
 </$let>
 </$list>
 <$let hits={{{ [trpg.egocentre<self>questsabout[]] :filter[trpg.egoshown<self>] +[sort[title]] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural[Quest]] }}}/></$let>
+</div>

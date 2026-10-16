@@ -1,6 +1,6 @@
 created: 20260713135021000
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/book
-modified: 20261015171754000
+modified: 20261016204554000
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations
 type: text/vnd.tiddlywiki
@@ -8,8 +8,9 @@ type: text/vnd.tiddlywiki
 <!-- Combined graph+list block: one tab list "Graph"/"List" (graph active by default) instead
      of both stacked. The type scope (multitag) is stated only here, once, instead of separately
      in the two tab content tiddlers. Tab switcher = $:/plugins/flibbles/graph/ui/grouped-tabs
-     (part of tw5-graph, already a dependency). explicitState -> one global tab state (newly
-     opened tiddlers always show the graph first).
+     (part of tw5-graph, already a dependency). explicitState -> a tab state per tiddler
+     ($:/state/tiddlyrpg-core/relations-tab/<title>, quest-relations-tab/<title> for a quest), so
+     a tiddler opened the first time shows the graph; $:/state/ is neither synced nor saved.
      On top of the tab (graph and list alike) the switches by kind (procedure trpg.kindswitches,
      functions.tid) of what they can show (trpg.egonodes); state
      $:/state/tiddlyrpg-core/relations-filter/<title> (trpg.egoshown). The tiddler itself always
@@ -30,7 +31,7 @@ type: text/vnd.tiddlywiki
 <$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
 	tabsList="[[$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-graph]] [[$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list]]"
 	default="$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-graph"
-	explicitState="$:/state/tiddlyrpg-core/quest-relations-tab"
+	explicitState={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/quest-relations-tab/]] }}}
 	class="">
 <$fill $name=body><<trpg.relationstab>></$fill>
 </$transclude>
@@ -38,7 +39,7 @@ type: text/vnd.tiddlywiki
 <$transclude $tiddler="$:/plugins/flibbles/graph/ui/grouped-tabs"
 	tabsList="[[$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph]] [[$:/plugins/tiddlyrpg-core/viewtemplates/relations/list]]"
 	default="$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph"
-	explicitState="$:/state/tiddlyrpg-core/relations-tab"
+	explicitState={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/relations-tab/]] }}}
 	class="">
 <$fill $name=body><<trpg.relationstab>></$fill>
 </$transclude>

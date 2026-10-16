@@ -164,9 +164,25 @@ test.describe("trpg.link", function() {
 		assert.ok(html.indexOf(">Link ]] odd|title</a>") !== -1 && html.indexOf("trpg-dead-link") !== -1, html);
 	});
 
-	test("type hub and relation list strike the dead through", function() {
+	test("the type hub strikes the dead through, the relation list stripes their pill", function() {
 		assert.match(h.view(wiki, "Person"), /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
-		assert.match(h.view(wiki, "Insel Avalon"), /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
+		assert.match(h.view(wiki, "Insel Avalon"), /<span class="tc-tag-label trpg-pill trpg-pill-dead"[^>]*>Grum<\/span>/);
+	});
+
+	function pill(title, cls, after) {
+		return h.render(wiki, "text/html", "<$transclude $variable=\"trpg.pill\" title=<<t>> class=<<c>> after=<<a>>/>", {t: title, c: cls || "", a: after || ""}).replace(/^<p>|<\/p>$/g, "");
+	}
+
+	test("trpg.pill: a link around a pill in the colour of the type, the name translated", function() {
+		assert.equal(pill("Grum"), "<span class=\"trpg-pill-item\"><a class=\"tc-tiddlylink tc-tiddlylink-resolves trpg-pill-link\" href=\"#Grum\"><span class=\"tc-tag-label trpg-pill trpg-pill-dead\" title=\"\" style=\"--trpg-pill:#00a600;\">Grum</span></a></span>");
+		assert.match(pill("Link Alive"), /<span class="tc-tag-label trpg-pill" title="" style="--trpg-pill:#00a600;">Link Alive<\/span>/);
+		assert.match(pill("Location"), />Ort<\/span>/, "the name translated");
+	});
+
+	test("trpg.pill: a missing title in the colour of untyped tags, a spot dashed with a tooltip, a text behind (a rumour silver: quests.test.js)", function() {
+		assert.ok(pill("Link Missing").indexOf("--trpg-rumour") === -1, "silver only for a rumour");
+		assert.match(pill("Insel Avalon", "trpg-pill-spot"), /class="tc-tag-label trpg-pill trpg-pill-spot" title="Spot" style="--trpg-pill:#ff2b2b;"/);
+		assert.match(pill("Insel Avalon", "", "(1351)"), /<\/a><span class="trpg-via">\(1351\)<\/span><\/span>$/);
 	});
 
 	test("the pill of a dead tag striped, grey and its colour; a living one not", function() {

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261016210000000
+modified: 20261016204554000
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -177,7 +177,6 @@ Map/Edit: Edit positions
 Map/EditDone: Done editing
 Map/Fit: Fit map
 Map/Quests/Empty: No open quests or rumours lead here.
-Map/Quests/Spot: spot
 Map/Tab: Map
 New/Create: Create
 New/Hub: New:
@@ -205,9 +204,10 @@ Quest/Status/complete: complete
 Quest/Status/failed: failed
 Quest/Status/open: open
 Relations/Graph: Graph
+Relations/Influence: Influence
 Relations/List: List
 Relations/Quest/Linked: linked
-Relations/Quest/LinkedWith: Linked with
+Relations/Quest/LinkedWith: Connected
 Relations/Kind/Person: People and deities
 Relations/Kind/Quest: Quests and rumours
 Relations/Spot: spot

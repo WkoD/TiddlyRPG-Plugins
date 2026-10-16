@@ -244,12 +244,12 @@ test.describe("places that list titles", function() {
 			// A Secret location: missing in the path of the organisation and at the location above
 			assert.equal(inView("public", function() { return path("Bund"); }), "Baile");
 			assert.ok(inView("public", function() { return h.view(wiki, "Town"); }).indexOf(">Bund<") === -1);
-			assert.equal(path("Bund"), "BaileContinent›Kingdom›Town›Unterschlupf");
+			assert.equal(path("Bund"), "BaileContinentKingdomTownUnterschlupf");
 			assert.ok(h.view(wiki, "Town").indexOf(">Bund<") !== -1);
 			// A locked spot: the place stays, where it lies does not
 			assert.equal(inView("public", function() { return path("Zirkel"); }), "Versteck");
 			assert.deepEqual(inView("public", function() { return f("[[Feste]occupants[]] [[Feste]sublocations[]]"); }), []);
-			assert.equal(path("Zirkel"), "Feste›Versteck");
+			assert.equal(path("Zirkel"), "FesteVersteck");
 			assert.deepEqual(f("[[Feste]occupants[]] [[Feste]sublocations[]]"), ["Zirkel", "Versteck"]);
 		} finally {
 			added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
@@ -286,6 +286,15 @@ test.describe("sweep", function() {
 			{title: "Qx7 Fest", tags: "Event Secret", date: "1399-02-01", text: "At [[Baile]]."},
 			{title: "Sweep Bund", tags: "Organisation", location: "Baile [[Qx7 Ort]]", bond: "[[Qx7 Akte]]", text: "A league."},
 			{title: "Sweep Burg", tags: "Location", location: "Baile", text: "A castle.\n\n<<spot \"Hof\">>\n\nOpen.\n\n<<secret>><<spot \"Qx7 Kammer\" image:\"Qx7bild.jpg, Qx7zwei.jpg\" map:\"Qx7plan.jpg\">>\n\nQx7 room."},
+			// The groups of a location in the relation list (Control, Influence, Present,
+			// Locations): a locked leader, a locked organisation, a locked place within, and an
+			// open place within whose only one there is locked
+			{title: "Qx7 Vogt", tags: "Person Secret", leader: "[[Sweep Burg]]", text: "Qx7 reeve."},
+			{title: "Qx7 Bande", tags: "Organisation Secret", location: "[[Sweep Burg]]", text: "Qx7 gang."},
+			{title: "Sweep Wirt", tags: "Person", location: "[[Sweep Burg]]", text: "A host."},
+			{title: "Qx7 Keller", tags: "Location Secret", location: "[[Sweep Burg]]", text: "Qx7 cellar."},
+			{title: "Sweep Stall", tags: "Location", location: "[[Sweep Burg]]", text: "A stable."},
+			{title: "Qx7 Pferd", tags: "Person Secret", location: "[[Sweep Stall]]", text: "Qx7 horse."},
 			// The caption of the locked section holds a rules macro: heading, timeline (card and
 			// tooltip) and event table render it, none of them in the public view
 			{title: "Sweep Treffen", tags: "Event Frigg [[Qx7 Akte]]", date: "1351-08-01, 1399-01-01",
@@ -321,8 +330,8 @@ test.describe("sweep", function() {
 				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[!is[system]]", "edges.functions": "links"}
 		],
 		TABS = [
-			{"$:/state/tiddlyrpg-core/relations-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/relations/list", "$:/state/tiddlyrpg-core/events-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list"},
-			{"$:/state/tiddlyrpg-core/relations-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/relations/graph", "$:/state/tiddlyrpg-core/events-tab": "$:/plugins/tiddlyrpg-core/viewtemplates/event-list/timeline"}
+			{relations: "list", events: "list"},
+			{relations: "graph", events: "timeline"}
 		],
 		DEFAULTS = TABS[0];
 
@@ -332,7 +341,7 @@ test.describe("sweep", function() {
 
 	test.after(function() {
 		fixtures.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
-		Object.keys(DEFAULTS).forEach(function(title) { h.add(wiki, {title: title, text: DEFAULTS[title]}); });
+		setTabs(DEFAULTS);
 	});
 
 	// What a reader sees of the HTML: text, tooltips, links - not the classes and data attributes
@@ -341,8 +350,10 @@ test.describe("sweep", function() {
 		return html.replace(/\s(class|style|data-[\w-]+)="[^"]*"/g, "");
 	}
 
+	// The tabs h.view opens per tiddler (h.tabs); h.graph renders the view of a title after h.view
+	// has set them
 	function setTabs(tabs) {
-		Object.keys(tabs).forEach(function(title) { h.add(wiki, {title: title, text: tabs[title]}); });
+		h.tabs = Object.assign({}, tabs);
 	}
 
 	// Everything a reader of <view> can reach, as [{where, text}]
@@ -413,8 +424,30 @@ test.describe("sweep", function() {
 	test("the DM: every secret shows, so the sweep reaches them", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
-			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread", YEAR].forEach(function(word) {
+			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
+	});
+
+	// The headings of the relation list of a location as text: "Kontrolle · 1|Anwesend · 1|..."
+	function burg() {
+		var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Sweep Burg", currentTiddler: "Sweep Burg"});
+		return {
+			html: html,
+			headings: (html.match(/<div class="trpg-relations-group">[^<]*<span class="trpg-relations-count">[^<]*<\/span><\/div>/g) || []).map(function(heading) {
+				return heading.replace(/<[^>]+>/g, "");
+			}).join("|")
+		};
+	}
+
+	test("relation list of a location: what the view does not see leaves no pill, no number, no empty group, no arrow", function() {
+		var dm = burg(),
+			pub = inView("public", burg);
+		assert.equal(dm.headings, "Kontrolle · 1|Einfluss · 1|Anwesend · 1|Orte · 2|Anwesend · 1");
+		assert.match(dm.html, /<details class="trpg-tree"><summary>.*?>Sweep Stall<\/span><\/a><\/span><span class="trpg-tree-count">\(1\)<\/span>/);
+		assert.equal(pub.headings, "Anwesend · 1|Orte · 1");
+		assert.match(pub.html, /<div class="trpg-tree-leaf">.*?>Sweep Stall<\/span>/, "the stable: a leaf, no arrow, no number");
+		assert.ok(pub.html.indexOf("<details") === -1 && pub.html.indexOf(WORD) === -1, pub.html);
 	});
 });

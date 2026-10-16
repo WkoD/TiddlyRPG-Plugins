@@ -270,7 +270,7 @@ test.describe("relations: open quests around what they mention, switches by kind
 	test("switches: one per kind there, all on; off leaves out the nodes and entries of it, never the centre", function() {
 		var view = h.view(wiki, "Baile");
 		assert.match(view, /<button[^>]*class="trpg-kind-switch trpg-kind-quest trpg-kind-split"[^>]*>Quests und Gerüchte<\/button>/);
-		assert.match(h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\"/>", {currentTiddler: "Baile", self: "Baile"}), /Quests\s*Echo\s*Spur/);
+		assert.match(h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\"/>", {currentTiddler: "Baile", self: "Baile"}), /Quests · 2\s*Echo\s*Spur/);
 		withTiddlers([{title: STATE, list: "quest location"}], function() {
 			var graph = ego("Baile");
 			assert.ok(graph.nodes.Baile && !graph.nodes.Spur && !graph.nodes.Echo, Object.keys(graph.nodes).join());
@@ -286,7 +286,10 @@ test.describe("relations: open quests around what they mention, switches by kind
 		assert.deepEqual(all, ["Questfahrt -> Baile", "Questfahrt -> Spur (verbunden)", "Turm -> Questfahrt (1. Ches 1351)"]);
 		assert.equal(graph.nodes.Questfahrt.borderWidth, "3", "the newest event");
 		var list = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list\"/>", {currentTiddler: "Turm", self: "Turm"}).replace(/\s+/g, " ");
-		assert.match(list, /Questfahrt \(1\. Ches 1351\) ?Baile ?Verbunden mit ?Spur \(Questfahrt\)/);
+		assert.match(list, /Questfahrt ?\(1\. Ches 1351\) ?Baile ?Verbunden ?Spur ?\(Questfahrt\)/);
+		var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list\"/>", {currentTiddler: "Turm", self: "Turm"});
+		assert.match(html, /<div class="trpg-quest-event"><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Questfahrt<\/span><\/a><span class="trpg-via">\(1\. Ches 1351\)<\/span><\/span><\/div><div class="trpg-pills trpg-quest-event-entries">/);
+		assert.match(html, /style="--trpg-pill:var\(--trpg-rumour, #9aa1aa\);">Spur<\/span>/, "a linked rumour silver");
 		assert.match(h.view(wiki, "Spur"), /trpg-kind-switches/, "a rumour has the block too");
 		assert.match(h.view(wiki, "Spur"), /<div class="[^"]*trpg-rumour-tiddler[^"]*"[^>]*data-tiddler-title="Spur"/, "its page silver");
 		assert.doesNotMatch(h.view(wiki, "Turm"), /trpg-rumour-tiddler/, "a quest: gold from its tag");
@@ -300,12 +303,17 @@ test.describe("relations: open quests around what they mention, switches by kind
 		withTiddlers([{title: "Stadtfahrt", tags: "Event", date: "1352",
 			text: "<<date>>\n\n<<quest \"Q Meister\">>Mit [[Guildmaster]].\n\n<<quest \"Q Brunnen\">>Am <<spotlink \"Town\" \"Old Well\">>.\n\n<<quest \"Q Reich\">>Im [[Kingdom]]."}], function() {
 			var tab = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/quests\"/>", {currentTiddler: "Town"}).replace(/\s+/g, " ");
-			assert.match(tab, /Q Brunnen ?Spot: Old Well/);
-			assert.match(tab, /Q Meister ?Guildmaster \(Person\)/);
+			assert.match(tab, /Q Brunnen ?Old Well \(Town\)/, "a spot as the pill of a spot");
+			assert.match(tab, /Q Meister ?Guildmaster/);
+			assert.ok(tab.indexOf("(Person)") === -1, "the type is the colour of the pill");
 			assert.ok(tab.indexOf("Q Reich") === -1, "the kingdom is above the town: not on its map");
+			var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/quests\"/>", {currentTiddler: "Town"});
+			assert.match(html, /<div class="trpg-map-quest-route"><a [^>]*><span class="tc-tag-label trpg-spot-pill" style="--trpg-pill:#ff2b2b;">Old Well \(Town\)<\/span><\/a><\/div>/);
+			assert.match(html, /<div class="trpg-map-quest-route"><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Guildmaster<\/span>/);
 			var kingdom = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/location/quests\"/>", {currentTiddler: "Kingdom"}).replace(/\s+/g, " ");
-			assert.match(kingdom, /Q Meister ?Guildmaster \(Person\) → Town/, "who is in Town leads to Town on the map of the kingdom");
-			assert.match(kingdom, /Q Reich ?Kingdom \(Ort\)/);
+			assert.match(kingdom, /Q Meister ?Guildmaster ?→ ?Town/, "who is in Town leads to Town on the map of the kingdom");
+			assert.match(kingdom, /Q Reich ?Kingdom/);
+			assert.match(kingdom, /Q Brunnen ?Old Well \(Town\)/, "the spot of a place below: the place that has it");
 		});
 	});
 

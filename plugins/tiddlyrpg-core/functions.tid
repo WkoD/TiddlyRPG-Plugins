@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261016233000000
+modified: 20261016204554000
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -18,11 +18,26 @@ type: text/vnd.tiddlywiki
 \function trpg.dead() [!is[system]!tag[Event]] :filter[get[date]dateended[]]
 
 <!-- Link to a tiddler, struck through when it is deceased/destroyed (trpg.dead; class
-     trpg-dead-link, stylesheet styles/dead). Used by the type hubs, the relation list and the
-     path below the title. -->
+     trpg-dead-link, stylesheet styles/dead). Used by the type hubs. -->
 \procedure trpg.link(title)
 \whitespace trim
 <$link to=<<title>> class={{{ [<title>trpg.dead[]then[trpg-dead-link]] }}}/>
+\end
+
+<!-- A tiddler as a pill in the colour of its type, a link to it (styles/location): the colour of
+     the cascade $:/tags/TiddlerColourFilter (the type hub), the silver of the rumours for a
+     rumour (no tiddler, a name with markers), else tag-background of the palette; striped when
+     deceased/destroyed (trpg.dead, class trpg-pill-dead, like its tag pill); the translated
+     name. <class>: more classes of the pill - trpg-pill-small (the path below the title),
+     trpg-pill-spot (a place that is a spot of the location above: dashed, tooltip "Spot");
+     <after>: a muted text behind it (a date, an event). Used by the relation list, the list of
+     a quest, the tab "Quests and rumours" of a location and the path below the title. -->
+\procedure trpg.pill(title,class,after)
+\whitespace trim
+<$let trpg-colour={{{ [<title>] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]] }}}
+	trpg-pill-colour={{{ [<trpg-colour>!is[blank]] ~[<title>!is[tiddler]questmarked[]then[var(--trpg-rumour, #9aa1aa)]] ~[{$:/palette}getindex[tag-background]] }}}>
+<span class="trpg-pill-item"><$link to=<<title>> class="trpg-pill-link"><span class={{{ [[tc-tag-label trpg-pill]] [<title>trpg.dead[]then[trpg-pill-dead]] [enlist<class>] +[join[ ]] }}} style={{{ [<trpg-pill-colour>addprefix[--trpg-pill:]] }}} title={{{ [enlist<class>match[trpg-pill-spot]then[Relations/Spot]trpgtranslate[]] }}}><$text text={{{ [<title>trpgtitle[]] }}}/></span></$link><%if [<after>!is[blank]] %><span class="trpg-via"><$text text=<<after>>/></span><%endif%></span>
+</$let>
 \end
 
 <!-- The relations block of <centre> (viewtemplates/relations): its centre (a location with its
@@ -344,13 +359,16 @@ type: text/vnd.tiddlywiki
 </$let>
 \end
 
-<!-- Where a tiddler is, as a path below its title (filter locationgroups): "Materielle Ebene ›
-     Andu Falas › Königreich von Vandalia" for a location; for persons, organisations and the
+<!-- Where a tiddler is, as a path below its title (filter locationgroups): "Materielle Ebene ▸
+     Andu Falas ▸ Königreich von Vandalia" for a location; for persons, organisations and the
      like the places of their field location and the locations they lead (field leader), one
-     line per parent path, the places of a line comma separated ("… › Königreich von Vandalia ›
-     Cair Di, Golwyn"); its problems are messages below it (checks/locations.js). What the
-     view does not see is left out: a place it does not see, and a line if no place of it is
-     left - else the line would tell where it lies. -->
+     line per parent path, the places of a line side by side ("… ▸ Königreich von Vandalia ▸
+     Cair Di Golwyn"); its problems are messages below it (checks/locations.js). Every step a
+     small pill (trpg.pill), between two steps the arrow of a folded place in the relation list
+     (span.trpg-arrow, CSS); the places of a line one block that wraps in itself, its second row
+     below its first pill (styles/location, styles/path). What the view does not see is left
+     out: a place it does not see, and a line if no place of it is left - else the line would
+     tell where it lies. -->
 \procedure trpg.locationpath()
 \whitespace trim
 <$list filter="[<currentTiddler>locationgroups[]]" variable="trpg-group">
@@ -358,7 +376,7 @@ type: text/vnd.tiddlywiki
 	trpg-places={{{ [<trpg-group>jsonget[places]] }}}
 	trpg-paths={{{ [enlist<trpg-path>count[]] }}}
 	trpg-count={{{ [enlist<trpg-places>count[]] }}}>
-<div class="trpg-location-path"><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep">›</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list><%if [<trpg-paths>compare:number:gt[0]] :filter[<trpg-count>compare:number:gt[0]] %><span class="trpg-location-path-sep">›</span><%endif%><$list filter="[enlist<trpg-places>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-location-path-sep trpg-location-path-comma">,</span><%endif%><$transclude $variable="trpg.link" title=<<trpg-step>>/></$list></div>
+<div class="trpg-location-path" style={{{ [[Location]get[color]addprefix[--trpg-location:]] }}}><$list filter="[enlist<trpg-path>]" variable="trpg-step" counter="trpg-n"><%if [<trpg-n-first>!match[yes]] %><span class="trpg-arrow"></span><%endif%><$transclude $variable="trpg.pill" title=<<trpg-step>> class="trpg-pill-small"/></$list><%if [<trpg-paths>compare:number:gt[0]] :filter[<trpg-count>compare:number:gt[0]] %><span class="trpg-arrow"></span><%endif%><%if [<trpg-count>compare:number:gt[0]] %><span class="trpg-location-path-places"><$list filter="[enlist<trpg-places>]" variable="trpg-step"><$transclude $variable="trpg.pill" title=<<trpg-step>> class="trpg-pill-small"/></$list></span><%endif%></div>
 </$let>
 </$list>
 \end
