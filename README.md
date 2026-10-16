@@ -43,11 +43,68 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 ```
 
 A small launcher (`scripts/tw.js`) in the wiki builds `TIDDLYWIKI_PLUGIN_PATH` platform
-independently (`path.delimiter`) from all `node_modules/*/plugins`; `tiddlywiki.info` lists the
-plugins by folder name (`tiddlyrpg-core`, `staticfiles`, `graph`, `vis-network`, `relink`, and
-optionally plugins of other packages, e.g. a ruleset and a campaign setting).
+independently (`path.delimiter`) from the `plugins` folders of the packages it lists and finds
+installed; `tiddlywiki.info` lists the plugins by folder name (`tiddlyrpg-core`, `staticfiles`,
+`graph`, `vis-network`, `relink`, and optionally plugins of other packages, e.g. a ruleset and a
+campaign setting).
 
 <!-- wiki -->
+## Using the wiki
+
+A tour for the DM and the players. The sections after it hold the details.
+
+**Getting around.**
+
+- The start page `Campaign` always stands at the end of the page. It shows the hub `Index`
+  with every hub, the player characters, the quests and rumours, and the events as timeline and
+  table.
+- A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
+  `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
+  `Information`, `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
+  shows the player characters as cards with the level of the party (the tiddler `PlayerLevel`).
+  `Information` also leads to `Calendar`, `Currency`, `Ruleset` and `CampaignSetting` while
+  they have something to show. The type of a tiddler is its tag, and its colour is the colour of
+  that hub.
+- A **tiddler** shows the path of the locations where it is below its title, and its years or
+  its span right-aligned below the tags. Below the text of a person, player character,
+  organisation, deity, location or item come its relations (graph or list, see "Relations") and
+  the events that link it or carry it as a tag (timeline or table, see "Dates").
+- The **search** shows the names in the wiki language; switches above the hits choose the
+  kinds.
+- The sidebar tab **Graph** (from tw5-graph) shows the graph views of the wiki: tiddlers
+  `$:/graph/<name>` with the template `$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph`.
+  It colours nodes by type, names edges in the wiki language and leaves out what the view does
+  not see. `$:/graph/Default` shows the tiddlers that are open.
+- A link in a tiddler opens its target above that tiddler, a link in the sidebar at the top.
+  Only `[[...]]` links; a word in CamelCase stays a word.
+
+**Writing** (in the editable wiki, `npm start`):
+
+- A new tiddler: "+" on the hub of its type. The form below the text offers the fields of the
+  type; the buttons of the toolbar set dates, quest markers, spots and locks (see "Editing").
+- Links: `[[Title]]`, or `[[shown text|Title]]`.
+- Who belongs to whom: relation fields on the dependent - the member names its organisation,
+  the child its parent (see "Relations").
+- Where something is: the field `location`, spots in the body of a location and its maps (see
+  "Locations").
+- What happened: an event with its dates in the field `date` and a `<<date>>` where each
+  section begins. The player characters who were there are its tags (see "Dates", "Player
+  characters, views and secrets").
+- Quests and rumours: marked in the text of events with `<<quest>>` (see "Quests").
+- Images: the field `image`, `<<image>>` in a text, the field `source` for where they come from
+  (see "Images and sources").
+- Rules terms such as `<<unit "30 ft">>` and `<<term hp>>` show in the language the wiki
+  chose (see "Rules terms in the text").
+- Secrets: the tag `Secret` for a whole tiddler, `<<secret>>` and `<$secret>` for part of a
+  text (see "Player characters, views and secrets").
+- Below the title stand errors and hints; `npm run check` reports them for the whole wiki (see
+  "Checks").
+
+**Seeing what a player sees.** The page control "View" switches between the public view, the
+view of one player and the view of the DM. The published copy opens in the public view and is
+read-only: it has no buttons to edit, create, delete or import, no "+" and no messages below
+the titles.
+
 ## Languages
 
 Everything `tiddlyrpg-core` displays comes from language packs. The internal names (tags, fields,
@@ -558,6 +615,27 @@ caption next to the title. Links inside DM notes (`@@.tc-tiddler-frame`) are not
 locations. The block form `<$date>…</$date>` (with `section` and `label`) is a section with an
 end of its own; see "Sections in the text".
 
+**Timeline and table.** The hub `Event` shows every event, a person, player character,
+organisation, deity, location or item the events that link it or carry it as a tag - a
+location also those of every place within it and those that reference one of its spots. Two
+tabs, kept per tiddler:
+
+- **Timeline:** time runs upwards, the newest at the top, events without a date at the very
+  bottom as `????`. An event on a single point in time is a dot on the axis; one with several
+  sections or a span gets a lane of its own, where only spans are bars. Campaign events are
+  drawn solid in the colour of the hub `Campaign`, all others dashed. Years without events
+  fold into a break; a click opens it. Hovering highlights an event, a click selects it: its
+  card grows by its tags and one line per section with its caption, each a jump to that section.
+  The timeline of a tiddler draws its own years as a pale band behind the events.
+- **Table:** one row per point in time, a span with its start and end; the title of an event
+  spans its rows as long as no other event lies in between. Campaign events are underlined.
+
+**Dates in a text.** `<<dateformat "1351-07-11">>` writes a date with the month and the era of
+the calendar, as headings and date lines do; `<<dateformat date={{!!date}} section:2>>` writes
+section 2 of the date field of the tiddler.
+`<<dateadd "1351-07-11" 30>>` gives the date 30 days later, `<<datediff "1351-07-11"
+"1351-08-20">>` the days in between - the same as the calculator of the hub `Calendar`.
+
 **Jumping to a section.** A click on an event in the table, or on a section line of the
 selected card in the timeline, opens the event at that section. A section at the very start of
 the body has no jump: the event simply opens at its top. Templates do the same with a wrapper
@@ -578,7 +656,9 @@ view does not see) the link opens the tiddler as usual.
 The calendar engine of `tiddlyrpg-core` calculates with the calendar of the wiki: a JSON data
 tiddler named in `$:/config/tiddlyrpg/calendar`, usually brought by the campaign setting or
 written in the wiki. Without one, dates are shown as entered (`1350-03-12`), and the calculator
-on the `Calendar` hub is hidden.
+on the `Calendar` hub is hidden. With one, the hub shows the description of the calendar, a
+calculator (a date plus a number of days, also written out), the days between two dates and the
+table of months and festivals.
 
 **Own calendar:** a data tiddler under a title of its own with `id`, months, days, festivals and
 leap rule, and `$:/config/tiddlyrpg/calendar` pointing to it (it wins over the calendar of a
