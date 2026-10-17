@@ -88,18 +88,20 @@ test.describe("fields of the form", function() {
 		assert.deepEqual(click("Ausrüstung"), ["Item"]);
 		wiki.deleteTiddler(draft);
 	});
-	test("a type shows the fields whose absence a check reports, every other field of it is offered", function() {
-		var reported = {"Check/Expected/Image": "image", "Check/Expected/Map": "map", "Check/Expected/Player": "player", "Check/Dates/NoDate": "date"};
-		f("[prefix[$:/config/tiddlyrpg/form/]removeprefix[$:/config/tiddlyrpg/form/]]").forEach(function(type) {
+	test("a type shows the fields whose absence a check reports (the property missing of a message), every other field of it is offered", function() {
+		// The configs are shadow tiddlers of the plugin
+		var types = f("[all[shadows+tiddlers]prefix[$:/config/tiddlyrpg/form/]removeprefix[$:/config/tiddlyrpg/form/]]");
+		assert.ok(types.indexOf("Location") !== -1 && types.indexOf("Event") !== -1, types.join(" "));
+		types.forEach(function(type) {
 			var title = "Bare " + type,
 				expected = [];
 			h.add(wiki, {title: title, tags: type, text: "x"});
 			h.checks(wiki, title).forEach(function(message) {
-				if(reported[message.key] && expected.indexOf(reported[message.key]) === -1) {
-					expected.push(reported[message.key]);
+				if(message.missing && expected.indexOf(message.missing) === -1) {
+					expected.push(message.missing);
 				}
 			});
-			assert.deepEqual(form.fields(wiki, title).slice().sort(), expected.sort(), type);
+			assert.deepEqual(Array.from(form.fields(wiki, title)).sort(), expected.sort(), type);
 			form.fields(wiki, title).forEach(function(field) {
 				assert.equal(form.offered(wiki, title).indexOf(field), -1, type + " " + field);
 			});

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/checks.js
 type: application/javascript
 module-type: library
 created: 20261015193638000
-modified: 20261016184211000
+modified: 20261017163544851
 
 Checks: the problems of the tiddlers of a wiki - the one place that runs them. The same rules
 give the messages below the title (viewtemplates/checks, filter trpgcheck) and the report of
@@ -16,8 +16,9 @@ A rule lives in a module of type trpg-check (checks/<theme>.js), which exports r
             is what a DM writes into trpg-noerror or trpg-noinfo
     scope   "tiddler" (default): run(wiki,title,view) gives the messages of <title>;
             "wiki": run(wiki,view) gives messages over the whole wiki, each with its title
-    message {level, key, params, fix} (scope wiki: also title) - level "error" (something is broken
-            or does not work as meant) or "hint" (fine, but better with ...); key a language key,
+    message {level, key, params, fix, missing} (scope wiki: also title) - level "error"
+            (something is broken or does not work as meant) or "hint" (fine, but better with
+            ...); key a language key,
             params its $name$ values; fix (optional) what the button of the message in the form
             of the editor changes in the draft (editor/form, startup/editor-messages.js):
               {kind: "remove", field, value}   take <value> out of <field>
@@ -28,6 +29,9 @@ A rule lives in a module of type trpg-check (checks/<theme>.js), which exports r
               {kind: "spotEmpty", start}      the text of the spot at <start> goes (the location
                                                it is joined to holds it already)
               {kind: "create", title, type}   a new draft of that title (and type tag)
+            missing (optional) the field whose absence the message reports: the form of the editor
+            shows it for the type of the tiddler while it is empty (config/form/<type> list;
+            test/editor-form.test.js holds the two in step through this property)
 
 Every rule takes the view (modules/visibility.js) and leaves out a whole message that names a
 title the view does not see, or that repeats text of a section it does not see. The script runs
@@ -131,6 +135,9 @@ function collect(list,rule,messages) {
 		var entry = {id: rule.id, level: message.level, key: message.key, params: message.params || {}};
 		if(message.fix) {
 			entry.fix = message.fix;
+		}
+		if(message.missing) {
+			entry.missing = message.missing;
 		}
 		var same = list.some(function(other) {
 			return other.id === entry.id && other.key === entry.key && JSON.stringify(other.params) === JSON.stringify(entry.params);

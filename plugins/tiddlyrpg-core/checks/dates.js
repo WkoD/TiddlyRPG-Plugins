@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/dates.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015193638000
-modified: 20261015201123000
+modified: 20261017163544851
 
 Checks of the field date and of the dated sections of an event (modules/dates.js;
 modules/checks.js runs them).
@@ -82,7 +82,7 @@ exports.rules = [
 			var date = tiddler.fields.date || "",
 				messages = [];
 			if(!date.trim()) {
-				messages.push({level: "hint", key: "Check/Dates/NoDate"});
+				messages.push({level: "hint", key: "Check/Dates/NoDate", missing: "date"});
 			}
 			var info = dates.sections(wiki,title),
 				count = dates.parse(date).sections.length;

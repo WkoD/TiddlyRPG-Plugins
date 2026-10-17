@@ -622,10 +622,14 @@ The problems of a tiddler are rules in modules of type `trpg-check` (`checks/<th
   draft). Only where the change is clear; what needs a decision stays a message. `forDraft()`
   runs the rules on a draft; those that read what other tiddlers say about it (`SAVED`) run on
   the title it is the draft of and leave out what the draft has fixed already.
+- Missing fields: a message that reports a field the tiddler lacks names it in `missing`
+  (`expected/*` but the text, `dates/event`). The form of the editor shows `list` of its type
+  (see "Editor"); `test/editor-form.test.js` holds `list` and `missing` in step.
 - `types/missing` leaves out the pages in `types.UNTYPED` (`Campaign`, the start page).
 - A new rule: a module (or an entry in the module of its theme) with the rules in its header, its
   keys in `language/<code>/checks.multids` of every language, its row in the table of the
-  README, tests in the file of its topic (`checks.test.js` for one without a topic). A new theme
+  README, tests in the file of its topic (`checks.test.js` for one without a topic), for a
+  missing field `missing` and `list` of the form. A new theme
   goes into the list of `test/checks.test.js`.
 
 ## Editor
@@ -665,8 +669,8 @@ tests reach it without a browser; the wikitext only asks and passes values.
   it (hook `th-saving-tiddler`); a notification names what went and what stayed. A selection of
   whole lines takes the blank lines after it along.
 - **Form** (`editor/form`, `$:/tags/EditTemplate` after the body; `modules/form.js`): per type
-  `$:/config/tiddlyrpg/form/<type>` with `list` (the fields whose absence a check reports:
-  `expected/*`, `dates/event` - `editor-form.test.js` keeps them in step) and `more` (the other
+  `$:/config/tiddlyrpg/form/<type>` with `list` (the fields whose absence a check reports, the
+  `missing` of its messages - `editor-form.test.js` keeps them in step) and `more` (the other
   fields of the type). It shows `list`, the fields added (`$:/state/tiddlyrpg-core/form-extra/
   <draft>`) and every field it knows that the draft has; the field list of the core hides those
   (`config/form-fields-hidden`, global). The field editors (`editor/fields/*`) come through the
