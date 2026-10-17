@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261015193638000
+modified: 20261017183752617
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -700,8 +700,8 @@ function runMacro(wiki,name,node) {
 }
 
 // The problems of the rules macros in the body of a tiddler, each {key, params}
-// (checks/rules.js). Calls in a section the view does not see are left out - the hint would show
-// their text.
+// (checks/macros.js, rule macros/rules). Calls in a section the view does not see are left out -
+// the hint would show their text.
 exports.check = function(wiki,title,view) {
 	var parsed = wiki.parseTiddler(title),
 		hidden = require("$:/plugins/tiddlyrpg-core/modules/sections.js").hiddenRanges(wiki,title,view),

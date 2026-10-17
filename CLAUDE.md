@@ -167,9 +167,17 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     on the rules and plugin configs
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`; `trpg.link`
     and `trpg.pill` (type colour, rumour silver, dead striped, spot dashed, a text behind)
+  - `tag-pill` - the tag pill defined again in `functions` instead of an override of
+    `$:/core/macros/tag`: its translated name and colours wherever the core renders it, the
+    colours in the tag picker (see "Core overrides")
   - `inputs` - every `$edit-text` of the plugins keeps its widget while typing (`h.typeInto`):
     a case per input, and a scan of the wikitext of `tiddlyrpg-core` and `staticfiles` that
     fails for an input without its case (see "Inputs keep their focus")
+  - `editor`, `editor-form`, `editor-ui` - the editor: see "Editor" -> "Tests"
+  - `quests` - the quest markers in an event (short form, block, stacked) and that they split
+    no dated section; their hints, status, order, quest or rumour, the links between quests;
+    the hub `Quest` with its switches and cards, the page of a quest and of a rumour; what the
+    views see; renaming through Relink (see "Quests")
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
     label), the relation list forward and back (headings with their number, pills), included
     types, symmetric types, family, the groups of a location (Control, Influence, Present,

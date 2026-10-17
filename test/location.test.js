@@ -130,7 +130,8 @@ test.describe("checks", function() {
 	});
 });
 
-// Items at a location (filters/item.js: Artifact unique, Item and Material several)
+// Items at a location (filters/location.js, checks/locations.js: Artifact unique, Item and
+// Material several)
 test.describe("items", function() {
 	var ITEMS = [
 		{title: "Lantern", tags: "Artifact", location: "Tavern", text: "Lies in the tavern."},

@@ -1,5 +1,5 @@
 created: 20261001133844000
-modified: 20261004170125000
+modified: 20261017183752617
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/timeline
 type: text/css
@@ -308,9 +308,6 @@ type: text/css
 }
 .trpg-tl-selected .trpg-tl-details {
 	display: block;
-}
-.trpg-tl-label {
-	color: var(--trpg-tl-muted);
 }
 .trpg-tl-tags {
 	display: flex;
