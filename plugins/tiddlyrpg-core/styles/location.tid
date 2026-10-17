@@ -1,5 +1,5 @@
 created: 20261006064449000
-modified: 20261016210033000
+modified: 20261017155101453
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/location
 type: text/css
@@ -166,14 +166,15 @@ a.trpg-pill-link:hover .trpg-pill.trpg-pill-spot {
 		linear-gradient(45deg, var(--trpg-kind) 50%, var(--trpg-kind2) 50%);
 }
 
-/* Group heading of the relation list: small and muted, the number of its entries behind it;
-   only the first letter upper case, a label of several words keeps its small letters. */
+/* Group heading of the relation list: small, in --trpg-ink (styles/editor: black with a light
+   palette), the number of its entries muted behind it; only the first letter upper case, a label
+   of several words keeps its small letters. */
 .trpg-relations-group {
 	margin: 0.7em 0 0.2em;
 	font-size: 0.8em;
 	font-weight: 600;
 	letter-spacing: 0.02em;
-	color: var(--tpc-muted-foreground, #888);
+	color: var(--trpg-ink, var(--tpc-foreground, #333));
 }
 .trpg-relations-group::first-letter {
 	text-transform: uppercase;
