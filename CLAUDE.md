@@ -340,7 +340,8 @@ the tiddler title:
   filters of the editor, listed in its header, see "Editor").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
-  tab "Recent"), see "Views"; `new-procedures` and `new-event` ("+" on the hubs) and
+  tab "Recent"), see "Views"; `hub-new` ("+" in the toolbar of a hub, `$:/tags/ViewToolbar`),
+  `new-procedures` and `new-event` (what it does) and
   `settings-editor` (a tab of the settings), see "Editor".
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`). `startup/symmetric.js`,
@@ -380,7 +381,7 @@ the tiddler title:
   one type scope filter for both tabs; a tab state per tiddler, like "Timeline"/"List" of
   `event-list/tabs` - `$:/state/` is neither synced nor saved), `secret` (marker of a secret above the title: whom it is
   for), `player`
-  (the field `player` of any figure), `hub-new` ("+" on a hub, see "Editor"). Order via
+  (the field `player` of any figure). Order via
   `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-sections` (cascade, see below), `body-filter-quest` (a quest or rumour, see
   "Quests").

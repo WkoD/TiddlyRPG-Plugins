@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261017162217509
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/editor
 type: text/vnd.tiddlywiki
@@ -7,7 +7,7 @@ type: text/vnd.tiddlywiki
 \rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
 /* The controls of the editor (editor/procedures): the toolbar buttons in the accent colour, the
    dropdowns (editor/toolbar), the picker and its pills, the form (editor/form, editor/fields), "+"
-   on the hubs (viewtemplates/hub-new), renaming a rumour (templates/quest-body).
+   on the hubs (ui/hub-new), renaming a rumour (templates/quest-body).
    One system of controls:
      choose    .trpg-pick-pill - the colour of its type (--trpg-kind); .trpg-off only the outline;
                .trpg-warn yellow (a new name, a name written almost alike); .trpg-neutral grey
@@ -314,26 +314,16 @@ button.trpg-pill-x:hover {
 	gap: 0.4em;
 }
 
-/* "+" on the hubs, in the accent colour like the toolbar */
-.trpg-hub-new {
-	margin-bottom: 0.4em;
+/* "+" on the hubs (ui/hub-new): a button of the tiddler toolbar like the others, in the colour
+   the palette gives "+" in the sidebar (toolbar-new-button; none in Vanilla); hovered and opened
+   like its neighbours */
+.tc-tiddler-controls svg.tc-image-new-button {
+	fill: <<colour toolbar-new-button>>;
 }
-button.trpg-hub-plus {
-	background-color: color-mix(in srgb, var(--trpg-accent) 20%, var(--tpc-tiddler-background, #fff));
-	fill: var(--trpg-accent);
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--trpg-accent) 45%, transparent);
-	border-radius: 4px;
-	padding: 2px 4px;
-	line-height: 1;
-}
-button.trpg-hub-plus:hover,
-button.trpg-hub-plus.tc-selected {
-	background-color: var(--trpg-accent);
-	fill: var(--trpg-on-accent);
-}
-button.trpg-hub-plus svg {
-	width: 1.1em;
-	height: 1.1em;
+/* Its date dropdown (ui/new-event) in the size of the page like the dropdowns of the editor, not
+   in that of the title, so the placeholder fits */
+.tc-tiddler-controls .trpg-editor-dropdown {
+	font-size: {{$:/themes/tiddlywiki/vanilla/metrics/fontsize}};
 }
 
 /* Renaming a rumour: the names that contain the text, those written almost alike */

@@ -2,7 +2,7 @@
  * The editor in the wiki: which toolbar buttons show for which draft (editor/toolbar), the text
  * operations in the edit-text widget (editor/operation.js), the picker and what the view sees of
  * it (editor/procedures), the kinds in the search ($:/core/ui/DefaultSearchResultList), "New" in
- * the sidebar and on the hubs (ui/new-*, viewtemplates/hub-new), "Create quest" with the player
+ * the sidebar and in the toolbar of the hubs (ui/new-*, ui/hub-new), "Create quest" with the player
  * characters chosen and the names while renaming a rumour (templates/quest-body).
  */
 var test = require("node:test"),
@@ -148,7 +148,7 @@ test.describe("the kinds in the search", function() {
 });
 
 test.describe("new tiddlers", function() {
-	test("+ on the hubs of the types, only in the editable wiki; items and categories offer the base types, events ask for the date", function() {
+	test("+ in the toolbar of the hubs of the types, only in the editable wiki; items and categories offer the base types, events ask for the date", function() {
 		// A plain "+" on Location, a "+" with a dropdown (popup) on Item, a category and Event
 		var plus = function(hub) { return (h.view(wiki, hub).match(/<button[^>]*trpg-hub-plus[^>]*>/) || [""])[0]; };
 		assert.match(plus("Location"), /title="Neu: Ort"/);
@@ -156,10 +156,17 @@ test.describe("new tiddlers", function() {
 		["Item", "Book", "Event"].forEach(function(hub) {
 			assert.match(plus(hub), /aria-expanded="false"/, hub);
 		});
-		assert.doesNotMatch(h.view(wiki, "Baile"), /trpg-hub-new/);
+		// In the toolbar after "more", before edit and close, not in the body
+		var hub = h.view(wiki, "Location"),
+			controls = hub.slice(hub.indexOf("tc-tiddler-controls"), hub.indexOf("tc-tiddler-body"));
+		assert.match(controls, /<button[^>]*class="[^"]*tc-btn-%24%3A%2Fplugins%2Ftiddlyrpg-core%2Fui%2Fhub-new trpg-hub-plus"[^>]*>/);
+		assert.ok(controls.indexOf("more-tiddler-actions") < controls.indexOf("trpg-hub-plus"));
+		assert.ok(controls.indexOf("trpg-hub-plus") < controls.indexOf("Buttons%2Fedit"));
+		assert.doesNotMatch(hub.slice(hub.indexOf("tc-tiddler-body")), /trpg-hub-plus/);
+		assert.doesNotMatch(h.view(wiki, "Baile"), /trpg-hub-plus/);
 		assert.match(h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/new-event}}", {"trpg-input": "$:/temp/e"}), /Datum.*Anlegen/);
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
-		assert.doesNotMatch(h.view(wiki, "Location"), /trpg-hub-new/);
+		assert.doesNotMatch(h.view(wiki, "Location"), /trpg-hub-plus/);
 		wiki.deleteTiddler("$:/status/IsReadOnly");
 		assert.equal(wiki.getTiddler("$:/plugins/tiddlyrpg-core/ui/new-typed"), undefined, "no New in the sidebar");
 	});

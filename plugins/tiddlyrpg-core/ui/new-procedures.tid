@@ -1,22 +1,32 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261017162026260
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/ui/new-procedures
 type: text/vnd.tiddlywiki
 
-<!-- "+" on the hub of a type (viewtemplates/hub-new): a new draft with the type tag and nothing
-     else - the form in the editor shows the fields the type expects (editor/form). An event asks
-     for its date first (ui/new-event) and starts with the field date and <<date>> at the start of
-     the text. Items (the hub Item) and a category of items (tag $:/tags/tiddlyrpg/ItemKind, never
-     alone, items/base) offer the base types as a plain list. Only in the editable wiki. -->
+<!-- "+" in the toolbar of the hub of a type (ui/hub-new), a button like the others of the toolbar
+     (tv-config-toolbar-class, icon and text as the toolbar shows them): a new draft with the type
+     tag and nothing else - the form in the editor shows the fields the type expects (editor/form).
+     An event asks for its date first (ui/new-event) and starts with the field date and <<date>> at
+     the start of the text. Items (the hub Item) and a category of items (tag
+     $:/tags/tiddlyrpg/ItemKind, never alone, items/base) offer the base types as a plain list. Only
+     in the editable wiki. -->
 \procedure trpg.newbutton(type)
 \whitespace trim
 <$let trpg-popup=<<qualify "$:/state/popup/tiddlyrpg/new">>
 	trpg-hint={{{ [[New/Hub]trpgtranslate[]addsuffix[ ]] [<type>trpgtitle[]] +[join[]] }}}
-	trpg-kind={{{ [<type>tag[$:/tags/tiddlyrpg/ItemKind]then[yes]] }}}>
+	trpg-kind={{{ [<type>tag[$:/tags/tiddlyrpg/ItemKind]then[yes]] }}}
+	trpg-class={{{ [<tv-config-toolbar-class>] [[trpg-hub-plus]] +[join[ ]] }}}>
 <%if [<type>match[Event]] [<type>match[Item]] [<trpg-kind>match[yes]] +[limit[1]] %>
 <span class="tc-popup-keep">
-<$button popup=<<trpg-popup>> class="tc-btn-invisible trpg-hub-plus" tooltip=<<trpg-hint>> aria-label=<<trpg-hint>> selectedClass="tc-selected">{{$:/core/images/new-button}}</$button>
+<$button popup=<<trpg-popup>> class=<<trpg-class>> tooltip=<<trpg-hint>> aria-label=<<trpg-hint>> selectedClass="tc-selected">
+<%if [<tv-config-toolbar-icons>match[yes]] %>
+{{$:/core/images/new-button}}
+<%endif%>
+<%if [<tv-config-toolbar-text>match[yes]] %>
+<span class="tc-btn-text"><$text text=<<trpg-hint>>/></span>
+<%endif%>
+</$button>
 </span>
 <$reveal state=<<trpg-popup>> type="popup" position="belowleft" animate="yes">
 <div class="tc-drop-down tc-popup-keep">
@@ -39,9 +49,14 @@ type: text/vnd.tiddlywiki
 </div>
 </$reveal>
 <%else%>
-<$button class="tc-btn-invisible trpg-hub-plus" tooltip=<<trpg-hint>> aria-label=<<trpg-hint>>>
+<$button class=<<trpg-class>> tooltip=<<trpg-hint>> aria-label=<<trpg-hint>>>
 <$action-sendmessage $message="tm-new-tiddler" tags={{{ [<type>format:titlelist[]] }}}/>
+<%if [<tv-config-toolbar-icons>match[yes]] %>
 {{$:/core/images/new-button}}
+<%endif%>
+<%if [<tv-config-toolbar-text>match[yes]] %>
+<span class="tc-btn-text"><$text text=<<trpg-hint>>/></span>
+<%endif%>
 </$button>
 <%endif%>
 </$let>

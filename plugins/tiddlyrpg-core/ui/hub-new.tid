@@ -1,0 +1,18 @@
+caption: {{$:/core/images/new-button}} <<trpg.t New/Button>>
+created: 20261017162026260
+description: <<trpg.t New/Button/Hint>>
+list-after: $:/core/ui/Buttons/more-tiddler-actions
+modified: 20261017162421259
+tags: $:/tags/ViewToolbar
+title: $:/plugins/tiddlyrpg-core/ui/hub-new
+type: text/vnd.tiddlywiki
+
+<!-- "+" in the toolbar of the hub of a type (a type tag, modules/types.js), beside edit and close,
+     like "+" in the sidebar: a new tiddler of that type (procedure trpg.newbutton,
+     ui/new-procedures). Only in the editable wiki; shows no titles. -->
+\whitespace trim
+<%if [{$:/status/IsReadOnly}!match[yes]] %>
+<%if [trpgtypelist[]match<currentTiddler>] %>
+<$transclude $variable="trpg.newbutton" type=<<currentTiddler>>/>
+<%endif%>
+<%endif%>

@@ -80,8 +80,9 @@ A tour for the DM and the players. The sections after it hold the details.
 
 **Writing** (in the editable wiki, `npm start`):
 
-- A new tiddler: "+" on the hub of its type. The form below the text offers the fields of the
-  type; the buttons of the toolbar set dates, quest markers, spots and locks (see "Editing").
+- A new tiddler: "+" beside edit and close on the hub of its type. The form below the text
+  offers the fields of the type; the buttons of the editor toolbar set dates, quest markers,
+  spots and locks (see "Editing").
 - Links: `[[Title]]`, or `[[shown text|Title]]`.
 - Who belongs to whom: relation fields on the dependent - the member names its organisation,
   the child its parent (see "Relations").
@@ -831,9 +832,9 @@ in the editor writes the other end too, takes it out there too and follows a ren
 off under ControlPanel -> Settings -> TiddlyRPG -> Editor. Files written by hand still need
 both ends.
 
-**New tiddlers:** "+" on the hub of a type opens a draft of that type; an event asks for its
-date first, an item or a category for the base type. A name that another tiddler has, in any
-case, is refused with a red line where it is typed (sub-location, rumour).
+**New tiddlers:** "+" beside edit and close on the hub of a type opens a draft of that type; an
+event asks for its date first, an item or a category for the base type. A name that another
+tiddler has, in any case, is refused with a red line where it is typed (sub-location, rumour).
 
 **Search:** switches of the kinds above the hits choose what to show - none chosen is all; the
 link button of the editor shows them too.

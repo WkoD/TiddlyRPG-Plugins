@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261016214011000
+modified: 20261017162026260
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -181,6 +181,8 @@ Map/EditDone: Bearbeiten beenden
 Map/Fit: Karte einpassen
 Map/Quests/Empty: Keine offenen Quests oder Gerüchte führen hierher.
 Map/Tab: Karte
+New/Button: neu von diesem Typ
+New/Button/Hint: Einen neuen Tiddler vom Typ dieses Hubs anlegen (nur auf dem Hub eines Typs)
 New/Create: Anlegen
 New/Hub: Neu:
 Number/Decimal: ,
