@@ -45,6 +45,49 @@ Lock only with `Secret`, `<<secret>>` and `<$secret>`. Asking the view itself (`
 `$:/state/tiddlyrpg/view`) is for the frame of the page only: the page control, the page class,
 the sidebar.
 
+## New features - what else to check
+
+Beside the four questions of "Visibility", every plan of a new feature or of a change to an
+existing one goes through this list. A point that does not apply is left out with a word why.
+
+- **Messages:** does the feature need a new check message, or does it change one (its condition,
+  its text, its level)? Rule, keys, README table, tests: see "Checks". A message that reports a
+  missing field names it in `missing`. The messages of the editor (`Editor/Error/*`, the
+  notifications) count too.
+- **Translation:** every text a reader sees in every language pack (`test/lang/packs.test.js`),
+  see "Language system".
+- **README:** what the DM and the players need to know of it, and the rows of its tables
+  ("Checks", fields, settings). See "Documentation - who covers what".
+- **Creating a tiddler:** what "+" on the hub of the type asks first (`ui/new-procedures`,
+  `ui/new-event`) and what the form shows (`$:/config/tiddlyrpg/form/<type>`): a field whose
+  absence a check reports goes into `list`, so the form shows it on a new tiddler; another field
+  of the type goes into `more`. Fixes that create a tiddler (`create`, see "Checks").
+- **Type colour:** a feature for a type shows in the colour of its hub (field `color`; pills
+  through `trpg.pill`, CSS through the variable the template sets, like `--trpg-location`),
+  never a literal.
+- **Published copy** (`$:/status/IsReadOnly`): no button that changes something, inputs
+  disabled, no messages below the title; `styles/readonly` for core buttons. A test in both.
+- **Relink:** a new field or macro parameter that names a title gets its relink configuration,
+  or renaming the title breaks it (see "Contents", "Relations", "Dates", "Locations").
+- **Relations and graph:** a new relation field gets its type (`tiddlyrpg-targets`, axis,
+  symmetric or not), its edge type and its place in the form; see "Relations" and "Graph
+  configuration - what lives where".
+- **Refresh:** the output follows a change of the wiki language, the view
+  (`visibility.watched`) and the rules settings; texts through filtered attributes, not JS
+  macros (see "Language system").
+- **`check-wiki.js`:** a new rule shows in the report too - a theme, a rule that needs the files
+  of the wiki (`checks.setFolder()`), new switches; `test/check-wiki.test.js`.
+- **Settings and toolbars:** a switch belongs under ControlPanel -> Settings -> TiddlyRPG (tag
+  `$:/tags/tiddlyrpg/SettingsTab`) with a default that works without it; a button of a toolbar
+  gets `caption` and `description`, so ControlPanel -> Appearance -> Toolbars lists it.
+- **This file:** the inventory ("Contents") and the list of test topics ("Editing the format
+  layer") name the new files and tests; the header comment of a file says what it does.
+- **Version, release notes, migration:** a feature raises minor, a fix patch; what
+  breaks an existing wiki (a field, tag, macro or format renamed or gone) is a major change, a
+  line of its own in the release notes (see "Publishing a new version") and, from 2.0.0 on, a
+  migration script that brings a wiki to the new form - planned with the feature, not after it.
+  None exists yet; where they live and how they run is decided with the first.
+
 ## Editing the format layer
 
 `tiddlyrpg-core` and `staticfiles` are **folder plugins** under `plugins/` (no build step - the
