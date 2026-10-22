@@ -1,0 +1,17 @@
+created: 20261022165648795
+modified: 20261022165648795
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/content
+type: text/css
+
+/* Content packages (modules/content.js): the box of a missing tiddler a package offers
+   (viewtemplates/content-missing) - a light frame, the text and the button in one line */
+.trpg-content-offer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6em;
+	padding: 0.4em 0.7em;
+	border: 1px dashed var(--tpc-muted-foreground, #999);
+	border-radius: 6px;
+}

@@ -233,7 +233,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     (no base, another type, an id twice, a `for` to nowhere, a cycle)
   - `content` - content packages: found in node_modules (scoped too), a package for a newer core
     left out, the route (index without texts, entry, 403, 404, the ruleset as filter, an id that
-    names a path)
+    names a path); in the browser the titles (taken, another type, a shadow, a locked tiddler),
+    the fields to take, what an entry names that the wiki lacks, the offer on a missing tiddler,
+    nothing without a package
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
     with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
     the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
@@ -382,7 +384,13 @@ the tiddler title:
   `<wiki>/node_modules` (`package.json` -> `"tiddlyrpg": {"content": [...]}`, their manifests
   and entry files: module header), `server/content-route.js` (`module-type: route`) serves
   `/tiddlyrpg/content/index.json` and `.../entry.json` - only to who may write; an id is only
-  looked up, never a path.
+  looked up, never a path. In the browser `startup/content.js` loads the index of the active
+  ruleset into `$:/temp/tiddlyrpg-core/content/index` (empty without a server of the wiki or
+  the right to write) and takes an entry on `tm-trpg-content-take`; `modules/content.js` (its
+  header) decides the titles - what is in the wiki wins, another type gets "Title (Type)" in the
+  language of the package - and turns an entry into fields (`currency.fromRules()` for the
+  price). Every part of the packages hangs on `trpg.content` (`trpgcontentready`): without a
+  package nothing shows. `viewtemplates/content-missing`: the offer on a missing tiddler.
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one

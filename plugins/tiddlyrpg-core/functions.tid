@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261022161612307
+modified: 20261022165648795
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -12,6 +12,10 @@ type: text/vnd.tiddlywiki
      one tagged Secret: that only the DM and the players of the player characters it is tagged
      with (modules/visibility.js). -->
 \function trpg.visible() [trpgvisible[]]
+
+<!-- Content packages: "yes" if a package of the active ruleset is loaded (modules/content.js) -
+     the condition of every part of them; without one nothing of them shows -->
+\function trpg.content() [trpgcontentready[]]
 
 <!-- Deceased/destroyed: the date field ends (last section a range with an end other than
      "..", modules/dates.js). Events excluded - their sections are points and spans in time. -->

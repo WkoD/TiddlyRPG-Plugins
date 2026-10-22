@@ -112,3 +112,80 @@ test("the path of the route", function() {
 	assert.ok(!route.path.test("/tiddlyrpg/content/../x.json"));
 	assert.equal(route.methods.join(), "GET");
 });
+
+test.describe("in the browser: the offers of the index", function() {
+	var wiki, offers;
+
+	function index(packages) {
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/content/index", type: "application/json", text: JSON.stringify({ruleset: RULESET, packages: packages})});
+	}
+
+	var PKG = {name: "SRD mini", language: "en-GB", source: "SRD 5.1", entries: [
+		{id: "longsword", title: "Longsword", type: "Item", tags: ["Equipment"], fields: {category: "weapon, martial", price: 15, weight: "3 lb"}},
+		{id: "book", title: "Book", type: "Item", fields: {price: 25}},
+		{id: "balor", title: "Balor", type: "Creature", fields: {}},
+		{id: "frost", title: "Frost Brand", type: "Item", fields: {base: "Longsword", spells: "Fireball [[Cone of Cold]]"}},
+		{id: "fireball", title: "Fireball", type: "Spell", fields: {level: "3"}},
+		{id: "hidden", title: "Geheimnis", type: "Item", fields: {}}
+	]};
+
+	test.before(function() {
+		wiki = $tw.wiki;
+		offers = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content.js");
+		h.setLanguage(wiki, "de-DE");
+		h.add(wiki, {title: "Balor", tags: "Person", text: "A man."});
+		h.add(wiki, {title: "Geheimnis", tags: "Item Secret", text: "Locked."});
+		index([PKG]);
+	});
+
+	test.after(function() {
+		["Balor", "Geheimnis", "$:/temp/tiddlyrpg-core/content/index"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
+	test("titles: free as it is; taken under the same type; another type with the type of the language of the package", function() {
+		var titles = offers.offers(wiki).map(function(o) { return o.title; });
+		assert.ok(titles.indexOf("Longsword") !== -1);
+		assert.ok(titles.indexOf("Book (Item)") !== -1, "the hub Book of the core is a shadow - it wins");
+		assert.ok(titles.indexOf("Balor (Creature)") !== -1, "the person Balor wins");
+		assert.equal(titles.indexOf("Geheimnis"), -1, "a locked tiddler of the same title and type: taken - nothing tells it");
+		h.add(wiki, {title: "Longsword", tags: "Item", text: "Ours."});
+		try {
+			assert.equal(offers.offer(wiki, "longsword"), null, "taken once it is there");
+		} finally {
+			wiki.deleteTiddler("Longsword");
+		}
+	});
+
+	test("the fields to take: type and tags, a price of the ruleset in the coins of the setting, the source", function() {
+		var o = offers.offer(wiki, "longsword"),
+			fields = offers.toFields(wiki, o.package, o.entry, o.title);
+		assert.equal(fields.tags.join(), "Item,Equipment");
+		assert.equal(fields.price, "15 gp");
+		assert.equal(fields.weight, "3 lb");
+		assert.equal(fields.source, "SRD 5.1");
+	});
+
+	test("what an entry names in base and spells that the wiki lacks, with its offer", function() {
+		var wanting = offers.wanting(wiki, {base: "Longsword", spells: "Fireball [[Cone of Cold]]"});
+		assert.deepEqual(wanting.map(function(w) { return w.title + ">" + w.id; }).join(), "Longsword>longsword,Fireball>fireball", "Cone of Cold has no offer");
+	});
+
+	test("filters and the box of a missing tiddler", function() {
+		assert.deepEqual(Array.from(h.filter(wiki, "[trpgcontentready[]]")), ["yes"]);
+		assert.deepEqual(Array.from(h.filter(wiki, "[[Book (Item)]trpgcontentfor[]]")), ["book"]);
+		var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/content-missing\" mode=\"block\"/>", {currentTiddler: "Fireball"});
+		assert.match(html, /SRD mini hat dies als Zauber/);
+		assert.match(html, /Übernehmen/);
+		assert.doesNotMatch(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/content-missing\" mode=\"block\"/>", {currentTiddler: "Balor"}), /Übernehmen/, "a tiddler that exists: no box");
+	});
+
+	test("without a package: nothing", function() {
+		index([]);
+		try {
+			assert.deepEqual(Array.from(h.filter(wiki, "[trpgcontentready[]]")), []);
+			assert.doesNotMatch(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/content-missing\" mode=\"block\"/>", {currentTiddler: "Fireball"}), /Übernehmen/);
+		} finally {
+			index([PKG]);
+		}
+	});
+});
