@@ -1,0 +1,16 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Skill
+type: application/json
+
+{
+    "domain": "Skill",
+    "type": "label",
+    "keys": "Rules/Skill/",
+    "entries": [
+        {"id": "perception", "ability": "wis"},
+        {"id": "stealth", "ability": "dex"}
+    ],
+    "example": "stealth"
+}

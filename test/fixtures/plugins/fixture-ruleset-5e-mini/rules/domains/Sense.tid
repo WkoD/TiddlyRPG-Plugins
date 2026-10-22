@@ -1,0 +1,16 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Sense
+type: application/json
+
+{
+    "domain": "Sense",
+    "type": "label",
+    "keys": "Rules/Sense/",
+    "entries": [
+        {"id": "darkvision"},
+        {"id": "passive-perception"}
+    ],
+    "example": "darkvision 60 ft"
+}

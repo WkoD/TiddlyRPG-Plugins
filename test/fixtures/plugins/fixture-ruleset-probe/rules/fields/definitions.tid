@@ -1,0 +1,20 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields
+type: application/json
+
+{
+    "definitions": {
+        "level": {"format": "number", "min": -1, "max": 25},
+        "rank": {"format": "number", "min": 1, "max": 10},
+        "traits": {"format": "labels", "domain": "Traits"},
+        "save": {"format": "label", "domain": "Saves"},
+        "bulk": {"format": "dice", "domain": "Bulk"},
+        "damage": {"format": "damage"},
+        "proficiency": {"format": "number", "signed": true, "derive": {"kind": "sum", "parts": [{"field": "level"}, {"number": 2}]}},
+        "ac": {"format": "number"},
+        "fortitude": {"format": "number", "signed": true},
+        "reflex": {"format": "number", "signed": true}
+    }
+}

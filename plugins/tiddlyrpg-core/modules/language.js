@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/language.js
 type: application/javascript
 module-type: library
 created: 20261001095424000
-modified: 20261016184211000
+modified: 20261022141507011
 
 Language lookup for the display texts of tiddlyrpg-core. Keys live as tiddlers
 $:/tiddlyrpg/language/<code>/<key>; the active code follows $:/language. Missing keys fall back
@@ -220,9 +220,14 @@ var rulesLang = exports.rulesLang = function(wiki,domain) {
 	return lang(wiki);
 };
 
-// Translation of a key of a domain in its display language, then en-GB, or null
-exports.lookupRules = function(wiki,domain,key) {
-	var codes = [rulesLang(wiki,domain)];
+// The language code a group (ruleset, setting) shows a text in that belongs to no domain - the
+// name of a field of the schema: the language of the mode "all", else the wiki language
+var groupLang = exports.groupLang = function(wiki,group) {
+	return (config(wiki,group + "/mode") === "all" && config(wiki,group + "/language")) || lang(wiki);
+};
+
+function inCodes(wiki,code,key) {
+	var codes = [code];
 	if(codes[0] !== BASE) {
 		codes.push(BASE);
 	}
@@ -233,6 +238,16 @@ exports.lookupRules = function(wiki,domain,key) {
 		}
 	}
 	return null;
+}
+
+// Translation of a key of a domain in its display language, then en-GB, or null
+exports.lookupRules = function(wiki,domain,key) {
+	return inCodes(wiki,rulesLang(wiki,domain),key);
+};
+
+// Translation of a key of a group in its language (groupLang), then en-GB, or null
+exports.lookupGroup = function(wiki,group,key) {
+	return inCodes(wiki,groupLang(wiki,group),key);
 };
 
 // The language codes that have keys: all, or those with a key starting with the prefix

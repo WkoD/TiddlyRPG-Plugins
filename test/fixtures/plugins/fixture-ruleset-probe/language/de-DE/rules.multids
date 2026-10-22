@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009190000000
+modified: 20261022140929737
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Fillers: Schaden
@@ -18,6 +18,18 @@ Rules/Domain/Damage: Schaden
 Rules/Domain/Dice: Würfel
 Rules/Domain/Saves: Rettungswürfe
 Rules/Domain/Traits: Merkmale
+Rules/Field/ac: RK
+Rules/Field/bulk: Traglast
+Rules/Field/damage: Schaden
+Rules/Field/fortitude: Zäh
+Rules/Field/level: Stufe
+Rules/Field/proficiency: Übung
+Rules/Field/rank: Rang
+Rules/Field/reflex: Ref
+Rules/Field/save: Verteidigung
+Rules/Field/traits: Merkmale
+Rules/Group/defenses: Verteidigung
+Rules/Summary/Spell: Zauber $rank$
 Rules/System/Name: Fixture probe
 Rules/Term/concentrate: Konzentration
 Rules/Term/fortitude: Zähigkeit

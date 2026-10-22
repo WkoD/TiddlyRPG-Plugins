@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009190000000
+modified: 20261022140929737
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Fillers: damage
@@ -18,6 +18,18 @@ Rules/Domain/Damage: Damage
 Rules/Domain/Dice: Dice
 Rules/Domain/Saves: Saves
 Rules/Domain/Traits: Traits
+Rules/Field/ac: AC
+Rules/Field/bulk: Bulk
+Rules/Field/damage: Damage
+Rules/Field/fortitude: Fort
+Rules/Field/level: Level
+Rules/Field/proficiency: Proficiency
+Rules/Field/rank: Rank
+Rules/Field/reflex: Ref
+Rules/Field/save: Defense
+Rules/Field/traits: Traits
+Rules/Group/defenses: Defenses
+Rules/Summary/Spell: Spell $rank$
 Rules/System/Name: Fixture probe
 Rules/Term/concentrate: concentrate
 Rules/Term/fortitude: Fortitude

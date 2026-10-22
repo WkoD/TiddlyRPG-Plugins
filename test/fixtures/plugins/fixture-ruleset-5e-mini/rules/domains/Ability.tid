@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261011172757439
+modified: 20261022140929737
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Ability
 type: application/json
@@ -11,6 +11,9 @@ type: application/json
     "entries": [
         {
             "id": "str"
+        },
+        {
+            "id": "dex"
         },
         {
             "id": "wis"

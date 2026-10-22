@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022135715693
+modified: 20261022140929737
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -62,6 +62,9 @@ Rules/Category/crystal: Kristall
 Rules/Term/common: gewöhnlich
 Rules/Term/rare: selten
 Rules/Term/tiny: winzig
+Rules/Term/dex: GES
+Rules/Term/dex/name: Geschicklichkeit
+Rules/Term/dex/save: GES-Rettungswurf
 Rules/Token/die: W
 Rules/Unit/System: metric
 Rules/Unit/cm: cm
@@ -81,6 +84,9 @@ Rules/Domain/Volume: Volumen
 Rules/Domain/ItemCategory: Gegenstandsart
 Rules/Domain/Rarity: Seltenheit
 Rules/Domain/Size: Größe
+Rules/Domain/Challenge: Herausforderungsgrad
+Rules/Domain/Skill: Fertigkeiten
+Rules/Domain/Sense: Sinne
 Rules/Unit/ft3: ft³
 Rules/Unit/ft3/Parse: Kubikfuß
 Rules/Unit/m3: m³
@@ -94,3 +100,42 @@ Rules/Unit/minute/Parse: Minuten, Min.
 Rules/Unit/hour: Stunde
 Rules/Unit/hour/Plural: Stunden
 Rules/Unit/hour/Parse: Stunden, Std.
+Rules/Skill/perception: Wahrnehmung
+Rules/Skill/stealth: Heimlichkeit
+Rules/Sense/darkvision: Dunkelsicht
+Rules/Sense/passive-perception: passive Wahrnehmung
+Rules/Field/category: Art
+Rules/Field/rarity: Seltenheit
+Rules/Field/attunement: Einstimmung
+Rules/Field/damage: Schaden
+Rules/Field/bonus: Bonus
+Rules/Field/ac: Rüstungsklasse
+Rules/Field/weight: Gewicht
+Rules/Field/range: Reichweite
+Rules/Field/healing: Heilung
+Rules/Field/level: Stufe
+Rules/Field/level/spell: Zaubergrad
+Rules/Field/ritual: Ritual
+Rules/Field/duration: Wirkungsdauer
+Rules/Field/concentration: Konzentration
+Rules/Field/size: Größe
+Rules/Field/hp: Trefferpunkte
+Rules/Field/str: STR
+Rules/Field/dex: GES
+Rules/Field/wis: WEI
+Rules/Field/cr: Herausforderungsgrad
+Rules/Field/proficiency: Übungsbonus
+Rules/Field/xp: EP
+Rules/Field/saves: Rettungswürfe
+Rules/Field/skills: Fertigkeiten
+Rules/Field/expertise: Expertise
+Rules/Field/senses: Sinne
+Rules/Group/weapon: Waffe
+Rules/Group/armor: Rüstung
+Rules/Group/abilities: Attribute
+Rules/Ordinal/1: 1.
+Rules/Ordinal/2: 2.
+Rules/Ordinal/3: 3.
+Rules/Summary/Spell: Zauber $level.ordinal$ Grades $ritual.flag$
+Rules/Summary/Cantrip: Zaubertrick $ritual.flag$
+Rules/Summary/Ritual: (Ritual)

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261016214011000
+modified: 20261022141507011
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -51,7 +51,6 @@ both in step.
 "use strict";
 
 var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	typeTags = require("$:/plugins/tiddlyrpg-core/modules/types.js");
 
 var GENERAL = exports.GENERAL = ["date","player","price","image","map"],
@@ -78,17 +77,9 @@ var known = exports.known = function(wiki) {
 	});
 };
 
+// The type tags of a tiddler (modules/types.js of())
 var types = exports.types = function(wiki,title) {
-	var tiddler = wiki.getTiddler(title),
-		all = typeTags.list(wiki),
-		out = [];
-	$tw.utils.each(tiddler ? tiddler.fields.tags || [] : [],function(tag) {
-		var name = language.internalTitle(wiki,tag);
-		if(all.indexOf(name) !== -1 && out.indexOf(name) === -1) {
-			out.push(name);
-		}
-	});
-	return out;
+	return typeTags.of(wiki,title);
 };
 
 // The fields of the configs of the types of <title> in <name> (list or more); null if no type has

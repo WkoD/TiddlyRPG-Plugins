@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261022134915205
+modified: 20261022141507011
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -749,7 +749,8 @@ The value of a field by its definition (spec, modules/fields.js): spec.format is
   damage   a damage expression
   dice     diceValue(), spec.domain a tokens domain
   label    one entry (modules/labels.js), spec.domain, spec.only
-  labels   a list (modules/labels.js), spec.domain (a name or a list), spec.only, spec.value
+  labels   a list (modules/labels.js), spec.domain (a name or a list), spec.only, spec.value,
+           spec.values
   number   spec.min, spec.max
   boolean  yes or no
   text     shown as written, never checked

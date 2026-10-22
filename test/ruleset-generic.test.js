@@ -111,3 +111,37 @@ test.describe("en-GB", function() {
 		assert.equal(r.problem, "Rules/Check/NoRules");
 	});
 });
+
+test.describe("fields of the probe", function() {
+	var fields;
+
+	test.before(function() {
+		fields = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/fields.js");
+		h.setLanguage(wiki, "de-DE");
+	});
+
+	test("its own fields per type, a group of its own", function() {
+		assert.equal(fields.forTypes(wiki, ["Creature"]).fields.join(), "level,traits,proficiency,ac,fortitude,reflex");
+		assert.equal(fields.forTypes(wiki, ["Creature"]).groups[0].id, "defenses");
+		assert.equal(fields.label(wiki, "fortitude"), "Zäh");
+		assert.equal(fields.spec(wiki, "str"), null, "no field of the other ruleset");
+	});
+
+	test("proficiency by level, a formula of its own", function() {
+		assert.equal(fields.read(wiki, {level: "5"}, "proficiency").text, "+7");
+		assert.equal(fields.read(wiki, {level: "5", proficiency: "+9"}, "proficiency").text, "+9");
+	});
+
+	test("values in its domains: traits, a save, bulk", function() {
+		assert.equal(fields.read(wiki, {traits: "magical, concentrate"}, "traits").text, "magisch, Konzentration");
+		assert.equal(fields.read(wiki, {save: "reflex"}, "save").text, "Reflex");
+		assert.equal(fields.read(wiki, {bulk: "L"}, "bulk").problem, null);
+	});
+
+	test("the header line of a spell", function() {
+		var schema = fields.forTypes(wiki, ["Spell"]);
+		assert.equal(fields.summary(wiki, {rank: "3"}, schema).text, "Zauber 3");
+		h.setLanguage(wiki, "en-GB");
+		assert.equal(fields.summary(wiki, {rank: "3"}, schema).text, "Spell 3");
+	});
+});

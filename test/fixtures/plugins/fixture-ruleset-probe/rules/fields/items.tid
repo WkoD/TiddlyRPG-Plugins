@@ -1,0 +1,10 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields/items
+type: application/json
+
+{
+    "types": ["Item"],
+    "fields": ["level", "bulk", "traits", "damage"]
+}

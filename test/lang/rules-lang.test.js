@@ -205,7 +205,7 @@ test.describe("ruleset and setting set apart", function() {
 		assert.equal(f("[[Currency]trpgrulesgroup[]]"), "setting");
 		assert.equal(f("[[Gravity]trpgrulesgroup[]]"), "setting", "a domain without domain tiddler");
 		assert.equal(f("[trpgrulesdomains[setting]]"), "Calendar Currency");
-		assert.match(f("[trpgrulesdomains[ruleset]]"), /^Ability Damage Dice ItemCategory Length Rarity Size Terms Time Volume Weight$/);
+		assert.match(f("[trpgrulesdomains[ruleset]]"), /^Ability Challenge Damage Dice ItemCategory Length Rarity Sense Size Skill Terms Time Volume Weight$/);
 	});
 
 	test("a domain tiddler of the wiki: calendar and currency to the setting, the rest to the ruleset", function() {

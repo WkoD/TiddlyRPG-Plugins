@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261022135703721
+modified: 20261022141507011
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
@@ -157,12 +157,13 @@ function readItem(wiki,spec,domains,text) {
 	if(spec.only && spec.only.indexOf(item.id) === -1) {
 		item.problem = {key: "Rules/Check/Only", values: {text: text, only: spec.only.join(", ")}};
 	}
+	var valueSpec = (spec.values && spec.values[item.id]) || spec.value;
 	if(hit.rest) {
-		if(!spec.value) {
+		if(!valueSpec) {
 			item.problem = item.problem || {key: "Rules/Check/Label", values: {text: text}};
 		} else {
 			var rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
-				value = rules.value(wiki,spec.value,hit.rest);
+				value = rules.value(wiki,valueSpec,hit.rest);
 			item.value = hit.rest;
 			item.valueText = value.text;
 			if(value.problem && !item.problem) {
@@ -254,8 +255,9 @@ function tagOf(domain,items) {
 
 /*
 A list: items split at commas, each an entry of spec.domain (a name or a list of names) with an
-optional value after it (spec.value: the format of the value, modules/rules.js value()), limited to
-spec.only. Returns {text, problem, values, items, tag}.
+optional value after it (spec.value: the format of the value, modules/rules.js value(); spec.values:
+{"<id>": format} for single entries), limited to spec.only. Returns {text, problem, values, items,
+tag}.
 */
 exports.labels = function(wiki,spec,text) {
 	text = (text || "").toString().trim();

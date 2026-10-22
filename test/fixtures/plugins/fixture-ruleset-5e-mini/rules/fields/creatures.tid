@@ -1,0 +1,13 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields/creatures
+type: application/json
+
+{
+    "types": ["Creature"],
+    "fields": ["size", "ac", "hp", "str", "dex", "wis", "saves", "skills", "expertise", "senses", "cr", "proficiency", "xp"],
+    "groups": [
+        {"id": "abilities", "layout": "row", "fields": ["str", "dex", "wis"]}
+    ]
+}

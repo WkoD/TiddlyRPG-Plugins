@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261022135627402
+modified: 20261022140929737
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -23,6 +23,9 @@ Expected/Image: Check the fields: no image yet (field image)
 Expected/Map: Check the fields: no map yet (field map)
 Expected/Player: Check the fields: who plays this character? (field player)
 Expected/Text: Check the text: it has no text yet
+Fields/Reserved: Check the definition: $field$ is a field of the core or of a relation - name it otherwise
+Fields/Twice: Check the definition: $field$ is defined in $other$ already
+Fields/Undefined: Check the schema: $field$ has no definition
 Images/Image: Check the image: $path$ does not exist
 Images/Joined: Check the spot: $spot$ is joined to $target$ - its images and maps show there, set them in that tiddler
 Images/Macro: Check the text: <<image>> shows $path$, which does not exist

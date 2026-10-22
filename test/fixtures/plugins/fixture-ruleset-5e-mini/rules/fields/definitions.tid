@@ -1,0 +1,39 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields
+type: application/json
+
+{
+    "definitions": {
+        "category": {"format": "labels", "domain": "ItemCategory"},
+        "rarity": {"format": "label", "domain": "Rarity"},
+        "attunement": {"format": "boolean"},
+        "damage": {"format": "damage", "when": {"category": ["weapon"]}},
+        "bonus": {"format": "number", "signed": true},
+        "ac": {"format": "number", "derive": {"kind": "total", "parts": [{"field": "bonus"}]}},
+        "weight": {"format": "unit", "domain": "Weight"},
+        "range": {"format": "unit", "domain": "Length", "kind": "range"},
+        "healing": {"format": "dice", "derive": {"kind": "average"}},
+        "level": {"format": "number", "min": 0, "max": 9},
+        "ritual": {"format": "boolean"},
+        "duration": {"format": "unit", "domain": "Time"},
+        "concentration": {"format": "boolean"},
+        "size": {"format": "label", "domain": "Size"},
+        "hp": {"format": "dice", "derive": {"kind": "average"}},
+        "str": {"format": "number", "min": 1, "max": 30, "derive": {"kind": "modifier", "base": 10, "step": 2}},
+        "dex": {"format": "number", "min": 1, "max": 30, "derive": {"kind": "modifier", "base": 10, "step": 2}},
+        "wis": {"format": "number", "min": 1, "max": 30, "derive": {"kind": "modifier", "base": 10, "step": 2}},
+        "cr": {"format": "label", "domain": "Challenge"},
+        "proficiency": {"format": "number", "signed": true, "derive": {"kind": "lookup", "from": "cr", "column": "proficiency"}},
+        "xp": {"format": "number", "derive": {"kind": "lookup", "from": "cr", "column": "xp"}},
+        "saves": {"format": "labels", "domain": "Ability",
+            "value": {"format": "number", "signed": true, "derive": {"kind": "sum", "parts": [{"modifier": "$entry"}, {"field": "proficiency"}]}}},
+        "skills": {"format": "labels", "domain": "Skill",
+            "value": {"format": "number", "signed": true, "derive": {"kind": "sum", "parts": [{"modifier": "$entry.ability"}, {"field": "proficiency", "times": {"list": "expertise", "factor": 2}}]}}},
+        "expertise": {"format": "labels", "domain": "Skill"},
+        "senses": {"format": "labels", "domain": "Sense", "value": {"format": "unit", "domain": "Length"},
+            "values": {"passive-perception": {"format": "number"}},
+            "computed": {"passive-perception": {"kind": "sum", "parts": [{"number": 10}, {"entry": "skills", "id": "perception", "else": {"modifier": "wis"}}]}}}
+    }
+}

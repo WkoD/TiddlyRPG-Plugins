@@ -1,0 +1,17 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields/spells
+type: application/json
+
+{
+    "types": ["Spell"],
+    "fields": ["level", "ritual", "range", "duration", "concentration", "damage"],
+    "labels": {"level": "Rules/Field/level/spell"},
+    "summary": {
+        "key": "Rules/Summary/Spell",
+        "fields": ["level", "ritual"],
+        "byValue": {"level": {"0": "Rules/Summary/Cantrip"}},
+        "flags": {"ritual": "Rules/Summary/Ritual"}
+    }
+}

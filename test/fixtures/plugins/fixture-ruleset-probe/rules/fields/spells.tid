@@ -1,0 +1,11 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields/spells
+type: application/json
+
+{
+    "types": ["Spell"],
+    "fields": ["rank", "traits", "save", "damage"],
+    "summary": {"key": "Rules/Summary/Spell", "fields": ["rank"]}
+}

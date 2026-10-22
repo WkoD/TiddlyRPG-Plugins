@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022135715693
+modified: 20261022140929737
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -62,6 +62,9 @@ Rules/Category/crystal: crystal
 Rules/Term/common: common
 Rules/Term/rare: rare
 Rules/Term/tiny: Tiny
+Rules/Term/dex: DEX
+Rules/Term/dex/name: Dexterity
+Rules/Term/dex/save: DEX save
 Rules/Token/die: d
 Rules/Unit/System: imperial
 Rules/Unit/cm: cm
@@ -81,6 +84,9 @@ Rules/Domain/Volume: Volume
 Rules/Domain/ItemCategory: Item category
 Rules/Domain/Rarity: Rarity
 Rules/Domain/Size: Size
+Rules/Domain/Challenge: Challenge
+Rules/Domain/Skill: Skills
+Rules/Domain/Sense: Senses
 Rules/Unit/ft3: ft³
 Rules/Unit/ft3/Parse: cubic feet, cubic foot, cu ft
 Rules/Unit/m3: m³
@@ -94,3 +100,42 @@ Rules/Unit/minute/Parse: minutes, min
 Rules/Unit/hour: hour
 Rules/Unit/hour/Plural: hours
 Rules/Unit/hour/Parse: hours, h
+Rules/Skill/perception: Perception
+Rules/Skill/stealth: Stealth
+Rules/Sense/darkvision: darkvision
+Rules/Sense/passive-perception: passive Perception
+Rules/Field/category: Category
+Rules/Field/rarity: Rarity
+Rules/Field/attunement: Attunement
+Rules/Field/damage: Damage
+Rules/Field/bonus: Bonus
+Rules/Field/ac: Armour Class
+Rules/Field/weight: Weight
+Rules/Field/range: Range
+Rules/Field/healing: Healing
+Rules/Field/level: Level
+Rules/Field/level/spell: Spell level
+Rules/Field/ritual: Ritual
+Rules/Field/duration: Duration
+Rules/Field/concentration: Concentration
+Rules/Field/size: Size
+Rules/Field/hp: Hit Points
+Rules/Field/str: STR
+Rules/Field/dex: DEX
+Rules/Field/wis: WIS
+Rules/Field/cr: Challenge
+Rules/Field/proficiency: Proficiency Bonus
+Rules/Field/xp: XP
+Rules/Field/saves: Saving Throws
+Rules/Field/skills: Skills
+Rules/Field/expertise: Expertise
+Rules/Field/senses: Senses
+Rules/Group/weapon: Weapon
+Rules/Group/armor: Armour
+Rules/Group/abilities: Abilities
+Rules/Ordinal/1: 1st
+Rules/Ordinal/2: 2nd
+Rules/Ordinal/3: 3rd
+Rules/Summary/Spell: $level.ordinal$-level spell $ritual.flag$
+Rules/Summary/Cantrip: cantrip $ritual.flag$
+Rules/Summary/Ritual: (ritual)

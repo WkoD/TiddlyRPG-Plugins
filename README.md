@@ -770,6 +770,7 @@ out every message of its level. An id that is no rule is a hint.
 | `expected/map` | hint | a location without map |
 | `expected/player` | hint | a player character without the field `player` |
 | `expected/text` | hint | a tiddler without text (not a quest, a tiddler with a file in `data`, a hub) |
+| `fields/schema` | error | a field of the rules with a name the core or a relation uses, a field defined twice, a schema that lists a field without definition (only `check-wiki.js`) |
 | `images/files` | error | a file in `image`, `map`, a spot or `<<image>>` that is not in `images/` (only `check-wiki.js`) |
 | `images/folder` | error | `<<image "...">>` in a tiddler without type and without `folder:` |
 | `images/unused` | hint | a file in the image folder of a type or in `images/map/` that no tiddler names (only `check-wiki.js`, the path of the file as title) |

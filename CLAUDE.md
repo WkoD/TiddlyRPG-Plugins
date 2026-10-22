@@ -220,7 +220,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     `½`), measures (`10 x 10 x 1 ft`), `ft³` as a volume, `0` in the unit of its pair, a domain
     without conversion (durations) with plural labels
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
-    values, qualifiers, another tokens domain - without code changes
+    values, qualifiers, another tokens domain, fields of its own (a group, a header line, a
+    formula of its own) - without code changes
   - `fields` - the values of fields by format (`rules.value()`, `modules/labels.js`): number,
     boolean, dice of a domain, unit with words and its domain, label, labels (a list, entries
     with a value, main entries with their traits and their tag, a trait without parent or
@@ -228,6 +229,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `rules-extension` - a label domain extended by a domain tiddler of the wiki
     (`"extends": true`): read, keys of the wiki, group of the base; the rule `plugins/domains`
     (no base, another type, an id twice, a `for` to nowhere, a cycle)
+  - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
+    with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
+    the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
+    lock; the rule `fields/schema` (a reserved name, a field defined twice, without definition)
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
     campaign setting with its hints, the whole row as click target, the note on an own calendar
     or currency (and that it wins over the setting); "Ruleset options" (rules language of the
@@ -357,8 +362,10 @@ the tiddler title:
   `checks.js` (see "Checks": the registry and the run of the rules), `labels.js` (values made of
   the entries of label domains: one, a list, entries with a value, main entries and their
   traits; `<<term>>` with several ids; the data problems of label domains - see "Rules
-  engine"), `types.js` (the type tags:
-  the hubs and the item categories of the campaign; `UNTYPED`: pages that need no type),
+  engine"), `fields.js` (the fields of the rules: definitions and schemas per type, labels,
+  derived values, the header line, `when`, `copyFrom()` - see "Rules engine"), `types.js`
+  (the type tags: the hubs and the item categories of the campaign, `of()` the types of a
+  tiddler; `UNTYPED`: pages that need no type),
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor").
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
@@ -646,7 +653,14 @@ Of each type one is active, chosen in
   schema. Label domains may hold main entries and traits and be extended by a campaign: the
   rules of reading, showing and uniqueness live in `modules/labels.js` (its header); the
   extensions are merged by `language.domains()`, their problems and those of the data are the
-  rule `plugins/domains`.
+  rule `plugins/domains`. Which fields a type has comes from the ruleset too: JSON tiddlers
+  tagged `$:/tags/tiddlyrpg/RulesFields`, the definitions once (`$:/tiddlyrpg/rules/fields`)
+  and schemas that list them per type, merged with those of the wiki (`modules/fields.js`, its
+  header; rule `fields/schema`). Derived values are data too (a modifier formula, a column of a
+  domain entry, a sum of parts) and read only fields of the tiddler itself; nothing derived is
+  stored, and no value is inherited - a base item gives its values once (`copyFrom()`). Labels
+  `Rules/Field/<field>` follow the display language of the field's domain, else
+  `language.lookupGroup()` of the ruleset.
 - **Hubs `Ruleset` and `CampaignSetting`** (`Ruleset.tid`, `CampaignSetting.tid`, each hidden
   from `Information` without its plugin): the name (`Rules/System/Name`, `Setting/Name` of the
   plugin), then per domain of the group (`trpgrulesdomains[ruleset|setting]`) the HTML table of

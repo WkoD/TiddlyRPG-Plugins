@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/types.js
 type: application/javascript
 module-type: library
 created: 20261015194805000
-modified: 20261016184211000
+modified: 20261022141507011
 
 The type tags: a tiddler tagged with one of them has a type. They are the hubs (tag Index: Person,
 Location, Organisation, Event, Quest, the item categories, ...) and the item categories of the
@@ -17,10 +17,14 @@ Campaign, the pinned start page.
   list(wiki)          the type tags, sorted (global cache)
   typed(wiki,title)   whether <title> has a type tag
   isType(wiki,title)  whether <title> is a type tag
+  of(wiki,title)      the type tags of a tiddler, also typed under a translated name (a draft
+                      not saved yet)
 
 \*/
 
 "use strict";
+
+var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 exports.UNTYPED = ["Campaign"];
 
@@ -40,4 +44,17 @@ exports.typed = function(wiki,title) {
 	return !!tiddler && (tiddler.fields.tags || []).some(function(tag) {
 		return types.indexOf(tag) !== -1;
 	});
+};
+
+exports.of = function(wiki,title) {
+	var tiddler = wiki.getTiddler(title),
+		all = list(wiki),
+		out = [];
+	$tw.utils.each(tiddler ? tiddler.fields.tags || [] : [],function(tag) {
+		var name = language.internalTitle(wiki,tag);
+		if(all.indexOf(name) !== -1 && out.indexOf(name) === -1) {
+			out.push(name);
+		}
+	});
+	return out;
 };

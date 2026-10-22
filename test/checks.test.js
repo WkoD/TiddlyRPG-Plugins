@@ -54,7 +54,7 @@ test.describe("registry", function() {
 
 	test("the themes are the first parts of the ids", function() {
 		var themes = Array.from(checks.themes());
-		["checks", "dates", "expected", "images", "items", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
+		["checks", "dates", "expected", "fields", "images", "items", "links", "locations", "macros", "plugins", "quests", "relations", "secrets", "sections", "spots", "types"].forEach(function(theme) {
 			assert.ok(themes.indexOf(theme) !== -1, theme);
 		});
 	});

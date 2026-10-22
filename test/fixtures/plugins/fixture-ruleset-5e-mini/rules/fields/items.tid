@@ -1,0 +1,14 @@
+created: 20261022140929737
+modified: 20261022140929737
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields/items
+type: application/json
+
+{
+    "types": ["Item", "Artifact"],
+    "fields": ["category", "rarity", "attunement", "damage", "range", "bonus", "ac", "weight", "healing"],
+    "groups": [
+        {"id": "weapon", "layout": "row", "fields": ["damage", "range"], "relations": ["base"], "when": {"category": ["weapon"]}},
+        {"id": "armor", "layout": "row", "fields": ["ac"], "when": {"category": ["armor"]}}
+    ]
+}
