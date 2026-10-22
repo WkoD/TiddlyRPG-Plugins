@@ -1,6 +1,6 @@
 {
   "name": "tiddlyrpg-plugins",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "license": "MIT",
   "description": "Plugin bundle for the TiddlyRPG repo family: tiddlyrpg-core (format layer) and staticfiles (dev server assets); D&D content lives in TiddlyRPG-DnD. Includes a minimal edition for the boot/smoke check (npm run smoke), the tests in test/ (npm test; language packs and translation alone: npm run test-lang).",
