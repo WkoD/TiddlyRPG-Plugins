@@ -114,10 +114,10 @@ test.describe("labels", function() {
 	test("main entries with their traits: order free, the tag of the main entry", function() {
 		var spec = {format: "labels", domain: "ItemCategory"},
 			r = v(spec, "versatile, weapon, melee, martial");
-		assert.equal(r.text, "Kriegswaffe, Nahkampf, vielseitig");
+		assert.equal(r.text, "Kriegswaffe (Nahkampf, vielseitig)");
 		assert.equal(r.tag, "Equipment");
 		assert.equal(v(spec, "armor, light").text, "leichte Rüstung");
-		assert.equal(v(spec, "weapon, light").text, "Waffe, leicht", "light without a variant for weapon");
+		assert.equal(v(spec, "weapon, light").text, "Waffe (leicht)", "light without a variant for weapon");
 		assert.equal(v(spec, "ammunition").tag, "Consumable");
 		assert.equal(v(spec, "weapon, ammunition").tag, "Equipment", "ammunition is a trait of the weapon here");
 	});

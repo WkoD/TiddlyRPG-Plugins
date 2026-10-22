@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022142450275
+modified: 20261022150508705
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -21,6 +21,8 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                  "computed" {"<entry>": derive}  entries of a labels field shown with their value
                            even when not written (senses: passive-perception)
                  "signed"  a number shown with its sign ("+6")
+                 "view": false  only in the editor, not in the block (expertise: it shows in
+                           the values of the skills already)
                A part of a sum: {"number": 10}, {"field": "proficiency"} (its value, written or
                derived), {"modifier": "wis"} (the modifier of that field), {"entry": "skills",
                "id": "perception", "else": part} (the value of an entry of a labels field); in
@@ -28,11 +30,20 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                of a skill); "times": {"list": "expertise", "factor": 2} multiplies a part when the
                entry stands in that list.
   schema       {"types": ["Item", ...], "fields": ["<field>", ...], "labels": {"<field>": "<key>"},
-                "groups": [{"id", "layout": "row"|"list", "fields": [...], "relations": [...],
-                "when": {...}}], "summary": {"key", "fields": [...], "byValue": {"<field>":
-                {"<value>": "<key>"}}, "flags": {"<field>": "<key>"}}}
+                "summary": {"key", "byValue": {"<field>": {"<value>": "<key>"}}, "flags":
+                {"<field>": "<key>"}}, "groups": [group, ...]}
                - per type which fields, in which order; several schemas of a type are merged,
                the ruleset's first, then the wiki's (a campaign adds fields).
+  group        {"id", "layout": "list"|"row"|"inline", "fields": [...], "combine": [{"fields":
+               [...], "key", "flags"}], "relations": [...], "when": {...}} - a section of the
+               block in the order of the groups, after the fields of no group (and the price,
+               unless a group names "price"): "list" a line per field, "row" a table (the
+               abilities), "inline" the lines in one line. A combine shows its fields in one
+               line under the label of the first (fill(): "1/4 (50 XP)").
+  patterns     (summary, combine) keys of the ruleset with $field$, $field.ordinal$
+               (Rules/Ordinal/<value>) and $field.flag$ (the key of flags when the field is yes);
+               a part in {...} falls away when a field in it is empty: "{$category$}{, $rarity$}
+               { $attunement.flag$}".
   "when" (definition or group): {"<field>": ["<value>", ...]} - offered and shown only while that
   field holds one of the values (an id of a labels field counts).
 
@@ -52,6 +63,8 @@ into a draft once - nothing stays linked.
   read(wiki,fields,field)     {text, problem, values, written, derived, items} of a field of a
                               tiddler (its fields as an object)
   summary(wiki,fields,schema) the header line, or ""; the fields it uses
+  fill(wiki,fields,key,flags) a pattern filled
+  line(wiki,fields,combine)   the text of a combine
   fits(wiki,fields,when,list) whether a "when" holds (list: the fields of the schema)
   copyFrom(wiki,draft,source) the values to copy: {field: value}, "secret-fields" included
   locked(fields)              the fields secret-fields locks: null, "all" or [fields]
@@ -443,40 +456,97 @@ value a field holds) with $field$ (the text of a field), $field.ordinal$ (Rules/
 else the value) and $field.flag$ (the key of flags when the field is yes, else nothing). Empty
 when a field it needs is empty.
 */
+var PLACEHOLDER = /\$([a-zA-Z0-9_-]+)(?:\.(ordinal|flag))?\$/g;
+
+// The fields a pattern names
+function named(pattern) {
+	var out = [],
+		m;
+	PLACEHOLDER.lastIndex = 0;
+	while((m = PLACEHOLDER.exec(pattern))) {
+		if(out.indexOf(m[1]) === -1) {
+			out.push(m[1]);
+		}
+	}
+	return out;
+}
+
+/*
+A pattern of the ruleset filled with the values of a tiddler: $field$ (the text of a field),
+$field.ordinal$ (Rules/Ordinal/<value>, else the value), $field.flag$ (the key flags[field] when
+the field is yes). A part in {...} falls away when a field in it is empty (or a flag no); a field
+outside braces that is empty empties the whole. Returns the text, "" if nothing.
+*/
+var fill = exports.fill = function(wiki,fields,key,flags) {
+	var pattern = language.lookupGroup(wiki,"ruleset",key);
+	if(!pattern) {
+		return "";
+	}
+	var missing = false;
+	var part = function(text) {
+		var empty = false;
+		var out = text.replace(PLACEHOLDER,function(all,field,how) {
+			var value = raw(fields,field);
+			if(how === "flag") {
+				var yes = value && rules().value(wiki,{format: "boolean"},value).value,
+					shown = yes && flags && flags[field] ? language.lookupGroup(wiki,"ruleset",flags[field]) || "" : "";
+				empty = empty || !shown;
+				return shown;
+			}
+			// A value written or derived ("1/4 (50 XP)": xp from cr)
+			var shownText = how === "ordinal" ? (value ? language.lookupGroup(wiki,"ruleset","Rules/Ordinal/" + value) || value : "") :
+				exports.read(wiki,fields,field).text;
+			empty = empty || !shownText;
+			return shownText;
+		});
+		return {text: out, empty: empty};
+	};
+	var text = pattern.split(/(\{[^{}]*\})/).map(function(piece) {
+		if(piece.charAt(0) === "{" && piece.charAt(piece.length - 1) === "}") {
+			var optional = part(piece.slice(1,-1));
+			return optional.empty ? "" : optional.text;
+		}
+		var required = part(piece);
+		missing = missing || (required.empty && named(piece).length > 0);
+		return required.text;
+	}).join("");
+	return missing ? "" : text.replace(/\s+/g," ").trim();
+};
+
+/*
+The header line of a schema ("1st-level abjuration (ritual)", "Martial weapon (melee), rare
+(requires attunement)"): fill() of its key, or of byValue's key for the value a field holds.
+Returns {text, fields}: the fields it names, which the block does not show again.
+*/
 exports.summary = function(wiki,fields,schema) {
 	var sum = schema && schema.summary;
 	if(!sum || !sum.key) {
 		return {text: "", fields: []};
 	}
-	var key = sum.key,
-		used = sum.fields || [],
-		missing = false;
+	var key = sum.key;
 	$tw.utils.each(sum.byValue || {},function(map,field) {
 		var value = raw(fields,field);
 		if(map[value]) {
 			key = map[value];
 		}
 	});
-	var pattern = language.lookupGroup(wiki,"ruleset",key);
-	if(!pattern) {
-		return {text: "", fields: []};
-	}
-	var text = pattern.replace(/\$([a-zA-Z0-9_-]+)(?:\.(ordinal|flag))?\$/g,function(all,field,how) {
-		var value = raw(fields,field);
-		if(how === "flag") {
-			var yes = value && rules().value(wiki,{format: "boolean"},value).value;
-			return yes && sum.flags && sum.flags[field] ? language.lookupGroup(wiki,"ruleset",sum.flags[field]) || "" : "";
+	var text = fill(wiki,fields,key,sum.flags),
+		used = named(language.lookupGroup(wiki,"ruleset",key) || "");
+	Object.keys(sum.byValue || {}).forEach(function(field) {
+		if(used.indexOf(field) === -1) {
+			used.push(field);
 		}
-		if(!value) {
-			missing = true;
-			return "";
-		}
-		if(how === "ordinal") {
-			return language.lookupGroup(wiki,"ruleset","Rules/Ordinal/" + value) || value;
-		}
-		return exports.read(wiki,fields,field).text;
 	});
-	return missing ? {text: "", fields: []} : {text: text.replace(/\s+/g," ").trim(), fields: used};
+	return text ? {text: text, fields: used} : {text: "", fields: []};
+};
+
+/*
+A line that joins fields (a "combine" of a group: {"fields": ["cr", "xp"], "key":
+"Rules/Line/challenge", "flags": {...}}): fill() of its key - "1/4 (50 XP)", "Concentration, up to
+1 minute".
+*/
+exports.line = function(wiki,fields,combine) {
+	return fill(wiki,fields,combine.key,combine.flags);
 };
 
 // The fields secret-fields locks: null (none), "all" (present but empty, or "all") or a list

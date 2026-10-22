@@ -1,5 +1,5 @@
 created: 20261022140929737
-modified: 20261022140929737
+modified: 20261022150158843
 tags: $:/tags/tiddlyrpg/RulesFields
 title: $:/tiddlyrpg/rules/fields
 type: application/json
@@ -11,7 +11,7 @@ type: application/json
         "attunement": {"format": "boolean"},
         "damage": {"format": "damage", "when": {"category": ["weapon"]}},
         "bonus": {"format": "number", "signed": true},
-        "ac": {"format": "number", "derive": {"kind": "total", "parts": [{"field": "bonus"}]}},
+        "ac": {"format": "number", "when": {"category": ["armor"]}, "derive": {"kind": "total", "parts": [{"field": "bonus"}]}},
         "weight": {"format": "unit", "domain": "Weight"},
         "range": {"format": "unit", "domain": "Length", "kind": "range"},
         "healing": {"format": "dice", "derive": {"kind": "average"}},
@@ -31,7 +31,7 @@ type: application/json
             "value": {"format": "number", "signed": true, "derive": {"kind": "sum", "parts": [{"modifier": "$entry"}, {"field": "proficiency"}]}}},
         "skills": {"format": "labels", "domain": "Skill",
             "value": {"format": "number", "signed": true, "derive": {"kind": "sum", "parts": [{"modifier": "$entry.ability"}, {"field": "proficiency", "times": {"list": "expertise", "factor": 2}}]}}},
-        "expertise": {"format": "labels", "domain": "Skill"},
+        "expertise": {"format": "labels", "domain": "Skill", "view": false},
         "senses": {"format": "labels", "domain": "Sense", "value": {"format": "unit", "domain": "Length"},
             "values": {"passive-perception": {"format": "number"}},
             "computed": {"passive-perception": {"kind": "sum", "parts": [{"number": 10}, {"entry": "skills", "id": "perception", "else": {"modifier": "wis"}}]}}}

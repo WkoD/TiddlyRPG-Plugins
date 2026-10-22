@@ -3,24 +3,24 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261022144503108
+modified: 20261022150508705
 
-The fields of the rules of a tiddler (modules/fields.js) for the block of values
-(viewtemplates/fields). A field is shown when it has a text - written or derived -, its "when"
-holds, and the header line does not name it already.
+The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
+rulebook: the header line, then sections - the fields of no group (with the price, unless a group
+names "price"), then the groups of the schema (modules/fields.js). A line is a field, or the first
+field of a combine standing for all of its fields. A line shows when it has a text - written or
+derived -, its "when" holds, the field is shown in the view at all ("view": false is not) and the
+header line does not name it already.
 
-[<title>trpgfieldsummary[]]          the header line of each input, if any
-[<title>trpgfieldlist[]]             the fields shown outside the groups, in the order of the schema
-[<title>trpgfieldlist[<group>]]      the fields shown in a group
-[<title>trpgfieldgroups[]]           the groups with a field shown or a relation to a tiddler the
-                                     view sees, whose "when" holds
-[<title>trpgfieldgroup:label[<id>]]  the label of a group (Rules/Group/<id>); :layout row or list;
-                                     :relations the relations it shows
-[<title>trpgfieldshow[<field>]]      the text of a field
-[<title>trpgfieldparts[<field>]]     the parts of a list (labels), each a pill; else the text
-[<title>trpgfieldlabel[<field>]]     the label of a field, by the schema of the tiddler
-[<field>trpgfieldformat[]]           the format of each input field (its definition)
-[<title>trpgfieldcolor[]]            the colour of its first type that has one
+[<title>trpgfieldsummary[]]            the header line of each input, if any
+[<title>trpgfieldsections[]]           the sections with a line to show or a relation to a tiddler
+                                       the view sees: "-" (the fields of no group), then group ids
+[<title>trpgfieldlines[<section>]]     the lines of a section, each by its (first) field; "price"
+                                       is the price
+[<title>trpgfieldsection:layout[<id>]] list, row or inline; :relations the relations it shows
+[<title>trpgfieldshow[<field>]]        the text of a line: a combine filled, the price formatted
+[<title>trpgfieldlabel[<field>]]       the label of a field, by the schema of the tiddler
+[<title>trpgfieldcolor[]]              the colour of its first type that has one
 
 \*/
 
@@ -29,28 +29,15 @@ holds, and the header line does not name it already.
 var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 	types = require("$:/plugins/tiddlyrpg-core/modules/types.js"),
 	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js"),
 	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
+
+var PRICE = "price",
+	REST = "-";
 
 function valuesOf(wiki,title) {
 	var tiddler = wiki.getTiddler(title);
 	return tiddler ? $tw.utils.extend({},tiddler.fields) : {title: title};
-}
-
-// What a tiddler shows: {schema, values, summary, shown(field)}
-function state(wiki,title) {
-	var schema = fields.forTiddler(wiki,title),
-		values = valuesOf(wiki,title),
-		summary = fields.summary(wiki,values,schema);
-	return {
-		schema: schema,
-		values: values,
-		summary: summary,
-		shown: function(field) {
-			var spec = fields.spec(wiki,field);
-			return schema.fields.indexOf(field) !== -1 && summary.fields.indexOf(field) === -1 &&
-				fields.fits(wiki,values,spec && spec.when,schema.fields) && !!fields.read(wiki,values,field).text;
-		}
-	};
 }
 
 function each(source,fn) {
@@ -61,12 +48,67 @@ function each(source,fn) {
 	return results;
 }
 
-function grouped(schema) {
-	var out = [];
+// What a tiddler shows: {schema, values, summary, sections: [{id, layout, lines, relations}]}
+function state(wiki,title) {
+	var schema = fields.forTiddler(wiki,title),
+		values = valuesOf(wiki,title),
+		summary = fields.summary(wiki,values,schema),
+		combineOf = function(field) {
+			var found = null;
+			schema.groups.some(function(group) {
+				return (group.combine || []).some(function(c) {
+					if((c.fields || []).indexOf(field) !== -1) {
+						found = c;
+					}
+					return !!found;
+				});
+			});
+			return found;
+		};
+	var shows = function(field) {
+		if(field === PRICE) {
+			return !!values.price;
+		}
+		var spec = fields.spec(wiki,field),
+			combine = combineOf(field);
+		if(schema.fields.indexOf(field) === -1 || summary.fields.indexOf(field) !== -1 || (spec && spec.view === false) ||
+			!fields.fits(wiki,values,spec && spec.when,schema.fields)) {
+			return false;
+		}
+		if(combine) {
+			return combine.fields[0] === field && !!fields.line(wiki,values,combine);
+		}
+		return !!fields.read(wiki,values,field).text;
+	};
+	var grouped = [];
 	schema.groups.forEach(function(group) {
-		out = out.concat(group.fields || []);
+		grouped = grouped.concat(group.fields || []);
 	});
-	return out;
+	var rest = (grouped.indexOf(PRICE) === -1 ? [PRICE] : []).concat(schema.fields.filter(function(field) {
+		return grouped.indexOf(field) === -1;
+	}));
+	var view = visibility.current(wiki);
+	var sections = [{id: REST, layout: "list", lines: rest.filter(shows), relations: []}].concat(schema.groups.filter(function(group) {
+		return fields.fits(wiki,values,group.when,schema.fields);
+	}).map(function(group) {
+		return {
+			id: group.id,
+			layout: group.layout || "list",
+			lines: (group.fields || []).filter(shows),
+			relations: (group.relations || []).filter(function(name) {
+				return ($tw.utils.parseStringArray(values[name] || "") || []).some(function(target) {
+					return visibility.visible(wiki,target,view);
+				});
+			})
+		};
+	})).filter(function(section) {
+		return section.lines.length || section.relations.length;
+	});
+	return {schema: schema, values: values, summary: summary, sections: sections, combineOf: combineOf};
+}
+
+function section(s,id) {
+	return s.sections.filter(function(sec) { return sec.id === id; })[0] || null;
 }
 
 exports.trpgfieldsummary = function(source,operator,options) {
@@ -76,80 +118,51 @@ exports.trpgfieldsummary = function(source,operator,options) {
 	});
 };
 
-exports.trpgfieldlist = function(source,operator,options) {
-	var id = operator.operand;
+exports.trpgfieldsections = function(source,operator,options) {
 	return each(source,function(title) {
-		var s = state(options.wiki,title),
-			group = id ? s.schema.groups.filter(function(g) { return g.id === id; })[0] : null,
-			list = id ? (group ? group.fields || [] : []) : s.schema.fields.filter(function(field) {
-				return grouped(s.schema).indexOf(field) === -1;
-			});
-		return list.filter(s.shown);
+		return state(options.wiki,title).sections.map(function(sec) { return sec.id; });
 	});
 };
 
-// Whether a relation of a tiddler names a tiddler the view sees
-function related(wiki,values,name) {
-	var view = visibility.current(wiki);
-	return ($tw.utils.parseStringArray(values[name] || "") || []).some(function(target) {
-		return visibility.visible(wiki,target,view);
-	});
-}
-
-exports.trpgfieldgroups = function(source,operator,options) {
+exports.trpgfieldlines = function(source,operator,options) {
 	return each(source,function(title) {
-		var s = state(options.wiki,title);
-		return s.schema.groups.filter(function(group) {
-			return fields.fits(options.wiki,s.values,group.when,s.schema.fields) && ((group.fields || []).some(s.shown) ||
-				(group.relations || []).some(function(name) { return related(options.wiki,s.values,name); }));
-		}).map(function(group) { return group.id; });
+		var sec = section(state(options.wiki,title),operator.operand || REST);
+		return sec ? sec.lines : [];
 	});
 };
 
-exports.trpgfieldgroup = function(source,operator,options) {
-	var what = operator.suffix || "label",
-		id = operator.operand;
+exports.trpgfieldsection = function(source,operator,options) {
 	return each(source,function(title) {
-		var group = fields.forTiddler(options.wiki,title).groups.filter(function(g) { return g.id === id; })[0];
-		if(!group) {
+		var sec = section(state(options.wiki,title),operator.operand);
+		if(!sec) {
 			return [];
 		}
-		if(what === "relations") {
-			return group.relations || [];
-		}
-		return [what === "layout" ? (group.layout || "list") : (language.lookupGroup(options.wiki,"ruleset","Rules/Group/" + id) || id)];
+		return operator.suffix === "relations" ? sec.relations : [sec.layout];
 	});
 };
 
 exports.trpgfieldshow = function(source,operator,options) {
+	var field = operator.operand;
 	return each(source,function(title) {
-		var text = fields.read(options.wiki,valuesOf(options.wiki,title),operator.operand).text;
-		return text ? [text] : [];
-	});
-};
-
-exports.trpgfieldparts = function(source,operator,options) {
-	return each(source,function(title) {
-		var spec = fields.spec(options.wiki,operator.operand),
-			r = fields.read(options.wiki,valuesOf(options.wiki,title),operator.operand);
-		if(!r.text) {
-			return [];
+		var wiki = options.wiki,
+			values = valuesOf(wiki,title),
+			text;
+		if(field === PRICE) {
+			text = values.price ? currency.format(wiki,currency.active(wiki),values.price) : "";
+		} else {
+			var combine = state(wiki,title).combineOf(field);
+			text = combine ? fields.line(wiki,values,combine) : fields.read(wiki,values,field).text;
 		}
-		// Entries part at ", ", several main entries at " · " (modules/labels.js)
-		return spec && spec.format === "labels" && !r.problem ? r.text.split(/, | · /) : [r.text];
+		return text ? [text] : [];
 	});
 };
 
 exports.trpgfieldlabel = function(source,operator,options) {
 	return each(source,function(title) {
+		if(operator.operand === PRICE) {
+			return [language.t(options.wiki,"Item/Price")];
+		}
 		return [fields.label(options.wiki,operator.operand,fields.forTiddler(options.wiki,title).labels)];
-	});
-};
-
-exports.trpgfieldformat = function(source,operator,options) {
-	return each(source,function(field) {
-		var spec = fields.spec(options.wiki,field);
-		return spec && spec.format ? [spec.format] : [];
 	});
 };
 

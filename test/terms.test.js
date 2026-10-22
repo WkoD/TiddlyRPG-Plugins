@@ -63,9 +63,9 @@ test.describe("a main entry with its traits", function() {
 		h.setLanguage(wiki, "de-DE");
 		assert.equal(t("armor medium"), "mittelschwere Rüstung");
 		assert.equal(t("medium armor"), "mittelschwere Rüstung", "the order does not matter");
-		assert.equal(t("weapon martial melee versatile"), "Kriegswaffe, Nahkampf, vielseitig");
+		assert.equal(t("weapon martial melee versatile"), "Kriegswaffe (Nahkampf, vielseitig)");
 		assert.equal(t("focus arcane crystal"), "arkaner Fokus: Kristall", "a deeper trait after its parent");
-		assert.equal(t("weapon ammunition arrow"), "Waffe, Munition: Pfeil");
+		assert.equal(t("weapon ammunition arrow"), "Waffe (Munition: Pfeil)");
 	});
 
 	test("a trait alone is no term; medium alone is the size", function() {

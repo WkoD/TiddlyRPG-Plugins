@@ -1,5 +1,5 @@
 created: 20261022140929737
-modified: 20261022140929737
+modified: 20261022150158843
 tags: $:/tags/tiddlyrpg/RulesFields
 title: $:/tiddlyrpg/rules/fields/items
 type: application/json
@@ -7,8 +7,9 @@ type: application/json
 {
     "types": ["Item", "Artifact"],
     "fields": ["category", "rarity", "attunement", "damage", "range", "bonus", "ac", "weight", "healing"],
+    "summary": {"key": "Rules/Summary/Item", "flags": {"attunement": "Rules/Summary/Attunement"}},
     "groups": [
-        {"id": "weapon", "layout": "row", "fields": ["damage", "range"], "relations": ["base"], "when": {"category": ["weapon"]}},
-        {"id": "armor", "layout": "row", "fields": ["ac"], "when": {"category": ["armor"]}}
+        {"id": "properties", "fields": ["damage", "range", "ac", "bonus", "healing"], "relations": ["base"]},
+        {"id": "trade", "layout": "inline", "fields": ["weight", "price"]}
     ]
 }

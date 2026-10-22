@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022140929737
+modified: 20261022150206856
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -130,12 +130,15 @@ Rules/Field/saves: Rettungswürfe
 Rules/Field/skills: Fertigkeiten
 Rules/Field/expertise: Expertise
 Rules/Field/senses: Sinne
-Rules/Group/weapon: Waffe
-Rules/Group/armor: Rüstung
-Rules/Group/abilities: Attribute
 Rules/Ordinal/1: 1.
 Rules/Ordinal/2: 2.
 Rules/Ordinal/3: 3.
-Rules/Summary/Spell: Zauber $level.ordinal$ Grades $ritual.flag$
-Rules/Summary/Cantrip: Zaubertrick $ritual.flag$
+Rules/Summary/Spell: Zauber $level.ordinal$ Grades{ $ritual.flag$}
+Rules/Summary/Cantrip: Zaubertrick{ $ritual.flag$}
 Rules/Summary/Ritual: (Ritual)
+Rules/Summary/Item: $category${, $rarity$}{ $attunement.flag$}
+Rules/Summary/Attunement: (erfordert Einstimmung)
+Rules/Summary/Creature: $size$
+Rules/Line/duration: {$concentration.flag$ }$duration$
+Rules/Line/Concentration: Konzentration, bis zu
+Rules/Line/challenge: $cr${ ($xp$ EP)}

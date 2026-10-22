@@ -55,7 +55,7 @@ test("an extension adds entries, keys from the wiki, in the group of the base", 
 			assert.equal(domain.extensions.join(), "$:/tiddlyrpg/rules/domain/ItemCategory/Vandalia");
 			assert.equal(domain.title, "$:/tiddlyrpg/rules/domain/ItemCategory", "the base keeps its title");
 			assert.equal(language.domainGroup(wiki, "ItemCategory"), "ruleset");
-			assert.equal(rules.value(wiki, {format: "labels", domain: "ItemCategory"}, "potion, tattoo").text, "Trank, Tätowierung");
+			assert.equal(rules.value(wiki, {format: "labels", domain: "ItemCategory"}, "potion, tattoo").text, "Trank (Tätowierung)");
 			assert.equal(rules.value(wiki, {format: "labels", domain: "ItemCategory"}, "potion, Tätowierung").problem, null, "read by its label too");
 			assert.deepEqual(domainMessages(), []);
 		});

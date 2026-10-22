@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022140929737
+modified: 20261022150206856
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -130,12 +130,15 @@ Rules/Field/saves: Saving Throws
 Rules/Field/skills: Skills
 Rules/Field/expertise: Expertise
 Rules/Field/senses: Senses
-Rules/Group/weapon: Weapon
-Rules/Group/armor: Armour
-Rules/Group/abilities: Abilities
 Rules/Ordinal/1: 1st
 Rules/Ordinal/2: 2nd
 Rules/Ordinal/3: 3rd
-Rules/Summary/Spell: $level.ordinal$-level spell $ritual.flag$
-Rules/Summary/Cantrip: cantrip $ritual.flag$
+Rules/Summary/Spell: $level.ordinal$-level spell{ $ritual.flag$}
+Rules/Summary/Cantrip: cantrip{ $ritual.flag$}
 Rules/Summary/Ritual: (ritual)
+Rules/Summary/Item: $category${, $rarity$}{ $attunement.flag$}
+Rules/Summary/Attunement: (requires attunement)
+Rules/Summary/Creature: $size$
+Rules/Line/duration: {$concentration.flag$ }$duration$
+Rules/Line/Concentration: Concentration, up to
+Rules/Line/challenge: $cr${ ($xp$ XP)}

@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022140929737
+modified: 20261022150206856
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Fillers: damage
@@ -28,7 +28,6 @@ Rules/Field/rank: Rank
 Rules/Field/reflex: Ref
 Rules/Field/save: Defense
 Rules/Field/traits: Traits
-Rules/Group/defenses: Defenses
 Rules/Summary/Spell: Spell $rank$
 Rules/System/Name: Fixture probe
 Rules/Term/concentrate: concentrate

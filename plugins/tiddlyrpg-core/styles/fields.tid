@@ -1,77 +1,47 @@
 created: 20261022142450275
-modified: 20261022142450275
+modified: 20261022150508705
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/fields
 type: text/css
 
-/* The values of the fields of the rules (viewtemplates/fields): the header line in italics, the
-   groups set apart by a fine line in the colour of the type (--trpg-type, set by the template),
-   a row group as a compact table, lists as small pills. Palette colours via --tpc-*, so light
+/* The block of values (viewtemplates/fields), like the stat block of a rulebook: a strong rule in
+   the colour of the type (--trpg-type, set by the template) above and below, the header line in
+   italics, the sections parted by a rule that fades out, labels bold in a dark shade of the type
+   colour, a row section (the abilities) as centred cells. Palette colours via --tpc-*, so light
    and dark palettes both fit. */
 .trpg-fields {
-	--trpg-type-line: color-mix(in srgb, var(--trpg-type, var(--tpc-muted-foreground, #888)) 55%, transparent);
-	margin: 0.6em 0;
-	font-size: 0.95em;
+	--trpg-type-c: var(--trpg-type, var(--tpc-muted-foreground, #888));
+	--trpg-type-ink: color-mix(in srgb, var(--trpg-type-c) 55%, var(--tpc-foreground, #222));
+	border-top: 3px solid var(--trpg-type-c);
+	border-bottom: 3px solid var(--trpg-type-c);
+	margin: 0.8em 0;
+	padding: 0.35em 0 0.25em;
 }
 .trpg-fields-summary {
 	font-style: italic;
-	color: var(--tpc-muted-foreground, #666);
-	margin-bottom: 0.3em;
+	margin-bottom: 0.2em;
 }
-.trpg-fields-list {
+.trpg-fields-section {
+	padding: 0.3em 0;
+}
+.trpg-fields-summary + .trpg-fields-section,
+.trpg-fields-section + .trpg-fields-section {
+	border-top: 2px solid transparent;
+	border-image: linear-gradient(to right, var(--trpg-type-c), transparent) 1;
+}
+.trpg-fields-lines {
+	margin: 0.05em 0;
+}
+.trpg-fields-label {
+	font-weight: bold;
+	color: var(--trpg-type-ink);
+}
+.trpg-fields-row {
 	display: grid;
-	grid-template-columns: max-content 1fr;
-	column-gap: 0.8em;
-	row-gap: 0.15em;
-	align-items: baseline;
-	margin: 0.3em 0;
+	grid-template-columns: repeat(auto-fit, minmax(4.5em, 1fr));
+	text-align: center;
 }
-.trpg-fields-list dt,
-.trpg-fields-list dd {
-	margin: 0;
-	padding: 0;
-}
-.trpg-fields-list dt {
-	font-weight: bold;
-}
-.trpg-fields-group {
-	border-top: 1px solid var(--trpg-type-line);
-	margin-top: 0.4em;
-	padding-top: 0.3em;
-}
-.trpg-fields-group-label {
-	font-size: 0.8em;
-	font-weight: bold;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: var(--trpg-type, var(--tpc-muted-foreground, #666));
-}
-table.trpg-fields-row {
-	border-collapse: collapse;
-	border: none;
-	margin: 0.2em 0;
-	width: auto;
-}
-.trpg-fields-row th,
-.trpg-fields-row td {
-	border: none;
-	padding: 0.05em 0.9em 0.05em 0;
-	text-align: start;
-	background: none;
-}
-.trpg-fields-row th {
+.trpg-fields-cell .trpg-fields-label {
+	display: block;
 	font-size: 0.85em;
-	color: var(--tpc-muted-foreground, #666);
-}
-.trpg-fields-pills {
-	display: inline-flex;
-	flex-wrap: wrap;
-	gap: 0.25em;
-}
-.trpg-fields-pill {
-	padding: 0 0.5em;
-	border-radius: 0.8em;
-	font-size: 0.9em;
-	background-color: color-mix(in srgb, var(--trpg-type, var(--tpc-muted-foreground, #888)) 15%, var(--tpc-tiddler-background, #fff));
-	box-shadow: inset 0 0 0 1px var(--trpg-type-line);
 }

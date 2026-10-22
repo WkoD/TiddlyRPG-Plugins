@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022143848389
+modified: 20261022150038463
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -237,6 +237,7 @@ Rules/Check/UnitDomain: Check the field $field$: "$text$" is no $domain$
 Rules/Mode/all: one language for all:
 Rules/Mode/domain: per domain (in the table)
 Rules/Mode/wiki: the wiki language
+Rules/List/And: and
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Kinds:
 Ruleset/Hub/None: No ruleset is active (ControlPanel -> Settings -> TiddlyRPG).

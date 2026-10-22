@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261022141507011
+modified: 20261022150508705
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
@@ -19,10 +19,11 @@ Main entries and traits, in the JSON of a label domain:
 In a list the order does not matter and every level is written: an id that can be a trait of
 another id in the list is that trait ("weapon, ammunition": a weapon that takes ammunition),
 else it must stand alone ("ammunition": ammunition). A trait whose parents are all missing is a
-problem; a trait that fits two ids of the list gives a hint. Display: per main entry in the order
-of the domain its label, then its traits; a trait with a variant for its parent
-(Rules/Term/<trait>/<parent>, "medium armor") takes the place of the parent's label, the first
-one only; deeper traits follow their parent after ": ". Ids need to be unique only among the
+problem; a trait that fits two ids of the list gives a hint. Display, as in a rulebook: per main
+entry in the order of the domain its label, then its traits in brackets ("martial weapon (melee,
+versatile)"); a trait with a variant for its parent (Rules/Term/<trait>/<parent>, "medium
+armor") takes the place of the parent's label, the first one only; deeper traits follow their
+parent after ": "; several main entries are joined by Rules/List/And ("... and medium armor"). Ids need to be unique only among the
 entries that stand alone; a trait may carry an id of another domain ("medium" of Size) - its
 domain then needs keys of its own ("keys": "Rules/Category/"), as labels share their keys
 otherwise ("mittel" of the armor, "mittelgroß" of the size).
@@ -241,8 +242,8 @@ function showStructured(wiki,domain,items) {
 				rest.push(deeper ? shown + ": " + deeper : shown);
 			}
 		});
-		return head + (rest.length ? ", " + rest.join(", ") : "");
-	}).join(" · ");
+		return head + (rest.length ? " (" + rest.join(", ") + ")" : "");
+	}).join(" " + (language.lookupRules(wiki,domain.domain,"Rules/List/And") || "and") + " ");
 }
 
 // The tag of a structured list: of its first main entry in the order of the domain that has one

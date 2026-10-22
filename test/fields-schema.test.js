@@ -50,7 +50,7 @@ test.describe("schemas", function() {
 	test("the fields of a type in the order of its schema, groups, labels", function() {
 		var schema = fields.forTypes(wiki, ["Item"]);
 		assert.equal(schema.fields.join(), "category,rarity,attunement,damage,range,bonus,ac,weight,healing");
-		assert.equal(schema.groups.map(function(g) { return g.id; }).join(), "weapon,armor");
+		assert.equal(schema.groups.map(function(g) { return g.id; }).join(), "properties,trade");
 		assert.equal(fields.forTypes(wiki, ["Spell"]).labels.level, "Rules/Field/level/spell");
 		assert.equal(fields.forTypes(wiki, ["Location"]).fields.length, 0);
 	});
@@ -76,15 +76,15 @@ test.describe("schemas", function() {
 			definitions: {charm: {format: "text"}},
 			types: ["Item"],
 			fields: ["charm", "rarity"],
-			groups: [{id: "weapon", fields: ["charm"]}]
+			groups: [{id: "properties", fields: ["charm"]}]
 		}, function() {
 			var schema = fields.forTypes(wiki, ["Item"]);
 			assert.equal(schema.fields[schema.fields.length - 1], "charm");
 			assert.equal(schema.fields.filter(function(f) { return f === "rarity"; }).length, 1);
-			assert.equal(schema.groups[0].fields.join(), "damage,range,charm");
+			assert.equal(schema.groups[0].fields.join(), "damage,range,ac,bonus,healing,charm");
 			assert.deepEqual(schemaMessages(), []);
 		});
-		assert.equal(fields.forTypes(wiki, ["Item"]).groups[0].fields.join(), "damage,range", "the ruleset's group unchanged");
+		assert.equal(fields.forTypes(wiki, ["Item"]).groups[0].fields.join(), "damage,range,ac,bonus,healing", "the ruleset's group unchanged");
 	});
 
 	test("fields/schema: reserved names, defined twice, without definition", function() {
@@ -187,8 +187,18 @@ test.describe("summary", function() {
 
 	test("ordinal and flag, in the language of the ruleset", function() {
 		assert.equal(fields.summary(wiki, {level: "1", ritual: "yes"}, schema).text, "Zauber 1. Grades (Ritual)");
+		assert.equal(fields.summary(wiki, {level: "1", ritual: "no"}, schema).text, "Zauber 1. Grades", "a flag in braces falls away");
 		assert.equal(fields.summary(wiki, {level: "3"}, schema).text, "Zauber 3. Grades");
 		assert.equal(fields.summary(wiki, {level: "1"}, schema).fields.join(), "level,ritual");
+	});
+
+	test("a part in braces falls away when a field in it is empty; a field outside empties the whole", function() {
+		var items = fields.forTypes(wiki, ["Item"]);
+		assert.equal(fields.summary(wiki, {category: "potion"}, items).text, "Trank");
+		assert.equal(fields.summary(wiki, {category: "potion", rarity: "rare"}, items).text, "Trank, selten");
+		assert.equal(fields.summary(wiki, {category: "potion", attunement: "yes"}, items).text, "Trank (erfordert Einstimmung)");
+		assert.equal(fields.summary(wiki, {rarity: "rare", attunement: "yes"}, items).text, "", "no kind: no header line");
+		assert.deepEqual(fields.summary(wiki, {rarity: "rare"}, items).fields.length, 0, "then the fields show as lines");
 	});
 
 	test("another key for a value; empty without the field", function() {
@@ -256,24 +266,36 @@ test.describe("the block of values", function() {
 		}
 	}
 
-	test("the list, a group as a row, lists as pills, values as text", function() {
-		withTiddler({title: "Langschwert", tags: "Item", category: "weapon, martial, melee, versatile", damage: "1d8 slashing", range: "5 ft", rarity: "<b>rare</b>"}, function() {
+	test("sections parted by lines: the fields of no group with the price, then the groups; values as text", function() {
+		withTiddler({title: "Langschwert", tags: "Item", category: "weapon, martial, melee, versatile", damage: "1d8 slashing", range: "5 ft",
+			rarity: "<b>rare</b>", weight: "3 lb", price: "15 gp"}, function() {
 			var html = block("Langschwert");
-			assert.match(html, /<dt>Art<\/dt><dd><span class="trpg-fields-pills"><span class="trpg-fields-pill">Kriegswaffe<\/span><span class="trpg-fields-pill">Nahkampf<\/span><span class="trpg-fields-pill">vielseitig<\/span><\/span><\/dd>/);
-			assert.match(html, /<dt>Seltenheit<\/dt><dd>&lt;b&gt;rare&lt;\/b&gt;<\/dd>/, "unread, as written, as text");
-			assert.match(html, /<div class="trpg-fields-group-label">Waffe<\/div><table class="trpg-fields-row"><tr><th>Schaden<\/th><th>Reichweite<\/th><\/tr><tr><td>1W8 Hiebschaden<\/td><td>[^<]+<\/td><\/tr>/);
-			assert.doesNotMatch(html, /Rüstung/, "the group armor does not fit");
-		});
-		withTiddler({title: "Klingenschild", tags: "Item", category: "weapon, martial, armor, medium"}, function() {
-			assert.match(block("Klingenschild"), /<span class="trpg-fields-pill">Kriegswaffe<\/span><span class="trpg-fields-pill">mittelschwere Rüstung<\/span>/, "a pill per main entry");
+			assert.match(html, /<div class="trpg-fields-summary">Kriegswaffe \(Nahkampf, vielseitig\), &lt;b&gt;rare&lt;\/b&gt;<\/div>/, "unread: as written, as text");
+			assert.match(html, /<span class="trpg-fields-label">Schaden<\/span> 1W8 Hiebschaden<\/span><\/div><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Reichweite<\/span>/);
+			assert.match(html, /<div class="trpg-fields-section trpg-fields-inline"><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Gewicht<\/span> [^<]+<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Preis<\/span> 15 GM<\/span>/, "a group names the price");
+			assert.doesNotMatch(html, /Rüstungsklasse/);
 		});
 	});
 
-	test("a group only when its condition holds; nothing without values", function() {
-		withTiddler({title: "Trank", tags: "Item", category: "potion", damage: "1d6 fire", healing: "2d4 + 2"}, function() {
+	test("the header line: kind, rarity, attunement; its fields not again", function() {
+		withTiddler({title: "Klingenschild", tags: "Item", category: "weapon, martial, armor, medium", rarity: "rare", attunement: "yes", ac: "14", bonus: "+2"}, function() {
+			var html = block("Klingenschild");
+			assert.match(html, /<div class="trpg-fields-summary">Kriegswaffe und mittelschwere Rüstung, selten \(erfordert Einstimmung\)<\/div>/);
+			assert.doesNotMatch(html, /Seltenheit|Einstimmung<\/span>/);
+			assert.match(html, /Rüstungsklasse<\/span> 16 \(14 \+ 2\)/);
+		});
+		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp"}, function() {
+			var html = block("Ring");
+			assert.doesNotMatch(html, /trpg-fields-summary/, "no kind, no header line");
+			assert.ok(html.indexOf("Seltenheit") < html.indexOf("Preis"), "the fields of no group first, the price in the group that names it");
+		});
+	});
+
+	test("a condition hides a field; nothing without values", function() {
+		withTiddler({title: "Trank", tags: "Item", category: "potion", damage: "1d6 fire", ac: "12", healing: "2d4 + 2"}, function() {
 			var html = block("Trank");
-			assert.doesNotMatch(html, /Schaden/, "damage only with weapon");
-			assert.match(html, /<dt>Heilung<\/dt><dd>7 \(2W4 \+ 2\)<\/dd>/);
+			assert.doesNotMatch(html, /Schaden|Rüstungsklasse/, "damage only with weapon, AC only with armor");
+			assert.match(html, /Heilung<\/span> 7 \(2W4 \+ 2\)/);
 		});
 		withTiddler({title: "Leer", tags: "Item"}, function() {
 			assert.doesNotMatch(block("Leer"), /trpg-fields/);
@@ -283,23 +305,28 @@ test.describe("the block of values", function() {
 		});
 	});
 
-	test("the header line, its fields not again; derived values", function() {
+	test("spell and creature: combined lines, a row, a field only for the editor", function() {
 		// Type tags for the test: hubs of the same name
 		h.add(wiki, {title: "Spell", tags: "Index"});
 		h.add(wiki, {title: "Creature", tags: "Index"});
 		try {
-			withTiddler({title: "Feuerball", tags: "Spell", level: "3", range: "150 ft", damage: "8d6 fire"}, function() {
+			withTiddler({title: "Feuerball", tags: "Spell", level: "3", range: "150 ft", duration: "1 minute", concentration: "yes", damage: "8d6 fire"}, function() {
 				var html = block("Feuerball");
 				assert.match(html, /<div class="trpg-fields-summary">Zauber 3\. Grades<\/div>/);
-				assert.doesNotMatch(html, /Zaubergrad/);
-				assert.match(html, /<dt>Schaden<\/dt>/, "damage on a spell: no category, no condition");
+				assert.doesNotMatch(html, /Zaubergrad|Konzentration<\/span>/);
+				assert.match(html, /Wirkungsdauer<\/span> Konzentration, bis zu 1 Minute<\/span>/);
+				assert.match(html, /Schaden<\/span> 8W6 Feuerschaden/, "damage on a spell: no category, no condition");
 				assert.equal(h.checks(wiki, "Feuerball", "fields").length, 0);
 			});
-			withTiddler({title: "Wolf", tags: "Creature", str: "12", cr: "1/4", wis: "12"}, function() {
+			withTiddler({title: "Wolf", tags: "Creature", size: "medium", str: "12", cr: "1/4", wis: "12", skills: "perception", expertise: "perception"}, function() {
 				var html = block("Wolf");
-				assert.match(html, /<th>STR<\/th>.*<td>12 \(\+1\)<\/td>/);
-				assert.match(html, /<dt>EP<\/dt><dd>50<\/dd>/);
-				assert.match(html, /passive Wahrnehmung 11/);
+				assert.match(html, /<div class="trpg-fields-summary">mittelgroß<\/div>/);
+				assert.match(html, /<div class="trpg-fields-section trpg-fields-row"><div class="trpg-fields-cell"><span class="trpg-fields-label">STR<\/span>12 \(\+1\)<\/div>/);
+				assert.match(html, /Herausforderungsgrad<\/span> 1\/4 \(50 EP\)<\/span>/);
+				assert.doesNotMatch(html, /<span class="trpg-fields-label">EP/, "xp in the line of the challenge");
+				assert.doesNotMatch(html, /Expertise/, "only in the editor");
+				assert.match(html, /Fertigkeiten<\/span> Wahrnehmung \+5/);
+				assert.match(html, /passive Wahrnehmung 15/);
 			});
 		} finally {
 			wiki.deleteTiddler("Spell");
@@ -307,15 +334,14 @@ test.describe("the block of values", function() {
 		}
 	});
 
-	test("after the body, before the relations; the price as its first line - on any tiddler", function() {
+	test("after the body, before the relations; the price on any tiddler", function() {
 		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp", text: "Ein Ring Zx9."}, function() {
 			var html = h.view(wiki, "Ring").replace(/>\s+</g, "><");
-			assert.match(html, /<dl class="trpg-fields-list"><dt>Preis<\/dt><dd>50 GM<\/dd><dt>Seltenheit<\/dt>/);
 			assert.ok(html.indexOf("Zx9") < html.indexOf("trpg-fields"), "the block after the body");
 			assert.ok(html.indexOf("trpg-fields") < html.indexOf("relations/graph"), "and before the relations");
 		});
 		withTiddler({title: "Hafen", tags: "Location", price: "5 sp"}, function() {
-			assert.match(block("Hafen"), /<dt>Preis<\/dt><dd>5 SM<\/dd>/);
+			assert.match(block("Hafen"), /<span class="trpg-fields-label">Preis<\/span> 5 SM/);
 		});
 	});
 

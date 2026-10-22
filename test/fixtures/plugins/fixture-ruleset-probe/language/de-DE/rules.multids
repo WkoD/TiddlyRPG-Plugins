@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022140929737
+modified: 20261022150206856
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Fillers: Schaden
@@ -28,7 +28,6 @@ Rules/Field/rank: Rang
 Rules/Field/reflex: Ref
 Rules/Field/save: Verteidigung
 Rules/Field/traits: Merkmale
-Rules/Group/defenses: Verteidigung
 Rules/Summary/Spell: Zauber $rank$
 Rules/System/Name: Fixture probe
 Rules/Term/concentrate: Konzentration
