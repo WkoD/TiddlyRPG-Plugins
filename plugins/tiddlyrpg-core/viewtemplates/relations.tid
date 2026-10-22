@@ -1,6 +1,6 @@
 created: 20260713135021000
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/book
-modified: 20261022151004750
+modified: 20261022161612307
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations
 type: text/vnd.tiddlywiki
@@ -22,7 +22,7 @@ type: text/vnd.tiddlywiki
 <$transclude $tiddler=<<currentTab>> $mode=block/>
 \end
 
-<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material]] [all[current]tag[Quest]] [all[current]!is[tiddler]questmarked[]] :filter[trpg.visible[]]" variable=null>
+<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material,Creature,Spell]] [all[current]tag[Quest]] [all[current]!is[tiddler]questmarked[]] :filter[trpg.visible[]]" variable=null>
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <$let currentNode=<<currentTiddler>> self=<<currentTiddler>>
 	trpg-kinds={{{ [trpg.egonodes<currentTiddler>relationkind[]] +[format:titlelist[]join[ ]] }}}

@@ -1,12 +1,14 @@
 created: 20261008062202000
-modified: 20261008071815000
+modified: 20261022161106186
 title: $:/tiddlyrpg/language/en-GB/Edge/
 
 alliance: Alliance
 ancestor: descendant of
+base: based on
 bond: Bond
 component: contains
 creator: made by
+creature: is a
 enmity: Enmity
 family: Family
 former: formerly with
@@ -21,5 +23,6 @@ parent: child of
 patron: worships
 rules: controls
 sibling: Sibling
+spells: spell
 spouse: Spouse
 under: answers to

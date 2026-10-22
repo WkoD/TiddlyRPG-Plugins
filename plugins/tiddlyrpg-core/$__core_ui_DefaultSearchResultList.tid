@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261016184211000
+modified: 20261022161612307
 title: $:/core/ui/DefaultSearchResultList
 tags: $:/tags/SearchResults
 caption: {{$:/language/Search/DefaultResults/Caption}}
@@ -8,7 +8,7 @@ second-search-filter: [!is[system]trpgsearch<userInput>] +[kindselected[$:/state
 
 \define searchResultList()
 \whitespace trim
-<$transclude $variable="trpg.kindswitches" kinds="player person organisation location item quest event" state="$:/state/tiddlyrpg-core/search-kinds" mode="select" hubs="Player Person Organisation Location Item Quest Event"/>
+<$transclude $variable="trpg.kindswitches" kinds="player person organisation location item creature spell quest event" state="$:/state/tiddlyrpg-core/search-kinds" mode="select" hubs="Player Person Organisation Location Item Quest Event"/>
 
 //<small>{{$:/language/Search/Matches/Title}}</small>//
 

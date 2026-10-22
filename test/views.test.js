@@ -301,6 +301,14 @@ test.describe("sweep", function() {
 				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date label:\"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			// A locked item with a price (and the hint on it)
 			{title: "Qx7 Klinge", tags: "Item Secret", price: "1399 Qx7", rarity: "Qx7rar", ac: "Qx7ac"},
+			// The relations creature, base, spells to a locked target; a locked creature at a place
+			{title: "Qx7 Art", tags: "Creature Secret", text: "Qx7 kind."},
+			{title: "Sweep Mizu", tags: "Person", creature: "[[Qx7 Art]]", text: "A messenger."},
+			{title: "Qx7 Hammer", tags: "Item Secret", text: "Qx7 hammer."},
+			{title: "Sweep Frost", tags: "Item Equipment", category: "weapon", base: "[[Qx7 Hammer]]", text: "A frost hammer."},
+			{title: "Qx7 Bann", tags: "Spell Secret", text: "Qx7 spell."},
+			{title: "Sweep Magier", tags: "Person", spells: "[[Qx7 Bann]]", text: "A mage."},
+			{title: "Qx7 Wolf", tags: "Creature Secret", location: "Baile", text: "Qx7 wolf."},
 			// Locked values of a tiddler everyone sees (secret-fields): one field, and all with the price
 			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
 			{title: "Sweep Truhe", tags: "Item", weight: "Qx7schwer", price: "1399 gp", "secret-fields": "all", text: "A chest."},
@@ -428,7 +436,7 @@ test.describe("sweep", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
 			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
-			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", YEAR].forEach(function(word) {
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

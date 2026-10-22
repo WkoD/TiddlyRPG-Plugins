@@ -1,0 +1,9 @@
+created: 20261022161055756
+modified: 20261022161055756
+tiddlyrpg-targets: [tag[Creature]]
+title: $:/config/flibbles/graph/edges/fields/creature
+type: application/json
+
+{
+    "label": "Creature"
+}

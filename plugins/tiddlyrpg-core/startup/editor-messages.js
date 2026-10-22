@@ -3,13 +3,16 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-messages.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261022161612307
 
 Messages of the editor that the edit-text widget does not handle, so they reach the root widget:
 
   tm-trpg-fix    of the buttons of the messages in the form (editor/form): draft (the title of the
                  draft), fix (the fix as JSON, modules/checks.js). Runs modules/fixes.js on the
                  draft.
+  tm-trpg-copy   of a relation that copies (tiddlyrpg-copy, editor/fields/relation): draft, field.
+                 Copies the values of its target into the draft where it has none
+                 (modules/form.js copyFrom), a notification names what came.
   tm-trpg-probe  of the toolbar buttons with a dropdown (editor/toolbar), kind: what stands at the
                  cursor (editor/operation.js trpg-probe). Not a text operation: the engine focuses
                  the text after every operation, and the focus closes the dropdown that has just
@@ -25,7 +28,11 @@ exports.platforms = ["browser"];
 exports.after = ["rootwidget"];
 exports.synchronous = true;
 
-var fixes = require("$:/plugins/tiddlyrpg-core/modules/fixes.js");
+var fixes = require("$:/plugins/tiddlyrpg-core/modules/fixes.js"),
+	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+
+var NOTICE = "$:/temp/tiddlyrpg-core/editor/notice";
 
 exports.startup = function() {
 	$tw.rootWidget.addEventListener("tm-trpg-fix",function(event) {
@@ -37,6 +44,18 @@ exports.startup = function() {
 			return false;
 		}
 		fixes.apply($tw.wiki,params.draft,fix);
+		return false;
+	});
+	$tw.rootWidget.addEventListener("tm-trpg-copy",function(event) {
+		var params = event.paramObject || {},
+			done = form.copyFrom($tw.wiki,params.draft,params.field);
+		if(done.source) {
+			$tw.wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t($tw.wiki,done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone"),{
+				title: language.title($tw.wiki,done.source),
+				fields: done.fields.map(function(name) { return form.label($tw.wiki,params.draft,name); }).join(", ")
+			})}));
+			$tw.notifier.display(NOTICE);
+		}
 		return false;
 	});
 	$tw.rootWidget.addEventListener("tm-trpg-probe",function(event) {

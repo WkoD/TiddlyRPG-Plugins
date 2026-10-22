@@ -1,10 +1,12 @@
 created: 20261008062202000
-modified: 20261016210033000
+modified: 20261022161106186
 title: $:/tiddlyrpg/language/en-GB/FieldInverse/
 
 ancestor: Descendants
+base: Variants
 component: Part of
 creator: Created
+creature: Individuals
 former: Former
 leader: Leaders
 location: Present
@@ -15,4 +17,5 @@ owner: Possessions
 parent: Children
 patron: Followers
 rules: Control
+spells: Known by
 under: Subordinates

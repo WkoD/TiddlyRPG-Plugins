@@ -8,10 +8,11 @@ var test = require("node:test"),
 	assert = require("node:assert/strict"),
 	h = require("./helpers");
 
-var wiki;
+var wiki, $tw;
 
 test.before(function() {
-	return h.boot().then(function($tw) {
+	return h.boot().then(function(tw) {
+		$tw = tw;
 		wiki = $tw.wiki;
 		h.setLanguage(wiki, "de-DE");
 	});
@@ -150,6 +151,46 @@ test("who leads a location is there: Control, then Influence, Present, Locations
 	} finally {
 		wiki.deleteTiddler("Watch");
 		wiki.deleteTiddler("Gang");
+	}
+});
+
+test("creatures at a location: a group of their own after Present; several places allowed", function() {
+	h.add(wiki, {title: "Kipi", tags: "Creature", location: "Town Baile", text: "A shapeshifter."});
+	try {
+		assert.ok(f("[[Town]occupants[]]").indexOf("Kipi") !== -1);
+		var town = groups(list("Town"));
+		assert.deepEqual(Object.keys(town).slice(0, 4), ["Kontrolle", "Anwesend", "Kreaturen", "Orte"]);
+		assert.deepEqual(town["Kreaturen"], ["Kipi"]);
+		assert.equal(town["Anwesend"].indexOf("Kipi"), -1);
+		assert.deepEqual(h.checkKeys(wiki, "Kipi", "locations"), [], "a kind lives in several places");
+	} finally {
+		wiki.deleteTiddler("Kipi");
+	}
+});
+
+test("creature, base, spells: what they name, their way back, one kind and one base", function() {
+	var form = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/form.js");
+	[{title: "Fukuro", tags: "Creature"}, {title: "Warhammer", tags: "Item"}, {title: "Feuerball", tags: "Spell"},
+		{title: "Mizu", tags: "Person", creature: "Fukuro", spells: "Feuerball"},
+		{title: "Frostbringer", tags: "Artifact", base: "Warhammer", spells: "Feuerball"}].forEach(function(fields) {
+		h.add(wiki, Object.assign({text: "."}, fields));
+	});
+	try {
+		assert.deepEqual(f("[[Mizu]relationtargets[creature]]"), ["Fukuro"]);
+		assert.deepEqual(f("[[Fukuro]relationsources[creature]]"), ["Mizu"]);
+		assert.deepEqual(f("[[Frostbringer]relationtargets[base]]"), ["Warhammer"]);
+		assert.deepEqual(f("[[Feuerball]relationsources[spells]]").sort(), ["Frostbringer", "Mizu"]);
+		assert.deepEqual(f("[[creature]relationcandidates[]] +[match[Fukuro]]"), ["Fukuro"]);
+		assert.deepEqual(f("[[base]relationcandidates[]] +[match[Frostbringer]]"), [], "a base is an item, no artifact");
+		assert.ok(form.single(wiki, "Mizu", "creature") && form.single(wiki, "Frostbringer", "base"));
+		assert.ok(!form.single(wiki, "Mizu", "spells"));
+		var mizu = groups(list("Mizu")), fukuro = groups(list("Fukuro"));
+		assert.deepEqual(mizu["Art"], ["Fukuro"]);
+		assert.deepEqual(mizu["Zauber"], ["Feuerball"]);
+		assert.deepEqual(fukuro["Vertreter"], ["Mizu"]);
+		assert.deepEqual(groups(list("Warhammer"))["Abwandlungen"], ["Frostbringer"]);
+	} finally {
+		["Fukuro", "Warhammer", "Feuerball", "Mizu", "Frostbringer"].forEach(function(t) { wiki.deleteTiddler(t); });
 	}
 });
 

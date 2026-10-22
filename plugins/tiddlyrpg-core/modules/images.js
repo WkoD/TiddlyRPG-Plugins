@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/images.js
 type: application/javascript
 module-type: library
 created: 20261014180236000
-modified: 20261014185800000
+modified: 20261022161612307
 
 Images and maps of a tiddler or a spot - the one place of these rules. Used by the image filters
 (filters/images.js), the procedure image (functions.tid) and scripts/check-wiki.js.
@@ -30,6 +30,8 @@ var FOLDERS = exports.FOLDERS = [
 	{tags: ["Location"], folder: "location"},
 	{tags: ["Person", "Deity"], folder: "person"},
 	{tags: ["Player"], folder: "player"},
+	{tags: ["Creature"], folder: "creature"},
+	{tags: ["Spell"], folder: "spell"},
 	{tags: ["Information"], folder: "information"}
 ];
 

@@ -1,6 +1,6 @@
 caption: TiddlyRPG graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261015161930000
+modified: 20261022161612307
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 
 \whitespace trim
@@ -34,9 +34,12 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
+<$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
+<$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
 
 <$list filter="[subfilter{!!filter}] :filter[trpg.visible[]]">
@@ -44,6 +47,9 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 <$edges.typed />
 </$list>
 
+</$properties>
+</$properties>
+</$properties>
 </$properties>
 </$properties>
 </$properties>

@@ -388,7 +388,7 @@ relation list show the way back by themselves.
 | Axis | Field | On the dependent, e.g. | Edge | List forward / back |
 |---|---|---|---|---|
 | place | `leader` (on a location) | `leader: Baile` (organisation) | controls | Controls / Control (on the location) |
-| | `location` | `location: Baile` | in | Location / Influence (organisations), Present (the rest), Locations (places) |
+| | `location` | `location: Baile` | in | Location / Influence (organisations), Present (the rest), Creatures (kinds living there, several places each), Locations (places) |
 | power | `leader` | `leader: [[Haus Eiree]]` (person) | leads | Leads / Leaders |
 | | `officer` | `officer: Guild` | officer of | Officer of / Officers |
 | | `member` | `member: Guild` | member of | Member of / Members |
@@ -399,12 +399,15 @@ relation list show the way back by themselves.
 | | `spouse` | `spouse: Ragna` (both ends) | Spouse | Spouse |
 | | `sibling` | `sibling: Bjorn` (both ends) | Sibling | Siblings |
 | | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
+| | `creature` | `creature: Fukuro` (a person, player character or form of a creature: its kind) | is a | Kind / Individuals |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
 | | `patron` | `patron: Sola` | worships | Patron / Followers |
 | things | `creator` | `creator: Corelei` (the item) | made by | Creator / Created |
 | | `owner` | `owner: Balseth` | owned by | Owner / Possessions |
 | | `component` | `component: Löwengras` (the potion) | contains | Components / Part of |
+| | `base` | `base: Warhammer` (an item on a mundane one) | based on | Base item / Variants |
+| | `spells` | `spells: Fireball` (an item, person, player character or creature) | spell | Spells / Known by |
 
 - **Symmetric relations** (`spouse`, `sibling`, `family`, `alliance`, `enmity`, `bond`) are entered on both
   ends - deleting one tiddler loses nothing of the other. If both ends carry it, the graph draws
@@ -413,6 +416,10 @@ relation list show the way back by themselves.
   means being present there, a parent is an ancestor. Only the highest is entered; a lower one
   next to it is not drawn and not listed (a `location` next to a `leader` on the same place
   gets a hint).
+- **Values from the base item:** choosing `base` in the editor copies the values of the rules of
+  the base item into the empty fields, once ("Take the values" does it again later); nothing
+  stays linked - a change of the base item changes nothing here, the price never comes along,
+  a locked value comes with its lock.
 - **Every relation its own edge:** two different relations between the same tiddlers are two
   edges (`under` and `mentor`: "answers to" and "student of").
 - The colour of an edge comes from its axis; `alliance`, `enmity`, `bond`, `former` and `patron`

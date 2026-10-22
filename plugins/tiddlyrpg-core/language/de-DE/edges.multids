@@ -1,12 +1,14 @@
 created: 20261008062202000
-modified: 20261008071815000
+modified: 20261022161106186
 title: $:/tiddlyrpg/language/de-DE/Edge/
 
 alliance: Allianz
 ancestor: Nachfahre von
+base: basiert auf
 bond: Bund
 component: enthält
 creator: erschaffen von
+creature: ist ein(e)
 enmity: Feindschaft
 family: Familie
 former: ehemals bei
@@ -21,5 +23,6 @@ parent: Kind von
 patron: verehrt
 rules: kontrolliert
 sibling: Geschwister
+spells: Zauber
 spouse: Ehe
 under: untersteht

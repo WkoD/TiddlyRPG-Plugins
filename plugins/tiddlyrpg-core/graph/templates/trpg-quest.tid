@@ -1,6 +1,6 @@
 caption: TiddlyRPG quest graph (events and what they mention)
 created: 20261015170750000
-modified: 20261015170750000
+modified: 20261022161612307
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 
 \whitespace trim
@@ -33,9 +33,12 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
+<$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
+<$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
 
 <$let trpg-quest=<<currentNode>>
@@ -50,6 +53,9 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 <$tiddler tiddler=<<trpg-event>>>
 <%if [<trpg-event>match<trpg-newest>] %>
 <$properties borderWidth="3"><<trpg.node>></$properties>
+</$properties>
+</$properties>
+</$properties>
 <%else%>
 <<trpg.node>>
 <%endif%>

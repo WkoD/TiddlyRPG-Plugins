@@ -468,3 +468,27 @@ test.describe("fields of the rules in the form", function() {
 		});
 	});
 });
+
+test.describe("values from the base (a relation with tiddlyrpg-copy)", function() {
+	test("setting the base copies the empty values once, never the price; a lock comes with its value", function() {
+		h.add(wiki, {title: "Warhammer", tags: "Item Equipment", category: "weapon, martial, melee, versatile", damage: "1d8 bludgeoning", weight: "2 lb", price: "15 gp", rarity: "rare", "secret-fields": "rarity", text: "."});
+		h.add(wiki, {title: "Draft of 'Frostbringer'", "draft.of": "Frostbringer", tags: "Artifact", base: "Warhammer", damage: "1d8 bludgeoning plus 1d8 cold", text: ""});
+		try {
+			var done = form.copyFrom(wiki, "Draft of 'Frostbringer'", "base"),
+				fields = wiki.getTiddler("Draft of 'Frostbringer'").fields;
+			assert.equal(done.source, "Warhammer");
+			assert.equal(done.fields.sort().join(), "category,rarity,weight");
+			assert.equal(fields.damage, "1d8 bludgeoning plus 1d8 cold", "nothing written over");
+			assert.equal(fields.price, undefined, "never the price");
+			assert.equal(fields["secret-fields"], "rarity", "the lock comes with the value");
+			assert.equal(form.copyFrom(wiki, "Draft of 'Frostbringer'", "base").fields.length, 0, "once: then there is nothing left");
+			assert.equal(form.copyFrom(wiki, "Draft of 'Frostbringer'", "spells").fields.length, 0, "a relation that does not copy");
+			var html = h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/fields/relation}}", {currentTiddler: "Draft of 'Frostbringer'", currentField: "base"});
+			assert.match(html, />Werte übernehmen</);
+			assert.doesNotMatch(h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/fields/relation}}", {currentTiddler: "Draft of 'Frostbringer'", currentField: "spells"}), /Werte übernehmen/);
+		} finally {
+			wiki.deleteTiddler("Warhammer");
+			wiki.deleteTiddler("Draft of 'Frostbringer'");
+		}
+	});
+});

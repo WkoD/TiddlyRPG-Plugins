@@ -1,6 +1,6 @@
 caption: TiddlyRPG ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261015161930000
+modified: 20261022161612307
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 \whitespace trim
@@ -38,9 +38,12 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
+<$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
+<$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
 
 <$let trpg-centre={{{ [<currentNode>] [<currentNode>tag[Location]sublocations:all[spot]] :filter[trpg.visible[]] +[format:titlelist[]join[ ]] }}}>
@@ -78,6 +81,9 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 </$let>
 
+</$properties>
+</$properties>
+</$properties>
 </$properties>
 </$properties>
 </$properties>

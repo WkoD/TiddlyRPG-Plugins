@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261015180520000
+modified: 20261022161612307
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -24,6 +24,9 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 	trpg-y={{{ [<trpg-pos>split[,]last[]] }}}>
 <%if [<trpg-pos>!is[blank]] %>
 <$properties x=<<trpg-x>> y=<<trpg-y>> physics="no"><$slot $name="ts-raw"/></$properties>
+</$properties>
+</$properties>
+</$properties>
 <%else%>
 <$properties physics="no" trpgUnplaced="yes"><$slot $name="ts-raw"/></$properties>
 <%endif%>
@@ -83,8 +86,11 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 <$properties $filter="[tag[Person]]"         color={{Person!!color}}>
 <$properties $filter="[tag[Player]]"        color={{Player!!color}}>
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
+<$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
+<$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
 
 <!-- fixed: the locations lying in it, the spots -->
 <$properties fixed={{{ [<trpg-edit>match[yes]then[no]else[yes]] }}} free={{{ [<trpg-edit>match[yes]then<trpg.save>] }}} trpgPin="tiddler">

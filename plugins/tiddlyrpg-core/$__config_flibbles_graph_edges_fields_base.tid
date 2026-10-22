@@ -1,0 +1,10 @@
+created: 20261022161055756
+modified: 20261022161055756
+tiddlyrpg-copy: yes
+tiddlyrpg-targets: [tag[Item]]
+title: $:/config/flibbles/graph/edges/fields/base
+type: application/json
+
+{
+    "label": "Base"
+}

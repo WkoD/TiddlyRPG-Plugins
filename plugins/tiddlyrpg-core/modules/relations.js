@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261016184211000
+modified: 20261022161612307
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -24,6 +24,9 @@ Our fields on the config of a type:
                       the included one is neither drawn nor listed
   tiddlyrpg-via         function types only: the field whose listings are the candidates for the
                       way back (rules: leader)
+  tiddlyrpg-copy        yes: setting it in the form copies the values of the rules of the target
+                      into the draft once, where it has none (base: the base item; modules/form.js
+                      copyFrom())
 
 Axes: $:/config/tiddlyrpg/graph/axes lists them in order (field list); each axis
 $:/config/tiddlyrpg/graph/axes/<axis> is an edge style (JSON, like an edge type config) and lists
@@ -76,6 +79,7 @@ var types = exports.types = function(wiki) {
 					impliedBy: [],
 					via: fields["tiddlyrpg-via"] || "",
 					candidates: fields["tiddlyrpg-targets"] || "",
+					copy: fields["tiddlyrpg-copy"] === "yes",
 					axis: "",
 					order: Infinity
 				};
@@ -196,12 +200,13 @@ exports.sources = function(wiki,name,to,selected) {
 
 // The kinds of the switches (relations block, map, search), by tag; the first that fits counts
 var KINDS = [["Player","player"],["Person","person"],["Organisation","organisation"],["Deity","person"],
-	["Location","location"],["Artifact","item"],["Item","item"],["Material","item"],["Quest","quest"]];
+	["Location","location"],["Artifact","item"],["Item","item"],["Material","item"],["Quest","quest"],
+	["Creature","creature"],["Spell","spell"]];
 
 /*
 The kind of a title: player, person (deities too), organisation, location, item (artifacts and
-materials too), quest (a quest or a rumour, a name with markers), with <events> also event;
-else other.
+materials too), quest (a quest or a rumour, a name with markers), creature, spell, with <events>
+also event; else other.
 */
 exports.kindOf = function(wiki,title,events) {
 	var tiddler = wiki.getTiddler(title),

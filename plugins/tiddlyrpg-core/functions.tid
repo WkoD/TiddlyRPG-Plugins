@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261016210033000
+modified: 20261022161612307
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -85,7 +85,7 @@ type: text/vnd.tiddlywiki
 </$let>
 \end
 
-\procedure trpg.kindswitches(kinds,state,mode,hubs:"Player Person Organisation Location Item Quest")
+\procedure trpg.kindswitches(kinds,state,mode,hubs:"Player Person Organisation Location Item Creature Spell Quest")
 \whitespace trim
 <%if [enlist<kinds>!match[other]] %>
 <div class="trpg-kind-switches">

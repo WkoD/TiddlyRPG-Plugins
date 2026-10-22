@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261015193638000
+modified: 20261022161612307
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -39,7 +39,7 @@ is reported by checks/locations.js.
 var spots = require("$:/plugins/tiddlyrpg-core/modules/spots.js"),
 	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
 
-var OCCUPANTS = ["Person","Player","Organisation","Deity","Artifact","Item","Material"];
+var OCCUPANTS = ["Person","Player","Organisation","Deity","Artifact","Item","Material","Creature"];
 
 function isLocation(wiki,title) {
 	var tiddler = wiki.getTiddler(title);

@@ -1,6 +1,6 @@
 created: 20261008062202000
-list: parent ancestor spouse sibling family
-modified: 20261008071815000
+list: parent ancestor spouse sibling family creature
+modified: 20261022161055756
 title: $:/config/tiddlyrpg/graph/axes/family
 type: application/json
 

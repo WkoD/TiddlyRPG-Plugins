@@ -1,6 +1,6 @@
 created: 20200308140527410
 list-after: $:/plugins/tiddlyrpg-core/viewtemplates/player
-modified: 20261006154328000
+modified: 20261022161612307
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/activity
 type: text/vnd.tiddlywiki
@@ -9,7 +9,7 @@ type: text/vnd.tiddlywiki
      date line (right, grey; the same procedure as the span of an event, viewtemplates/event) -->
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <%if [<currentTiddler>trpg.visible[]] %>
-<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material]]">
+<$list filter="[all[current]multitag[Person,Player,Organisation,Deity,Location,Artifact,Item,Material,Creature,Spell]]">
 <$transclude $variable="trpg.dateline" mode="year"/>
 </$list>
 <%endif%>

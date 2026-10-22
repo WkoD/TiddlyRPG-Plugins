@@ -1,6 +1,6 @@
 caption: <<trpg.t Relations/List>>
 created: 20260713135021000
-modified: 20261016210033000
+modified: 20261022161612307
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
@@ -12,7 +12,8 @@ type: text/vnd.tiddlywiki
 \function trpg.within(place) [<place>sublocations[]] :filter[trpg.visible[]] :filter[trpg.egoshown<self>] +[sort[title]]
 \function trpg.control(place) [trpg.here<place>] :filter[get[leader]enlist-input[]match<place>]
 \function trpg.influence(place) [trpg.here<place>tag[Organisation]] -[trpg.control<place>]
-\function trpg.present(place) [trpg.here<place>] -[trpg.control<place>] -[trpg.influence<place>]
+\function trpg.creatures(place) [trpg.here<place>tag[Creature]] -[trpg.control<place>]
+\function trpg.present(place) [trpg.here<place>] -[trpg.control<place>] -[trpg.influence<place>] -[trpg.creatures<place>]
 
 \procedure trpg.heading(label,count)
 \whitespace trim
@@ -32,6 +33,7 @@ type: text/vnd.tiddlywiki
 <$let hits={{{ [trpg.control<place>] }}}><$transclude $variable="trpg.group" label={{{ [[FieldInverse/rules]trpgtranslate[]] }}}/></$let>
 <$let hits={{{ [trpg.influence<place>] }}}><$transclude $variable="trpg.group" label={{{ [[Relations/Influence]trpgtranslate[]] }}}/></$let>
 <$let hits={{{ [trpg.present<place>] }}}><$transclude $variable="trpg.group" label={{{ [[FieldInverse/location]trpgtranslate[]] }}}/></$let>
+<$let hits={{{ [trpg.creatures<place>] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural[Creature]] }}}/></$let>
 <%if [trpg.within<place>] :filter[<depth>compare:number:lt[10]] %>
 <$transclude $variable="trpg.heading" label={{{ [trpg.plural[Location]] }}} count={{{ [trpg.within<place>count[]] }}}/>
 <$list filter="[trpg.within<place>]" variable="trpg-sub">
@@ -61,7 +63,8 @@ type: text/vnd.tiddlywiki
      of the place (procedure trpg.place) instead of the locations above and below it, each only
      with entries, everyone in one of them: "Control" (FieldInverse/rules: who leads it, field
      leader), "Influence" (Relations/Influence: the other organisations there), "Present"
-     (FieldInverse/location: everyone else there - persons, players, deities, items), "Locations"
+     (FieldInverse/location: everyone else there - persons, players, deities, items), "Creatures"
+     (Plural/Creature: the kinds that live there, field location of a creature), "Locations"
      (the places within, both kinds, a spot dashed). Every place within with entries is a folded
      branch (<details>) with the number of its entries, and the same groups inside; one without
      is a leaf. The parent is in the path below the title, the places a tiddler leads in the

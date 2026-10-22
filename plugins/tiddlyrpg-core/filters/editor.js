@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261022160742118
+modified: 20261022161612307
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -33,6 +33,8 @@ picker (editor/procedures) and the kinds of the search.
                                core (cascade $:/config/FieldEditorFilters/tiddlyrpg); a field of
                                the rules: editor/fields/rules
 [<draft>trpgformlabel<field>]  the label of a field in the form (modules/form.js label)
+[<field>trpgrelationcopy[]]    each input relation that copies the values of its target
+                               (tiddlyrpg-copy, modules/relations.js)
 [<draft>trpgdatemarkers[]]     the number of dated sections in the text of the draft
 [trpgformknown[]]              the fields the form knows (modules/form.js known)
 [<draft>trpgformoffered[]]     the fields the form offers to add for a draft (modules/form.js offered)
@@ -256,6 +258,15 @@ exports.trpgdatemarkers = function(source,operator,options) {
 
 exports.trpgformknown = function(source,operator,options) {
 	return form.known(options.wiki).slice();
+};
+
+exports.trpgrelationcopy = function(source,operator,options) {
+	var all = relations.types(options.wiki);
+	return each(source,function(field,results) {
+		if(all[field] && all[field].copy) {
+			results.push(field);
+		}
+	});
 };
 
 exports.trpgformlabel = function(source,operator,options) {

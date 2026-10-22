@@ -1094,6 +1094,9 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   switches (relations block, map, search; the search adds `event`).
 - Every type draws its own edges; two types between the same tiddlers are two edges (decided
   2026-10-08 against merging them into one labelled edge).
+- `tiddlyrpg-copy: yes` on a config (`base`): choosing the type in the editor copies the values
+  of the rules of its target into the empty fields of the draft once (`form.copyFrom()`,
+  `tm-trpg-copy`, the button "Take the values"); no value is inherited.
 - The types in play: a graph view draws only some types (`edges.fields`/`edges.functions`);
   the override passes them on (`trpgTypes`), so a type left out does not hide another one. The
   relation list uses all.
@@ -1109,7 +1112,8 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   `location` gives the groups of the place (procedure `trpg.place`), in this order and only
   with entries, everyone in one of them: "Control" (`FieldInverse/rules`: who leads it),
   "Influence" (`Relations/Influence`: the other organisations there), "Present"
-  (`FieldInverse/location`: everyone else), "Locations" (the places within as a tree - a
+  (`FieldInverse/location`: everyone else), "Creatures" (`Plural/Creature`: the kinds living
+  there, a creature may live in several places), "Locations" (the places within as a tree - a
   branch with the number of its entries and the same groups inside, a leaf without; a spot
   dashed). `rules` has no way back anywhere else.
 - The tree (`styles/location`): the arrow of a branch a CSS triangle in the colour of `Location`
