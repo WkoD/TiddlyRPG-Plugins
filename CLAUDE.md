@@ -380,7 +380,8 @@ the tiddler title:
   derived values, the header line, `when`, `copyFrom()` - see "Rules engine"), `types.js`
   (the type tags: the hubs and the item categories of the campaign, `of()` the types of a
   tiddler; `UNTYPED`: pages that need no type),
-  `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor").
+  `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor"), `notice.js` (the notifications
+  of the editor: each shown from a slot of its own, so two in a row keep their texts).
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
 - **Content packages** (Node only): `modules/content-server.js` finds the packages in
   `<wiki>/node_modules` (`package.json` -> `"tiddlyrpg": {"content": [...]}`, their manifests
@@ -847,7 +848,7 @@ tests reach it without a browser; the wikitext only asks and passes values.
   picker, `trpgsimilar`, the "new name" pill); values that stand in the draft show as they are.
   The sweep in `test/views.test.js` renders the pickers and dropdowns with a draft.
 - **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, the fields
-  of the rules in it, symmetric, fixes, a created tiddler undone on cancelling), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
+  of the rules in it, symmetric, fixes, a created tiddler undone on cancelling, notifications), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
   every new input).
 
 ## Unknown macros

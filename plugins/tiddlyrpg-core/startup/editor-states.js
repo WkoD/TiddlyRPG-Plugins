@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-states.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261022160104767
+modified: 20261022184902362
 
 The states of the editor that belong to a draft (modules/form.js states: the fields added to the
 form, the values of the toolbar dropdowns, the pickers) go when the draft goes - saved, or
@@ -32,9 +32,9 @@ exports.after = ["startup"];
 exports.synchronous = true;
 
 var form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
 
-var NOTICE = "$:/temp/tiddlyrpg-core/editor/notice";
 
 // Takes the fields the types of <draft> do not have out of it and of its added fields
 function drop(wiki,draft) {
@@ -59,12 +59,9 @@ function drop(wiki,draft) {
 	}
 	// The notification names the fields that had a value, not those added and left empty
 	if(filled.length) {
-		wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t(wiki,"Editor/Form/Dropped"),{
+		notice.show(wiki,language.format(language.t(wiki,"Editor/Form/Dropped"),{
 			fields: filled.map(function(field) { return form.label(wiki,draft,field); }).join(", ")
-		})}));
-		if($tw.notifier) {
-			$tw.notifier.display(NOTICE);
-		}
+		}));
 	}
 }
 
@@ -79,10 +76,7 @@ function undoCreated(wiki,draft) {
 		lines.push(language.format(language.t(wiki,"Editor/Sublocation/Kept"),{titles: undone.kept.join(", ")}));
 	}
 	if(lines.length) {
-		wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: lines.join("\n\n")}));
-		if($tw.notifier) {
-			$tw.notifier.display(NOTICE);
-		}
+		notice.show(wiki,lines.join("\n\n"));
 	}
 }
 

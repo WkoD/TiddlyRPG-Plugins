@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/inverse.js
 type: application/javascript
 module-type: startup
 created: 20261022171029770
-modified: 20261022171029770
+modified: 20261022184902362
 
 Hook th-saving-tiddler: the ways back chosen in the form (modules/inverse.js, "give an item") go to
 the other ends - each gets the title of the saved tiddler in its field -, and their fields go from
@@ -18,9 +18,9 @@ exports.after = ["startup"];
 exports.synchronous = true;
 
 var inverse = require("$:/plugins/tiddlyrpg-core/modules/inverse.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
 
-var NOTICE = "$:/temp/tiddlyrpg-core/editor/notice";
 
 exports.startup = function() {
 	$tw.hooks.addHook("th-saving-tiddler",function(newTiddler) {
@@ -36,10 +36,7 @@ exports.startup = function() {
 			}
 		});
 		if(done.changed.length) {
-			wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t(wiki,"Editor/Inverse/Notice"),{titles: done.changed.join(", ")})}));
-			if($tw.notifier) {
-				$tw.notifier.display(NOTICE);
-			}
+			notice.show(wiki,language.format(language.t(wiki,"Editor/Inverse/Notice"),{titles: done.changed.join(", ")}));
 		}
 		return new $tw.Tiddler(newTiddler,cleared);
 	});

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/content.js
 type: application/javascript
 module-type: startup
 created: 20261022165648795
-modified: 20261022171029770
+modified: 20261022184902362
 
 Content packages in the browser (modules/content.js): loads the index of the packages of the active
 ruleset from the server (server/content-route.js) into the temp tiddler of the index - at the
@@ -36,10 +36,10 @@ exports.synchronous = true;
 var content = require("$:/plugins/tiddlyrpg-core/modules/content.js"),
 	pluginTypes = require("$:/plugins/tiddlyrpg-core/modules/plugin-types.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
 
-var NOTICE = "$:/temp/tiddlyrpg-core/editor/notice",
-	PREVIEW = "$:/temp/tiddlyrpg-core/content/preview",
+var PREVIEW = "$:/temp/tiddlyrpg-core/content/preview",
 	RULESET = "$:/config/tiddlyrpg/ruleset";
 
 // Whether the wiki has a server to ask: the sync adaptor of TiddlyWeb, not read-only
@@ -73,8 +73,7 @@ function load(wiki) {
 }
 
 function notify(wiki,text) {
-	wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: text}));
-	$tw.notifier.display(NOTICE);
+	notice.show(wiki,text);
 }
 
 // Fetches an entry: callback(found) with {package, entry}, or null

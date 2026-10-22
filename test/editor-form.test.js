@@ -2,7 +2,8 @@
  * The form in the editor (modules/form.js, editor/form, editor/fields): its fields per type, the
  * fields that hold one entry, what a field may name; symmetric relations on both ends on saving
  * (modules/symmetric.js, startup/symmetric.js); the messages of a draft with their fixes
- * (modules/checks.js forDraft, modules/fixes.js); the new hint of a section without marker.
+ * (modules/checks.js forDraft, modules/fixes.js); the new hint of a section without marker; the
+ * notifications of the editor (modules/notice.js).
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -555,5 +556,26 @@ test.describe("the entries of the content packages in the pickers; the way back 
 			h.add(wiki, {title: "Krone", tags: "Artifact", owner: "Bea", text: "."});
 			wiki.deleteTiddler("$:/temp/tiddlyrpg-core/editor/notice");
 		}
+	});
+});
+
+test.describe("notifications", function() {
+	test("two in a row keep their own text on screen; the latest stays to read", function() {
+		var notice = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/notice.js"),
+			shown = [],
+			before = $tw.notifier;
+		$tw.notifier = {display: function(title) { shown.push(title); }};
+		try {
+			notice.show(wiki, "Werte von Warhammer: Art, Schaden");
+			notice.show(wiki, "Ins Wiki übernommen: Warhammer");
+		} finally {
+			$tw.notifier = before;
+		}
+		assert.equal(shown.length, 2);
+		assert.notEqual(shown[0], shown[1], "each notification its own tiddler");
+		assert.equal(wiki.getTiddlerText(shown[0]), "Werte von Warhammer: Art, Schaden", "the first is not overwritten by the second");
+		assert.equal(wiki.getTiddlerText(shown[1]), "Ins Wiki übernommen: Warhammer");
+		assert.equal(wiki.getTiddlerText(notice.NOTICE), "Ins Wiki übernommen: Warhammer");
+		shown.concat([notice.NOTICE]).forEach(function(title) { wiki.deleteTiddler(title); });
 	});
 });

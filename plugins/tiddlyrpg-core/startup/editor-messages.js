@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-messages.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261022164503295
+modified: 20261022184902362
 
 Messages of the editor that the edit-text widget does not handle, so they reach the root widget:
 
@@ -30,9 +30,9 @@ exports.synchronous = true;
 
 var fixes = require("$:/plugins/tiddlyrpg-core/modules/fixes.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
 
-var NOTICE = "$:/temp/tiddlyrpg-core/editor/notice";
 
 exports.startup = function() {
 	$tw.rootWidget.addEventListener("tm-trpg-fix",function(event) {
@@ -50,11 +50,10 @@ exports.startup = function() {
 		var params = event.paramObject || {},
 			done = form.copyFrom($tw.wiki,params.draft,params.field);
 		if(done.source) {
-			$tw.wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t($tw.wiki,done.missing ? "Editor/Form/CopiedMissing" : (done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone")),{
+			notice.show($tw.wiki,language.format(language.t($tw.wiki,done.missing ? "Editor/Form/CopiedMissing" : (done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone")),{
 				title: language.title($tw.wiki,done.source),
 				fields: done.fields.map(function(name) { return form.label($tw.wiki,params.draft,name); }).join(", ")
-			})}));
-			$tw.notifier.display(NOTICE);
+			}));
 		}
 		return false;
 	});

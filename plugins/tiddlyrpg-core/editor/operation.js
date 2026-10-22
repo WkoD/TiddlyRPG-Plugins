@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/editor/operation.js
 type: application/javascript
 module-type: texteditoroperation
 created: 20261016184211000
-modified: 20261016214011000
+modified: 20261022184902362
 
 The text operations of the buttons of the editor toolbar (editor/toolbar/*), sent as
 tm-edit-text-operation. They run in the edit-text widget, so they reach the text, the selection
@@ -29,11 +29,11 @@ The tags of the draft count under their internal names (a tag typed as "Ereignis
 
 var editor = require("$:/plugins/tiddlyrpg-core/modules/editor.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
 
 var PROBE = "$:/temp/tiddlyrpg-core/editor/probe/",
-	INPUT = "$:/temp/tiddlyrpg-core/editor/input/",
-	NOTICE = "$:/temp/tiddlyrpg-core/editor/notice";
+	INPUT = "$:/temp/tiddlyrpg-core/editor/input/";
 
 function inputOf(widget,operation) {
 	var wiki = widget.wiki,
@@ -50,10 +50,7 @@ function inputOf(widget,operation) {
 }
 
 function notify(wiki,key) {
-	wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.t(wiki,key)}));
-	if($tw.notifier) {
-		$tw.notifier.display(NOTICE);
-	}
+	notice.show(wiki,language.t(wiki,key));
 }
 
 exports["trpg-probe"] = function(event,operation) {
