@@ -1,0 +1,75 @@
+created: 20261022142450275
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/item
+modified: 20261022142450275
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- The values of the fields of the rules (modules/fields.js, filters/fields.js): the header
+     line, the fields outside groups as a list, then the groups - a row as a small table, a list
+     as label and value -, the relations a group names as pills. Lists (labels) as small pills,
+     every value as text. Nothing without a value to show; not for a tiddler the view does not
+     see. The colour of the lines is the colour of the type (--trpg-type). -->
+\procedure trpg.fieldvalue(field)
+<%if [<field>trpgfieldformat[]match[labels]] %>
+<span class="trpg-fields-pills"><$list filter="[<currentTiddler>trpgfieldparts<field>]" variable="trpg-part"><span class="trpg-fields-pill"><$text text=<<trpg-part>>/></span></$list></span>
+<%else%>
+<$text text={{{ [<currentTiddler>trpgfieldshow<field>] }}}/>
+<%endif%>
+\end
+
+\procedure trpg.fieldlist(filter)
+<dl class="trpg-fields-list">
+<$list filter=<<filter>> variable="trpg-field">
+<dt><$text text={{{ [<currentTiddler>trpgfieldlabel<trpg-field>] }}}/></dt>
+<dd><$transclude $variable="trpg.fieldvalue" field=<<trpg-field>>/></dd>
+</$list>
+</dl>
+\end
+
+<$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
+<%if [<currentTiddler>trpg.visible[]] %>
+<$let trpg-summary={{{ [<currentTiddler>trpgfieldsummary[]] }}}>
+<%if [<trpg-summary>!is[blank]] [<currentTiddler>trpgfieldlist[]] [<currentTiddler>trpgfieldgroups[]] +[limit[1]] %>
+<div class="trpg-fields" style={{{ [<currentTiddler>trpgfieldcolor[]addprefix[--trpg-type:]] }}}>
+<%if [<trpg-summary>!is[blank]] %>
+<div class="trpg-fields-summary"><$text text=<<trpg-summary>>/></div>
+<%endif%>
+<%if [<currentTiddler>trpgfieldlist[]] %>
+<$transclude $variable="trpg.fieldlist" filter="[<currentTiddler>trpgfieldlist[]]"/>
+<%endif%>
+<$list filter="[<currentTiddler>trpgfieldgroups[]]" variable="trpg-group">
+<div class="trpg-fields-group">
+<div class="trpg-fields-group-label"><$text text={{{ [<currentTiddler>trpgfieldgroup:label<trpg-group>] }}}/></div>
+<%if [<currentTiddler>trpgfieldgroup:layout<trpg-group>match[row]] %>
+<table class="trpg-fields-row">
+<tr>
+<$list filter="[<currentTiddler>trpgfieldlist<trpg-group>]" variable="trpg-field">
+<th><$text text={{{ [<currentTiddler>trpgfieldlabel<trpg-field>] }}}/></th>
+</$list>
+</tr>
+<tr>
+<$list filter="[<currentTiddler>trpgfieldlist<trpg-group>]" variable="trpg-field">
+<td><$transclude $variable="trpg.fieldvalue" field=<<trpg-field>>/></td>
+</$list>
+</tr>
+</table>
+<%else%>
+<$transclude $variable="trpg.fieldlist" filter="[<currentTiddler>trpgfieldlist<trpg-group>]"/>
+<%endif%>
+<$list filter="[<currentTiddler>trpgfieldgroup:relations<trpg-group>]" variable="trpg-relation">
+<$list filter="[<currentTiddler>get<trpg-relation>enlist-input[]] :filter[trpg.visible[]] +[limit[1]]" variable="ignore">
+<dl class="trpg-fields-list">
+<dt><$text text={{{ [<trpg-relation>addprefix[Field/]trpgtranslate[]] }}}/></dt>
+<dd><$list filter="[<currentTiddler>get<trpg-relation>enlist-input[]] :filter[trpg.visible[]]" variable="trpg-target"><$transclude $variable="trpg.pill" title=<<trpg-target>>/></$list></dd>
+</dl>
+</$list>
+</$list>
+</div>
+</$list>
+</div>
+<%endif%>
+</$let>
+<%endif%>
+</$reveal>

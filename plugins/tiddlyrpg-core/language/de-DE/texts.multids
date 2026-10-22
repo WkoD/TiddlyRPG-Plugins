@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022135627402
+modified: 20261022141827523
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -225,15 +225,15 @@ Rules/Check/Pair: Text prüfen: „$text$“ in <<unit>> enthält zwei Werte a/b
 Rules/Check/Term: Text prüfen: <<term>> kennt kein „$id$“
 Rules/Check/Unit: Text prüfen: keine bekannte Einheit in <<unit "$text$">>
 Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$“
-Rules/Check/Label: Wert prüfen: „$text$“ ist hier kein bekannter Begriff
-Rules/Check/Only: Wert prüfen: „$text$“ ist hier nicht erlaubt (nur $only$)
-Rules/Check/TraitParent: Wert prüfen: „$id$“ gehört zu $parents$, das fehlt
-Rules/Check/TraitTwice: Wert prüfen: „$id$“ passt zu $parents$ gleichermaßen
-Rules/Check/Number: Wert prüfen: „$text$“ ist keine Zahl
-Rules/Check/NumberRange: Wert prüfen: $text$ liegt außerhalb von $min$ bis $max$
-Rules/Check/Boolean: Wert prüfen: „$text$“ ist weder ja noch nein
-Rules/Check/Dice: Wert prüfen: „$text$“ ist kein Würfelausdruck
-Rules/Check/UnitDomain: Wert prüfen: „$text$“ ist kein Wert für $domain$
+Rules/Check/Label: Feld $field$ prüfen: „$text$“ ist hier kein bekannter Begriff
+Rules/Check/Only: Feld $field$ prüfen: „$text$“ ist hier nicht erlaubt (nur $only$)
+Rules/Check/TraitParent: Feld $field$ prüfen: „$id$“ gehört zu $parents$, das fehlt
+Rules/Check/TraitTwice: Feld $field$ prüfen: „$id$“ passt zu $parents$ gleichermaßen
+Rules/Check/Number: Feld $field$ prüfen: „$text$“ ist keine Zahl
+Rules/Check/NumberRange: Feld $field$ prüfen: $text$ liegt außerhalb von $min$ bis $max$
+Rules/Check/Boolean: Feld $field$ prüfen: „$text$“ ist weder ja noch nein
+Rules/Check/Dice: Feld $field$ prüfen: „$text$“ ist kein Würfelausdruck
+Rules/Check/UnitDomain: Feld $field$ prüfen: „$text$“ ist kein Wert für $domain$
 Rules/Mode/all: eine Sprache für alles:
 Rules/Mode/domain: pro Bereich (in der Tabelle)
 Rules/Mode/wiki: die Wiki-Sprache

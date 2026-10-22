@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022135627402
+modified: 20261022141827523
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -225,15 +225,15 @@ Rules/Check/Pair: Check the text: "$text$" in <<unit>> holds two values a/b; onl
 Rules/Check/Term: Check the text: <<term>> knows no "$id$"
 Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
 Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
-Rules/Check/Label: Check the value: "$text$" is no known term here
-Rules/Check/Only: Check the value: "$text$" is not allowed here (only $only$)
-Rules/Check/TraitParent: Check the value: "$id$" belongs to $parents$, which is missing
-Rules/Check/TraitTwice: Check the value: "$id$" fits $parents$ alike
-Rules/Check/Number: Check the value: "$text$" is no number
-Rules/Check/NumberRange: Check the value: $text$ lies outside $min$ to $max$
-Rules/Check/Boolean: Check the value: "$text$" is neither yes nor no
-Rules/Check/Dice: Check the value: "$text$" is no dice expression
-Rules/Check/UnitDomain: Check the value: "$text$" is no $domain$
+Rules/Check/Label: Check the field $field$: "$text$" is no known term here
+Rules/Check/Only: Check the field $field$: "$text$" is not allowed here (only $only$)
+Rules/Check/TraitParent: Check the field $field$: "$id$" belongs to $parents$, which is missing
+Rules/Check/TraitTwice: Check the field $field$: "$id$" fits $parents$ alike
+Rules/Check/Number: Check the field $field$: "$text$" is no number
+Rules/Check/NumberRange: Check the field $field$: $text$ lies outside $min$ to $max$
+Rules/Check/Boolean: Check the field $field$: "$text$" is neither yes nor no
+Rules/Check/Dice: Check the field $field$: "$text$" is no dice expression
+Rules/Check/UnitDomain: Check the field $field$: "$text$" is no $domain$
 Rules/Mode/all: one language for all:
 Rules/Mode/domain: per domain (in the table)
 Rules/Mode/wiki: the wiki language

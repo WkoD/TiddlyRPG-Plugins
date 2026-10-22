@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022141507011
+modified: 20261022142450275
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -52,7 +52,7 @@ into a draft once - nothing stays linked.
   read(wiki,fields,field)     {text, problem, values, written, derived, items} of a field of a
                               tiddler (its fields as an object)
   summary(wiki,fields,schema) the header line, or ""; the fields it uses
-  fits(wiki,fields,when)      whether a "when" holds
+  fits(wiki,fields,when,list) whether a "when" holds (list: the fields of the schema)
   copyFrom(wiki,draft,source) the values to copy: {field: value}, "secret-fields" included
   locked(fields)              the fields secret-fields locks: null, "all" or [fields]
 
@@ -417,12 +417,17 @@ exports.read = function(wiki,fields,field) {
 	return r;
 };
 
-// Whether a "when" holds: every field it names holds one of its values (an id of a list counts)
-var fits = exports.fits = function(wiki,fields,when) {
+// Whether a "when" holds: every field it names holds one of its values (an id of a list counts);
+// a field the schema of the tiddler does not have (schemaFields, optional) sets no condition -
+// damage on a weapon only, on a spell always
+var fits = exports.fits = function(wiki,fields,when,schemaFields) {
 	if(!when) {
 		return true;
 	}
 	return Object.keys(when).every(function(field) {
+		if(schemaFields && schemaFields.indexOf(field) === -1) {
+			return true;
+		}
 		var wanted = [].concat(when[field]),
 			s = spec(wiki,field),
 			text = raw(fields,field),

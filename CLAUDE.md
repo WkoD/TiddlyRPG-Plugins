@@ -232,7 +232,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
     with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
     the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
-    lock; the rule `fields/schema` (a reserved name, a field defined twice, without definition)
+    lock; the rule `fields/schema` (a reserved name, a field defined twice, without definition);
+    the block of values (`viewtemplates/fields`: list, row group, pills, header line, type
+    colour, hidden from a view that does not see the tiddler); the rules `fields/value` and
+    `fields/when` (a condition on a field the schema lacks does not count)
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
     campaign setting with its hints, the whole row as click target, the note on an own calendar
     or currency (and that it wins over the setting); "Ruleset options" (rules language of the
@@ -398,6 +401,9 @@ the tiddler title:
   `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
+  `fields.js` (`trpgfieldsummary`, `trpgfieldlist`, `trpgfieldgroups`, `trpgfieldgroup`,
+  `trpgfieldshow`, `trpgfieldparts`, `trpgfieldlabel`, `trpgfieldformat`, `trpgfieldcolor`:
+  the block of values, see "Rules engine"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
   `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, see "Relations"),
   `quests.js` (`questnames`, `questreal`, `queststatus`, `questmarks`, `questlast`,
@@ -438,7 +444,9 @@ the tiddler title:
 - **ViewTemplates** (`viewtemplates/*`): `activity`, `image`, `event`, `event-list` (tab list
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
-  references; contents `event-list/timeline` + `event-list/list`), `item`, `source` (the
+  references; contents `event-list/timeline` + `event-list/list`), `item`, `fields` (the values
+  of the fields of the rules after the price: header line, list, groups as row or list, lists as
+  pills, the relations a group names; lines in the colour of the type), `source` (the
   field `source`: where the images come from, "Source: …" below the body),
   `location` (map block of every location, as tabs: "Map" - the first map with `location/map`,
   map graph, switches, buttons -, every further map, "Quests and rumours" (`location/quests`:
@@ -456,7 +464,8 @@ the tiddler title:
   and `body-filter-sections` (cascade, see below), `body-filter-quest` (a quest or rumour, see
   "Quests").
 - **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey), `item` (book
-  rules, images and maps of `trpg.images` scaled to the width), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
+  rules, images and maps of `trpg.images` scaled to the width), `fields` (the block of values:
+  header line, groups, rows, pills; static CSS, the colour of the type from `--trpg-type`), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
   heading of a dated section, location pills), `location` (the pill of `trpg.pill`, the path,
   spot pills, spots, map buttons, the tab "Quests and rumours", the relation list: group
   headings, the tree with its arrow and line; static CSS, `type: text/css`), `path` (the font

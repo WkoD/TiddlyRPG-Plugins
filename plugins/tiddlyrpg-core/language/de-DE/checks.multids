@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261022140929737
+modified: 20261022141844435
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -26,6 +26,8 @@ Expected/Text: Text prüfen: noch kein Text
 Fields/Reserved: Definition prüfen: $field$ ist ein Feld des Kerns oder einer Beziehung – anders benennen
 Fields/Twice: Definition prüfen: $field$ ist schon in $other$ definiert
 Fields/Undefined: Schema prüfen: $field$ hat keine Definition
+Fields/Value: Feld $field$ prüfen: „$text$“ ist nicht lesbar
+Fields/When: Feld $field$ prüfen: es gilt nur bei $when$
 Images/Image: Bild prüfen: $path$ gibt es nicht
 Images/Joined: Spot prüfen: $spot$ ist mit $target$ verbunden – seine Bilder und Karten erscheinen dort, also dort eintragen
 Images/Macro: Text prüfen: <<image>> zeigt $path$, das gibt es nicht
