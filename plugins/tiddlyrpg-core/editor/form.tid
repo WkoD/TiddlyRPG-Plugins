@@ -1,13 +1,13 @@
 created: 20261016184211000
 list-after: $:/core/ui/EditTemplate/body
-modified: 20261016184211000
+modified: 20261022160104767
 tags: $:/tags/EditTemplate
 title: $:/plugins/tiddlyrpg-core/editor/form
 type: text/vnd.tiddlywiki
 
 <!-- The form below the text in the editor (modules/form.js), in the controls of the editor
      (editor/procedures): the fields the type expects and every field of the form the draft has,
-     labelled (Field/<field>), each with its editor (trpgfieldeditor: editor/fields/*). An empty
+     labelled (trpgformlabel: Field/<field>, a field of the rules by its schema), each with its editor (trpgfieldeditor: editor/fields/*). An empty
      field is not saved: its label is in italics; × takes a field out (its value and the place in the
      form). "More fields" offers the fields of the type as pills (trpgformoffered). An item gets
      its categories as pills to choose (tag $:/tags/tiddlyrpg/ItemKind), one at most: another
@@ -24,7 +24,7 @@ type: text/vnd.tiddlywiki
 <$list filter="[<currentTiddler>trpgformoffered[]]" variable="trpg-field">
 <$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-off trpg-neutral">
 <$action-listops $tiddler=<<trpg-extra>> $field="list" $subfilter="[<trpg-field>]"/>
-<$text text={{{ [<trpg-field>addprefix[Field/]trpgtranslate[]addprefix[+ ]] }}}/>
+<$text text={{{ [<currentTiddler>trpgformlabel<trpg-field>addprefix[+ ]] }}}/>
 </$button>
 </$list>
 </span>
@@ -40,7 +40,7 @@ type: text/vnd.tiddlywiki
 <$let trpg-has={{{ [<currentTiddler>has<trpg-field>then[yes]else[no]] }}}
 	trpg-added={{{ [<trpg-extra>get[list]enlist-input[]match<trpg-field>then[yes]else[no]] }}}>
 <span class={{{ [[trpg-form-label]] [<trpg-has>match[no]then[trpg-form-empty]] +[join[ ]] }}} title={{{ [<trpg-has>match[no]then[Editor/Form/Empty]trpgtranslate[]] }}}>
-<$text text={{{ [<trpg-field>addprefix[Field/]trpgtranslate[]] }}}/>
+<$text text={{{ [<currentTiddler>trpgformlabel<trpg-field>] }}}/>
 <%if [<trpg-has>match[yes]] [<trpg-added>match[yes]] +[limit[1]] %>
 <$button class="tc-btn-invisible trpg-pill-x" tooltip={{{ [[Editor/Form/RemoveField]trpgtranslate[]] }}}>
 <$action-deletefield $tiddler=<<currentTiddler>> $field=<<trpg-field>>/>

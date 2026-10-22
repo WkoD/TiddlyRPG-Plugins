@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fixes.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261022160104767
 
 The fixes of the messages of the checks (field fix, modules/checks.js) on a draft in the editor:
 the button of a message in the form (editor/form) sends tm-trpg-fix, startup/editor-messages.js
@@ -45,6 +45,12 @@ exports.apply = function(wiki,draft,fix) {
 				return false;
 			}
 			change[fix.field] = $tw.utils.stringifyList(values.concat([fix.value]));
+			break;
+		case "tag":
+			if(tags.indexOf(fix.tag) !== -1) {
+				return false;
+			}
+			change.tags = (fields.tags || []).concat([fix.tag]);
 			break;
 		case "tagToLocation":
 			if(list(fields.location).length) {

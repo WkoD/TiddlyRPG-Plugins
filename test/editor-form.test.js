@@ -375,3 +375,96 @@ test.describe("messages of a draft and their fixes", function() {
 function plain(value) {
 	return JSON.parse(JSON.stringify(value));
 }
+
+test.describe("fields of the rules in the form", function() {
+	var draft = "Draft of 'Ring'";
+
+	function withDraft(fields, fn) {
+		h.add(wiki, Object.assign({title: draft, "draft.of": "Ring", text: ""}, fields));
+		try {
+			return fn();
+		} finally {
+			wiki.deleteTiddler(draft);
+		}
+	}
+
+	test("shown when written, after the general fields and before the relations; labels of the ruleset", function() {
+		withDraft({tags: "Item", price: "5 gp", rarity: "rare", owner: "Ann"}, function() {
+			var shown = Array.from(form.fields(wiki, draft));
+			assert.ok(shown.indexOf("price") < shown.indexOf("rarity") && shown.indexOf("rarity") < shown.indexOf("owner"), shown.join());
+			assert.equal(form.label(wiki, draft, "rarity"), "Seltenheit");
+			assert.equal(form.label(wiki, draft, "owner"), "Besitzer");
+			assert.match(h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: draft}), /Seltenheit/);
+		});
+	});
+
+	test("offered: the fields of the schema whose condition holds", function() {
+		withDraft({tags: "Item"}, function() {
+			var offered = Array.from(form.offered(wiki, draft));
+			assert.ok(offered.indexOf("category") !== -1 && offered.indexOf("weight") !== -1, offered.join());
+			assert.equal(offered.indexOf("damage"), -1, "damage only with weapon");
+			assert.equal(offered.indexOf("hp"), -1, "no field of another type");
+		});
+		withDraft({tags: "Item", category: "weapon"}, function() {
+			assert.ok(form.offered(wiki, draft).indexOf("damage") !== -1);
+			assert.equal(form.offered(wiki, draft).indexOf("ac"), -1);
+		});
+		withDraft({tags: "Creature"}, function() {
+			assert.ok(form.offered(wiki, draft).indexOf("expertise") !== -1, "a field only for the editor is offered");
+		});
+	});
+
+	test("the input by format: a checkbox, a select, pills, text", function() {
+		assert.deepEqual(f("attunement rarity category weight skills +[trpgfieldinput[]]"), ["boolean", "select", "pills", "text", "text"]);
+		withDraft({tags: "Item"}, function() {
+			var editor = function(field) {
+				return h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/fields/rules}}", {currentTiddler: draft, currentField: field});
+			};
+			assert.match(editor("attunement"), /type="checkbox"/);
+			assert.match(editor("rarity"), /<select[^>]*><option value=""><\/option><option value="common">gewöhnlich<\/option><option value="rare">selten<\/option><\/select>/);
+			assert.match(editor("weight"), /<input[^>]*trpg-field-input/);
+		});
+	});
+
+	test("pills: the entries that stand alone, the traits of those chosen; toggling keeps what it cannot read", function() {
+		withDraft({tags: "Item"}, function() {
+			assert.deepEqual(f("[[" + draft + "]trpgfieldchoices[category]]"), ["weapon", "armor", "ammunition", "focus", "potion"]);
+		});
+		withDraft({tags: "Item", category: "weapon, Glimmer"}, function() {
+			var choices = f("[[" + draft + "]trpgfieldchoices[category]]");
+			assert.ok(choices.indexOf("martial") !== -1 && choices.indexOf("light") !== -1, choices.join());
+			assert.equal(choices.indexOf("medium"), -1, "a trait of armor");
+			assert.deepEqual(f("[[" + draft + "]trpgfieldchosen[category]]"), ["weapon"]);
+			assert.deepEqual(f("[[" + draft + "]trpgfieldtoggle[category],[martial]]"), ["weapon, Glimmer, martial"]);
+			assert.deepEqual(f("[[" + draft + "]trpgfieldtoggle[category],[weapon]]"), ["Glimmer"]);
+			assert.deepEqual(f("[[martial]trpgfieldchoice[category]]"), ["Kriegswaffe"]);
+		});
+	});
+
+	test("the reading: the value as shown, the derived value of an empty field, the problem", function() {
+		withDraft({tags: "Creature", cr: "5", weight: "3 lb", str: "40"}, function() {
+			assert.deepEqual(f("[[" + draft + "]trpgfieldreading[proficiency]]"), ["Abgeleitet: +3"]);
+			assert.deepEqual(f("[[" + draft + "]trpgfieldreading[cr]]"), ["Ausgabe: 5"]);
+			assert.deepEqual(f("[[" + draft + "]trpgfieldreading[str]]"), []);
+			assert.deepEqual(f("[[" + draft + "]trpgfieldreading:problem[str]]"), ["Feld STR prüfen: 40 liegt außerhalb von 1 bis 30"]);
+		});
+	});
+
+	test("a change of type takes out the fields of the rules the new type does not have", function() {
+		var notice = "$:/temp/tiddlyrpg-core/editor/notice",
+			wait = function() { return new Promise(function(resolve) { setTimeout(resolve, 20); }); };
+		h.add(wiki, {title: draft, "draft.of": "Ring", tags: "Item", text: "", rarity: "rare", ac: "12"});
+		return wait().then(function() {
+			wiki.addTiddler(new $tw.Tiddler(wiki.getTiddler(draft), {tags: ["Creature"]}));
+			return wait();
+		}).then(function() {
+			var fields = wiki.getTiddler(draft).fields;
+			assert.equal(fields.rarity, undefined);
+			assert.equal(fields.ac, "12", "the creature has AC too");
+			assert.equal(wiki.getTiddlerText(notice), "Typ gewechselt, entfernt: Seltenheit");
+			wiki.deleteTiddler(draft);
+			wiki.deleteTiddler(notice);
+			return wait();
+		});
+	});
+});

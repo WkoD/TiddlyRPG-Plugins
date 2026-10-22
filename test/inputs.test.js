@@ -33,6 +33,8 @@ var CASES = [
 		type: {title: "Draft of 'Neu'", map: "Neu.png"}, shows: /^$/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/price", variables: {currentTiddler: "Draft of 'Neu'", currentField: "price"},
 		type: {title: "Draft of 'Neu'", price: "5 gp"}, shows: /5/},
+	{source: "$:/plugins/tiddlyrpg-core/editor/fields/rules", variables: {currentTiddler: "Draft of 'Neu'", currentField: "weight"},
+		type: {title: "Draft of 'Neu'", weight: "3 lb"}, shows: /Ausgabe: 1,5 kg/},
 	{source: "$:/plugins/tiddlyrpg-core/ui/new-event", variables: {"trpg-input": "$:/temp/tiddlyrpg-core/new-event"},
 		type: {title: "$:/temp/tiddlyrpg-core/new-event", text: "1351-07-30"}, shows: /Anlegen/}
 ];

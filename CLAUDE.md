@@ -236,8 +236,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     reserved name, a field defined twice, without definition); the block of values
     (`viewtemplates/fields`: header line, sections, a row, an inline group with the price, a
     field only for the editor, type colour, hidden from a view that does not see the tiddler);
-    the rules `fields/value` and `fields/when` (a condition on a field the schema lacks does not
-    count)
+    the rules `fields/value`, `fields/when` (a condition on a field the schema lacks does not
+    count; the condition of a group) and `fields/tag` with its fix
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
     campaign setting with its hints, the whole row as click target, the note on an own calendar
     or currency (and that it wins over the setting); "Ruleset options" (rules language of the
@@ -775,7 +775,15 @@ tests reach it without a browser; the wikitext only asks and passes values.
   cascade `$:/config/FieldEditorFilters/tiddlyrpg` (`trpgfieldeditor`), so "add field" of the
   core gets them too. A relation field picks from `tiddlyrpg-targets` of its config
   (`relationcandidates`); `form.SINGLE` (one `location`, one `owner`) follows
-  `locations/structure`. An item gets its categories as pills, one at most. Below the fields
+  `locations/structure`. An item gets its categories as pills, one at most. The fields of the
+  rules (`modules/fields.js`) come from the schema of the types of the draft: shown when
+  written, offered when their `when` holds, after the general fields; their editor
+  `editor/fields/rules` picks the input by format - a checkbox (boolean), a select (one entry), pills
+  (a list without values: entries that stand alone, then the traits of those chosen), else text
+  - with a reading below (the value as shown, the derived value of an empty field, the
+  problem; `trpgfieldreading`). A ruleset hides its fields from the field list of the core
+  itself (`config/form-fields-hidden` of the plugin; `fields/schema` reports one it does not).
+  Below the fields
   the messages of the draft (`trpgdraftcheck`) with their fixes (`tm-trpg-fix`,
   `modules/fixes.js`) and "Do not report".
 - **States** (`startup/editor-states.js`): the temp and state tiddlers of a draft go when it
@@ -804,8 +812,8 @@ tests reach it without a browser; the wikitext only asks and passes values.
 - **Visibility**: every list of candidates goes through `trpg.visible` (the config of the
   picker, `trpgsimilar`, the "new name" pill); values that stand in the draft show as they are.
   The sweep in `test/views.test.js` renders the pickers and dropdowns with a draft.
-- **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, symmetric,
-  fixes, a created tiddler undone on cancelling), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
+- **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, the fields
+  of the rules in it, symmetric, fixes, a created tiddler undone on cancelling), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
   every new input).
 
 ## Unknown macros

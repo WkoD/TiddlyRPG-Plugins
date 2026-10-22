@@ -3,16 +3,20 @@ title: $:/plugins/tiddlyrpg-core/checks/fields.js
 type: application/javascript
 module-type: trpg-check
 created: 20261022140929737
-modified: 20261022142450275
+modified: 20261022160104767
 
 Checks of the fields of the rules (modules/fields.js; modules/checks.js runs them).
 
   fields/schema   error: a definition with a name the core or a relation uses, a field defined
                   twice (the ruleset and the wiki, or two tiddlers), a schema that lists a field
-                  without definition
-  fields/value    error: a written value its format does not read (rules.value(): the problem of
-                  the format, else Check/Fields/Value); hint: a trait that fits two main entries
-  fields/when     hint: a written value of a field whose "when" does not hold (damage on a potion)
+                  without definition, a field the field list of the core does not hide
+  fields/value    error: a written value its format does not read (fields.problem(): the problem
+                  of the format, else Check/Fields/Value); hint: a trait that fits two main entries
+  fields/when     hint: a written value of a field whose "when" - or that of its group - does not
+                  hold (damage on a potion)
+  fields/tag      hint: a main entry of a list names the category tag of the wiki it stands for
+                  ("tag" in its domain: a potion is Consumable) and the tiddler lacks it; fix:
+                  set the tag
 
 Only the fields of the schema of the tiddler, only what is written - a derived value is no
 problem of the tiddler.
@@ -22,12 +26,8 @@ problem of the tiddler.
 "use strict";
 
 var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
-	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js");
-
-// The problems of rules.value() that name the field; the others are written for the macros
-var OWN = ["Label","Only","TraitParent","TraitTwice","Number","NumberRange","Boolean","Dice","UnitDomain"].map(function(name) {
-	return "Rules/Check/" + name;
-});
+	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 // The written fields of the schema of a tiddler: [{field, spec, text, label, fields, schema}]
 function written(wiki,title) {
@@ -45,6 +45,16 @@ function written(wiki,title) {
 	});
 }
 
+// A condition as text: "Category: weapon"
+function whenText(wiki,when) {
+	return Object.keys(when).map(function(name) {
+		var spec = fields.spec(wiki,name);
+		return fields.label(wiki,name) + ": " + [].concat(when[name]).map(function(id) {
+			return spec ? rules.value(wiki,spec,id).text || id : id;
+		}).join(", ");
+	}).join("; ");
+}
+
 exports.rules = [
 	{
 		id: "fields/schema",
@@ -58,17 +68,31 @@ exports.rules = [
 	{
 		id: "fields/value",
 		run: function(wiki,title) {
-			var messages = [];
+			var messages = [],
+				schema = fields.forTiddler(wiki,title);
 			written(wiki,title).forEach(function(w) {
-				var r = rules.value(wiki,w.spec,w.text);
-				if(!r.problem) {
+				var problem = fields.problem(wiki,w.fields,w.field,schema.labels);
+				if(problem) {
+					messages.push(problem);
+				}
+			});
+			return messages;
+		}
+	},
+	{
+		id: "fields/tag",
+		run: function(wiki,title) {
+			var messages = [],
+				tiddler = wiki.getTiddler(title),
+				tags = (tiddler && tiddler.fields.tags || []).map(function(tag) { return language.internalTitle(wiki,tag); });
+			written(wiki,title).forEach(function(w) {
+				if(!w.spec || (w.spec.format !== "labels" && w.spec.format !== "label")) {
 					return;
 				}
-				if(OWN.indexOf(r.problem) !== -1) {
-					messages.push({level: r.problem === "Rules/Check/TraitTwice" ? "hint" : "error", key: r.problem,
-						params: $tw.utils.extend({},r.values,{field: w.label})});
-				} else {
-					messages.push({level: "error", key: "Check/Fields/Value", params: {field: w.label, text: w.text}});
+				var r = rules.value(wiki,w.spec,w.text);
+				if(!r.problem && r.tag && tags.indexOf(r.tag) === -1 && messages.every(function(m) { return m.fix.tag !== r.tag; })) {
+					messages.push({level: "hint", key: "Check/Fields/Tag", params: {field: w.label, value: r.text, tag: language.title(wiki,r.tag)},
+						fix: {kind: "tag", tag: r.tag}});
 				}
 			});
 			return messages;
@@ -77,16 +101,22 @@ exports.rules = [
 	{
 		id: "fields/when",
 		run: function(wiki,title) {
-			var messages = [];
+			var messages = [],
+				groups = fields.forTiddler(wiki,title).groups;
 			written(wiki,title).forEach(function(w) {
+				// Its own condition, else the condition of a group it stands in
 				var when = w.spec && w.spec.when;
-				if(when && !fields.fits(wiki,w.fields,when,w.schema)) {
-					messages.push({level: "hint", key: "Check/Fields/When", params: {field: w.label, when: Object.keys(when).map(function(name) {
-						var spec = fields.spec(wiki,name);
-						return fields.label(wiki,name) + ": " + [].concat(when[name]).map(function(id) {
-							return spec ? rules.value(wiki,spec,id).text || id : id;
-						}).join(", ");
-					}).join("; ")}});
+				if(!when || fields.fits(wiki,w.fields,when,w.schema)) {
+					when = null;
+					groups.some(function(group) {
+						if(group.when && (group.fields || []).indexOf(w.field) !== -1 && !fields.fits(wiki,w.fields,group.when,w.schema)) {
+							when = group.when;
+						}
+						return !!when;
+					});
+				}
+				if(when) {
+					messages.push({level: "hint", key: "Check/Fields/When", params: {field: w.label, when: whenText(wiki,when)}});
 				}
 			});
 			return messages;

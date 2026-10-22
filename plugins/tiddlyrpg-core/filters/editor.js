@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: undefined
+modified: 20261022160104767
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -30,7 +30,9 @@ picker (editor/procedures) and the kinds of the search.
 [<draft>trpgformfields[]]      the fields of the form for a draft (modules/form.js)
 [<draft>trpgformsingle<field>] the draft if <field> holds one entry for its type
 [<field>trpgfieldeditor[]]     the editor of the field in the form and in the field list of the
-                               core (cascade $:/config/FieldEditorFilters/tiddlyrpg)
+                               core (cascade $:/config/FieldEditorFilters/tiddlyrpg); a field of
+                               the rules: editor/fields/rules
+[<draft>trpgformlabel<field>]  the label of a field in the form (modules/form.js label)
 [<draft>trpgdatemarkers[]]     the number of dated sections in the text of the draft
 [trpgformknown[]]              the fields the form knows (modules/form.js known)
 [<draft>trpgformoffered[]]     the fields the form offers to add for a draft (modules/form.js offered)
@@ -48,6 +50,7 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
 	labels = require("$:/plugins/tiddlyrpg-core/modules/labels.js"),
 	relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+	fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 	sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
 	editor = require("$:/plugins/tiddlyrpg-core/modules/editor.js");
@@ -226,7 +229,9 @@ exports.trpgfieldeditor = function(source,operator,options) {
 		all = relations.types(wiki),
 		base = "$:/plugins/tiddlyrpg-core/editor/fields/";
 	return each(source,function(field,results) {
-		if(field === "date" || field === "price") {
+		if(fields.spec(wiki,field)) {
+			results.push(base + "rules");
+		} else if(field === "date" || field === "price") {
 			results.push(base + field);
 		} else if(field === "image" || field === "map") {
 			results.push(base + "images");
@@ -249,6 +254,12 @@ exports.trpgdatemarkers = function(source,operator,options) {
 
 exports.trpgformknown = function(source,operator,options) {
 	return form.known(options.wiki).slice();
+};
+
+exports.trpgformlabel = function(source,operator,options) {
+	return each(source,function(title,results) {
+		results.push(form.label(options.wiki,title,operator.operand));
+	});
 };
 
 exports.trpgformoffered = function(source,operator,options) {

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022150038463
+modified: 20261022152822335
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -78,6 +78,7 @@ Editor/Fix/questStatus: Als status benennen
 Editor/Fix/remove: Eintrag entfernen
 Editor/Fix/spotEmpty: Spottext entfernen
 Editor/Fix/tagToLocation: Als Ort eintragen
+Editor/Fix/tag: Tag setzen
 Editor/Form/Add: Hinzufügen …
 Editor/Form/Change: Ändern …
 Editor/Form/DateCount: $sections$ Abschnitte im Feld, $markers$ Datumsabschnitte im Text
@@ -154,6 +155,8 @@ Editor/Unit/None: Keine passende Einheit
 Editor/Unit/Placeholder: z. B. 60 ft
 Editor/Where/Around: Um die Markierung
 Editor/Where/Before: Vor den Absatz
+Editor/Field/Output: Ausgabe: $value$
+Editor/Field/Derived: Abgeleitet: $value$
 Event/Continued: (Fortsetzung)
 Event/End: (Ende)
 Event/Event: Ereignis

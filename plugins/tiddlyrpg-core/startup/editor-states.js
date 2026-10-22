@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-states.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261016214011000
+modified: 20261022160104767
 
 The states of the editor that belong to a draft (modules/form.js states: the fields added to the
 form, the values of the toolbar dropdowns, the pickers) go when the draft goes - saved, or
@@ -60,7 +60,7 @@ function drop(wiki,draft) {
 	// The notification names the fields that had a value, not those added and left empty
 	if(filled.length) {
 		wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t(wiki,"Editor/Form/Dropped"),{
-			fields: filled.map(function(field) { return language.t(wiki,"Field/" + field); }).join(", ")
+			fields: filled.map(function(field) { return form.label(wiki,draft,field); }).join(", ")
 		})}));
 		if($tw.notifier) {
 			$tw.notifier.display(NOTICE);
@@ -98,13 +98,16 @@ exports.startup = function() {
 	var drafts = Object.create(null);
 	$tw.wiki.addEventListener("change",function(changes) {
 		$tw.utils.each(changes,function(change,title) {
+			// A batch of changes keeps "deleted" when a draft went and came again in one tick: the
+			// one that went is forgotten, the one that came is new
 			if(change.deleted && drafts[title] !== undefined) {
 				delete drafts[title];
 				undoCreated($tw.wiki,title);
 				$tw.utils.each(form.states($tw.wiki,title),function(state) {
 					$tw.wiki.deleteTiddler(state);
 				});
-			} else if(!change.deleted) {
+			}
+			if($tw.wiki.tiddlerExists(title)) {
 				var tiddler = $tw.wiki.getTiddler(title);
 				if(tiddler && tiddler.fields["draft.of"] !== undefined) {
 					var types = form.types($tw.wiki,title).sort().join("\n"),

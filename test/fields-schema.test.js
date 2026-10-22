@@ -82,12 +82,18 @@ test.describe("schemas", function() {
 			assert.equal(schema.fields[schema.fields.length - 1], "charm");
 			assert.equal(schema.fields.filter(function(f) { return f === "rarity"; }).length, 1);
 			assert.equal(schema.groups[0].fields.join(), "damage,range,ac,bonus,healing,charm");
-			assert.deepEqual(schemaMessages(), []);
+			assert.deepEqual(schemaMessages().map(function(m) { return m.key + " " + m.field; }), ["Check/Fields/Hidden charm"], "the field list of the editor would show it too");
+			h.add(wiki, {title: "$:/config/EditTemplateFields/Visibility/charm", text: "hide"});
+			try {
+				assert.deepEqual(schemaMessages(), []);
+			} finally {
+				wiki.deleteTiddler("$:/config/EditTemplateFields/Visibility/charm");
+			}
 		});
 		assert.equal(fields.forTypes(wiki, ["Item"]).groups[0].fields.join(), "damage,range,ac,bonus,healing", "the ruleset's group unchanged");
 	});
 
-	test("fields/schema: reserved names, defined twice, without definition", function() {
+	test("fields/schema: reserved names, defined twice, without definition, not hidden", function() {
 		withSchema("Bad fields", {
 			definitions: {title: {format: "text"}, price: {format: "text"}, owner: {format: "text"}, damage: {format: "text"}},
 			types: ["Item"],
@@ -355,7 +361,7 @@ test.describe("the block of values", function() {
 	});
 });
 
-test.describe("fields/value, fields/when", function() {
+test.describe("fields/value, fields/when, fields/tag", function() {
 	function keys(fieldsOf) {
 		h.add(wiki, fieldsOf);
 		try {
@@ -374,9 +380,38 @@ test.describe("fields/value, fields/when", function() {
 	});
 
 	test("a value whose condition does not hold; derived values are no problem", function() {
-		var out = keys({title: "Krug", tags: "Item", category: "potion", damage: "1d6 fire"});
+		var out = keys({title: "Krug", tags: "Item Consumable", category: "potion", damage: "1d6 fire"});
 		assert.deepEqual(out, ["hint Check/Fields/When Feld Schaden prüfen: es gilt nur bei Art: Waffe"]);
 		assert.deepEqual(keys({title: "Wolf", tags: "Creature", cr: "5", saves: "dex"}), []);
 		assert.deepEqual(keys({title: "Ort", tags: "Location", rarity: "legendary"}), [], "no schema, no check");
+	});
+
+	test("the condition of a group counts too", function() {
+		withSchema("Fields of the campaign", {
+			definitions: {charm: {format: "text"}},
+			types: ["Item"],
+			fields: ["charm"],
+			groups: [{id: "magic", fields: ["charm"], when: {category: ["focus"]}}]
+		}, function() {
+			assert.deepEqual(keys({title: "Krug", tags: "Item Equipment", category: "weapon", charm: "glows"}),
+				["hint Check/Fields/When Feld charm prüfen: es gilt nur bei Art: Fokus"]);
+			assert.deepEqual(keys({title: "Krug", tags: "Item Equipment", category: "focus", charm: "glows"}), []);
+		});
+	});
+
+	test("a main entry names the category tag the tiddler lacks: a hint with the fix", function() {
+		var fixes = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/fixes.js");
+		assert.deepEqual(keys({title: "Krug", tags: "Item", category: "potion"}), ["hint Check/Fields/Tag Feld Art prüfen: Trank gehört zur Kategorie Verbrauchsgut – Tag setzen"]);
+		assert.deepEqual(keys({title: "Krug", tags: "Item Verbrauchsgut", category: "potion"}), [], "the tag under its translated name");
+		assert.deepEqual(keys({title: "Krug", tags: "Item", category: "weapon, armor"}).length, 1, "one hint per tag");
+		h.add(wiki, {title: "Draft of 'Krug'", "draft.of": "Krug", tags: "Item", category: "potion"});
+		try {
+			var message = checks.forDraft(wiki, "Draft of 'Krug'").filter(function(m) { return m.id === "fields/tag"; })[0];
+			assert.ok(fixes.apply(wiki, "Draft of 'Krug'", message.fix));
+			assert.deepEqual(Array.from(wiki.getTiddler("Draft of 'Krug'").fields.tags), ["Item", "Consumable"]);
+			assert.equal(fixes.apply(wiki, "Draft of 'Krug'", message.fix), false, "done once");
+		} finally {
+			wiki.deleteTiddler("Draft of 'Krug'");
+		}
 	});
 });

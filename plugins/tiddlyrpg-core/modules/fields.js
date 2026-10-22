@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022150508705
+modified: 20261022160104767
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -48,7 +48,9 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
   field holds one of the values (an id of a labels field counts).
 
 A field name the core or a relation uses is reserved; a field defined twice or used without
-definition is a problem (rule fields/schema). Labels: Rules/Field/<field> or the key of the
+definition is a problem (rule fields/schema), as is a field the field list of the core shows - the
+form shows it, so the ruleset (or the wiki) hides it: $:/config/EditTemplateFields/Visibility/
+<field> "hide" (a multids config/form-fields-hidden). Labels: Rules/Field/<field> or the key of the
 schema, in the display language of the field's domain, else of the group ruleset.
 
 Values are never stored by the core: what is shown is read from the field, a derived value only
@@ -68,6 +70,7 @@ into a draft once - nothing stays linked.
   fits(wiki,fields,when,list) whether a "when" holds (list: the fields of the schema)
   copyFrom(wiki,draft,source) the values to copy: {field: value}, "secret-fields" included
   locked(fields)              the fields secret-fields locks: null, "all" or [fields]
+  problem(wiki,fields,field,labels)  the problem of a written value: {level, key, params} or null
 
 \*/
 
@@ -77,6 +80,7 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	types = require("$:/plugins/tiddlyrpg-core/modules/types.js");
 
 var TAG = "$:/tags/tiddlyrpg/RulesFields",
+	HIDDEN = "$:/config/EditTemplateFields/Visibility/",
 	// Fields of TiddlyWiki and of tiddlyrpg-core that a schema must not use
 	CORE = ["title","text","tags","type","created","modified","creator","modifier","list","caption",
 		"color","icon","draft.of","draft.title","revision","bag","plugin-type","source","secret-fields",
@@ -137,6 +141,12 @@ var registry = exports.registry = function(wiki) {
 					problems.push({title: schema.title, key: "Check/Fields/Undefined", params: {field: field}});
 				}
 			});
+		});
+		// The field list of the core must not show it beside the form
+		$tw.utils.each(definitions,function(spec,field) {
+			if((wiki.getTiddlerText(HIDDEN + field) || "").trim() !== "hide") {
+				problems.push({title: spec.title, key: "Check/Fields/Hidden", params: {field: field}});
+			}
 		});
 		return {definitions: definitions, schemas: schemas, problems: problems};
 	});
@@ -590,6 +600,34 @@ exports.copyFrom = function(wiki,draft,source) {
 		out["secret-fields"] = $tw.utils.stringifyList(list);
 	}
 	return out;
+};
+
+// The problems of rules.value() that name the field; the others are written for the macros
+var OWN = ["Label","Only","TraitParent","TraitTwice","Number","NumberRange","Boolean","Dice","UnitDomain"].map(function(name) {
+	return "Rules/Check/" + name;
+});
+
+/*
+The problem of a written value of a field (rule fields/value, the reading in the editor):
+{level, key, params} or null - the problem of its format, naming the field, else
+Check/Fields/Value; a trait that fits two main entries is a hint.
+*/
+exports.problem = function(wiki,fields,field,labels) {
+	var s = spec(wiki,field),
+		text = raw(fields,field);
+	if(!s || !text) {
+		return null;
+	}
+	var r = rules().value(wiki,s,text),
+		name = label(wiki,field,labels);
+	if(!r.problem) {
+		return null;
+	}
+	if(OWN.indexOf(r.problem) !== -1) {
+		return {level: r.problem === "Rules/Check/TraitTwice" ? "hint" : "error", key: r.problem,
+			params: $tw.utils.extend({},r.values,{field: name})};
+	}
+	return {level: "error", key: "Check/Fields/Value", params: {field: name, text: text}};
 };
 
 // The problems of the schemas: reserved names, fields defined twice or without definition

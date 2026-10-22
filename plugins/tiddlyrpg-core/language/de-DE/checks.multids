@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261022141844435
+modified: 20261022152822335
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -23,7 +23,9 @@ Expected/Image: Felder prüfen: noch kein Bild (Feld image)
 Expected/Map: Felder prüfen: noch keine Karte (Feld map)
 Expected/Player: Felder prüfen: Wer spielt diese Figur? (Feld player)
 Expected/Text: Text prüfen: noch kein Text
+Fields/Hidden: Definition prüfen: Die Feldliste des Editors zeigt $field$ neben dem Formular – ausblenden ($:/config/EditTemplateFields/Visibility/$field$: hide)
 Fields/Reserved: Definition prüfen: $field$ ist ein Feld des Kerns oder einer Beziehung – anders benennen
+Fields/Tag: Feld $field$ prüfen: $value$ gehört zur Kategorie $tag$ – Tag setzen
 Fields/Twice: Definition prüfen: $field$ ist schon in $other$ definiert
 Fields/Undefined: Schema prüfen: $field$ hat keine Definition
 Fields/Value: Feld $field$ prüfen: „$text$“ ist nicht lesbar

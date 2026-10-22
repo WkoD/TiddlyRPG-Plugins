@@ -1,0 +1,60 @@
+created: 20261022160104767
+modified: 20261022160104767
+title: $:/plugins/tiddlyrpg-core/editor/fields/rules
+type: text/vnd.tiddlywiki
+
+<!-- Editor of a field of the rules (modules/fields.js, filters/fields.js) by its format:
+     boolean   a checkbox (yes/no)
+     select    one entry of its domain, the empty choice takes the field out
+     pills     a list of entries without values: a pill per entry that stands alone and per trait
+               of an entry chosen ("weapon" brings "martial", "melee" ...), the value holds the
+               ids parted by commas; what cannot be read stays in the value
+     text      the input
+   Below it the reading: the value as the wiki shows it (not for a checkbox or a select, they
+   show it already), the derived value of an empty field, or the problem (the same as the rule
+   fields/value). The pills in the colour of the type, like the categories. Read after the input
+   (focus). Variables: currentTiddler (the draft), currentField. -->
+\procedure trpg.rulesreading()
+\whitespace trim
+<$let trpg-problem={{{ [<currentTiddler>trpgfieldreading:problem<currentField>] }}}
+	trpg-reading={{{ [<currentTiddler>trpgfieldreading<currentField>] }}}>
+<%if [<trpg-problem>!is[blank]] %>
+<div class="trpg-field-reading"><span class="trpg-editor-bad"><$text text=<<trpg-problem>>/></span></div>
+<%elseif [<trpg-reading>!is[blank]] :filter[<currentField>trpgfieldinput[]!match[select]!match[boolean]] %>
+<div class="trpg-field-reading"><$text text=<<trpg-reading>>/></div>
+<%endif%>
+</$let>
+\end
+
+\whitespace trim
+<$let trpg-input={{{ [<currentField>trpgfieldinput[]] }}}>
+<%if [<trpg-input>match[boolean]] %>
+<$checkbox tiddler=<<currentTiddler>> field=<<currentField>> checked="yes" unchecked="no" default="no" class="trpg-field-check"/>
+<%elseif [<trpg-input>match[select]] %>
+<$select tiddler=<<currentTiddler>> field=<<currentField>> class="trpg-field-select" actions="""<$list filter="[<currentTiddler>has:field<currentField>!has<currentField>]" variable="ignore"><$action-deletefield $tiddler=<<currentTiddler>> $field=<<currentField>>/></$list>""">
+<option value=""></option>
+<$list filter="[<currentTiddler>trpgfieldchoices<currentField>]" variable="trpg-id">
+<option value=<<trpg-id>>><$text text={{{ [<trpg-id>trpgfieldchoice<currentField>] }}}/></option>
+</$list>
+</$select>
+<%elseif [<trpg-input>match[pills]] %>
+<span class="trpg-pills">
+<$list filter="[<currentTiddler>trpgfieldchoices<currentField>]" variable="trpg-id">
+<$let trpg-on={{{ [<currentTiddler>trpgfieldchosen<currentField>match<trpg-id>then[yes]else[no]] }}}
+	trpg-next={{{ [<currentTiddler>trpgfieldtoggle<currentField>,<trpg-id>] }}}>
+<$button class={{{ [[tc-btn-invisible trpg-pick-pill trpg-choice]] [<trpg-on>match[no]then[trpg-off]] +[join[ ]] }}} style={{{ [<currentTiddler>trpgfieldcolor[]addprefix[--trpg-kind:]] }}} aria-pressed={{{ [<trpg-on>match[yes]then[true]else[false]] }}}>
+<%if [<trpg-next>is[blank]] %>
+<$action-deletefield $tiddler=<<currentTiddler>> $field=<<currentField>>/>
+<%else%>
+<$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value=<<trpg-next>>/>
+<%endif%>
+<$text text={{{ [<trpg-id>trpgfieldchoice<currentField>] }}}/>
+</$button>
+</$let>
+</$list>
+</span>
+<%else%>
+<$edit-text tiddler=<<currentTiddler>> field=<<currentField>> tag="input" class="tc-edit-texteditor tc-edit-fieldeditor trpg-field-input"/>
+<%endif%>
+</$let>
+<$transclude $variable="trpg.rulesreading"/>

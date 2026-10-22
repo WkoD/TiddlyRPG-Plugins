@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261022141844435
+modified: 20261022152822335
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -23,7 +23,9 @@ Expected/Image: Check the fields: no image yet (field image)
 Expected/Map: Check the fields: no map yet (field map)
 Expected/Player: Check the fields: who plays this character? (field player)
 Expected/Text: Check the text: it has no text yet
+Fields/Hidden: Check the definition: the field list of the editor shows $field$ beside the form - hide it ($:/config/EditTemplateFields/Visibility/$field$: hide)
 Fields/Reserved: Check the definition: $field$ is a field of the core or of a relation - name it otherwise
+Fields/Tag: Check the field $field$: $value$ belongs to the category $tag$ - set the tag
 Fields/Twice: Check the definition: $field$ is defined in $other$ already
 Fields/Undefined: Check the schema: $field$ has no definition
 Fields/Value: Check the field $field$: "$text$" cannot be read
