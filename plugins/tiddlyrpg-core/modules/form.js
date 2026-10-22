@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261022161612307
+modified: 20261022164503295
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -46,7 +46,8 @@ both in step.
   copyFrom(wiki,draft,field) copies the values of the rules of the target of the relation <field>
                             (tiddlyrpg-copy) into <draft> where it has none, once - nothing stays
                             linked (modules/fields.js copyFrom: never the price, a lock comes with
-                            its value); {source, fields} - the fields copied
+                            its value); {source, fields, missing} - the fields copied; missing: the
+                            target does not exist
   dropped(wiki,title)       the known fields of <title> and of its form-extra its types do not
                             have; none if no type has a config
   states(wiki,draft)        the temp and state tiddlers of the editor that belong to <draft>
@@ -172,7 +173,7 @@ exports.copyFrom = function(wiki,draft,field) {
 		source = tiddler && type && type.copy ? list(tiddler.fields[field])[0] : null,
 		from = source && wiki.getTiddler(source);
 	if(!from) {
-		return {source: source || "", fields: []};
+		return {source: source || "", fields: [], missing: !!source};
 	}
 	var out = rulesFields().copyFrom(wiki,tiddler.fields,from.fields),
 		copied = Object.keys(out).filter(function(name) { return name !== "secret-fields"; });

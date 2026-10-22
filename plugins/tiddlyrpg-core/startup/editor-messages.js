@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-messages.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261022161612307
+modified: 20261022164503295
 
 Messages of the editor that the edit-text widget does not handle, so they reach the root widget:
 
@@ -50,7 +50,7 @@ exports.startup = function() {
 		var params = event.paramObject || {},
 			done = form.copyFrom($tw.wiki,params.draft,params.field);
 		if(done.source) {
-			$tw.wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t($tw.wiki,done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone"),{
+			$tw.wiki.addTiddler(new $tw.Tiddler({title: NOTICE, text: language.format(language.t($tw.wiki,done.missing ? "Editor/Form/CopiedMissing" : (done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone")),{
 				title: language.title($tw.wiki,done.source),
 				fields: done.fields.map(function(name) { return form.label($tw.wiki,params.draft,name); }).join(", ")
 			})}));

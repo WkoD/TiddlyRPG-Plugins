@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022161409361
+modified: 20261022164503295
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -95,6 +95,7 @@ Editor/Form/Copied: Von $title$ übernommen: $fields$
 Editor/Form/CopiedNone: Von $title$ nichts zu übernehmen: die Werte stehen schon da, oder es hat keine
 Editor/Form/Copy: Werte übernehmen
 Editor/Form/CopyHint: Schreibt seine Regelwerte in die leeren Felder dieses Tiddlers, einmal – nichts bleibt verknüpft
+Editor/Form/CopiedMissing: Nichts übernommen: $title$ gibt es im Wiki nicht
 Editor/Group/All: Ganze Gruppe
 Editor/Group/Caption: Gruppe
 Editor/Group/Head: Spielerfiguren, die dabei waren

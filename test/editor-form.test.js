@@ -483,6 +483,9 @@ test.describe("values from the base (a relation with tiddlyrpg-copy)", function(
 			assert.equal(fields["secret-fields"], "rarity", "the lock comes with the value");
 			assert.equal(form.copyFrom(wiki, "Draft of 'Frostbringer'", "base").fields.length, 0, "once: then there is nothing left");
 			assert.equal(form.copyFrom(wiki, "Draft of 'Frostbringer'", "spells").fields.length, 0, "a relation that does not copy");
+			h.add(wiki, Object.assign({}, wiki.getTiddler("Draft of 'Frostbringer'").fields, {base: "Nirgends"}));
+			var none = form.copyFrom(wiki, "Draft of 'Frostbringer'", "base");
+			assert.ok(none.missing && none.source === "Nirgends" && none.fields.length === 0, "a base that does not exist");
 			var html = h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/fields/relation}}", {currentTiddler: "Draft of 'Frostbringer'", currentField: "base"});
 			assert.match(html, />Werte übernehmen</);
 			assert.doesNotMatch(h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/fields/relation}}", {currentTiddler: "Draft of 'Frostbringer'", currentField: "spells"}), /Werte übernehmen/);
