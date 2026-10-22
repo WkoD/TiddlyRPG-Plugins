@@ -1,5 +1,5 @@
 created: 20261022165648795
-modified: 20261022170616290
+modified: 20261022171029770
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/content
 type: text/css
@@ -51,4 +51,10 @@ table.trpg-content-list {
 	align-items: center;
 	gap: 0.4em;
 	padding: 1px 0;
+}
+/* An entry of a content package among the hits of a picker (editor/procedures): dashed, in the
+   pale of a tiddler not there yet; its package as tooltip */
+.trpg-pick-pill.trpg-pick-offer {
+	border-style: dashed;
+	opacity: 0.8;
 }

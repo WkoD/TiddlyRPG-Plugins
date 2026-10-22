@@ -495,3 +495,65 @@ test.describe("values from the base (a relation with tiddlyrpg-copy)", function(
 		}
 	});
 });
+
+test.describe("the entries of the content packages in the pickers; the way back (give an item)", function() {
+	var INDEX = "$:/temp/tiddlyrpg-core/content/index";
+
+	test.before(function() {
+		h.add(wiki, {title: INDEX, type: "application/json", text: JSON.stringify({packages: [{name: "SRD mini", language: "en-GB", entries: [
+			{id: "fireball", title: "Fireball", type: "Spell", fields: {}},
+			{id: "longsword", title: "Longsword", type: "Item", fields: {}},
+			{id: "wolf", title: "Wolf", type: "Creature", fields: {}}
+		]}]})});
+		h.add(wiki, {title: "Ring", tags: "Item", text: "."});
+		h.add(wiki, {title: "Krone", tags: "Artifact", owner: "Bea", text: "."});
+	});
+
+	test.after(function() {
+		[INDEX, "Ring", "Krone"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
+	test("each relation offers the entries of its types", function() {
+		assert.deepEqual(f("[[spells]relationcontent[]]"), ["Fireball"]);
+		assert.deepEqual(f("[[base]relationcontent[]]"), ["Longsword"]);
+		assert.deepEqual(f("[[creature]relationcontent[]]"), ["Wolf"]);
+		assert.deepEqual(f("[[member]relationcontent[]]"), []);
+		h.add(wiki, {title: "Draft of 'Ann'", "draft.of": "Ann", tags: "Person", text: "A."});
+		try {
+			var html = h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/fields/relation}}", {currentTiddler: "Draft of 'Ann'", currentField: "spells"});
+			assert.match(html, /trpg-picker-input/);
+		} finally {
+			wiki.deleteTiddler("Draft of 'Ann'");
+		}
+	});
+
+	test("give an item: a row Possessions in the form of a person, what may be owned and the offers", function() {
+		var inverse = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/inverse.js");
+		h.add(wiki, {title: "Draft of 'Ann'", "draft.of": "Ann", tags: "Person", text: "A."});
+		try {
+			assert.deepEqual(Array.from(inverse.relations(wiki, "Draft of 'Ann'")), ["owner"]);
+			var sources = Array.from(inverse.sources(wiki, "owner"));
+			assert.ok(sources.indexOf("Ring") !== -1 && sources.indexOf("Krone") !== -1 && sources.indexOf("Longsword") !== -1, sources.join());
+			assert.equal(sources.indexOf("Fireball"), -1);
+			assert.match(h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: "Draft of 'Ann'"}), /Besitz/);
+			assert.deepEqual(Array.from(inverse.relations(wiki, "Ring")), [], "no way back on an item");
+		} finally {
+			wiki.deleteTiddler("Draft of 'Ann'");
+		}
+	});
+
+	test("on saving: the items get the owner - an artifact only this one -, the field goes from the saved tiddler", function() {
+		var saved = $tw.hooks.invokeHook("th-saving-tiddler", new $tw.Tiddler({title: "Ann", tags: "Person", text: "A.", "trpg-inverse-owner": "Ring Krone"}),
+			new $tw.Tiddler({title: "Draft of 'Ann'", "draft.of": "Ann"}));
+		try {
+			assert.equal(saved.fields["trpg-inverse-owner"], undefined);
+			assert.equal(wiki.getTiddler("Ring").fields.owner, "Ann");
+			assert.equal(wiki.getTiddler("Krone").fields.owner, "Ann", "one owner for an artifact: Bea goes");
+			assert.match(wiki.getTiddlerText("$:/temp/tiddlyrpg-core/editor/notice"), /Ring, Krone/);
+		} finally {
+			h.add(wiki, {title: "Ring", tags: "Item", text: "."});
+			h.add(wiki, {title: "Krone", tags: "Artifact", owner: "Bea", text: "."});
+			wiki.deleteTiddler("$:/temp/tiddlyrpg-core/editor/notice");
+		}
+	});
+});

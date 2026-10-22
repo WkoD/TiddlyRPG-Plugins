@@ -398,7 +398,10 @@ the tiddler title:
   system rules of the core, the box `viewtemplates/content-preview` on top. The hub `Content`
   (under `Information`, hidden without a package): per type a list of 50 a page with search,
   filters from the fields of the schema (one entry or a list of a domain), header line, preview
-  and take; what is taken as a link (`filters/content.js`).
+  and take; what is taken as a link (`filters/content.js`). Every picker of a relation offers
+  the entries of its types too (`relationcontent`, dashed): one chosen is taken at once as
+  created by the draft, so cancelling takes it back; a base from a package gives its values once
+  it is there.
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
@@ -1122,6 +1125,10 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   switches (relations block, map, search; the search adds `event`).
 - Every type draws its own edges; two types between the same tiddlers are two edges (decided
   2026-10-08 against merging them into one labelled edge).
+- `tiddlyrpg-inverse: yes` on a config (`owner`, with `tiddlyrpg-sources`): the form of a
+  tiddler the type may name offers the way back ("Possessions": give an item), held in
+  `trpg-inverse-<type>` of the draft and written to the other ends on saving
+  (`modules/inverse.js`, `startup/inverse.js`).
 - `tiddlyrpg-copy: yes` on a config (`base`): choosing the type in the editor copies the values
   of the rules of its target into the empty fields of the draft once (`form.copyFrom()`,
   `tm-trpg-copy`, the button "Take the values"); no value is inherited.

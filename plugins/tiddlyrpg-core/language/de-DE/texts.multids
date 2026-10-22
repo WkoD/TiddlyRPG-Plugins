@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022170508319
+modified: 20261022170837832
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -165,6 +165,7 @@ Editor/Where/Before: Vor den Absatz
 Editor/Field/Output: Ausgabe: $value$
 Editor/Field/Derived: Abgeleitet: $value$
 Editor/Field/LockAll: alle
+Editor/Inverse/Notice: Am anderen Ende eingetragen: $titles$
 Event/Continued: (Fortsetzung)
 Event/End: (Ende)
 Event/Event: Ereignis

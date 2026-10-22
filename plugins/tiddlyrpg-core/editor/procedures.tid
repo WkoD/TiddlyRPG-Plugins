@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261022171029770
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/editor/procedures
 type: text/vnd.tiddlywiki
@@ -75,7 +75,7 @@ type: text/vnd.tiddlywiki
 	trpg-typed={{{ [<trpg-pick-store>get[text]trim[]] }}}>
 <div class="trpg-picker-list">
 <$list filter="[subfilter{$:/plugins/tiddlyrpg-core/editor/picker!!first-search-filter}]" variable="trpg-pick">
-<span class={{{ [[trpg-picker-hit trpg-pick-pill]] [<trpg-pick>addsuffix[-primaryList]match<trpg-selected>then[tc-list-item-selected]] +[join[ ]] }}} style={{{ [trpg.pillstyle<trpg-pick>] }}} data-pick=<<trpg-pick>> role="option"><$transclude $variable="trpg.pickname" title=<<trpg-pick>>/></span>
+<span class={{{ [[trpg-picker-hit trpg-pick-pill]] [<trpg-pick>addsuffix[-primaryList]match<trpg-selected>then[tc-list-item-selected]] [<trpg-pick>is[missing]trpgcontentfor[]then[trpg-pick-offer]] +[join[ ]] }}} style={{{ [trpg.pillstyle<trpg-pick>] }}} data-pick=<<trpg-pick>> role="option" title={{{ [<trpg-pick>is[missing]trpgcontentfor[]first[]trpgcontentoffer[package]] }}}><$transclude $variable="trpg.pickname" title=<<trpg-pick>>/></span>
 </$list>
 <%if [<trpg-pick-free>match[yes]] :filter[<trpg-typed>!is[blank]] %>
 <%if [subfilter<trpg-candidates>match<trpg-typed>] :filter[trpg.visible[]] +[count[]match[0]] %>

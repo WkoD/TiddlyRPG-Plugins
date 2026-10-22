@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261022161612307
+modified: 20261022170835208
 title: $:/config/EditTemplateFields/Visibility/
 
 alliance: hide
@@ -29,4 +29,5 @@ secret-fields: hide
 sibling: hide
 spells: hide
 spouse: hide
+trpg-inverse-owner: hide
 under: hide

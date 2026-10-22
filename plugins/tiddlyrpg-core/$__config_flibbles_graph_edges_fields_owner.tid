@@ -1,5 +1,7 @@
 created: 20260715103636000
-modified: 20261016184211000
+modified: 20261022170835208
+tiddlyrpg-inverse: yes
+tiddlyrpg-sources: [tag[Artifact]] [tag[Item]] [tag[Material]]
 tiddlyrpg-targets: [tag[Person]] [tag[Player]] [tag[Deity]] [tag[Organisation]]
 title: $:/config/flibbles/graph/edges/fields/owner
 type: application/json

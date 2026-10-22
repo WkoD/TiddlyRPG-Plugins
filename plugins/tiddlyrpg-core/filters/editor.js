@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261022161612307
+modified: 20261022171029770
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -33,6 +33,9 @@ picker (editor/procedures) and the kinds of the search.
                                core (cascade $:/config/FieldEditorFilters/tiddlyrpg); a field of
                                the rules: editor/fields/rules
 [<draft>trpgformlabel<field>]  the label of a field in the form (modules/form.js label)
+[<draft>trpginverse[]]         the relations with a way back in the form of a draft
+                               (modules/inverse.js)
+[<name>trpginversesources[]]   what may carry the relation, with the offers of the packages
 [<field>trpgrelationcopy[]]    each input relation that copies the values of its target
                                (tiddlyrpg-copy, modules/relations.js)
 [<draft>trpgdatemarkers[]]     the number of dated sections in the text of the draft
@@ -258,6 +261,20 @@ exports.trpgdatemarkers = function(source,operator,options) {
 
 exports.trpgformknown = function(source,operator,options) {
 	return form.known(options.wiki).slice();
+};
+
+exports.trpginverse = function(source,operator,options) {
+	var inverse = require("$:/plugins/tiddlyrpg-core/modules/inverse.js");
+	return each(source,function(title,results) {
+		Array.prototype.push.apply(results,inverse.relations(options.wiki,title));
+	});
+};
+
+exports.trpginversesources = function(source,operator,options) {
+	var inverse = require("$:/plugins/tiddlyrpg-core/modules/inverse.js");
+	return each(source,function(name,results) {
+		Array.prototype.push.apply(results,inverse.sources(options.wiki,name));
+	});
 };
 
 exports.trpgrelationcopy = function(source,operator,options) {

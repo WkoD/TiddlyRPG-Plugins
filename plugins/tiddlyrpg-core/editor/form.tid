@@ -1,6 +1,6 @@
 created: 20261016184211000
 list-after: $:/core/ui/EditTemplate/body
-modified: 20261022160104767
+modified: 20261022171029770
 tags: $:/tags/EditTemplate
 title: $:/plugins/tiddlyrpg-core/editor/form
 type: text/vnd.tiddlywiki
@@ -50,6 +50,44 @@ type: text/vnd.tiddlywiki
 <%endif%>
 </span>
 </$let>
+\end
+
+<!-- The way back of a relation whose field lives on the other end (modules/inverse.js: owner -
+     "give an item"): the chosen ones as pills with ×, held in trpg-inverse-<name> of the draft
+     and written to them on saving; the picker over what may carry the field, without those that
+     name the tiddler already, and the offers of the content packages (one chosen is taken at
+     once, as created by the draft). -->
+\procedure trpg.forminverse()
+\whitespace trim
+<$list filter="[<currentTiddler>trpginverse[]]" variable="trpg-name">
+<$let trpg-field={{{ [<trpg-name>addprefix[trpg-inverse-]] }}}
+	trpg-self={{{ [<currentTiddler>get[draft.of]] ~[<currentTiddler>] }}}>
+<div class="trpg-form-row">
+<span class="trpg-form-label"><$text text={{{ [<trpg-name>addprefix[FieldInverse/]trpgtranslate[]] }}}/></span>
+<span class="trpg-form-value"><span class="trpg-field-relation">
+<$list filter="[<currentTiddler>get<trpg-field>enlist-input[]]" variable="trpg-value">
+<$let trpg-rest={{{ [<currentTiddler>get<trpg-field>enlist-input[]] -[<trpg-value>] +[format:titlelist[]join[ ]] }}}>
+<span class="trpg-pick-pill" style={{{ [trpg.pillstyle<trpg-value>] }}}>
+<$transclude $variable="trpg.pickname" title=<<trpg-value>>/>
+<$button class="tc-btn-invisible trpg-pill-x" tooltip={{{ [[Editor/Form/Remove]trpgtranslate[]] }}}>
+<%if [<trpg-rest>is[blank]] %>
+<$action-deletefield $tiddler=<<currentTiddler>> $field=<<trpg-field>>/>
+<%else%>
+<$action-setfield $tiddler=<<currentTiddler>> $field=<<trpg-field>> $value=<<trpg-rest>>/>
+<%endif%>
+×
+</$button>
+</span>
+</$let>
+</$list>
+<$transclude $variable="trpg.picker" id={{{ [<currentTiddler>addsuffix[/]addsuffix<trpg-field>] }}}
+	candidates="[<trpg-name>trpginversesources[]] -[<currentTiddler>get<trpg-field>enlist-input[]] -[<trpg-self>relationsources<trpg-name>]"
+	placeholder={{{ [[Editor/Form/Add]trpgtranslate[]] }}}
+	actions="""<$action-listops $tiddler=<<currentTiddler>> $field=<<trpg-field>> $subfilter="[<trpg-pick>]"/><%if [<trpg-pick>is[missing]trpgcontentfor[]] %><$action-sendmessage $message="tm-trpg-content-take" $param={{{ [<trpg-pick>trpgcontentfor[]first[]] }}} draft=<<currentTiddler>>/><%endif%>"""/>
+</span></span>
+</div>
+</$let>
+</$list>
 \end
 
 \procedure trpg.formkinds()
@@ -126,6 +164,7 @@ type: text/vnd.tiddlywiki
 <span class="trpg-form-value"><$let currentField=<<trpg-field>>><$transclude $tiddler={{{ [<trpg-field>trpgfieldeditor[]] ~[[$:/core/ui/EditTemplate/fieldEditor/default]] }}}/></$let></span>
 </div>
 </$list>
+<$transclude $variable="trpg.forminverse"/>
 <$transclude $variable="trpg.formmore"/>
 <$transclude $variable="trpg.formchecks"/>
 </div>

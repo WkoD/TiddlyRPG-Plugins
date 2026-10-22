@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/content.js
 type: application/javascript
 module-type: startup
 created: 20261022165648795
-modified: 20261022165954294
+modified: 20261022171029770
 
 Content packages in the browser (modules/content.js): loads the index of the packages of the active
 ruleset from the server (server/content-route.js) into the temp tiddler of the index - at the
@@ -17,7 +17,8 @@ packages shows.
                          tag - no hub lists it (modules/types.js of()); the box on top takes it
                          (viewtemplates/content-preview).
   tm-trpg-content-take   param: the id of an entry; draft (optional): the draft it was taken
-                         from. Fetches the entry and adds it to the wiki as a tiddler under its
+                         from; copy (optional): the relation of the draft that copies (base) -
+                         its values come once the entry is there (tm-trpg-copy). Fetches the entry and adds it to the wiki as a tiddler under its
                          title (modules/content.js); from a draft, cancelling the draft takes it
                          back while it is unchanged (modules/form.js noteCreated). A notification
                          names it and what it names in base and spells that the wiki lacks, each
@@ -115,7 +116,7 @@ function preview(wiki,id) {
 	});
 }
 
-function take(wiki,id,draft) {
+function take(wiki,id,draft,copy) {
 	var offer = content.offer(wiki,id);
 	if(!offer) {
 		return;
@@ -132,6 +133,10 @@ function take(wiki,id,draft) {
 		wiki.addTiddler(tiddler);
 		if(draft && wiki.tiddlerExists(draft)) {
 			form.noteCreated(wiki,draft,tiddler);
+			// Chosen as the base of the draft: its values come now that it is there
+			if(copy) {
+				$tw.rootWidget.dispatchEvent({type: "tm-trpg-copy", paramObject: {draft: draft, field: copy}});
+			}
 		}
 		// Taken from its preview: the tiddler takes the place of the preview
 		var shown = wiki.getTiddler(PREVIEW);
@@ -169,7 +174,8 @@ exports.startup = function() {
 		return false;
 	});
 	$tw.rootWidget.addEventListener("tm-trpg-content-take",function(event) {
-		take(wiki,event.param,(event.paramObject || {}).draft);
+		var params = event.paramObject || {};
+		take(wiki,event.param,params.draft,params.copy);
 		return false;
 	});
 };

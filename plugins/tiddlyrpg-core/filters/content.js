@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022170616290
+modified: 20261022171029770
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -13,6 +13,8 @@ The offers of the content packages (modules/content.js) for the templates:
 [trpgcontentids[]]                 the ids of every offer, in the order of the packages
 [<text>trpgcontentsearch[]]        the ids of the offers whose title contains the text (any
                                    case), at most 30 - the group of the search
+[<field>relationcontent[]]         the titles of the offers a relation field may name: their type
+                                   one of the tags its tiddlyrpg-targets names (the pickers)
 [<id>trpgcontentoffer[title]]      a property of each entry: title (taken or to take), type,
                                    package (its name), language, taken ("yes"), summary (its
                                    header line by the schema of its type); nothing for an offer
@@ -65,6 +67,21 @@ exports.trpgcontentsearch = function(source,operator,options) {
 		return text ? content.offers(options.wiki).filter(function(o) {
 			return o.title.toLowerCase().indexOf(text) !== -1;
 		}).slice(0,30).map(function(o) { return o.id; }) : [];
+	});
+};
+
+exports.relationcontent = function(source,operator,options) {
+	var wiki = options.wiki,
+		all = require("$:/plugins/tiddlyrpg-core/modules/relations.js").types(wiki);
+	return each(source,function(field) {
+		var type = all[field],
+			tags = [],
+			re = /tag\[([^\]]+)\]/g,
+			m;
+		while(type && type.candidates && (m = re.exec(type.candidates))) {
+			tags.push(m[1]);
+		}
+		return content.offers(wiki).filter(function(o) { return tags.indexOf(o.type) !== -1; }).map(function(o) { return o.title; });
 	});
 };
 
