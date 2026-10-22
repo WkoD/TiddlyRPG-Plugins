@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261022170135456
+modified: 20261022182658042
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -25,7 +25,8 @@ a tiddler the view does not see counts the same - nothing tells it.
   offer(wiki,id)             one offer, or null
   find(wiki,title)           the offers titled so
   titleOf(wiki,pkg,entry)    the title it is taken under, or null if taken
-  toFields(wiki,pkg,entry,title)  the fields of the tiddler to take: tags (its type and tags),
+  toFields(wiki,pkg,entry,title)  the fields of the tiddler to take: tags (its type, its tags and
+                             the tag of its package),
                              its fields (a price of the ruleset in the coins of the setting,
                              currency.fromRules()), source, text
   wanting(wiki,fields)       the titles a taken entry names in base and spells that do not exist,
@@ -116,6 +117,9 @@ function text(value) {
 
 exports.toFields = function(wiki,pkg,entry,title) {
 	var out = {title: title, tags: [entry.type].concat(entry.tags || []), text: entry.text || ""};
+	if(pkg.tag && out.tags.indexOf(pkg.tag) === -1) {
+		out.tags.push(pkg.tag);
+	}
 	$tw.utils.each(entry.fields || {},function(value,name) {
 		if(name === "price" && (typeof value === "number" || $tw.utils.isArray(value))) {
 			out.price = currency.fromRules(wiki,value);

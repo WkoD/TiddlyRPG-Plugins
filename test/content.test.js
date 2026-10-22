@@ -37,7 +37,7 @@ test.before(function() {
 		route = $tw.modules.execute("$:/plugins/tiddlyrpg-core/server/content-route.js");
 		dir = fs.mkdtempSync(path.join(os.tmpdir(), "trpg-content-"));
 		pack("srd-mini", {name: "SRD mini", ruleset: RULESET, language: "en-GB", "tiddlyrpg-core-version": ">=2.0.0", source: "SRD 5.1",
-			files: ["items.json", "spells.json"]}, {
+			tag: "SRD mini English", files: ["items.json", "spells.json"]}, {
 			"items.json": {entries: [
 				{id: "longsword", title: "Longsword", type: "Item", tags: ["Equipment"], fields: {category: "weapon, martial, melee, versatile", damage: "1d8 slashing"}, text: "A sword."},
 				{id: "potion-of-healing", title: "Potion of Healing", type: "Item", tags: ["Consumable"], fields: {category: "potion", rarity: "common"}, text: "Red."}
@@ -84,6 +84,7 @@ test("index: the packages of the ruleset, the entries without their texts", func
 	var p = r.data.packages[0];
 	assert.equal(p.name, "SRD mini");
 	assert.equal(p.language, "en-GB");
+	assert.equal(p.tag, "SRD mini English");
 	assert.deepEqual(p.entries.map(function(e) { return e.id; }), ["longsword", "potion-of-healing", "fireball"]);
 	assert.equal(p.entries[0].text, undefined);
 	assert.equal(p.entries[0].fields.damage, "1d8 slashing");
@@ -96,6 +97,8 @@ test("entry: with its text and its package; 404 for an unknown id or another rul
 	assert.equal(r.status, 200);
 	assert.equal(r.data.entry.text, "Boom.");
 	assert.equal(r.data.package.source, "SRD 5.1");
+	assert.equal(r.data.package.tag, "SRD mini English");
+	assert.equal(get("index", {ruleset: "$:/plugins/fixture-ruleset-probe"}).data.packages[0].tag, "", "a package without a tag");
 	assert.equal(get("entry", {ruleset: RULESET, id: "nope"}).status, 404);
 	assert.equal(get("entry", {ruleset: "$:/plugins/fixture-ruleset-probe", id: "fireball"}).status, 404);
 	assert.equal(get("entry", {ruleset: RULESET, id: "../package"}).status, 404, "an id is no path");
@@ -120,7 +123,7 @@ test.describe("in the browser: the offers of the index", function() {
 		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/content/index", type: "application/json", text: JSON.stringify({ruleset: RULESET, packages: packages})});
 	}
 
-	var PKG = {name: "SRD mini", language: "en-GB", source: "SRD 5.1", entries: [
+	var PKG = {name: "SRD mini", language: "en-GB", source: "SRD 5.1", tag: "SRD mini English", entries: [
 		{id: "longsword", title: "Longsword", type: "Item", tags: ["Equipment"], fields: {category: "weapon, martial", price: 15, weight: "3 lb"}},
 		{id: "book", title: "Book", type: "Item", fields: {price: 25}},
 		{id: "balor", title: "Balor", type: "Creature", fields: {}},
@@ -156,10 +159,11 @@ test.describe("in the browser: the offers of the index", function() {
 		}
 	});
 
-	test("the fields to take: type and tags, a price of the ruleset in the coins of the setting, the source", function() {
+	test("the fields to take: type, tags and the tag of the package, a price of the ruleset in the coins of the setting, the source", function() {
 		var o = offers.offer(wiki, "longsword"),
 			fields = offers.toFields(wiki, o.package, o.entry, o.title);
-		assert.equal(fields.tags.join(), "Item,Equipment");
+		assert.equal(fields.tags.join(), "Item,Equipment,SRD mini English");
+		assert.equal(offers.toFields(wiki, {name: "Other"}, o.entry, o.title).tags.join(), "Item,Equipment", "a package without a tag adds none");
 		assert.equal(fields.price, "15 gp");
 		assert.equal(fields.weight, "3 lb");
 		assert.equal(fields.source, "SRD 5.1");

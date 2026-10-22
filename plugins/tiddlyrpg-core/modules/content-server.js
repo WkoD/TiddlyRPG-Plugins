@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content-server.js
 type: application/javascript
 module-type: library
 created: 20261022165310491
-modified: 20261022165310491
+modified: 20261022182658042
 
 Content packages on the server (the route server/content-route.js; Node only): entries of a
 ruleset - items, spells, creatures - as data a DM takes into the wiki one by one. They are no
@@ -16,6 +16,8 @@ A manifest:
     "name": "SRD 5.1",                       the source as the wiki names it
     "ruleset": "$:/plugins/wkod/dnd5e2014",  the ruleset plugin it belongs to
     "language": "en-GB",                     the language of its texts and titles
+    "tag": "SRD 5.1 English",                optional: a tag every taken entry gets, so the
+                                             tiddlers that came from it show it
     "tiddlyrpg-core-version": ">=2.1.0",
     "source": "...",                         what goes into the field source of a taken entry
     "files": ["items.json", ...]             beside the manifest
@@ -26,8 +28,8 @@ unique in the package, type a type tag of the core (Item, Spell, Creature ...).
 A package whose core version does not fit, or that cannot be read, is left out with a line on
 the console. Read files are cached by their path and time of change.
 
-  packages(wikiPath)              every package: [{name, ruleset, language, source, manifest,
-                                  entries}]
+  packages(wikiPath)              every package: [{name, ruleset, language, source, tag,
+                                  manifest, entries}]
   index(wikiPath,ruleset)         those of the ruleset without the texts of the entries
   entry(wikiPath,ruleset,id)      {package, entry} of an id, or null - only looked up, never a
                                   path
@@ -105,7 +107,7 @@ var packages = exports.packages = function(wikiPath) {
 					entries = entries.concat($tw.utils.isArray(data.entries) ? data.entries : []);
 				});
 				out.push({name: manifest.name || pkg.name, ruleset: manifest.ruleset || "", language: manifest.language || "en-GB",
-					source: manifest.source || "", manifest: file, entries: entries});
+					source: manifest.source || "", tag: manifest.tag || "", manifest: file, entries: entries});
 			} catch(e) {
 				$tw.utils.log("tiddlyrpg content: " + file + " cannot be read: " + e.message);
 			}
@@ -118,7 +120,7 @@ exports.index = function(wikiPath,ruleset) {
 	return packages(wikiPath).filter(function(p) {
 		return p.ruleset === ruleset;
 	}).map(function(p) {
-		return {name: p.name, language: p.language, source: p.source, entries: p.entries.map(function(e) {
+		return {name: p.name, language: p.language, source: p.source, tag: p.tag, entries: p.entries.map(function(e) {
 			return {id: e.id, title: e.title, type: e.type, tags: e.tags || [], fields: e.fields || {}};
 		})};
 	});
@@ -132,7 +134,7 @@ exports.entry = function(wikiPath,ruleset,id) {
 		}
 		var entry = p.entries.filter(function(e) { return e.id === id; })[0];
 		if(entry) {
-			found = {package: {name: p.name, language: p.language, source: p.source}, entry: entry};
+			found = {package: {name: p.name, language: p.language, source: p.source, tag: p.tag}, entry: entry};
 		}
 		return !!found;
 	});

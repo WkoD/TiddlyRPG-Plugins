@@ -390,7 +390,7 @@ the tiddler title:
   the right to write) and takes an entry on `tm-trpg-content-take`; `modules/content.js` (its
   header) decides the titles - what is in the wiki wins, another type gets "Title (Type)" in the
   language of the package - and turns an entry into fields (`currency.fromRules()` for the
-  price). Every part of the packages hangs on `trpg.content` (`trpgcontentready`): without a
+  price; the `tag` of the manifest, if it has one, on every taken tiddler). Every part of the packages hangs on `trpg.content` (`trpgcontentready`): without a
   package nothing shows. `viewtemplates/content-missing`: the offer on a missing tiddler.
   `tm-trpg-content-preview` fetches an entry into `$:/temp/tiddlyrpg-core/content/preview`
   (its type in `trpg-type`, no tag - no hub lists it, `types.of()`), shown like the taken
