@@ -286,6 +286,12 @@ test.describe("the hub Content", function() {
 		h.add(wiki, {title: STATE + "/search", text: "long"});
 		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "longsword");
 		wiki.deleteTiddler(STATE + "/search");
+		h.add(wiki, {title: STATE, type: "Spell"});
+		var spells = Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join();
+		assert.ok(spells.length > 0);
+		h.add(wiki, {title: STATE, type: "Spell", "filter-category": "weapon"});
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), spells,
+			"a filter set for items does not empty the spells, which have no category");
 	});
 
 	test("a group in the search: the offers whose title holds the text", function() {

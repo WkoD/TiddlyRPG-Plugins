@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022171353860
+modified: 20261022184441974
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -25,8 +25,9 @@ The hub Content (a state tiddler with the fields type, page and filter-<field>; 
 text of <state>/search):
 [trpgcontenttypes[]]               the types the entries have, in their order
 [trpgcontentlist[<state>]]         the ids of the page of the list: of the type, the title
-                                   containing the search (any case), every filter-<field> an id
-                                   its value holds; PAGE entries a page. :count the number of
+                                   containing the search (any case), every filter-<field> of a
+                                   field of the type an id its value holds (one set for another
+                                   type does not count); PAGE entries a page. :count the number of
                                    them, :pages the number of pages, :page the page shown
 [<type>trpgcontentfilters[]]       the fields of the schema of the type that filter: one or a list
                                    of entries of a domain, with a value in an entry of the type
@@ -144,6 +145,8 @@ exports.trpgcontentlist = function(source,operator,options) {
 	var wiki = options.wiki,
 		state = (wiki.getTiddler(operator.operand) || {fields: {}}).fields,
 		search = (wiki.getTiddlerText(operator.operand + "/search") || "").trim().toLowerCase(),
+		// a filter of a field the type does not have (one set for another type) does not count
+		known = state.type ? fields.forTypes(wiki,[state.type]).fields : [],
 		hits = content.entries(wiki).filter(function(e) {
 			if(state.type && e.type !== state.type) {
 				return false;
@@ -152,7 +155,7 @@ exports.trpgcontentlist = function(source,operator,options) {
 				return false;
 			}
 			return Object.keys(state).every(function(name) {
-				if(name.indexOf("filter-") !== 0 || !state[name]) {
+				if(name.indexOf("filter-") !== 0 || !state[name] || known.indexOf(name.substr(7)) === -1) {
 					return true;
 				}
 				return idsOf(wiki,name.substr(7),(e.entry.fields || {})[name.substr(7)]).indexOf(state[name]) !== -1;
