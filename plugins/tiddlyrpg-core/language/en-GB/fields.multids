@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022161106186
+modified: 20261022172648948
 title: $:/tiddlyrpg/language/en-GB/Field/
 
 alliance: Alliance
@@ -8,7 +8,7 @@ base: Base item
 bond: Bond
 component: Components
 creator: Creator
-creature: Kind
+creature: Creature
 date: Date
 enmity: Enmity
 family: Family

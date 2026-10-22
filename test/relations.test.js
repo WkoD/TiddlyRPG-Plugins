@@ -185,7 +185,7 @@ test("creature, base, spells: what they name, their way back, one kind and one b
 		assert.ok(form.single(wiki, "Mizu", "creature") && form.single(wiki, "Frostbringer", "base"));
 		assert.ok(!form.single(wiki, "Mizu", "spells"));
 		var mizu = groups(list("Mizu")), fukuro = groups(list("Fukuro"));
-		assert.deepEqual(mizu["Art"], ["Fukuro"]);
+		assert.deepEqual(mizu["Kreatur"], ["Fukuro"]);
 		assert.deepEqual(mizu["Zauber"], ["Feuerball"]);
 		assert.deepEqual(fukuro["Vertreter"], ["Mizu"]);
 		assert.deepEqual(groups(list("Warhammer"))["Abwandlungen"], ["Frostbringer"]);

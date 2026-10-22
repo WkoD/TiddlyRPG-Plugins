@@ -399,7 +399,7 @@ relation list show the way back by themselves.
 | | `spouse` | `spouse: Ragna` (both ends) | Spouse | Spouse |
 | | `sibling` | `sibling: Bjorn` (both ends) | Sibling | Siblings |
 | | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
-| | `creature` | `creature: Fukuro` (a person, player character or form of a creature: its kind) | is a | Kind / Individuals |
+| | `creature` | `creature: Fukuro` (a person, player character or form of a creature: its kind) | is a | Creature / Individuals |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
 | | `patron` | `patron: Sola` | worships | Patron / Followers |
