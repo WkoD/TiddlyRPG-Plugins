@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022161612307
+modified: 20261022170616290
 title: $:/core/ui/DefaultSearchResultList
 tags: $:/tags/SearchResults
 caption: {{$:/language/Search/DefaultResults/Caption}}
@@ -8,7 +8,7 @@ second-search-filter: [!is[system]trpgsearch<userInput>] +[kindselected[$:/state
 
 \define searchResultList()
 \whitespace trim
-<$transclude $variable="trpg.kindswitches" kinds="player person organisation location item creature spell quest event" state="$:/state/tiddlyrpg-core/search-kinds" mode="select" hubs="Player Person Organisation Location Item Quest Event"/>
+<$transclude $variable="trpg.kindswitches" kinds="player person organisation location item creature spell quest event" state="$:/state/tiddlyrpg-core/search-kinds" mode="select" hubs="Player Person Organisation Location Item Creature Spell Quest Event"/>
 
 //<small>{{$:/language/Search/Matches/Title}}</small>//
 
@@ -27,6 +27,19 @@ second-search-filter: [!is[system]trpgsearch<userInput>] +[kindselected[$:/state
 <span class={{{[<currentTiddler>addsuffix[-secondaryList]] -[<searchListState>get[text]] +[then[]else[tc-list-item-selected]] }}}>
 <$transclude tiddler="$:/plugins/tiddlyrpg-core/search/item"/>
 </span>
+</$list>
+</$list>
+
+<$list filter="[<userInput>minlength[1]] :filter[trpg.content[]] :map[<userInput>trpgcontentsearch[]count[]] -[[0]]" variable="ignore">
+
+//<small><$text text={{{ [[Content/Search]trpgtranslate[]] }}}/></small>//
+
+<$list filter="[<userInput>trpgcontentsearch[]]" variable="trpg-id">
+<div class="trpg-content-search-hit">
+<$text text={{{ [<trpg-id>trpgcontentoffer[title]] }}}/> <small><$text text={{{ [<trpg-id>trpgcontentoffer[type]trpgtitle[]] [<trpg-id>trpgcontentoffer[package]] +[join[ · ]] }}}/></small>
+<$button class="trpg-do-2 trpg-small" message="tm-trpg-content-preview" param=<<trpg-id>>><$text text={{{ [[Content/ShowPreview]trpgtranslate[]] }}}/></$button>
+<$button class="trpg-do trpg-small" message="tm-trpg-content-take" param=<<trpg-id>>><$text text={{{ [[Content/Take]trpgtranslate[]] }}}/></$button>
+</div>
 </$list>
 </$list>
 

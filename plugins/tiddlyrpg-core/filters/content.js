@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022170135456
+modified: 20261022170616290
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -11,6 +11,8 @@ The offers of the content packages (modules/content.js) for the templates:
                                    condition trpg.content of every part of the packages)
 [<title>trpgcontentfor[]]          the ids of the offers titled like each input
 [trpgcontentids[]]                 the ids of every offer, in the order of the packages
+[<text>trpgcontentsearch[]]        the ids of the offers whose title contains the text (any
+                                   case), at most 30 - the group of the search
 [<id>trpgcontentoffer[title]]      a property of each entry: title (taken or to take), type,
                                    package (its name), language, taken ("yes"), summary (its
                                    header line by the schema of its type); nothing for an offer
@@ -54,6 +56,15 @@ exports.trpgcontentready = function(source,operator,options) {
 exports.trpgcontentfor = function(source,operator,options) {
 	return each(source,function(title) {
 		return content.find(options.wiki,title).map(function(o) { return o.id; });
+	});
+};
+
+exports.trpgcontentsearch = function(source,operator,options) {
+	return each(source,function(text) {
+		text = text.trim().toLowerCase();
+		return text ? content.offers(options.wiki).filter(function(o) {
+			return o.title.toLowerCase().indexOf(text) !== -1;
+		}).slice(0,30).map(function(o) { return o.id; }) : [];
 	});
 };
 

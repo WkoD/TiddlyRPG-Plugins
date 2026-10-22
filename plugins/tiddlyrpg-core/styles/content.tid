@@ -1,5 +1,5 @@
 created: 20261022165648795
-modified: 20261022170431261
+modified: 20261022170616290
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/content
 type: text/css
@@ -43,4 +43,12 @@ table.trpg-content-list {
 .trpg-content-count,
 .trpg-content-pages {
 	color: var(--tpc-muted-foreground, #666);
+}
+/* A hit of the search in a content package: title, type and package, the buttons in the line */
+.trpg-content-search-hit {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4em;
+	padding: 1px 0;
 }

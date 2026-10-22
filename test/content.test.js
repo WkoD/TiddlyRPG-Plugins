@@ -275,5 +275,15 @@ test.describe("the hub Content", function() {
 		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "longsword");
 		wiki.deleteTiddler(STATE + "/search");
 	});
-});
 
+	test("a group in the search: the offers whose title holds the text", function() {
+		var search = function(text) {
+			return h.render(wiki, "text/html", "<$let userInput=\"" + text + "\" configTiddler=\"$:/core/ui/DefaultSearchResultList\">{{$:/core/ui/DefaultSearchResultList}}</$let>");
+		};
+		var html = search("sword");
+		assert.match(html, /In den Inhaltspaketen:/);
+		assert.match(html, /Longsword<small>Gegenstand · SRD mini<\/small>/);
+		assert.doesNotMatch(search("Dagger"), /In den Inhaltspaketen/, "taken: no offer");
+		assert.doesNotMatch(search("zzz"), /In den Inhaltspaketen/);
+	});
+});
