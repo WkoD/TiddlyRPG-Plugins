@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261022142450275
+modified: 20261022144503108
 
 The fields of the rules of a tiddler (modules/fields.js) for the block of values
 (viewtemplates/fields). A field is shown when it has a text - written or derived -, its "when"
@@ -135,7 +135,8 @@ exports.trpgfieldparts = function(source,operator,options) {
 		if(!r.text) {
 			return [];
 		}
-		return spec && spec.format === "labels" && !r.problem ? r.text.split(", ") : [r.text];
+		// Entries part at ", ", several main entries at " · " (modules/labels.js)
+		return spec && spec.format === "labels" && !r.problem ? r.text.split(/, | · /) : [r.text];
 	});
 };
 

@@ -264,6 +264,9 @@ test.describe("the block of values", function() {
 			assert.match(html, /<div class="trpg-fields-group-label">Waffe<\/div><table class="trpg-fields-row"><tr><th>Schaden<\/th><th>Reichweite<\/th><\/tr><tr><td>1W8 Hiebschaden<\/td><td>[^<]+<\/td><\/tr>/);
 			assert.doesNotMatch(html, /Rüstung/, "the group armor does not fit");
 		});
+		withTiddler({title: "Klingenschild", tags: "Item", category: "weapon, martial, armor, medium"}, function() {
+			assert.match(block("Klingenschild"), /<span class="trpg-fields-pill">Kriegswaffe<\/span><span class="trpg-fields-pill">mittelschwere Rüstung<\/span>/, "a pill per main entry");
+		});
 	});
 
 	test("a group only when its condition holds; nothing without values", function() {
@@ -304,11 +307,12 @@ test.describe("the block of values", function() {
 		}
 	});
 
-	test("before the body, the price as its first line - on any tiddler", function() {
+	test("after the body, before the relations; the price as its first line - on any tiddler", function() {
 		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp", text: "Ein Ring Zx9."}, function() {
 			var html = h.view(wiki, "Ring").replace(/>\s+</g, "><");
 			assert.match(html, /<dl class="trpg-fields-list"><dt>Preis<\/dt><dd>50 GM<\/dd><dt>Seltenheit<\/dt>/);
-			assert.ok(html.indexOf("trpg-fields") < html.indexOf("Zx9"), "the block before the body");
+			assert.ok(html.indexOf("Zx9") < html.indexOf("trpg-fields"), "the block after the body");
+			assert.ok(html.indexOf("trpg-fields") < html.indexOf("relations/graph"), "and before the relations");
 		});
 		withTiddler({title: "Hafen", tags: "Location", price: "5 sp"}, function() {
 			assert.match(block("Hafen"), /<dt>Preis<\/dt><dd>5 SM<\/dd>/);

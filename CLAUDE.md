@@ -445,7 +445,7 @@ the tiddler title:
   "Timeline"/"List" in `event-list/tabs`, also used by the `Event` hub; the caller sets the filter
   variable `trpg-events`; for a location the events of all places within and the `<<spotlink>>`
   references; contents `event-list/timeline` + `event-list/list`), `fields` (the block of
-  values before the body: header line, the price, the fields of the rules as a list, groups as
+  values after the body, before the relations: header line, the price, the fields of the rules as a list, groups as
   row or list, lists as pills, the relations a group names; lines in the colour of the type),
   `source` (the
   field `source`: where the images come from, "Source: …" below the body),
@@ -1054,7 +1054,7 @@ The rules of items live **once** in `checks/items.js` (base type and categories)
 - Their messages stand below the title (`items/base`, `items/price`: the price against the
   currency), see "Checks".
 - The price (field `price`) shows as the first line of the block of values
-  (`viewtemplates/fields`, before the body) through `priceformat` (see "Currency engine"), on
+  (`viewtemplates/fields`, after the body) through `priceformat` (see "Currency engine"), on
   any tiddler that has it, only for a tiddler the view sees.
 
 ## Relations
