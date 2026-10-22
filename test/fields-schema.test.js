@@ -304,6 +304,17 @@ test.describe("the block of values", function() {
 		}
 	});
 
+	test("before the body, the price as its first line - on any tiddler", function() {
+		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp", text: "Ein Ring Zx9."}, function() {
+			var html = h.view(wiki, "Ring").replace(/>\s+</g, "><");
+			assert.match(html, /<dl class="trpg-fields-list"><dt>Preis<\/dt><dd>50 GM<\/dd><dt>Seltenheit<\/dt>/);
+			assert.ok(html.indexOf("trpg-fields") < html.indexOf("Zx9"), "the block before the body");
+		});
+		withTiddler({title: "Hafen", tags: "Location", price: "5 sp"}, function() {
+			assert.match(block("Hafen"), /<dt>Preis<\/dt><dd>5 SM<\/dd>/);
+		});
+	});
+
 	test("the colour of the type on the block", function() {
 		withTiddler({title: "Ring", tags: "Item", rarity: "rare"}, function() {
 			var colour = wiki.getTiddler("Item") && wiki.getTiddler("Item").fields.color;

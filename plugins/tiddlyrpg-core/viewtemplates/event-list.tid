@@ -1,6 +1,6 @@
 created: 20200305182729567
-list-after: $:/plugins/tiddlyrpg-core/viewtemplates/fields
-modified: 20261022141743492
+list-after: $:/plugins/tiddlyrpg-core/viewtemplates/location
+modified: 20261022143848389
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/event-list
 type: text/vnd.tiddlywiki

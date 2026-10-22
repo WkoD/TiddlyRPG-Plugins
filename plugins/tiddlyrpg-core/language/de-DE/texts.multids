@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022141827523
+modified: 20261022143848389
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -164,7 +164,7 @@ Item/Check/PriceCurrency: Preis prüfen: eine Zahl und eine Münze des Geldsyste
 Item/Check/PriceNoCurrency: Preis prüfen: Er braucht eine Münze des Geldsystems, z. B. 50 gp
 Item/Check/PriceUnit: Preis prüfen: die Einheit ist im Münzsystem unbekannt
 Item/Check/TwoBases: Gegenstand prüfen: Er hat nur einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
-Item/Price: Preis:
+Item/Price: Preis
 Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat einen Besitzer (Feld owner hat mehrere Einträge)
 Location/Check/ArtifactTwice: Ort prüfen: Ein Artefakt ist einzigartig und liegt an einem Ort (Feld location hat mehrere Einträge)
 Location/Check/Cycle: Ort prüfen: Die Oberorte bilden einen Kreis

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022141827523
+modified: 20261022143848389
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -164,7 +164,7 @@ Item/Check/PriceCurrency: Check the price: a number and a coin of the currency, 
 Item/Check/PriceNoCurrency: Check the price: it needs a coin of the currency, e.g. 50 gp
 Item/Check/PriceUnit: Check the price: the currency has no such unit
 Item/Check/TwoBases: Check the item: it has one base type only: Artifact (unique), Item (several) or Material
-Item/Price: Price:
+Item/Price: Price
 Location/Check/ArtifactOwners: Check the location: an artifact is unique and has one owner (field owner has several entries)
 Location/Check/ArtifactTwice: Check the location: an artifact is unique and lies in one place only (field location has several entries)
 Location/Check/Cycle: Check the location: its parents form a cycle

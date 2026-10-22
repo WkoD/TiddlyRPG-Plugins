@@ -1,16 +1,19 @@
 created: 20261022142450275
-list-after: $:/plugins/tiddlyrpg-core/viewtemplates/item
-modified: 20261022142450275
+list-before: $:/core/ui/ViewTemplate/body
+modified: 20261022143848389
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<!-- The values of the fields of the rules (modules/fields.js, filters/fields.js): the header
-     line, the fields outside groups as a list, then the groups - a row as a small table, a list
-     as label and value -, the relations a group names as pills. Lists (labels) as small pills,
-     every value as text. Nothing without a value to show; not for a tiddler the view does not
-     see. The colour of the lines is the colour of the type (--trpg-type). -->
+<!-- The block of values before the body: the header line, the price (field price, as written
+     with the unit labels of the display language of the currency - priceformat; on any tiddler,
+     no schema needed), the fields of the rules outside groups as a list (modules/fields.js,
+     filters/fields.js), then the groups - a row as a small table, a list as label and value -,
+     the relations a group names as pills. Lists (labels) as small pills, every value as text. A
+     price or value that cannot be read is a message below the title (checks/items.js,
+     checks/fields.js). Nothing without a value to show; not for a tiddler the view does not see.
+     The colour of the lines is the colour of the type (--trpg-type). -->
 \procedure trpg.fieldvalue(field)
 <%if [<field>trpgfieldformat[]match[labels]] %>
 <span class="trpg-fields-pills"><$list filter="[<currentTiddler>trpgfieldparts<field>]" variable="trpg-part"><span class="trpg-fields-pill"><$text text=<<trpg-part>>/></span></$list></span>
@@ -19,8 +22,12 @@ type: text/vnd.tiddlywiki
 <%endif%>
 \end
 
-\procedure trpg.fieldlist(filter)
+\procedure trpg.fieldlist(filter,price)
 <dl class="trpg-fields-list">
+<%if [<price>!is[blank]] %>
+<dt><<trpg.t Item/Price>></dt>
+<dd><$text text={{{ [<price>priceformat[]] }}}/></dd>
+<%endif%>
 <$list filter=<<filter>> variable="trpg-field">
 <dt><$text text={{{ [<currentTiddler>trpgfieldlabel<trpg-field>] }}}/></dt>
 <dd><$transclude $variable="trpg.fieldvalue" field=<<trpg-field>>/></dd>
@@ -31,13 +38,13 @@ type: text/vnd.tiddlywiki
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <%if [<currentTiddler>trpg.visible[]] %>
 <$let trpg-summary={{{ [<currentTiddler>trpgfieldsummary[]] }}}>
-<%if [<trpg-summary>!is[blank]] [<currentTiddler>trpgfieldlist[]] [<currentTiddler>trpgfieldgroups[]] +[limit[1]] %>
+<%if [<trpg-summary>!is[blank]] [<currentTiddler>has:field[price]] [<currentTiddler>trpgfieldlist[]] [<currentTiddler>trpgfieldgroups[]] +[limit[1]] %>
 <div class="trpg-fields" style={{{ [<currentTiddler>trpgfieldcolor[]addprefix[--trpg-type:]] }}}>
 <%if [<trpg-summary>!is[blank]] %>
 <div class="trpg-fields-summary"><$text text=<<trpg-summary>>/></div>
 <%endif%>
-<%if [<currentTiddler>trpgfieldlist[]] %>
-<$transclude $variable="trpg.fieldlist" filter="[<currentTiddler>trpgfieldlist[]]"/>
+<%if [<currentTiddler>has:field[price]] [<currentTiddler>trpgfieldlist[]] +[limit[1]] %>
+<$transclude $variable="trpg.fieldlist" filter="[<currentTiddler>trpgfieldlist[]]" price={{!!price}}/>
 <%endif%>
 <$list filter="[<currentTiddler>trpgfieldgroups[]]" variable="trpg-group">
 <div class="trpg-fields-group">

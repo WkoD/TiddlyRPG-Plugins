@@ -102,7 +102,7 @@ test.describe("base type", function() {
 test.describe("price", function() {
 	test("shown as written with the labels of the display language", function() {
 		withTiddlers([{title: "Trank", tags: "Item Consumable", price: "50 gp"}], function() {
-			assert.match(h.view(wiki, "Trank"), /<b>Preis:<\/b> 50 GM/);
+			assert.match(h.view(wiki, "Trank"), /<dt>Preis<\/dt><dd>50 GM<\/dd>/);
 			assert.deepEqual(keys("Trank"), []);
 		});
 	});
@@ -110,7 +110,7 @@ test.describe("price", function() {
 	test("with a currency a plain number gets a hint", function() {
 		withTiddlers([{title: "Trank", tags: "Item Consumable", price: "50"}], function() {
 			assert.deepEqual(keys("Trank"), ["Item/Check/PriceNoCurrency"]);
-			assert.match(h.view(wiki, "Trank"), /<b>Preis:<\/b> 50\s/);
+			assert.match(h.view(wiki, "Trank"), /<dt>Preis<\/dt><dd>50<\/dd>/);
 			assert.match(h.view(wiki, "Trank"), /Preis prüfen: Er braucht eine Münze des Geldsystems/);
 		});
 	});
