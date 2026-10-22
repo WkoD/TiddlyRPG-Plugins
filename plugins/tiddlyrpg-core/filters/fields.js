@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261022160944812
+modified: 20261022185851538
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -31,7 +31,7 @@ The editor of a field of the rules (editor/fields/rules), for a draft:
                                        list of entries without values) or text
 [<draft>trpgfieldchoices<field>]       the ids to choose: the entries that stand alone (in "only");
                                        for pills also the traits whose parent is in the field
-[<id>trpgfieldchoice<field>]           the label of each input id
+[<id>trpgfieldchoice<field>]           the label of each input id (a number: with its sign if signed)
 [<draft>trpgfieldchosen<field>]        the ids the field holds
 [<draft>trpgfieldtoggle<field>,<id>]   the value of the field with <id> added or taken out
 [<draft>trpgfieldreading<field>]       the reading below the input: "Output: ..." of a value, the
@@ -319,8 +319,13 @@ exports.trpgfieldchoices = function(source,operator,options) {
 
 exports.trpgfieldchoice = function(source,operator,options) {
 	var wiki = options.wiki,
-		domains = domainsOf(wiki,fields.spec(wiki,operator.operand));
+		spec = fields.spec(wiki,operator.operand),
+		domains = domainsOf(wiki,spec);
 	return each(source,function(id) {
+		// a number (a filter of the hub Content) as the field shows it: "+2" when signed
+		if(spec && spec.format === "number") {
+			return [(spec.signed && Number(id) >= 0 ? "+" : "") + id];
+		}
 		var domain = domains.filter(function(d) {
 			return (d.entries || []).some(function(e) { return e.id === id; });
 		})[0];

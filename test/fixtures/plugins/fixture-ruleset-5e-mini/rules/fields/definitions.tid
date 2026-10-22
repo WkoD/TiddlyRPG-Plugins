@@ -1,5 +1,5 @@
 created: 20261022140929737
-modified: 20261022150158843
+modified: 20261022185851538
 tags: $:/tags/tiddlyrpg/RulesFields
 title: $:/tiddlyrpg/rules/fields
 type: application/json
@@ -10,12 +10,12 @@ type: application/json
         "rarity": {"format": "label", "domain": "Rarity"},
         "attunement": {"format": "boolean"},
         "damage": {"format": "damage", "when": {"category": ["weapon"]}},
-        "bonus": {"format": "number", "signed": true},
+        "bonus": {"format": "number", "signed": true, "filter": true},
         "ac": {"format": "number", "when": {"category": ["armor"]}, "derive": {"kind": "total", "parts": [{"field": "bonus"}]}},
         "weight": {"format": "unit", "domain": "Weight"},
         "range": {"format": "unit", "domain": "Length", "kind": "range"},
         "healing": {"format": "dice", "derive": {"kind": "average"}},
-        "level": {"format": "number", "min": 0, "max": 9},
+        "level": {"format": "number", "min": 0, "max": 9, "filter": true},
         "ritual": {"format": "boolean"},
         "duration": {"format": "unit", "domain": "Time"},
         "concentration": {"format": "boolean"},

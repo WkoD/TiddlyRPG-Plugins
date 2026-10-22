@@ -236,9 +236,10 @@ test.describe("the hub Content", function() {
 			many.push({id: "coin" + i, title: "Coin " + (i < 10 ? "0" : "") + i, type: "Item", fields: {category: "potion"}});
 		}
 		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/content/index", type: "application/json", text: JSON.stringify({packages: [{name: "SRD mini", language: "en-GB", entries: [
-			{id: "longsword", title: "Longsword", type: "Item", fields: {category: "weapon, martial", rarity: "rare"}},
+			{id: "longsword", title: "Longsword", type: "Item", fields: {category: "weapon, martial", rarity: "rare", bonus: "+10"}},
 			{id: "fireball", title: "Fireball", type: "Spell", fields: {level: "3"}},
-			{id: "dagger", title: "Dagger", type: "Item", fields: {category: "weapon"}}
+			{id: "light", title: "Light", type: "Spell", fields: {level: "0"}},
+			{id: "dagger", title: "Dagger", type: "Item", fields: {category: "weapon", bonus: "+2"}}
 		].concat(many)}]})});
 		h.add(wiki, {title: "Dagger", tags: "Item", text: "Ours."});
 	});
@@ -298,6 +299,19 @@ test.describe("the hub Content", function() {
 		h.add(wiki, {title: STATE, type: "Spell", "filter-category": "weapon"});
 		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), spells,
 			"a filter set for items does not empty the spells, which have no category");
+	});
+
+	test("a number filters only when its definition says so: its values by size, with the sign of the field", function() {
+		assert.deepEqual(Array.from(h.filter(wiki, "[[Spell]trpgcontentfilters[]]")), ["level"]);
+		assert.ok(Array.from(h.filter(wiki, "[[Item]trpgcontentfilters[]]")).indexOf("bonus") !== -1);
+		assert.deepEqual(Array.from(h.filter(wiki, "[[level]trpgcontentvalues[Spell]]")), ["0", "3"]);
+		assert.deepEqual(Array.from(h.filter(wiki, "[[bonus]trpgcontentvalues[Item]]")), ["2", "10"], "by size, not as text");
+		assert.deepEqual(Array.from(h.filter(wiki, "[[2]] [[10]] +[trpgfieldchoice[bonus]]")), ["+2", "+10"]);
+		h.add(wiki, {title: STATE, type: "Spell", "filter-level": "3"});
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "fireball");
+		h.add(wiki, {title: STATE, type: "Item", "filter-bonus": "2"});
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "dagger", "+2 written, 2 chosen");
+		assert.match(hub(), /<option value="">Bonus<\/option><option value="2">\+2<\/option><option value="10">\+10<\/option>/);
 	});
 
 	test("a group in the search: the offers whose title holds the text", function() {

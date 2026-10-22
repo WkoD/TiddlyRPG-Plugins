@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022174903349
+modified: 20261022185851538
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -23,6 +23,8 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                  "signed"  a number shown with its sign ("+6")
                  "view": false  only in the editor, not in the block (expertise: it shows in
                            the values of the skills already)
+                 "filter": true  a number the hub Content filters by (the level of a spell);
+                           a label or a list of a domain always filters
                A part of a sum: {"number": 10}, {"field": "proficiency"} (its value, written or
                derived), {"modifier": "wis"} (the modifier of that field), {"entry": "skills",
                "id": "perception", "else": part} (the value of an entry of a labels field); in

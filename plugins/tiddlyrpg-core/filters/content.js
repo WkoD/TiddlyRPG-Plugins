@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022184550067
+modified: 20261022185851538
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -30,9 +30,10 @@ text of <state>/search):
                                    type does not count); by title, PAGE entries a page. :count the number of
                                    them, :pages the number of pages, :page the page shown
 [<type>trpgcontentfilters[]]       the fields of the schema of the type that filter: one or a list
-                                   of entries of a domain, with a value in an entry of the type
+                                   of entries of a domain, or a number whose definition says
+                                   "filter": true, with a value in an entry of the type
 [<field>trpgcontentvalues<type>]   the ids its values hold in the entries of the type, in the
-                                   order of the domain
+                                   order of the domain (a number: its values, by size)
 
 \*/
 
@@ -128,6 +129,9 @@ function idsOf(wiki,field,value) {
 	if(!r || r.problem) {
 		return [];
 	}
+	if(spec.format === "number") {
+		return [String(r.value)];
+	}
 	return r.items ? r.items.map(function(item) { return item.id; }) : (r.id ? [r.id] : []);
 }
 
@@ -185,7 +189,7 @@ exports.trpgcontentfilters = function(source,operator,options) {
 		var list = content.entries(wiki).filter(function(e) { return e.type === type; });
 		return fields.forTypes(wiki,[type]).fields.filter(function(field) {
 			var spec = fields.spec(wiki,field);
-			return spec && (spec.format === "label" || spec.format === "labels") && spec.view !== false &&
+			return spec && (spec.format === "label" || spec.format === "labels" || (spec.format === "number" && spec.filter)) && spec.view !== false &&
 				list.some(function(e) { return idsOf(wiki,field,(e.entry.fields || {})[field]).length; });
 		});
 	});
@@ -207,6 +211,9 @@ exports.trpgcontentvalues = function(source,operator,options) {
 		});
 		var spec = fields.spec(wiki,field),
 			order = [];
+		if(spec && spec.format === "number") {
+			return found.sort(function(a,b) { return Number(a) - Number(b); });
+		}
 		[].concat(spec && spec.domain || []).forEach(function(name) {
 			var domain = language.domains(wiki)[name];
 			order = order.concat((domain && domain.entries || []).map(function(entry) { return entry.id; }));

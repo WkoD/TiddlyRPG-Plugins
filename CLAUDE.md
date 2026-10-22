@@ -399,7 +399,8 @@ the tiddler title:
   tiddler: heading and body through `config/title-preview` and `config/body-preview` before the
   system rules of the core, the box `viewtemplates/content-preview` on top. The hub `Content`
   (under `Information`, hidden without a package): per type a list of 50 a page with search,
-  filters from the fields of the schema (one entry or a list of a domain), header line, preview
+  filters from the fields of the schema (one entry or a list of a domain, a number whose
+  definition says `"filter": true`), header line, preview
   and take; what is taken as a link (`filters/content.js`). Every picker of a relation offers
   the entries of its types too (`relationcontent`, dashed): one chosen is taken at once as
   created by the draft, so cancelling takes it back; a base from a package gives its values once
