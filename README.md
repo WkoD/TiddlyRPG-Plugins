@@ -9,15 +9,17 @@ plugins from here.
 
 | Plugin | Folder | Purpose | Origin |
 |---|---|---|---|
-| `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar, currency and rules engines, graph schema, event timeline | own, versioned |
+| `$:/plugins/tiddlyrpg-core` | `plugins/tiddlyrpg-core` | **format layer**: type hubs, view templates, macros, filters, styles, language packs, calendar, currency and rules engines, values of the rules, content packages, graph schema, event timeline | own, versioned |
 | `$:/plugins/staticfiles` | `plugins/staticfiles` | serves `images/` + `data/` in the dev server (server only) | own |
 
 <!-- wiki -->
 `tiddlyrpg-core` is the format layer of a campaign wiki for tabletop role-playing games: hubs for
 persons, locations, organisations, events and items, relations with their graphs, in-world dates
 with a timeline, maps of locations, views for the DM and the players with secrets, and language
-packs (en-GB, de-DE). Its engines for calendar, currency and rules terms read their data from
-data plugins of the types `ruleset` and `setting` (see "Rulesets and campaign settings").
+packs (en-GB, de-DE). Its engines for calendar, currency, rules terms and the values of the rules
+read their data from data plugins of the types `ruleset` and `setting` (see "Rulesets and
+campaign settings"); content packages of a ruleset bring items, spells and creatures to take
+into the wiki.
 <!-- /wiki -->
 
 ## Third-party plugins
@@ -60,10 +62,11 @@ A tour for the DM and the players. The sections after it hold the details.
   table.
 - A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
+  `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
   `Information`, `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
   shows the player characters as cards with the level of the party (the tiddler `PlayerLevel`).
-  `Information` also leads to `Calendar`, `Currency`, `Ruleset` and `CampaignSetting` while
-  they have something to show. The type of a tiddler is its tag, and its colour is the colour of
+  `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
+  while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
   that hub.
 - A **tiddler** shows the path of the locations where it is below its title, and its years or
   its span right-aligned below the tags. Below the text of a person, player character,
@@ -96,6 +99,12 @@ A tour for the DM and the players. The sections after it hold the details.
   (see "Images and sources").
 - Rules terms such as `<<unit "30 ft">>` and `<<term hp>>` show in the language the wiki
   chose (see "Rules terms in the text").
+- Values of the rules - the damage of a weapon, the level of a spell, the hit points of a
+  creature: the form offers the fields the ruleset defines for the type, the tiddler shows them
+  as a block like a stat block (see "Values of the rules").
+- From a content package of the ruleset (such as the SRD 5.1 of `TiddlyRPG-DnD`): items, spells
+  and creatures taken into the wiki one by one, where they become ordinary tiddlers (see
+  "Content packages").
 - Secrets: the tag `Secret` for a whole tiddler, `<<secret>>` and `<$secret>` for part of a
   text (see "Player characters, views and secrets").
 - Below the title stand errors and hints; `npm run check` reports them for the whole wiki (see
@@ -145,7 +154,7 @@ Content of a game system or a world comes in data plugins of two types (`plugin-
 
 | Type | Brings |
 |---|---|
-| `ruleset` | rules terms: units, dice, damage types, abilities and other terms; the price unit of the system |
+| `ruleset` | rules terms: units, dice, damage types, abilities and other terms; the price unit of the system; the fields of the types with what the rules derive (see "Values of the rules") |
 | `setting` | the world: calendar, currency, their names |
 
 A wiki may install several of each; one of each type is active. ControlPanel -> Settings ->
@@ -159,8 +168,10 @@ a reload. ControlPanel -> Plugins lists them in the tabs "Rulesets" and "Campaig
 Its terms go into rules domains - JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` -
 and language keys `$:/tiddlyrpg/language/<code>/...`. The domain types (`unit`, `label`, `tokens`,
 `damage`, `calendar`, `currency`) and their data formats are described in the header of
-`modules/rules.js`; the fixture plugins in `test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose core
-version is not met.
+`modules/rules.js`; its fields go into JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesFields`
+(one tiddler of definitions, one schema per type: header of `modules/fields.js`). The fixture
+plugins in `test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose
+core version is not met.
 
 **Terms of the campaign:** a wiki adds terms to a domain of the ruleset without changing it - a
 domain tiddler of its own with `"extends": true`, the `domain` it extends and its `entries`, plus
@@ -225,6 +236,69 @@ is shown in; the settings tabs link to them.
 
 The settings are tiddlers of the wiki: `$:/config/tiddlyrpg/rules/<ruleset|setting>/` with
 `mode` (`wiki`, `all`, `domain`), `language` and `domain/<name>`.
+
+## Values of the rules
+
+The ruleset says which values a type has - an item its category, rarity, damage, armour class,
+weight; a spell its level, school, casting time, range, duration; a creature its size, armour
+class, hit points, abilities, challenge; a person height and weight. The core knows no name of a
+field: it reads, shows and checks what the ruleset defines.
+
+**The block** stands between the image and the text, like the stat block of a rulebook: a header
+line in italics ("martial weapon (melee, versatile), rare (requires attunement)", "3rd-level
+evocation", "Medium beast, unaligned"), then the values in groups - the abilities as a table -
+separated by lines in the colour of the type, the price with them. The labels and the values
+follow the rules language: `range: 60 ft` shows "60 ft" or "18 m", `category: weapon, martial`
+"martial weapon" or "Kriegswaffe". A value is read in every language, as in the macros.
+
+**What the rules derive is not written:** the modifier beside an ability ("16 (+3)"), the average
+beside dice ("7 (2d6)"), a total ("19 (18 + 1)" with a bonus), and values from other values -
+in D&D the proficiency bonus and XP from the challenge rating, saving throws and skills from the
+abilities, passive Perception. A value written in the field wins. Nothing derived is stored, and
+a derived value reads only fields of its own tiddler.
+
+**Fields that need another value:** the damage of a weapon is offered and shown only while the
+category says weapon; a value written without it gets a hint below the title.
+
+**In the editor** the form offers these fields: a choice for a term, a checkbox for yes and no,
+small lists as pills, below each the reading of what is written. Choosing a base item copies its
+values once (see "Relations").
+
+**Locked values:** `secret-fields` (see "Player characters, views and secrets").
+
+**Of the campaign:** a schema of the wiki for a type adds fields to those of the ruleset - its
+own definitions, never one of the ruleset changed; terms of the campaign extend a domain (see
+"Rulesets and campaign settings"). Values the format does not read, fields defined twice and the
+rest are reported (see "Checks", `fields/...`).
+
+## Content packages
+
+A ruleset may come with content - the items, spells and creatures of a rulebook - in an npm
+package beside the wiki (in `node_modules`, its `package.json` naming its manifests under
+`"tiddlyrpg": {"content": [...]}`; format in the header of `modules/content-server.js`). The
+entries are no tiddlers: the wiki offers them, and the DM takes one at a time. A taken entry is
+an ordinary tiddler of the wiki - its type and tags, its values, its text, the price in the coins
+of the setting, `source`, and the tag of its package (e.g. `SRD 5.1 English`). Nothing stays
+linked to the package.
+
+**Where the entries are offered** (only in the editable wiki on the Node server, `npm start`,
+and only those of the active ruleset):
+
+- a link to a tiddler that does not exist: a box "SRD 5.1 (English) has this as Spell" with
+  "Take";
+- the button "Content" of the editor toolbar: search, take, and the link into the text;
+- every relation in the form: the entries of its types beside the tiddlers (dashed);
+- the search: a group of its own below the hits;
+- the hub `Content` (under `Information`): per type, with filters by value and pages, a preview
+  of each entry and "Take".
+
+**Titles:** what is in the wiki always wins. An entry whose title exists with the same type
+counts as taken; with another type it is offered as "Title (Type)" ("Balor (Creature)" beside
+the person Balor). What a taken entry names in `base` or `spells` and the wiki lacks is offered
+in the message - nothing comes by itself.
+
+**The text** stays in the language of the package. Without a package, in the published copy and
+for who may not write, nothing of this shows.
 
 ## Player characters, views and secrets
 
@@ -836,9 +910,10 @@ out every message of its level. An id that is no rule is a hint.
 ## Editing
 
 In the editable wiki the editor of a tiddler knows the formats of this plugin. Everything below
-changes the draft only - cancelling takes it back - with two exceptions that save a new location
-at once ("Sub-location"); cancelling takes that location back as well, unless it was changed or
-opened in the editor since.
+changes the draft only - cancelling takes it back - with the exceptions that save a tiddler at
+once: a new location ("Sub-location") and an entry taken from a content package (in a relation,
+"Possessions" or the button "Content"); cancelling takes that tiddler back as well, unless it was
+changed or opened in the editor since.
 
 **Buttons of the toolbar** (in the accent colour, each with a dropdown):
 
@@ -853,6 +928,7 @@ opened in the editor since.
 | Link to a spot | all | `<<spotlink>>`: a location, then one of its spots; a selection becomes the text of the link |
 | Sub-location | locations | a new location inside this one, saved and opened at once - a selected text moves into it; with the cursor in a spot without tiddler: the spot as a location of its own, with its text, images and lock, the marker stays |
 | Rules | all | `<<term>>` by id or term, `<<unit>>` with the units of the ruleset that fit the number |
+| Content | all | an entry of a content package by its title: taken into the wiki and linked in the text (see "Content packages") |
 
 With the cursor on a line of its own behind the last paragraph, a marker goes there - for the
 paragraph the DM writes next - and the cursor behind it; a lock there is an empty `<$secret>`
@@ -867,7 +943,9 @@ event) also while empty, every other field of the type under "More fields". A re
 picks from what it may name, as pills with ×, a location with its path; a person, a location
 and an artifact have one `location`, an artifact one `owner`. The date shows the reading of
 each section, an event also how many `<<date>>` its text has; a price its output and the coin;
-images and maps a preview. An item gets one category. A draft without type gets the types to
+images and maps a preview. An item gets one category. The values of the rules follow the fields
+of the type (see "Values of the rules"); the lock of values and "Take the values" of a base item
+stand with them. A draft without type gets the types to
 choose; a change of type takes out the fields the new type does not have. Below the fields the
 messages of the draft, with a button where the fix is clear, "Create" for a missing tiddler and
 "Do not report" (the rule into `trpg-noinfo` or `trpg-noerror`). What the pickers offer is what

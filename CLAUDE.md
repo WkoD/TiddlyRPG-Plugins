@@ -234,13 +234,14 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `content` - content packages: found in node_modules (scoped too), a package for a newer core
     left out, the route (index without texts, entry, 403, 404, the ruleset as filter, an id that
     names a path); in the browser the titles (taken, another type, a shadow, a locked tiddler),
-    the fields to take, what an entry names that the wiki lacks, the offer on a missing tiddler,
+    the fields to take (with the tag of the package), what an entry names that the wiki lacks, the offer on a missing tiddler,
     the preview, the hub Content (types, filters, search, pages, taken as link), nothing without
     a package
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
     with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
     the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
-    lock; patterns with parts in braces (`fill()`), combined lines; the rule `fields/schema` (a
+    lock; patterns with parts in braces (`fill()`), a label in a variant and in the variant
+    another field names (`$size.@creature-type$`, a locked field names none), combined lines; the rule `fields/schema` (a
     reserved name, a field defined twice, without definition); the block of values
     (`viewtemplates/fields`: header line, sections, a row, an inline group with the price, a
     field only for the editor, type colour, hidden from a view that does not see the tiddler);
@@ -791,7 +792,9 @@ tests reach it without a browser; the wikitext only asks and passes values.
   `complete` -> `failed` -> open and never removes the marker. A date keeps the field `date` in
   step (n-th marker = n-th section, explicit numbers count on). "Make a sub-location" saves
   the new tiddler at once with the text, images and lock of the spot and keeps the marker; a
-  title another tiddler has in any case is refused (`editor.taken`, files would clash). A tiddler
+  title another tiddler has in any case is refused (`editor.taken`, files would clash). An entry
+  of a content package chosen in a relation, the row "Possessions" or the button "Content" is
+  taken (saved) at once as well (`tm-trpg-content-take` with `draft`). A tiddler
   saved at once is noted for the draft (`form.noteCreated`,
   `$:/temp/tiddlyrpg-core/editor/created/<draft>`): cancelling the draft deletes it again and takes it out of the story while it is unchanged and
   not open in the editor (`startup/editor-states.js`, `form.undoCreated`), saving the draft keeps
@@ -1250,6 +1253,12 @@ The rules of who sees what live **once** in `modules/visibility.js`; meaning and
 - Lock: tag `Secret`, visible to the DM and to the players of the player characters tagged on
   it. A player character tagged without `Secret` means "took part" and makes an event a
   campaign event (`visibility.campaign`, used by `eventrows` and the timeline).
+- Lock of values: `secret-fields` (empty or `all`: the whole block and the price, else the fields
+  named), visible like `Secret` to the DM and the players of the tagged player characters
+  (`visibility.taggedPlayers`, `fieldLocked`, `fieldVisible`). The block, the header line, the
+  reading in the editor and `fields/value` read a tiddler without what the view may not see, so a
+  derived value of a locked field (a saving throw from `str`) and a form that names it (the
+  agreement `$size.@creature-type$`) fall away with it; `copyFrom()` carries the lock along.
 - Every place that lists titles filters with `:filter[trpg.visible[]]` (hubs, relation list,
   ego graph through `$whitelist` of `$nodes.neighbors`, `trpg-graph`, `trpg-map`,
   search, event lists). A new list does the same. JS widgets that depend on the view refresh on
