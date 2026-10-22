@@ -1,5 +1,5 @@
 created: 20261022142450275
-modified: 20261022150508705
+modified: 20261022160742118
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/fields
 type: text/css
@@ -44,4 +44,24 @@ type: text/css
 .trpg-fields-cell .trpg-fields-label {
 	display: block;
 	font-size: 0.85em;
+}
+/* Values secret-fields locks, for those who see them: marked in the alert colour like a locked
+   section - a line on top, a line or cell with a bar on its left, the whole block with a broad
+   one */
+.trpg-fields-locked {
+	box-shadow: inset 3px 0 0 var(--tpc-alert-highlight, #b00);
+	background: color-mix(in srgb, var(--tpc-alert-highlight, #b00) 7%, transparent);
+	padding-inline-start: 0.5em;
+}
+.trpg-fields.trpg-fields-locked {
+	box-shadow: inset 4px 0 0 var(--tpc-alert-highlight, #b00);
+	padding-inline-start: 0.7em;
+}
+.trpg-fields-lockmark {
+	margin-bottom: 0.3em;
+	padding: 1px 0.6em;
+	border-radius: 0 5px 5px 0;
+	background: var(--tpc-alert-highlight, #b00);
+	color: var(--tpc-tiddler-background, #fff);
+	font-size: 0.8em;
 }

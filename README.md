@@ -280,9 +280,19 @@ A spot joined to a secret tiddler is locked as well. The search finds no word of
 In the views that see it, a locked part stands in a frame in the alert colour of the palette,
 with a bar on top naming whom it is for ("Secret: Theren", "DM only"); a secret tiddler stands
 in such a frame as a whole, outside the frame of its type, with the bar above its title.
-Lock only with `Secret`, `<<secret>>` and `<$secret>`: a `$list` or `<%if%>` of your own on the
-view hides the text, but not the dates, locations and spots in it, and a transcluded secret
-tiddler shows wherever it is transcluded (both are errors below the title, see "Checks").
+**Locked values.** The values of the rules of a tiddler everyone sees can be locked on their own:
+the field `secret-fields` lists the fields to lock (`secret-fields: rarity cursed`); `all`, or the
+field left empty, locks the whole block of values and the price. They are visible like a secret
+- to the DM and to the players of the player characters the tiddler is tagged with. What derives
+from a locked value is locked with it: a locked strength shows no modifier and no saving throw,
+a locked challenge rating no proficiency bonus and no XP, a locked part of the header line falls
+away. In the views that see them they are marked in the alert colour. The editor offers the lock
+with the values: "all" and a pill per value written.
+
+Lock only with `Secret`, `<<secret>>`, `<$secret>` and `secret-fields`: a `$list` or `<%if%>` of
+your own on the view hides the text, but not the dates, locations and spots in it, and a
+transcluded secret tiddler shows wherever it is transcluded (both are errors below the title,
+see "Checks").
 
 ## Sections in the text
 

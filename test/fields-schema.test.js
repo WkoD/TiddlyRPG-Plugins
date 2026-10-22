@@ -415,3 +415,97 @@ test.describe("fields/value, fields/when, fields/tag", function() {
 		}
 	});
 });
+
+test.describe("the lock of values (secret-fields)", function() {
+	function block(title) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/fields\" mode=\"block\"/>", {currentTiddler: title}).replace(/>\s+</g, "><");
+	}
+
+	function withTiddler(fieldsOf, fn) {
+		h.add(wiki, fieldsOf);
+		try {
+			return fn();
+		} finally {
+			wiki.deleteTiddler(fieldsOf.title);
+		}
+	}
+
+	test("a locked field: gone for others, marked for the DM and the players tagged", function() {
+		withTiddler({title: "Kelch", tags: "Item Consumable Frigg", category: "potion", rarity: "rare", healing: "2d4", "secret-fields": "rarity"}, function() {
+			h.inView(wiki, "public", function() {
+				var html = block("Kelch");
+				assert.match(html, /<div class="trpg-fields-summary">Trank<\/div>/, "the header line without the locked part");
+				assert.doesNotMatch(html, /selten|trpg-fields-locked|Gesperrt/, "no value, no mark");
+				assert.match(html, /Heilung<\/span> 5 \(2W4\)/);
+			});
+			h.inView(wiki, "player:Anna", function() {
+				assert.match(block("Kelch"), /Trank, selten/);
+			});
+			h.inView(wiki, "player:Bert", function() {
+				assert.doesNotMatch(block("Kelch"), /selten/);
+			});
+			var dm = block("Kelch");
+			assert.match(dm, /<div class="trpg-fields-lockmark">Gesperrt/);
+			assert.match(dm, /Trank, selten/);
+		});
+	});
+
+	test("what derives from a locked value is locked with it", function() {
+		withTiddler({title: "Oger", tags: "Creature", str: "18", wis: "12", saves: "str", skills: "perception", cr: "5", "secret-fields": "str cr"}, function() {
+			h.inView(wiki, "public", function() {
+				var html = block("Oger");
+				assert.doesNotMatch(html, /18|\+4|\+7|\+3|1800|Herausforderungsgrad|Übungsbonus/, "no score, no modifier, no save, no proficiency, no XP");
+				assert.match(html, /Rettungswürfe<\/span> STR<\/span>/, "the save without its value");
+				assert.match(html, /Fertigkeiten<\/span> Wahrnehmung<\/span>/, "the skill without its value: it needs the proficiency");
+				assert.doesNotMatch(html, /passive Wahrnehmung/);
+				assert.match(html, /WEI<\/span>12 \(\+1\)/, "what is not locked stays");
+			});
+			var dm = block("Oger");
+			assert.match(dm, /<div class="trpg-fields-cell trpg-fields-locked"><span class="trpg-fields-label">STR<\/span>18 \(\+4\)/);
+			assert.match(dm, /<span class="trpg-fields-line trpg-fields-locked"><span class="trpg-fields-label">Rettungswürfe<\/span> STR \+7/, "derived from a locked value: marked too");
+			assert.match(dm, /<span class="trpg-fields-line trpg-fields-locked"><span class="trpg-fields-label">Sinne<\/span> passive Wahrnehmung 14/, "through the proficiency of the skill");
+			assert.match(dm, /<div class="trpg-fields-cell"><span class="trpg-fields-label">WEI/, "not derived from one: not marked");
+		});
+	});
+
+	test("all: the whole block and the price", function() {
+		withTiddler({title: "Kelch", tags: "Item Consumable", category: "potion", price: "50 gp", "secret-fields": "all"}, function() {
+			h.inView(wiki, "public", function() {
+				assert.doesNotMatch(block("Kelch"), /trpg-fields/);
+			});
+			assert.match(block("Kelch"), /<div class="trpg-fields trpg-fields-locked"/);
+		});
+		withTiddler({title: "Kelch", tags: "Item", price: "50 gp", "secret-fields": ""}, function() {
+			h.inView(wiki, "public", function() {
+				assert.doesNotMatch(block("Kelch"), /trpg-fields/, "empty: all");
+			});
+		});
+	});
+
+	test("the messages on a locked value only for those who see it", function() {
+		withTiddler({title: "Kelch", tags: "Item Consumable", category: "potion", rarity: "legendary", "secret-fields": "rarity"}, function() {
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(h.checkKeys(wiki, "Kelch", "fields"), []);
+			});
+			assert.deepEqual(h.checkKeys(wiki, "Kelch", "fields"), ["Rules/Check/Label"]);
+		});
+	});
+
+	test("the editor: a pill for all and per field written; the last one out takes the field out", function() {
+		h.add(wiki, {title: "Draft of 'Kelch'", "draft.of": "Kelch", tags: "Item", rarity: "rare", weight: "1 lb"});
+		try {
+			var form = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/form.js"),
+				f = function(text) { return Array.from(h.filter(wiki, text)); };
+			assert.ok(form.offered(wiki, "Draft of 'Kelch'").indexOf("secret-fields") !== -1);
+			assert.deepEqual(f("[[Draft of 'Kelch']trpglockfields[]]"), ["rarity", "weight"]);
+			assert.deepEqual(f("[[Draft of 'Kelch']trpglocktoggle[rarity]]"), ["rarity"]);
+			h.add(wiki, {title: "Draft of 'Kelch'", "draft.of": "Kelch", tags: "Item", rarity: "rare", "secret-fields": "rarity"});
+			assert.deepEqual(f("[[Draft of 'Kelch']trpglockon[rarity]]"), ["yes"]);
+			assert.deepEqual(f("[[Draft of 'Kelch']trpglocktoggle[rarity]]"), [""], "nothing stays: the field goes");
+			assert.deepEqual(f("[[Draft of 'Kelch']trpglocktoggle[all]]"), ["all"]);
+			assert.match(h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: "Draft of 'Kelch'"}), /Gesperrte Werte.*alle.*Seltenheit/);
+		} finally {
+			wiki.deleteTiddler("Draft of 'Kelch'");
+		}
+	});
+});

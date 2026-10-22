@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261022160742118
 title: $:/config/EditTemplateFields/Visibility/
 
 alliance: hide
@@ -23,6 +23,7 @@ parent: hide
 patron: hide
 player: hide
 price: hide
+secret-fields: hide
 sibling: hide
 spouse: hide
 under: hide

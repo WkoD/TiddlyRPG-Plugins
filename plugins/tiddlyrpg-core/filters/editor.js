@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261022160104767
+modified: 20261022160742118
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -231,6 +231,8 @@ exports.trpgfieldeditor = function(source,operator,options) {
 	return each(source,function(field,results) {
 		if(fields.spec(wiki,field)) {
 			results.push(base + "rules");
+		} else if(field === "secret-fields") {
+			results.push(base + "secret-fields");
 		} else if(field === "date" || field === "price") {
 			results.push(base + field);
 		} else if(field === "image" || field === "map") {

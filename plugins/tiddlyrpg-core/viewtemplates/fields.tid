@@ -1,6 +1,6 @@
 created: 20261022142450275
 list-before: $:/core/ui/ViewTemplate/body
-modified: 20261022151004750
+modified: 20261022160742118
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
 type: text/vnd.tiddlywiki
@@ -13,17 +13,22 @@ type: text/vnd.tiddlywiki
      "inline" the lines in one line, parted by a dot. The relations a group names follow as
      pills. Every value as text. A price or value that cannot be read is a message below the
      title (checks/items.js, checks/fields.js). Nothing without a value to show; not for a
-     tiddler the view does not see. The colour of the rules and labels is the colour of the type
+     tiddler the view does not see. Values secret-fields locks are left out for a view that may
+     not see them, and what derives from them; who sees them, sees them marked (a line on
+     top, and the whole block or the lines locked). The colour of the rules and labels is the colour of the type
      (--trpg-type). -->
 \procedure trpg.fieldline(field)
-<span class="trpg-fields-line"><span class="trpg-fields-label"><$text text={{{ [<currentTiddler>trpgfieldlabel<field>] }}}/></span><$text text=" "/><$text text={{{ [<currentTiddler>trpgfieldshow<field>] }}}/></span>
+<span class={{{ [[trpg-fields-line]] [<currentTiddler>trpgfieldlocked<field>then[trpg-fields-locked]] +[join[ ]] }}}><span class="trpg-fields-label"><$text text={{{ [<currentTiddler>trpgfieldlabel<field>] }}}/></span><$text text=" "/><$text text={{{ [<currentTiddler>trpgfieldshow<field>] }}}/></span>
 \end
 
 <$reveal tag="div" class="tc-tiddler-body" type="nomatch" stateTitle=<<folded-state>> text="hide" retain="yes" animate="yes">
 <%if [<currentTiddler>trpg.visible[]] %>
 <$let trpg-summary={{{ [<currentTiddler>trpgfieldsummary[]] }}}>
 <%if [<trpg-summary>!is[blank]] [<currentTiddler>trpgfieldsections[]] +[limit[1]] %>
-<div class="trpg-fields" style={{{ [<currentTiddler>trpgfieldcolor[]addprefix[--trpg-type:]] }}}>
+<div class={{{ [[trpg-fields]] [<currentTiddler>trpgfieldlocked[]then[trpg-fields-locked]] +[join[ ]] }}} style={{{ [<currentTiddler>trpgfieldcolor[]addprefix[--trpg-type:]] }}}>
+<%if [<currentTiddler>trpgfieldlocked:any[]] %>
+<div class="trpg-fields-lockmark"><$text text={{{ [[Fields/Locked]trpgtranslate[]] }}}/></div>
+<%endif%>
 <%if [<trpg-summary>!is[blank]] %>
 <div class="trpg-fields-summary"><$text text=<<trpg-summary>>/></div>
 <%endif%>
@@ -32,7 +37,7 @@ type: text/vnd.tiddlywiki
 <div class={{{ [[trpg-fields-section trpg-fields-]addsuffix<trpg-layout>] }}}>
 <%if [<trpg-layout>match[row]] %>
 <$list filter="[<currentTiddler>trpgfieldlines<trpg-section>]" variable="trpg-field">
-<div class="trpg-fields-cell"><span class="trpg-fields-label"><$text text={{{ [<currentTiddler>trpgfieldlabel<trpg-field>] }}}/></span><$text text={{{ [<currentTiddler>trpgfieldshow<trpg-field>] }}}/></div>
+<div class={{{ [[trpg-fields-cell]] [<currentTiddler>trpgfieldlocked<trpg-field>then[trpg-fields-locked]] +[join[ ]] }}}><span class="trpg-fields-label"><$text text={{{ [<currentTiddler>trpgfieldlabel<trpg-field>] }}}/></span><$text text={{{ [<currentTiddler>trpgfieldshow<trpg-field>] }}}/></div>
 </$list>
 <%elseif [<trpg-layout>match[inline]] %>
 <div class="trpg-fields-lines"><$list filter="[<currentTiddler>trpgfieldlines<trpg-section>]" variable="trpg-field" join=" · "><$transclude $variable="trpg.fieldline" field=<<trpg-field>>/></$list></div>

@@ -3,13 +3,14 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261022160104767
+modified: 20261022160742118
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
 The form knows the relation fields (modules/relations.js, the field types without tags and list),
 GENERAL and, per draft, the fields of the rules its types have (modules/fields.js schemas; their
-editor: editor/fields/rules). Per type tag, $:/config/tiddlyrpg/form/<type> names in field list the fields it
+editor: editor/fields/rules) with secret-fields, the lock of their values (editor/fields/
+secret-fields). Per type tag, $:/config/tiddlyrpg/form/<type> names in field list the fields it
 shows also while empty - those whose absence a check reports (expected/*, dates/event;
 test/editor-form.test.js keeps both in step) - and in field more the other fields of the type,
 offered under "More fields" (an item category stands next to a base type, whose fields it gets
@@ -65,6 +66,8 @@ function rulesFields() {
 }
 
 var GENERAL = exports.GENERAL = ["date","player","price","image","map"],
+	// The lock of the values of the rules (modules/visibility.js), offered with them
+	LOCK = "secret-fields",
 	CONFIG = "$:/config/tiddlyrpg/form/",
 	EXTRA = "$:/state/tiddlyrpg-core/form-extra/",
 	CREATED = "$:/temp/tiddlyrpg-core/editor/created/",
@@ -92,7 +95,7 @@ var known = exports.known = function(wiki) {
 var knownFor = exports.knownFor = function(wiki,title) {
 	var all = known(wiki),
 		schema = rulesFields().forTiddler(wiki,title).fields;
-	return all.slice(0,GENERAL.length).concat(schema).concat(all.slice(GENERAL.length));
+	return all.slice(0,GENERAL.length).concat(schema).concat(schema.length ? [LOCK] : []).concat(all.slice(GENERAL.length));
 };
 
 // The type tags of a tiddler (modules/types.js of())
@@ -139,6 +142,9 @@ exports.offered = function(wiki,title) {
 	return knownFor(wiki,title).filter(function(field) {
 		if(shown.indexOf(field) !== -1) {
 			return false;
+		}
+		if(field === LOCK) {
+			return true;
 		}
 		if(schema.indexOf(field) !== -1) {
 			var spec = rules.spec(wiki,field);

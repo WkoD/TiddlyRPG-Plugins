@@ -301,6 +301,9 @@ test.describe("sweep", function() {
 				text: "<<date>>\n\nAt [[Baile]]. <$secret>Qx7 inline</$secret> Done.\n\n<<secret>><<date label:\"Qx7 Nacht <<term Qx7cap>>\">>\n\nAt [[Qx7 Ort]] with [[Qx7 Akte]], <<spotlink \"Sweep Burg\" \"Qx7 Kammer\">>."},
 			// A locked item with a price (and the hint on it)
 			{title: "Qx7 Klinge", tags: "Item Secret", price: "1399 Qx7", rarity: "Qx7rar", ac: "Qx7ac"},
+			// Locked values of a tiddler everyone sees (secret-fields): one field, and all with the price
+			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
+			{title: "Sweep Truhe", tags: "Item", weight: "Qx7schwer", price: "1399 gp", "secret-fields": "all", text: "A chest."},
 			// The source of the images of a locked tiddler (field source), its images and maps as tabs
 			{title: "Qx7 Karte", tags: "Location Secret", location: "Baile", source: "Qx7src",
 				image: "Qx7a.jpg, Qx7b.jpg", map: "Qx7m1.jpg, Qx7m2.jpg"},
@@ -425,7 +428,7 @@ test.describe("sweep", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
 			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
-			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", YEAR].forEach(function(word) {
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

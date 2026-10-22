@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/visibility.js
 type: application/javascript
 module-type: library
 created: 20261007162511000
-modified: 20261007162511000
+modified: 20261022160742118
 
 Who sees what - the one place of these rules. Used by the filters in filters/visibility.js
 (trpg.visible in functions.tid wraps one of them), the location rules, the timeline and the
@@ -24,6 +24,13 @@ that, a view dm counts as public there.
 A tiddler tagged Secret is visible to the DM and to the players of the player characters it is
 tagged with; without such a tag, to the DM only. Every other tiddler is visible to all. The same
 rule decides for a locked section of a body (a list of characters instead of the tags).
+
+Values of fields locked: the field secret-fields of a tiddler that is not locked as a whole locks
+the values of the rules - present but empty, or "all", the whole block of values (and the price);
+else the fields it lists. They are visible like a Secret: to the DM and to the players of the
+characters the tiddler is tagged with (taggedPlayers). What derives from a locked value is locked
+with it: the block reads the fields of a tiddler without those the view may not see
+(filters/fields.js), so a derived value has nothing to read.
 
 \*/
 
@@ -114,14 +121,40 @@ exports.visible = function(wiki,title,view) {
 	return !locked(wiki,title) || allows(wiki,characters(wiki,title),view);
 };
 
-/*
-Who may see <title> besides the DM: null for everyone, otherwise the real players (sorted,
-possibly empty). Two tiddlers can be compared by it (filters/location.js).
-*/
-exports.audience = function(wiki,title) {
-	if(!locked(wiki,title)) {
+// The fields a value of secret-fields locks: null (none), "all" (present but empty, or "all") or
+// a list
+var parseLock = exports.parseLock = function(value) {
+	if(value === undefined || value === null) {
 		return null;
 	}
+	var list = $tw.utils.parseStringArray(value.toString()) || [];
+	return !list.length || list.indexOf("all") !== -1 ? "all" : list;
+};
+
+// The fields of <title> its secret-fields locks (parseLock)
+var lockedFields = exports.lockedFields = function(wiki,title) {
+	var tiddler = wiki.getTiddler(title);
+	return tiddler ? parseLock(tiddler.fields["secret-fields"]) : null;
+};
+
+// Whether <field> of <title> is locked by secret-fields; "all" locks every field of the rules
+// (list: the fields of its schema) and the price
+var fieldLocked = exports.fieldLocked = function(wiki,title,field,list) {
+	var lock = lockedFields(wiki,title);
+	if(lock === "all") {
+		return field === "price" || !list || list.indexOf(field) !== -1;
+	}
+	return !!lock && lock.indexOf(field) !== -1;
+};
+
+// Whether the active view sees the value of <field> of <title>
+exports.fieldVisible = function(wiki,title,field,view,list) {
+	return !fieldLocked(wiki,title,field,list) || allows(wiki,characters(wiki,title),view);
+};
+
+// The real players of the player characters <title> is tagged with, sorted - whether it is
+// locked or not (a lock of its fields)
+var taggedPlayers = exports.taggedPlayers = function(wiki,title) {
 	var players = [];
 	$tw.utils.each(characters(wiki,title),function(character) {
 		var player = playerOf(wiki,character);
@@ -130,6 +163,14 @@ exports.audience = function(wiki,title) {
 		}
 	});
 	return players.sort();
+};
+
+/*
+Who may see <title> besides the DM: null for everyone, otherwise the real players (sorted,
+possibly empty). Two tiddlers can be compared by it (filters/location.js).
+*/
+exports.audience = function(wiki,title) {
+	return locked(wiki,title) ? taggedPlayers(wiki,title) : null;
 };
 
 // The real players that can be chosen as a view: those of the active characters, sorted

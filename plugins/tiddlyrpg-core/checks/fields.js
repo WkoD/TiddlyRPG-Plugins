@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/fields.js
 type: application/javascript
 module-type: trpg-check
 created: 20261022140929737
-modified: 20261022160104767
+modified: 20261022160742118
 
 Checks of the fields of the rules (modules/fields.js; modules/checks.js runs them).
 
@@ -19,7 +19,7 @@ Checks of the fields of the rules (modules/fields.js; modules/checks.js runs the
                   set the tag
 
 Only the fields of the schema of the tiddler, only what is written - a derived value is no
-problem of the tiddler.
+problem of the tiddler -, only values the view sees (secret-fields).
 
 \*/
 
@@ -27,10 +27,12 @@ problem of the tiddler.
 
 var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
 	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
-// The written fields of the schema of a tiddler: [{field, spec, text, label, fields, schema}]
-function written(wiki,title) {
+// The written fields of the schema of a tiddler the view sees (secret-fields):
+// [{field, spec, text, label, fields, schema}]
+function written(wiki,title,view) {
 	var tiddler = wiki.getTiddler(title),
 		schema = tiddler ? fields.forTiddler(wiki,title) : null;
 	if(!schema) {
@@ -38,7 +40,7 @@ function written(wiki,title) {
 	}
 	return schema.fields.filter(function(field) {
 		var value = tiddler.fields[field];
-		return value !== undefined && value.toString().trim() !== "";
+		return value !== undefined && value.toString().trim() !== "" && visibility.fieldVisible(wiki,title,field,view,schema.fields);
 	}).map(function(field) {
 		return {field: field, spec: fields.spec(wiki,field), text: tiddler.fields[field].toString().trim(),
 			label: fields.label(wiki,field,schema.labels), fields: tiddler.fields, schema: schema.fields};
@@ -67,10 +69,10 @@ exports.rules = [
 	},
 	{
 		id: "fields/value",
-		run: function(wiki,title) {
+		run: function(wiki,title,view) {
 			var messages = [],
 				schema = fields.forTiddler(wiki,title);
-			written(wiki,title).forEach(function(w) {
+			written(wiki,title,view).forEach(function(w) {
 				var problem = fields.problem(wiki,w.fields,w.field,schema.labels);
 				if(problem) {
 					messages.push(problem);
@@ -81,11 +83,11 @@ exports.rules = [
 	},
 	{
 		id: "fields/tag",
-		run: function(wiki,title) {
+		run: function(wiki,title,view) {
 			var messages = [],
 				tiddler = wiki.getTiddler(title),
 				tags = (tiddler && tiddler.fields.tags || []).map(function(tag) { return language.internalTitle(wiki,tag); });
-			written(wiki,title).forEach(function(w) {
+			written(wiki,title,view).forEach(function(w) {
 				if(!w.spec || (w.spec.format !== "labels" && w.spec.format !== "label")) {
 					return;
 				}
@@ -100,10 +102,10 @@ exports.rules = [
 	},
 	{
 		id: "fields/when",
-		run: function(wiki,title) {
+		run: function(wiki,title,view) {
 			var messages = [],
 				groups = fields.forTiddler(wiki,title).groups;
-			written(wiki,title).forEach(function(w) {
+			written(wiki,title,view).forEach(function(w) {
 				// Its own condition, else the condition of a group it stands in
 				var when = w.spec && w.spec.when;
 				if(!when || fields.fits(wiki,w.fields,when,w.schema)) {

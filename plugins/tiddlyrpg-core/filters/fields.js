@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261022160104767
+modified: 20261022160944812
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -21,6 +21,10 @@ header line does not name it already.
 [<title>trpgfieldshow[<field>]]        the text of a line: a combine filled, the price formatted
 [<title>trpgfieldlabel[<field>]]       the label of a field, by the schema of the tiddler
 [<title>trpgfieldcolor[]]              the colour of its first type that has one
+[<title>trpgfieldlocked[<field>]]      "yes" if secret-fields locks the field, or the line would show
+                                       otherwise without the values it locks (derived from them);
+                                       "all" without an operand: the whole block; :any anything -
+                                       only for a view that sees them: the mark; nothing for others
 
 The editor of a field of the rules (editor/fields/rules), for a draft:
 [<field>trpgfieldinput[]]              boolean (a checkbox), select (one entry of a domain), pills (a
@@ -32,6 +36,12 @@ The editor of a field of the rules (editor/fields/rules), for a draft:
 [<draft>trpgfieldtoggle<field>,<id>]   the value of the field with <id> added or taken out
 [<draft>trpgfieldreading<field>]       the reading below the input: "Output: ..." of a value, the
                                        derived value of an empty field; :problem the problem
+The lock of the values, secret-fields (editor/fields/secret-fields):
+[<draft>trpglockfields[]]              the fields of the rules the draft has, to lock one by one
+[<draft>trpglockon<id>]                "yes" if <id> (a field or "all") is locked
+[<draft>trpglocktoggle<id>]            the value with <id> locked or no more: "all" stands alone,
+                                       a field takes "all" out; empty when nothing stays (the field
+                                       goes - an empty secret-fields would lock all)
 
 \*/
 
@@ -48,9 +58,25 @@ var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 var PRICE = "price",
 	REST = "-";
 
-function valuesOf(wiki,title) {
+// The fields of a tiddler as the block reads them: without the values secret-fields locks from the
+// active view (modules/visibility.js) - what derives from them has nothing to read then. The
+// editor reads them all (draft: true).
+function valuesOf(wiki,title,draft) {
 	var tiddler = wiki.getTiddler(title);
-	return tiddler ? $tw.utils.extend({},tiddler.fields) : {title: title};
+	if(!tiddler) {
+		return {title: title};
+	}
+	var values = $tw.utils.extend({},tiddler.fields);
+	if(!draft && visibility.lockedFields(wiki,title)) {
+		var view = visibility.current(wiki),
+			list = fields.forTiddler(wiki,title).fields;
+		list.concat(["price"]).forEach(function(field) {
+			if(!visibility.fieldVisible(wiki,title,field,view,list)) {
+				delete values[field];
+			}
+		});
+	}
+	return values;
 }
 
 function each(source,fn) {
@@ -154,18 +180,32 @@ exports.trpgfieldsection = function(source,operator,options) {
 	});
 };
 
+// The text of a line from the values given
+function lineText(wiki,title,field,values) {
+	if(field === PRICE) {
+		return values.price ? currency.format(wiki,currency.active(wiki),values.price) : "";
+	}
+	var combine = state(wiki,title).combineOf(field);
+	return combine ? fields.line(wiki,values,combine) : fields.read(wiki,values,field).text;
+}
+
+// The fields of a tiddler without every value secret-fields locks - what a view sees that may not
+// see them
+function othersOf(wiki,title) {
+	var values = valuesOf(wiki,title,true),
+		list = fields.forTiddler(wiki,title).fields;
+	list.concat([PRICE]).forEach(function(field) {
+		if(visibility.fieldLocked(wiki,title,field,list)) {
+			delete values[field];
+		}
+	});
+	return values;
+}
+
 exports.trpgfieldshow = function(source,operator,options) {
 	var field = operator.operand;
 	return each(source,function(title) {
-		var wiki = options.wiki,
-			values = valuesOf(wiki,title),
-			text;
-		if(field === PRICE) {
-			text = values.price ? currency.format(wiki,currency.active(wiki),values.price) : "";
-		} else {
-			var combine = state(wiki,title).combineOf(field);
-			text = combine ? fields.line(wiki,values,combine) : fields.read(wiki,values,field).text;
-		}
+		var text = lineText(options.wiki,title,field,valuesOf(options.wiki,title));
 		return text ? [text] : [];
 	});
 };
@@ -176,6 +216,28 @@ exports.trpgfieldlabel = function(source,operator,options) {
 			return [language.t(options.wiki,"Item/Price")];
 		}
 		return [fields.label(options.wiki,operator.operand,fields.forTiddler(options.wiki,title).labels)];
+	});
+};
+
+exports.trpgfieldlocked = function(source,operator,options) {
+	var wiki = options.wiki,
+		field = operator.operand,
+		view = visibility.current(wiki);
+	return each(source,function(title) {
+		var lock = visibility.lockedFields(wiki,title);
+		// Marked only for a view that sees what is locked; the others see nothing of it
+		if(!lock || !visibility.allows(wiki,visibility.characters(wiki,title),view)) {
+			return [];
+		}
+		if(operator.suffix === "any") {
+			return ["yes"];
+		}
+		if(!field) {
+			return lock === "all" ? ["yes"] : [];
+		}
+		// Locked itself, or derived from a locked value: others would see it otherwise
+		return visibility.fieldLocked(wiki,title,field,fields.forTiddler(wiki,title).fields) ||
+			lineText(wiki,title,field,valuesOf(wiki,title)) !== lineText(wiki,title,field,othersOf(wiki,title)) ? ["yes"] : [];
 	});
 };
 
@@ -240,7 +302,7 @@ exports.trpgfieldchoices = function(source,operator,options) {
 		if(!spec) {
 			return [];
 		}
-		var chosen = partsOf(wiki,spec,valuesOf(wiki,title)[field]).map(function(p) { return p.id; }),
+		var chosen = partsOf(wiki,spec,valuesOf(wiki,title,true)[field]).map(function(p) { return p.id; }),
 			out = [];
 		domainsOf(wiki,spec).forEach(function(domain) {
 			(domain.entries || []).forEach(function(entry) {
@@ -270,7 +332,7 @@ exports.trpgfieldchosen = function(source,operator,options) {
 	var wiki = options.wiki,
 		spec = fields.spec(wiki,operator.operand);
 	return each(source,function(title) {
-		return spec ? partsOf(wiki,spec,valuesOf(wiki,title)[operator.operand]).map(function(p) { return p.id; }).filter(Boolean) : [];
+		return spec ? partsOf(wiki,spec,valuesOf(wiki,title,true)[operator.operand]).map(function(p) { return p.id; }).filter(Boolean) : [];
 	});
 };
 
@@ -281,7 +343,7 @@ exports.trpgfieldtoggle = function(source,operator,options) {
 		id = operator.operands[1],
 		spec = fields.spec(wiki,field);
 	return each(source,function(title) {
-		var parts = spec ? partsOf(wiki,spec,valuesOf(wiki,title)[field]) : [],
+		var parts = spec ? partsOf(wiki,spec,valuesOf(wiki,title,true)[field]) : [],
 			kept = parts.filter(function(p) { return p.id !== id; });
 		if(kept.length === parts.length) {
 			kept.push({text: id});
@@ -294,7 +356,7 @@ exports.trpgfieldreading = function(source,operator,options) {
 	var wiki = options.wiki,
 		field = operator.operand;
 	return each(source,function(title) {
-		var values = valuesOf(wiki,title),
+		var values = valuesOf(wiki,title,true),
 			schema = fields.forTiddler(wiki,title),
 			written = (values[field] || "").toString().trim() !== "";
 		if(operator.suffix === "problem") {
@@ -306,5 +368,47 @@ exports.trpgfieldreading = function(source,operator,options) {
 			return [];
 		}
 		return [language.format(language.t(wiki,written ? "Editor/Field/Output" : "Editor/Field/Derived"),{value: r.text})];
+	});
+};
+
+/* The lock of the values */
+
+exports.trpglockfields = function(source,operator,options) {
+	var wiki = options.wiki;
+	return each(source,function(title) {
+		var values = valuesOf(wiki,title,true);
+		return fields.forTiddler(wiki,title).fields.filter(function(field) {
+			return (values[field] || "").toString().trim() !== "";
+		});
+	});
+};
+
+function lockOf(wiki,title) {
+	var tiddler = wiki.getTiddler(title);
+	return tiddler ? visibility.parseLock(tiddler.fields["secret-fields"]) : null;
+}
+
+exports.trpglockon = function(source,operator,options) {
+	var id = operator.operand;
+	return each(source,function(title) {
+		var lock = lockOf(options.wiki,title);
+		return (lock === "all" && id === "all") || ($tw.utils.isArray(lock) && lock.indexOf(id) !== -1) ? ["yes"] : [];
+	});
+};
+
+exports.trpglocktoggle = function(source,operator,options) {
+	var id = operator.operand;
+	return each(source,function(title) {
+		var lock = lockOf(options.wiki,title),
+			list = $tw.utils.isArray(lock) ? lock.slice() : [];
+		if(id === "all") {
+			return lock === "all" ? [""] : ["all"];
+		}
+		if(list.indexOf(id) === -1) {
+			list.push(id);
+		} else {
+			list.splice(list.indexOf(id),1);
+		}
+		return [$tw.utils.stringifyList(list)];
 	});
 };

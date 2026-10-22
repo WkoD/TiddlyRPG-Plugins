@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022152822335
+modified: 20261022160310342
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -157,6 +157,7 @@ Editor/Where/Around: Around the selection
 Editor/Where/Before: Before the paragraph
 Editor/Field/Output: Output: $value$
 Editor/Field/Derived: Derived: $value$
+Editor/Field/LockAll: all
 Event/Continued: (continued)
 Event/End: (end)
 Event/Event: Event
@@ -322,3 +323,5 @@ Field/Boolean/Yes: yes
 Field/Boolean/Yes/Parse: yes, true
 Field/Boolean/No: no
 Field/Boolean/No/Parse: no, false
+Field/secret-fields: Locked values
+Fields/Locked: Locked (secret-fields): only the DM and the player characters tagged see it

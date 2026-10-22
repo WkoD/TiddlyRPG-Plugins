@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022160104767
+modified: 20261022160742118
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -561,12 +561,7 @@ exports.line = function(wiki,fields,combine) {
 
 // The fields secret-fields locks: null (none), "all" (present but empty, or "all") or a list
 exports.locked = function(fields) {
-	var value = fields["secret-fields"];
-	if(value === undefined) {
-		return null;
-	}
-	var list = $tw.utils.parseStringArray(value.toString()) || [];
-	return !list.length || list.indexOf("all") !== -1 ? "all" : list;
+	return require("$:/plugins/tiddlyrpg-core/modules/visibility.js").parseLock(fields["secret-fields"]);
 };
 
 /*

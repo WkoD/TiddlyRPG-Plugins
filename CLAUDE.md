@@ -41,9 +41,11 @@ questions, before it is built:
    sweep; a new kind of secret (a new section kind, a new field pointing to a tiddler) gets a
    fixture there. The sweep finds names, not what the rest tells (question 3).
 
-Lock only with `Secret`, `<<secret>>` and `<$secret>`. Asking the view itself (`trpgview`,
-`$:/state/tiddlyrpg/view`) is for the frame of the page only: the page control, the page class,
-the sidebar.
+Lock only with `Secret`, `<<secret>>`, `<$secret>` and - for the values of the rules - the field
+`secret-fields` (`modules/visibility.js` `fieldVisible()`; the block reads a tiddler without the
+values the view may not see, so nothing derived from them shows either, `filters/fields.js`).
+Asking the view itself (`trpgview`, `$:/state/tiddlyrpg/view`) is for the frame of the page only:
+the page control, the page class, the sidebar.
 
 ## New features - what else to check
 

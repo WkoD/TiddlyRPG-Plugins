@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022152822335
+modified: 20261022160310342
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -157,6 +157,7 @@ Editor/Where/Around: Um die Markierung
 Editor/Where/Before: Vor den Absatz
 Editor/Field/Output: Ausgabe: $value$
 Editor/Field/Derived: Abgeleitet: $value$
+Editor/Field/LockAll: alle
 Event/Continued: (Fortsetzung)
 Event/End: (Ende)
 Event/Event: Ereignis
@@ -322,3 +323,5 @@ Field/Boolean/Yes: ja
 Field/Boolean/Yes/Parse: ja, wahr
 Field/Boolean/No: nein
 Field/Boolean/No/Parse: nein, falsch
+Field/secret-fields: Gesperrte Werte
+Fields/Locked: Gesperrt (secret-fields): nur SL und getaggte Spielerfiguren sehen es
