@@ -334,11 +334,11 @@ test.describe("the block of values", function() {
 		}
 	});
 
-	test("after the body, before the relations; the price on any tiddler", function() {
+	test("after the image, before the body; the price on any tiddler", function() {
 		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp", text: "Ein Ring Zx9."}, function() {
 			var html = h.view(wiki, "Ring").replace(/>\s+</g, "><");
-			assert.ok(html.indexOf("Zx9") < html.indexOf("trpg-fields"), "the block after the body");
-			assert.ok(html.indexOf("trpg-fields") < html.indexOf("relations/graph"), "and before the relations");
+			assert.ok(html.indexOf("trpg-fields") < html.indexOf("Zx9"), "the block before the body");
+			assert.ok(html.indexOf("Zx9") < html.indexOf("relations/graph"), "the body before the relations");
 		});
 		withTiddler({title: "Hafen", tags: "Location", price: "5 sp"}, function() {
 			assert.match(block("Hafen"), /<span class="trpg-fields-label">Preis<\/span> 5 SM/);

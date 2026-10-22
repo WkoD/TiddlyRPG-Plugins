@@ -1,12 +1,12 @@
 created: 20261022142450275
-list-after: $:/plugins/tiddlyrpg-core/viewtemplates/book
-modified: 20261022150508705
+list-before: $:/core/ui/ViewTemplate/body
+modified: 20261022151004750
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<!-- The block of values after the body (and the file of a book), before the relations - laid out
+<!-- The block of values below the image, before the body - laid out
      like the stat block of a rulebook (filters/fields.js, modules/fields.js): the header line in
      italics, then the sections parted by a line - the fields of no group with the price, then
      the groups: "list" a line "Label value" each, "row" a small table (label above the value),
