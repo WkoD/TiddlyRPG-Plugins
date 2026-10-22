@@ -239,6 +239,28 @@ test.describe("summary", function() {
 		});
 	});
 
+	test("a label in a variant, or in the variant another field's entry names (agreement)", function() {
+		var keys = {"Rules/Term/tiny/plural": "winzige Dinge", "Rules/Term/medium/f": "mittelgroße", "Rules/Term/rare/Agree": "f",
+			"Header/Plural": "$size.plural$", "Header/Agree": "$size.@rarity$ Sache{ ($rarity$)}"};
+		withSchema("Header", {types: ["Organisation"], fields: ["size", "rarity"], summary: {key: "Header/Agree", byValue: {size: {tiny: "Header/Plural"}}}}, function() {
+			Object.keys(keys).forEach(function(key) {
+				h.add(wiki, {title: "$:/tiddlyrpg/language/de-DE/" + key, text: keys[key]});
+			});
+			try {
+				var schema = fields.forTypes(wiki, ["Organisation"]);
+				assert.equal(fields.summary(wiki, {size: "tiny"}, schema).text, "winzige Dinge");
+				assert.equal(fields.summary(wiki, {size: "medium", rarity: "rare"}, schema).text, "mittelgroße Sache (selten)");
+				assert.equal(fields.summary(wiki, {size: "medium", rarity: "common"}, schema).text, "mittelgroß Sache (gewöhnlich)", "no Agree key: the label as it is");
+				assert.equal(fields.summary(wiki, {size: "medium"}, schema).text, "mittelgroß Sache", "the other field empty (or locked): no variant, nothing to guess from");
+				assert.equal(fields.summary(wiki, {size: "rare"}, schema).text, "rare Sache", "unread: as written");
+			} finally {
+				Object.keys(keys).forEach(function(key) {
+					wiki.deleteTiddler("$:/tiddlyrpg/language/de-DE/" + key);
+				});
+			}
+		});
+	});
+
 	test("another key for a value; empty without the field", function() {
 		assert.equal(fields.summary(wiki, {level: "0"}, schema).text, "Zaubertrick");
 		assert.equal(fields.summary(wiki, {}, schema).text, "");
@@ -461,6 +483,27 @@ test.describe("the lock of values (secret-fields)", function() {
 			wiki.deleteTiddler(fieldsOf.title);
 		}
 	}
+
+	test("a locked field names no variant: the agreement does not tell what it holds", function() {
+		var keys = {"Rules/Term/medium/f": "mittelgroße", "Rules/Term/rare/Agree": "f", "Header/Agree": "$size.@rarity$ Sache{ ($rarity$)}"};
+		withSchema("Header", {types: ["Organisation"], fields: ["size", "rarity"], summary: {key: "Header/Agree"}}, function() {
+			Object.keys(keys).forEach(function(key) {
+				h.add(wiki, {title: "$:/tiddlyrpg/language/de-DE/" + key, text: keys[key]});
+			});
+			try {
+				withTiddler({title: "Gilde", tags: "Organisation", size: "medium", rarity: "rare", "secret-fields": "rarity"}, function() {
+					h.inView(wiki, "public", function() {
+						assert.match(block("Gilde"), /<div class="trpg-fields-summary">mittelgroß Sache<\/div>/);
+					});
+					assert.match(block("Gilde"), /<div class="trpg-fields-summary">mittelgroße Sache \(selten\)<\/div>/, "the DM");
+				});
+			} finally {
+				Object.keys(keys).forEach(function(key) {
+					wiki.deleteTiddler("$:/tiddlyrpg/language/de-DE/" + key);
+				});
+			}
+		});
+	});
 
 	test("a locked field: gone for others, marked for the DM and the players tagged", function() {
 		withTiddler({title: "Kelch", tags: "Item Consumable Frigg", category: "potion", rarity: "rare", healing: "2d4", "secret-fields": "rarity"}, function() {

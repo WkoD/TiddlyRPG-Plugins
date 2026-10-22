@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022173314535
+modified: 20261022174903349
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -41,9 +41,11 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                abilities), "inline" the lines in one line. A combine shows its fields in one
                line under the label of the first (fill(): "1/4 (50 XP)").
   patterns     (summary, combine) keys of the ruleset with $field$, $field.ordinal$
-               (Rules/Ordinal/<value>) and $field.flag$ (the key of flags when the field is yes);
-               a part in {...} falls away when a field in it is empty: "{$category$}{, $rarity$}
-               { $attunement.flag$}".
+               (Rules/Ordinal/<value>), $field.flag$ (the key of flags when the field is yes),
+               $field.<variant>$ (the label of a label field in a variant: $creature-type.plural$)
+               and $field.@<other>$ (the variant the entry of another label field names in
+               <key>/Agree: German "Mittelgroßes Tier"); a part in {...} falls away when a field
+               in it is empty: "{$category$}{, $rarity$}{ $attunement.flag$}".
   "when" (definition or group): {"<field>": ["<value>", ...]} - offered and shown only while that
   field holds one of the values (an id of a labels field counts).
 
@@ -463,10 +465,47 @@ var fits = exports.fits = function(wiki,fields,when,schemaFields) {
 /*
 The header line of a schema ("1st-level abjuration (ritual)"): its key (or one of byValue for the
 value a field holds) with $field$ (the text of a field), $field.ordinal$ (Rules/Ordinal/<value>,
-else the value) and $field.flag$ (the key of flags when the field is yes, else nothing). Empty
-when a field it needs is empty.
+else the value), $field.flag$ (the key of flags when the field is yes, else nothing),
+$field.<variant>$ and $field.@<other>$ (a variant of a label, below). Empty when a field it needs
+is empty.
 */
-var PLACEHOLDER = /\$([a-zA-Z0-9_-]+)(?:\.(ordinal|flag))?\$/g;
+var PLACEHOLDER = /\$([a-zA-Z0-9_-]+)(?:\.(@?[a-zA-Z0-9_-]+))?\$/g;
+
+// The entry of a label field: {domain, id} or null
+function labelEntry(wiki,fields,field) {
+	var s = spec(wiki,field),
+		value = raw(fields,field);
+	if(!s || s.format !== "label" || !value) {
+		return null;
+	}
+	var r = rules().value(wiki,s,value),
+		domain = r.id && language.domains(wiki)[s.domain];
+	return domain ? {domain: domain, id: r.id} : null;
+}
+
+/*
+A label in a variant: $field.<variant>$ the key <key>/<variant> of its entry ("beasts" for
+$creature-type.plural$); $field.@<other>$ the variant that the entry of another label field names
+in its key <key>/Agree - the agreement of a language ("Mittelgroßes Tier": Rules/Term/beast/Agree
+"n", Rules/Term/medium/n "Mittelgroßes"). Without that key or entry the label as it is; an empty
+(or locked, so absent) other field names no variant, so the form never shows what it holds.
+*/
+function variantText(wiki,fields,field,how) {
+	var entry = labelEntry(wiki,fields,field),
+		shown = exports.read(wiki,fields,field).text;
+	if(!entry) {
+		return shown;
+	}
+	var variant = how;
+	if(how.charAt(0) === "@") {
+		var other = labelEntry(wiki,fields,how.slice(1));
+		variant = other && language.lookupRules(wiki,other.domain.domain,(other.domain.keys || "Rules/Term/") + other.id + "/Agree");
+		if(!variant) {
+			return shown;
+		}
+	}
+	return language.lookupRules(wiki,entry.domain.domain,(entry.domain.keys || "Rules/Term/") + entry.id + "/" + variant) || shown;
+}
 
 // The fields a pattern names
 function named(pattern) {
@@ -505,7 +544,7 @@ var fill = exports.fill = function(wiki,fields,key,flags) {
 			}
 			// A value written or derived ("1/4 (50 XP)": xp from cr)
 			var shownText = how === "ordinal" ? (value ? language.lookupGroup(wiki,"ruleset","Rules/Ordinal/" + value) || value : "") :
-				exports.read(wiki,fields,field).text;
+				how ? (value ? variantText(wiki,fields,field,how) : "") : exports.read(wiki,fields,field).text;
 			empty = empty || !shownText;
 			return shownText;
 		});
