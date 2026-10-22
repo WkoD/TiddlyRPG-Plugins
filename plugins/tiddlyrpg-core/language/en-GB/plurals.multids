@@ -1,10 +1,11 @@
 created: 20261001095424000
-modified: 20261015181607000
+modified: 20261022151240943
 title: $:/tiddlyrpg/language/en-GB/Plural/
 
 Artifact: Artifacts
 Book: Books
 Consumable: Consumables
+Creature: Creatures
 Deity: Deities
 Equipment: Equipment
 Event: Events
@@ -16,3 +17,4 @@ Organisation: Organisations
 Person: People
 Player: Players
 Quest: Quests
+Spell: Spells

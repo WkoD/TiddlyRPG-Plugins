@@ -1,5 +1,5 @@
 created: 20200814090319235
-modified: 20261015184949000
+modified: 20261022151302900
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/border
 type: text/vnd.tiddlywiki
@@ -12,10 +12,12 @@ type: text/vnd.tiddlywiki
      the inside of a pill, only lighter -; a deceased or destroyed tiddler (class trpg-dead) is
      striped at 45° instead, 96px wide: grey and that colour, both at 9 % (its pills alike,
      tag-pill-stripes in functions). A dead tiddler of a type without a colour: the grey of
-     styles/dead. -->
+     styles/dead. The colour also goes to the variable --trpg-type, for the rules of the tiddler
+     below (and the block of values, styles/fields). -->
 <$list filter="[all[shadows]] :filter[tag[Index]has[color]] +[sort[]]">
 .tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/> {
 border: 2px solid <$text text={{!!color}}/>;
+--trpg-type: <$text text={{!!color}}/>;
 }
 .tc-tiddler-frame.tc-tagged-<$text text={{{ [<currentTiddler>encodeuricomponent[]escapecss[]] }}}/>:not(.trpg-dead) {
 background-color: color-mix(in srgb, <$text text={{!!color}}/> 9%, var(--tpc-tiddler-background, #fff));
@@ -24,3 +26,12 @@ background-color: color-mix(in srgb, <$text text={{!!color}}/> 9%, var(--tpc-tid
 background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--tpc-foreground, #333) 9%, var(--tpc-tiddler-background, #fff)) 0 96px, color-mix(in srgb, <$text text={{!!color}}/> 9%, var(--tpc-tiddler-background, #fff)) 96px 192px);
 }
 </$list>
+
+/* Rules in a tiddler (hr elements, the rule before a dated section): a line in the colour of
+   its type that fades out to the right, as between the sections of the block of values; grey
+   without a type */
+.tc-tiddler-frame hr {
+border: none;
+height: 2px;
+background: linear-gradient(to right, var(--trpg-type, <<colour muted-foreground>>), transparent);
+}

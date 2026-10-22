@@ -1,5 +1,5 @@
 created: 20261015145856000
-modified: 20261015184949000
+modified: 20261022151302900
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/sections
 type: text/vnd.tiddlywiki
@@ -52,9 +52,8 @@ div.trpg-section-date > hr.trpg-date-rule:first-child {
 	top: calc(-0.5em - 2px);
 	left: -4px;
 	right: -1px;
-	border: 1px inset;
-	border-width: 1px 0;
-	color: <<colour foreground>>;
+	height: 2px;
+	background: linear-gradient(to right, var(--trpg-type, <<colour muted-foreground>>), transparent);
 }
 
 /* The tag Secret: its pill in the colour of the lock, outlined and light inside like every pill

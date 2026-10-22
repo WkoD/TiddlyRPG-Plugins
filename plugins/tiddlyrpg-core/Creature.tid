@@ -1,0 +1,13 @@
+caption: <<trpg.title Creature>>
+color: #2aa198
+created: 20261022151240943
+modified: 20261022151240943
+tags: Index
+title: Creature
+type: text/vnd.tiddlywiki
+
+<$list filter="[tag[Creature]] :filter[trpg.visible[]] +[sort[title]]">
+<div class="tc-menu-list-subitem">
+<<trpg.link title={{!!title}}>>
+</div>
+</$list>

@@ -306,32 +306,24 @@ test.describe("the block of values", function() {
 	});
 
 	test("spell and creature: combined lines, a row, a field only for the editor", function() {
-		// Type tags for the test: hubs of the same name
-		h.add(wiki, {title: "Spell", tags: "Index"});
-		h.add(wiki, {title: "Creature", tags: "Index"});
-		try {
-			withTiddler({title: "Feuerball", tags: "Spell", level: "3", range: "150 ft", duration: "1 minute", concentration: "yes", damage: "8d6 fire"}, function() {
-				var html = block("Feuerball");
-				assert.match(html, /<div class="trpg-fields-summary">Zauber 3\. Grades<\/div>/);
-				assert.doesNotMatch(html, /Zaubergrad|Konzentration<\/span>/);
-				assert.match(html, /Wirkungsdauer<\/span> Konzentration, bis zu 1 Minute<\/span>/);
-				assert.match(html, /Schaden<\/span> 8W6 Feuerschaden/, "damage on a spell: no category, no condition");
-				assert.equal(h.checks(wiki, "Feuerball", "fields").length, 0);
-			});
-			withTiddler({title: "Wolf", tags: "Creature", size: "medium", str: "12", cr: "1/4", wis: "12", skills: "perception", expertise: "perception"}, function() {
-				var html = block("Wolf");
-				assert.match(html, /<div class="trpg-fields-summary">mittelgroß<\/div>/);
-				assert.match(html, /<div class="trpg-fields-section trpg-fields-row"><div class="trpg-fields-cell"><span class="trpg-fields-label">STR<\/span>12 \(\+1\)<\/div>/);
-				assert.match(html, /Herausforderungsgrad<\/span> 1\/4 \(50 EP\)<\/span>/);
-				assert.doesNotMatch(html, /<span class="trpg-fields-label">EP/, "xp in the line of the challenge");
-				assert.doesNotMatch(html, /Expertise/, "only in the editor");
-				assert.match(html, /Fertigkeiten<\/span> Wahrnehmung \+5/);
-				assert.match(html, /passive Wahrnehmung 15/);
-			});
-		} finally {
-			wiki.deleteTiddler("Spell");
-			wiki.deleteTiddler("Creature");
-		}
+		withTiddler({title: "Feuerball", tags: "Spell", level: "3", range: "150 ft", duration: "1 minute", concentration: "yes", damage: "8d6 fire"}, function() {
+			var html = block("Feuerball");
+			assert.match(html, /<div class="trpg-fields-summary">Zauber 3\. Grades<\/div>/);
+			assert.doesNotMatch(html, /Zaubergrad|Konzentration<\/span>/);
+			assert.match(html, /Wirkungsdauer<\/span> Konzentration, bis zu 1 Minute<\/span>/);
+			assert.match(html, /Schaden<\/span> 8W6 Feuerschaden/, "damage on a spell: no category, no condition");
+			assert.equal(h.checks(wiki, "Feuerball", "fields").length, 0);
+		});
+		withTiddler({title: "Wolf", tags: "Creature", size: "medium", str: "12", cr: "1/4", wis: "12", skills: "perception", expertise: "perception"}, function() {
+			var html = block("Wolf");
+			assert.match(html, /<div class="trpg-fields-summary">mittelgroß<\/div>/);
+			assert.match(html, /<div class="trpg-fields-section trpg-fields-row"><div class="trpg-fields-cell"><span class="trpg-fields-label">STR<\/span>12 \(\+1\)<\/div>/);
+			assert.match(html, /Herausforderungsgrad<\/span> 1\/4 \(50 EP\)<\/span>/);
+			assert.doesNotMatch(html, /<span class="trpg-fields-label">EP/, "xp in the line of the challenge");
+			assert.doesNotMatch(html, /Expertise/, "only in the editor");
+			assert.match(html, /Fertigkeiten<\/span> Wahrnehmung \+5/);
+			assert.match(html, /passive Wahrnehmung 15/);
+		});
 	});
 
 	test("after the image, before the body; the price on any tiddler", function() {

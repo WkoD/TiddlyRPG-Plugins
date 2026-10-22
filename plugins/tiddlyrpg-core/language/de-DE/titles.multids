@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261015143331000
+modified: 20261022151240943
 title: $:/tiddlyrpg/language/de-DE/Title/
 
 Artifact: Artefakt
@@ -8,6 +8,7 @@ Calendar: Kalender
 Campaign: Kampagne
 CampaignSetting: Kampagnenwelt
 Consumable: Verbrauchsgut
+Creature: Kreatur
 Currency: Währung
 Deity: Gott
 Equipment: Ausrüstung
@@ -24,3 +25,4 @@ PlayerLevel: Spielerstufe
 Quest: Quest
 Ruleset: Regelwerk
 Secret: Geheim
+Spell: Zauber

@@ -1,0 +1,7 @@
+created: 20261022151240943
+modified: 20261022151240943
+more: image
+title: $:/config/tiddlyrpg/form/Creature
+type: text/vnd.tiddlywiki
+
+The form in the editor for a tiddler tagged Creature (modules/form.js): list - the fields whose absence a check reports, shown also while empty; more - the other fields it offers under "More fields".

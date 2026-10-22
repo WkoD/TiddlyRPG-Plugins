@@ -197,6 +197,15 @@ test.describe("trpg.link", function() {
 		assert.match(css, /\.tc-tiddler-frame\.trpg-dead\.tc-tagged-Person \{\s*background: repeating-linear-gradient\(45deg, color-mix\(in srgb, var\(--tpc-foreground, #333\) 9%, var\(--tpc-tiddler-background, #fff\)\) 0 96px, color-mix\(in srgb, #00a600 9%/);
 		assert.match(css, /\.tc-tiddler-frame\.tc-tagged-Person:not\(\.trpg-dead\) \{\s*background-color: color-mix\(in srgb, #00a600 9%/);
 	});
+
+	test("Spell and Creature: hubs with their colour; the colour as --trpg-type for the rules of a tiddler", function() {
+		var css = wiki.renderTiddler("text/plain", "$:/plugins/tiddlyrpg-core/styles/border");
+		assert.match(css, /\.tc-tagged-Spell \{\s*border: 2px solid #9b59d0;\s*--trpg-type: #9b59d0;\s*\}/);
+		assert.match(css, /\.tc-tiddler-frame\.tc-tagged-Creature:not\(\.trpg-dead\) \{\s*background-color: color-mix\(in srgb, #2aa198 9%/);
+		assert.match(css, /\.tc-tiddler-frame hr \{\s*border: none;\s*height: 2px;\s*background: linear-gradient\(to right, var\(--trpg-type, /);
+		assert.match(h.view(wiki, "Spell"), /<h2 class="tc-title">\s*Zauber\s*<\/h2>/);
+		assert.match(h.render(wiki, "text/html", "{{Index}}"), />Kreaturen</);
+	});
 });
 
 // Colour of a tiddler through the TiddlerColourFilter cascade

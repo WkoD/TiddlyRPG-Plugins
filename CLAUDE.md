@@ -467,7 +467,7 @@ the tiddler title:
   `list-after`/`list-before`. Plus `body-filter`
   and `body-filter-sections` (cascade, see below), `body-filter-quest` (a quest or rumour, see
   "Quests").
-- **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey), `item` (book
+- **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey; the colour as `--trpg-type` on the frame, which colours every rule in the tiddler as a line fading out), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `fields` (the block of values:
   rules above and below and between sections, header line, labels; static CSS, the colour of
   the type from `--trpg-type`), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
@@ -510,11 +510,12 @@ the tiddler title:
   `editor/operation.js`, the form `editor/form` with the field editors `editor/fields/*`, the
   config of the picker `editor/picker` - see "Editor".
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Information, Index, Quest: titles without prefix,
+  Material, Book, Consumable, Equipment, Event, Information, Index, Quest, Spell, Creature:
+  titles without prefix,
   tag `Index`; the item categories also tagged `$:/tags/tiddlyrpg/ItemKind`, see "Items"; plus
   Campaign, Calendar, Currency, Ruleset, CampaignSetting): the hubs tagged `Index` are the types
-  (`modules/types.js`) - their `color` field gives graph nodes, tiddler borders and tag pills
-  their colour; `caption` is `<<trpg.title ...>>`. `Campaign` is the pinned start page and no
+  (`modules/types.js`) - their `color` field gives graph nodes, tiddler borders, the rules in a
+  tiddler and tag pills their colour; `caption` is `<<trpg.title ...>>`. `Campaign` is the pinned start page and no
   type: tag `$:/tags/Pinned` only, its colour is the one of campaign events in the timeline. The
   hub `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or
   frame what it locks.

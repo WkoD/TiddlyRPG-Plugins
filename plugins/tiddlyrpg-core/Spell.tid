@@ -1,0 +1,13 @@
+caption: <<trpg.title Spell>>
+color: #9b59d0
+created: 20261022151240943
+modified: 20261022151240943
+tags: Index
+title: Spell
+type: text/vnd.tiddlywiki
+
+<$list filter="[tag[Spell]] :filter[trpg.visible[]] +[sort[title]]">
+<div class="tc-menu-list-subitem">
+<<trpg.link title={{!!title}}>>
+</div>
+</$list>
