@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022165822902
+modified: 20261022170135456
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -340,3 +340,8 @@ Content/Wanting: Es nennt $title$, das im Wiki noch fehlt:
 Content/TakeFailed: Nicht übernommen: Der Eintrag war nicht abrufbar, oder sein Titel ist inzwischen vergeben
 Content/Preview: Vorschau aus $1$ – noch nicht im Wiki
 Content/ShowPreview: Vorschau
+Content/Hub/Intro: Was die Inhaltspakete des Regelwerks enthalten – zum Nachschlagen und um es einzeln ins Wiki zu übernehmen.
+Content/Hub/Search: Titel durchsuchen
+Content/Hub/Count: $1$ Einträge
+Content/Hub/Page: Seite $1$ von $2$
+Content/Hub/Taken: im Wiki

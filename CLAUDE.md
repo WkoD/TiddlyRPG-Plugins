@@ -235,7 +235,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     left out, the route (index without texts, entry, 403, 404, the ruleset as filter, an id that
     names a path); in the browser the titles (taken, another type, a shadow, a locked tiddler),
     the fields to take, what an entry names that the wiki lacks, the offer on a missing tiddler,
-    nothing without a package
+    the preview, the hub Content (types, filters, search, pages, taken as link), nothing without
+    a package
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
     with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
     the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
@@ -394,7 +395,10 @@ the tiddler title:
   `tm-trpg-content-preview` fetches an entry into `$:/temp/tiddlyrpg-core/content/preview`
   (its type in `trpg-type`, no tag - no hub lists it, `types.of()`), shown like the taken
   tiddler: heading and body through `config/title-preview` and `config/body-preview` before the
-  system rules of the core, the box `viewtemplates/content-preview` on top.
+  system rules of the core, the box `viewtemplates/content-preview` on top. The hub `Content`
+  (under `Information`, hidden without a package): per type a list of 50 a page with search,
+  filters from the fields of the schema (one entry or a list of a domain), header line, preview
+  and take; what is taken as a link (`filters/content.js`).
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one

@@ -1,5 +1,5 @@
 created: 20261022165648795
-modified: 20261022165648795
+modified: 20261022170431261
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/content
 type: text/css
@@ -14,4 +14,33 @@ type: text/css
 	padding: 0.4em 0.7em;
 	border: 1px dashed var(--tpc-muted-foreground, #999);
 	border-radius: 6px;
+}
+/* The hub Content: the filters in a row, the list as a table with the actions on the right */
+.trpg-content-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4em;
+	margin: 0.5em 0;
+}
+.trpg-content-search {
+	min-width: 12em;
+}
+table.trpg-content-list {
+	width: 100%;
+}
+.trpg-content-summary {
+	font-style: italic;
+	color: var(--tpc-muted-foreground, #666);
+}
+.trpg-content-actions {
+	white-space: nowrap;
+	text-align: end;
+}
+.trpg-content-taken {
+	font-size: 0.85em;
+	color: var(--tpc-muted-foreground, #666);
+}
+.trpg-content-count,
+.trpg-content-pages {
+	color: var(--tpc-muted-foreground, #666);
 }

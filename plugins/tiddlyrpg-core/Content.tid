@@ -1,0 +1,84 @@
+caption: <<trpg.title Content>>
+created: 20261022170116983
+modified: 20261022170358071
+tags: Information
+title: Content
+type: text/vnd.tiddlywiki
+
+<!-- The content packages of the active ruleset (modules/content.js, filters/content.js): per
+     type what they hold, to look up and take. The type first, then a search over the titles and
+     a select per field of the schema that filters (one entry or a list of a domain); the list
+     50 entries a page, each with its header line, a preview and "Take" - what is in the wiki
+     already as a link. The choices in $:/state/tiddlyrpg-core/content (not saved), the search in .../search. Hidden from
+     Information without a package (trpg.content). -->
+\whitespace trim
+\procedure trpg.contentstate() $:/state/tiddlyrpg-core/content
+<%if [trpg.content[]] %>
+<$let trpg-state=<<trpg.contentstate>>
+	trpg-type={{{ [<trpg-state>get[type]] }}}>
+<div class="trpg-content-hub">
+<p><$text text={{{ [[Content/Hub/Intro]trpgtranslate[]] }}}/></p>
+<div class="trpg-pills">
+<$list filter="[trpgcontenttypes[]]" variable="trpg-t">
+<$button class={{{ [[tc-btn-invisible trpg-pick-pill trpg-choice]] [<trpg-t>!match<trpg-type>then[trpg-off]] +[join[ ]] }}} style={{{ [<trpg-t>get[color]addprefix[--trpg-kind:]] }}}>
+<$action-setfield $tiddler=<<trpg-state>> type=<<trpg-t>> page="1"/>
+<$text text={{{ [<trpg-t>addprefix[Plural/]trpgtranslate[]] }}}/>
+</$button>
+</$list>
+</div>
+<%if [<trpg-type>!is[blank]] %>
+<div class="trpg-content-filters">
+<$edit-text tiddler={{{ [<trpg-state>addsuffix[/search]] }}} field="text" tag="input" class="trpg-content-search" placeholder={{{ [[Content/Hub/Search]trpgtranslate[]] }}}/>
+<$list filter="[<trpg-type>trpgcontentfilters[]]" variable="trpg-field">
+<$select tiddler=<<trpg-state>> field={{{ [<trpg-field>addprefix[filter-]] }}} default="" actions="""<$action-setfield $tiddler=<<trpg-state>> page="1"/>""">
+<option value=""><$text text={{{ [<currentTiddler>trpgfieldlabel<trpg-field>] }}}/></option>
+<$list filter="[<trpg-field>trpgcontentvalues<trpg-type>]" variable="trpg-id">
+<option value=<<trpg-id>>><$text text={{{ [<trpg-id>trpgfieldchoice<trpg-field>] }}}/></option>
+</$list>
+</$select>
+</$list>
+</div>
+<$let trpg-count={{{ [trpgcontentlist:count<trpg-state>] }}}
+	trpg-pages={{{ [trpgcontentlist:pages<trpg-state>] }}}
+	trpg-page={{{ [trpgcontentlist:page<trpg-state>] }}}>
+<p class="trpg-content-count"><$text text={{{ [[Content/Hub/Count]trpgtranslate[]substitute<trpg-count>] }}}/></p>
+<table class="trpg-content-list">
+<$list filter="[trpgcontentlist<trpg-state>]" variable="trpg-id">
+<tr>
+<td>
+<%if [<trpg-id>trpgcontentoffer[taken]] %>
+<$link to={{{ [<trpg-id>trpgcontentoffer[title]] }}}><$text text={{{ [<trpg-id>trpgcontentoffer[title]] }}}/></$link>
+<%else%>
+<$text text={{{ [<trpg-id>trpgcontentoffer[title]] }}}/>
+<%endif%>
+</td>
+<td class="trpg-content-summary"><$text text={{{ [<trpg-id>trpgcontentoffer[summary]] }}}/></td>
+<td class="trpg-content-actions">
+<%if [<trpg-id>trpgcontentoffer[taken]] %>
+<span class="trpg-content-taken"><$text text={{{ [[Content/Hub/Taken]trpgtranslate[]] }}}/></span>
+<%else%>
+<$button class="trpg-do-2 trpg-small" message="tm-trpg-content-preview" param=<<trpg-id>>><$text text={{{ [[Content/ShowPreview]trpgtranslate[]] }}}/></$button>
+<$button class="trpg-do trpg-small" message="tm-trpg-content-take" param=<<trpg-id>>><$text text={{{ [[Content/Take]trpgtranslate[]] }}}/></$button>
+<%endif%>
+</td>
+</tr>
+</$list>
+</table>
+<%if [<trpg-pages>compare:number:gt[1]] %>
+<div class="trpg-content-pages">
+<$button class="trpg-do-2 trpg-small" disabled={{{ [<trpg-page>match[1]then[yes]else[no]] }}}>
+<$action-setfield $tiddler=<<trpg-state>> page={{{ [<trpg-page>subtract[1]] }}}/>
+‹
+</$button>
+<$text text={{{ [[Content/Hub/Page]trpgtranslate[]substitute<trpg-page>,<trpg-pages>] }}}/>
+<$button class="trpg-do-2 trpg-small" disabled={{{ [<trpg-page>match<trpg-pages>then[yes]else[no]] }}}>
+<$action-setfield $tiddler=<<trpg-state>> page={{{ [<trpg-page>add[1]] }}}/>
+›
+</$button>
+</div>
+<%endif%>
+</$let>
+<%endif%>
+</div>
+</$let>
+<%endif%>

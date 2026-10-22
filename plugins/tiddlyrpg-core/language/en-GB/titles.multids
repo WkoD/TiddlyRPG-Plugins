@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022151240943
+modified: 20261022170135456
 title: $:/tiddlyrpg/language/en-GB/Title/
 
 Artifact: Artifact
@@ -8,6 +8,7 @@ Calendar: Calendar
 Campaign: Campaign
 CampaignSetting: Campaign setting
 Consumable: Consumable
+Content: Content
 Creature: Creature
 Currency: Currency
 Deity: Deity

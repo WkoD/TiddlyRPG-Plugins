@@ -35,6 +35,7 @@ var CASES = [
 		type: {title: "Draft of 'Neu'", price: "5 gp"}, shows: /5/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/rules", variables: {currentTiddler: "Draft of 'Neu'", currentField: "weight"},
 		type: {title: "Draft of 'Neu'", weight: "3 lb"}, shows: /Ausgabe: 1,5 kg/},
+	{source: "Content", type: {title: "$:/state/tiddlyrpg-core/content/search", text: "sw"}, shows: /1 Einträge/},
 	{source: "$:/plugins/tiddlyrpg-core/ui/new-event", variables: {"trpg-input": "$:/temp/tiddlyrpg-core/new-event"},
 		type: {title: "$:/temp/tiddlyrpg-core/new-event", text: "1351-07-30"}, shows: /Anlegen/}
 ];
@@ -47,6 +48,10 @@ test.before(function() {
 		h.setLanguage(wiki, "de-DE");
 		h.add(wiki, EVENT);
 		h.add(wiki, {title: "Turm", tags: "Quest", text: "Den Turm finden."});
+		// A content package with two items, the type chosen in the hub Content
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/content/index", type: "application/json", text: JSON.stringify({packages: [{name: "P", language: "en-GB",
+			entries: [{id: "a", title: "Sword", type: "Item", fields: {}}, {id: "b", title: "Shield", type: "Item", fields: {}}]}]})});
+		h.add(wiki, {title: "$:/state/tiddlyrpg-core/content", type: "Item"});
 	});
 });
 

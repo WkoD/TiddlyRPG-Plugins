@@ -207,3 +207,73 @@ test.describe("in the browser: the offers of the index", function() {
 		}
 	});
 });
+
+test.describe("the hub Content", function() {
+	var wiki,
+		STATE = "$:/state/tiddlyrpg-core/content";
+
+	function hub() {
+		return h.render(wiki, "text/html", "{{Content}}").replace(/>\s+</g, "><");
+	}
+
+	test.before(function() {
+		wiki = $tw.wiki;
+		h.setLanguage(wiki, "de-DE");
+		var many = [];
+		for(var i = 1; i <= 60; i++) {
+			many.push({id: "coin" + i, title: "Coin " + (i < 10 ? "0" : "") + i, type: "Item", fields: {category: "potion"}});
+		}
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/content/index", type: "application/json", text: JSON.stringify({packages: [{name: "SRD mini", language: "en-GB", entries: [
+			{id: "longsword", title: "Longsword", type: "Item", fields: {category: "weapon, martial", rarity: "rare"}},
+			{id: "fireball", title: "Fireball", type: "Spell", fields: {level: "3"}},
+			{id: "dagger", title: "Dagger", type: "Item", fields: {category: "weapon"}}
+		].concat(many)}]})});
+		h.add(wiki, {title: "Dagger", tags: "Item", text: "Ours."});
+	});
+
+	test.after(function() {
+		["$:/temp/tiddlyrpg-core/content/index", "Dagger", STATE, STATE + "/search"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
+	test("in Information only with a package", function() {
+		assert.match(h.render(wiki, "text/html", "{{Information}}"), />Inhalte</);
+		var index = wiki.getTiddler("$:/temp/tiddlyrpg-core/content/index");
+		wiki.deleteTiddler("$:/temp/tiddlyrpg-core/content/index");
+		try {
+			assert.doesNotMatch(h.render(wiki, "text/html", "{{Information}}"), />Inhalte</);
+			assert.doesNotMatch(hub(), /trpg-content-hub/);
+		} finally {
+			wiki.addTiddler(index);
+		}
+	});
+
+	test("the types first; the list only for a type, with header line, preview and take, a taken one as link", function() {
+		var html = hub();
+		assert.match(html, />Gegenstände<\/button>.*>Zauber<\/button>/);
+		assert.doesNotMatch(html, /trpg-content-list/);
+		h.add(wiki, {title: STATE, type: "Spell"});
+		html = hub();
+		assert.match(html, /<td>Fireball<\/td><td class="trpg-content-summary">Zauber 3\. Grades<\/td>/);
+		assert.match(html, /Vorschau.*Übernehmen/);
+		h.add(wiki, {title: STATE, type: "Item"});
+		html = hub();
+		assert.match(html, /<a [^>]*>Dagger<\/a><\/td>.*?im Wiki/);
+		assert.match(html, /62 Einträge/);
+	});
+
+	test("the filters of the schema, the search, the pages", function() {
+		h.add(wiki, {title: STATE, type: "Item"});
+		var html = hub();
+		assert.match(html, /<select[^>]*><option value="">Art<\/option><option value="weapon">Waffe<\/option>.*<option value="potion">Trank<\/option>/);
+		assert.match(html, /Seite 1 von 2/);
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).length, 50);
+		h.add(wiki, {title: STATE, type: "Item", page: "2"});
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).length, 12);
+		h.add(wiki, {title: STATE, type: "Item", "filter-category": "weapon"});
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "longsword,dagger");
+		h.add(wiki, {title: STATE + "/search", text: "long"});
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "longsword");
+		wiki.deleteTiddler(STATE + "/search");
+	});
+});
+

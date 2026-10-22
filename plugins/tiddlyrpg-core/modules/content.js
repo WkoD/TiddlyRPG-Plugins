@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261022165648795
+modified: 20261022170135456
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -18,7 +18,10 @@ a tiddler the view does not see counts the same - nothing tells it.
 
   INDEX                      the temp tiddler of the index ({ruleset, packages})
   packages(wiki)             the packages of the index
+  entries(wiki)              every entry: [{id, title, type, package, entry, taken}] - title the
+                             one it is taken under, or the one it was taken under (taken)
   offers(wiki)               every entry not taken: [{id, title, type, package, entry}]
+  entryOf(wiki,id)           one of entries(), or null
   offer(wiki,id)             one offer, or null
   find(wiki,title)           the offers titled so
   titleOf(wiki,pkg,entry)    the title it is taken under, or null if taken
@@ -66,21 +69,37 @@ var titleOf = exports.titleOf = function(wiki,pkg,entry) {
 	return exists(wiki,title) ? null : title;
 };
 
-var offers = exports.offers = function(wiki) {
-	return wiki.getGlobalCache("tiddlyrpg-content-offers",function() {
+// The title an entry was taken under: its own, or with its type (another tiddler had its own)
+function takenTitle(wiki,pkg,entry) {
+	var own = entry.title,
+		typed = entry.title + " (" + typeName(wiki,entry.type,pkg.language) + ")";
+	return exists(wiki,own) && types.of(wiki,own).indexOf(entry.type) !== -1 ? own : typed;
+}
+
+var entries = exports.entries = function(wiki) {
+	return wiki.getGlobalCache("tiddlyrpg-content-entries",function() {
 		var out = [],
 			seen = Object.create(null);
 		packages(wiki).forEach(function(pkg) {
 			(pkg.entries || []).forEach(function(entry) {
-				var title = titleOf(wiki,pkg,entry);
-				if(title && !seen[entry.id]) {
-					seen[entry.id] = true;
-					out.push({id: entry.id, title: title, type: entry.type, package: pkg, entry: entry});
+				if(seen[entry.id]) {
+					return;
 				}
+				seen[entry.id] = true;
+				var title = titleOf(wiki,pkg,entry);
+				out.push({id: entry.id, title: title || takenTitle(wiki,pkg,entry), type: entry.type, package: pkg, entry: entry, taken: !title});
 			});
 		});
 		return out;
 	});
+};
+
+var offers = exports.offers = function(wiki) {
+	return entries(wiki).filter(function(e) { return !e.taken; });
+};
+
+exports.entryOf = function(wiki,id) {
+	return entries(wiki).filter(function(e) { return e.id === id; })[0] || null;
 };
 
 var offer = exports.offer = function(wiki,id) {

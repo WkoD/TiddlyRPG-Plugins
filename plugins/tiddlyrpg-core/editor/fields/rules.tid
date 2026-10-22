@@ -1,5 +1,5 @@
 created: 20261022160104767
-modified: 20261022160104767
+modified: 20261022170358071
 title: $:/plugins/tiddlyrpg-core/editor/fields/rules
 type: text/vnd.tiddlywiki
 
@@ -31,7 +31,7 @@ type: text/vnd.tiddlywiki
 <%if [<trpg-input>match[boolean]] %>
 <$checkbox tiddler=<<currentTiddler>> field=<<currentField>> checked="yes" unchecked="no" default="no" class="trpg-field-check"/>
 <%elseif [<trpg-input>match[select]] %>
-<$select tiddler=<<currentTiddler>> field=<<currentField>> class="trpg-field-select" actions="""<$list filter="[<currentTiddler>has:field<currentField>!has<currentField>]" variable="ignore"><$action-deletefield $tiddler=<<currentTiddler>> $field=<<currentField>>/></$list>""">
+<$select tiddler=<<currentTiddler>> field=<<currentField>> class="trpg-field-select" default="" actions="""<$list filter="[<currentTiddler>has:field<currentField>!has<currentField>]" variable="ignore"><$action-deletefield $tiddler=<<currentTiddler>> $field=<<currentField>>/></$list>""">
 <option value=""></option>
 <$list filter="[<currentTiddler>trpgfieldchoices<currentField>]" variable="trpg-id">
 <option value=<<trpg-id>>><$text text={{{ [<trpg-id>trpgfieldchoice<currentField>] }}}/></option>

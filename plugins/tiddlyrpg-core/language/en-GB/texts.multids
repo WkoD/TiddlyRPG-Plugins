@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022165822902
+modified: 20261022170135456
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -340,3 +340,8 @@ Content/Wanting: It names $title$, which the wiki does not have yet:
 Content/TakeFailed: Not taken: the entry could not be fetched, or its title is taken meanwhile
 Content/Preview: Preview from $1$ - not in the wiki yet
 Content/ShowPreview: Preview
+Content/Hub/Intro: What the content packages of the ruleset hold, to look up and take into the wiki one by one.
+Content/Hub/Search: Search the titles
+Content/Hub/Count: $1$ entries
+Content/Hub/Page: Page $1$ of $2$
+Content/Hub/Taken: in the wiki
