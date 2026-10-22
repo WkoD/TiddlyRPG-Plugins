@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022170837832
+modified: 20261022171123189
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -166,6 +166,9 @@ Editor/Field/Output: Ausgabe: $value$
 Editor/Field/Derived: Abgeleitet: $value$
 Editor/Field/LockAll: alle
 Editor/Inverse/Notice: Am anderen Ende eingetragen: $titles$
+Editor/Content/Caption: Inhalte
+Editor/Content/Hint: Einen Eintrag eines Inhaltspakets übernehmen und verlinken
+Editor/Content/Insert: Aus einem Inhaltspaket übernehmen und verlinken
 Event/Continued: (Fortsetzung)
 Event/End: (Ende)
 Event/Event: Ereignis
@@ -347,3 +350,4 @@ Content/Hub/Count: $1$ Einträge
 Content/Hub/Page: Seite $1$ von $2$
 Content/Hub/Taken: im Wiki
 Content/Search: In den Inhaltspaketen:
+Content/Editor/None: Kein Eintrag dieses Titels

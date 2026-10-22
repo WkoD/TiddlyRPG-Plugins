@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022171029770
+modified: 20261022171353860
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -13,6 +13,7 @@ The offers of the content packages (modules/content.js) for the templates:
 [trpgcontentids[]]                 the ids of every offer, in the order of the packages
 [<text>trpgcontentsearch[]]        the ids of the offers whose title contains the text (any
                                    case), at most 30 - the group of the search
+[<title>trpgwikilink[]]            "[[<title>]]" (a filter cannot write "]]")
 [<field>relationcontent[]]         the titles of the offers a relation field may name: their type
                                    one of the tags its tiddlyrpg-targets names (the pickers)
 [<id>trpgcontentoffer[title]]      a property of each entry: title (taken or to take), type,
@@ -67,6 +68,12 @@ exports.trpgcontentsearch = function(source,operator,options) {
 		return text ? content.offers(options.wiki).filter(function(o) {
 			return o.title.toLowerCase().indexOf(text) !== -1;
 		}).slice(0,30).map(function(o) { return o.id; }) : [];
+	});
+};
+
+exports.trpgwikilink = function(source,operator,options) {
+	return each(source,function(title) {
+		return ["[[" + title + "]]"];
 	});
 };
 

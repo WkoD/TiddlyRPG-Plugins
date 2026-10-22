@@ -401,7 +401,9 @@ the tiddler title:
   and take; what is taken as a link (`filters/content.js`). Every picker of a relation offers
   the entries of its types too (`relationcontent`, dashed): one chosen is taken at once as
   created by the draft, so cancelling takes it back; a base from a package gives its values once
-  it is there.
+  it is there. The button "Content" of the editor toolbar (`editor/toolbar/content`) searches the
+  offers, takes one the same way and sets its link at the cursor. The search of the wiki lists
+  the offers whose title holds the text in a group of its own.
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one

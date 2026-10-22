@@ -25,6 +25,8 @@ var CASES = [
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Markt"}, shows: /Einsetzen/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown", variables: {targetTiddler: "Spurensuche"},
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", term: "str", unit: "60 ft"}, shows: /60 ft/},
+	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/content-dropdown", variables: {targetTiddler: "Spurensuche"},
+		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", content: "Sw"}, shows: /Sword/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/sublocation-dropdown", variables: {targetTiddler: "Baile"},
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Mühle"}, shows: /Anlegen/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/date", variables: {currentTiddler: "Draft of 'Neu'", currentField: "date"},

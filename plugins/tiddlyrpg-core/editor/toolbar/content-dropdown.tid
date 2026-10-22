@@ -1,0 +1,34 @@
+created: 20261022171123189
+modified: 20261022171353860
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/content-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Content (editor/toolbar/content, only with a content package of the
+     active ruleset): a search over the titles of the entries not in the wiki yet
+     (trpgcontentsearch), each with its type and package; one chosen is taken into the wiki - as
+     created by the draft, cancelling takes it back (startup/content.js) - and its link set at
+     the cursor, a selection replaced. The search is the field content of the input state. -->
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>>
+<div class="trpg-editor-dropdown">
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Content/Insert]trpgtranslate[]] }}}/></div>
+<$edit-text tiddler=<<trpg-input>> field="content" tag="input" class="tc-edit-texteditor trpg-field-input" placeholder={{{ [[Content/Hub/Search]trpgtranslate[]] }}} focus="yes"/>
+<!-- The search read after the input: a variable around it would render the input anew on
+     every key (focus) -->
+<$let trpg-search={{{ [<trpg-input>get[content]] }}}>
+<div class="trpg-content-results">
+<$list filter="[<trpg-search>trpgcontentsearch[]]" variable="trpg-id" emptyMessage="""<$list filter="[<trpg-search>minlength[1]]" variable="ignore"><div class="trpg-editor-label"><$text text={{{ [[Content/Editor/None]trpgtranslate[]] }}}/></div></$list>""">
+<$let trpg-title={{{ [<trpg-id>trpgcontentoffer[title]] }}}>
+<$button class="tc-btn-invisible trpg-content-search-hit trpg-pick-pill trpg-choice">
+<$action-sendmessage $message="tm-trpg-content-take" $param=<<trpg-id>> draft=<<targetTiddler>>/>
+<$action-sendmessage $message="tm-edit-text-operation" $param="replace-selection" text={{{ [<trpg-title>trpgwikilink[]] }}}/>
+<$action-setfield $tiddler=<<trpg-input>> content=""/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text=<<trpg-title>>/><small><$text text={{{ [<trpg-id>trpgcontentoffer[type]trpgtitle[]] [<trpg-id>trpgcontentoffer[package]] +[join[ · ]] }}}/></small>
+</$button>
+</$let>
+</$list>
+</div>
+</$let>
+</div>
+</$let>

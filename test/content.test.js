@@ -198,12 +198,20 @@ test.describe("in the browser: the offers of the index", function() {
 	});
 
 	test("without a package: nothing", function() {
+		var button = function() {
+			return h.filter(wiki, "[subfilter{$:/plugins/tiddlyrpg-core/editor/toolbar/content!!condition}]", {targetTiddler: "Draft of 'X'"}).length;
+		};
+		h.add(wiki, {title: "Draft of 'X'", "draft.of": "X", text: ""});
+		assert.equal(button(), 1, "the button of the editor with a package");
 		index([]);
 		try {
+			assert.equal(button(), 0, "none without");
+			assert.equal(Array.from(h.filter(wiki, "[[spells]relationcontent[]]")).length, 0, "no entry in the pickers");
 			assert.deepEqual(Array.from(h.filter(wiki, "[trpgcontentready[]]")), []);
 			assert.doesNotMatch(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/content-missing\" mode=\"block\"/>", {currentTiddler: "Fireball"}), /Übernehmen/);
 		} finally {
 			index([PKG]);
+			wiki.deleteTiddler("Draft of 'X'");
 		}
 	});
 });

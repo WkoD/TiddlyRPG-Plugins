@@ -1,0 +1,13 @@
+button-classes: trpg-toolbar-button
+caption: <<trpg.t Editor/Content/Caption>>
+condition: [<targetTiddler>trpgwikitext[]] :filter[trpgcontentready[]]
+created: 20261022171123189
+description: <<trpg.t Editor/Content/Hint>>
+dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/content-dropdown
+icon: $:/core/images/import-button
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/term
+modified: 20261022171353860
+tags: $:/tags/EditorToolbar
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/content
+type: text/vnd.tiddlywiki
+
