@@ -231,6 +231,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `rules-extension` - a label domain extended by a domain tiddler of the wiki
     (`"extends": true`): read, keys of the wiki, group of the base; the rule `plugins/domains`
     (no base, another type, an id twice, a `for` to nowhere, a cycle)
+  - `content` - content packages: found in node_modules (scoped too), a package for a newer core
+    left out, the route (index without texts, entry, 403, 404, the ruleset as filter, an id that
+    names a path)
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
     with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
     the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
@@ -375,6 +378,11 @@ the tiddler title:
   tiddler; `UNTYPED`: pages that need no type),
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor").
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
+- **Content packages** (Node only): `modules/content-server.js` finds the packages in
+  `<wiki>/node_modules` (`package.json` -> `"tiddlyrpg": {"content": [...]}`, their manifests
+  and entry files: module header), `server/content-route.js` (`module-type: route`) serves
+  `/tiddlyrpg/content/index.json` and `.../entry.json` - only to who may write; an id is only
+  looked up, never a path.
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one
