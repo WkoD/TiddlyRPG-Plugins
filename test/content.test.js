@@ -269,8 +269,14 @@ test.describe("the hub Content", function() {
 		assert.match(html, /Vorschau.*Übernehmen/);
 		h.add(wiki, {title: STATE, type: "Item"});
 		html = hub();
-		assert.match(html, /<a [^>]*>Dagger<\/a><\/td>.*?im Wiki/);
 		assert.match(html, /62 Einträge/);
+		assert.match(html, /<td>Coin 01<\/td>/, "by title: the coins before the dagger");
+		h.add(wiki, {title: STATE + "/search", text: "dag"});
+		try {
+			assert.match(hub(), /<a [^>]*>Dagger<\/a><\/td>.*?im Wiki/);
+		} finally {
+			wiki.deleteTiddler(STATE + "/search");
+		}
 	});
 
 	test("the filters of the schema, the search, the pages", function() {
@@ -282,7 +288,7 @@ test.describe("the hub Content", function() {
 		h.add(wiki, {title: STATE, type: "Item", page: "2"});
 		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).length, 12);
 		h.add(wiki, {title: STATE, type: "Item", "filter-category": "weapon"});
-		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "longsword,dagger");
+		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "dagger,longsword", "by title, not in the order of the package");
 		h.add(wiki, {title: STATE + "/search", text: "long"});
 		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "longsword");
 		wiki.deleteTiddler(STATE + "/search");

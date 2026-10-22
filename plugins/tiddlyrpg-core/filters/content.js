@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022184441974
+modified: 20261022184550067
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -27,7 +27,7 @@ text of <state>/search):
 [trpgcontentlist[<state>]]         the ids of the page of the list: of the type, the title
                                    containing the search (any case), every filter-<field> of a
                                    field of the type an id its value holds (one set for another
-                                   type does not count); PAGE entries a page. :count the number of
+                                   type does not count); by title, PAGE entries a page. :count the number of
                                    them, :pages the number of pages, :page the page shown
 [<type>trpgcontentfilters[]]       the fields of the schema of the type that filter: one or a list
                                    of entries of a domain, with a value in an entry of the type
@@ -161,6 +161,10 @@ exports.trpgcontentlist = function(source,operator,options) {
 				return idsOf(wiki,name.substr(7),(e.entry.fields || {})[name.substr(7)]).indexOf(state[name]) !== -1;
 			});
 		});
+	// by title, whatever the order of the package
+	hits.sort(function(a,b) {
+		return a.title.localeCompare(b.title,undefined,{sensitivity: "base"});
+	});
 	if(operator.suffix === "count") {
 		return [String(hits.length)];
 	}
