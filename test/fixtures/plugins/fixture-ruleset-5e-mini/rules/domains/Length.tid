@@ -1,5 +1,5 @@
 created: 20261009200000000
-modified: 20261011173657380
+modified: 20261022134930876
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Length
 type: application/json
@@ -61,6 +61,7 @@ type: application/json
     ],
     "kinds": {
         "range": {
+            "pair": true,
             "display": {
                 "imperial": {
                     "steps": [

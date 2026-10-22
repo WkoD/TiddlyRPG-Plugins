@@ -216,7 +216,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
   - `units`, `dice`, `damage`, `terms` - the domain types `unit`, `tokens`, `damage`, `label` of
     the rules engine against `fixture-ruleset-5e-mini`: parsing in every language, pairs, kinds,
     display rules, the damage grammar, variants, what is not understood (a number without unit,
-    also with a kind)
+    also with a kind); two values of a kind that reads pairs (`20/60 ft`), fractions (`1/4 lb`,
+    `½`), measures (`10 x 10 x 1 ft`), `ft³` as a volume, `0` in the unit of its pair, a domain
+    without conversion (durations) with plural labels
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain - without code changes
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and

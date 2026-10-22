@@ -53,7 +53,7 @@ test.describe("modes", function() {
 	test("all: one language for every domain", function() {
 		withRules({"mode": "all", "language": "en-GB"}, function() {
 			assert.equal(f("[trpgruleslang[Calendar]]"), "en-GB");
-			assert.equal(f("[trpgruleslang[Volume]]"), "en-GB", "also an unregistered domain");
+			assert.equal(f("[trpgruleslang[Gravity]]"), "en-GB", "also an unregistered domain");
 		});
 	});
 
@@ -73,8 +73,8 @@ test.describe("modes", function() {
 	});
 
 	test("domain: an unregistered domain gets the wiki language", function() {
-		withRules({"mode": "domain", "domain/Volume": "en-GB"}, function() {
-			assert.equal(f("[trpgruleslang[Volume]]"), "de-DE");
+		withRules({"mode": "domain", "domain/Gravity": "en-GB"}, function() {
+			assert.equal(f("[trpgruleslang[Gravity]]"), "de-DE");
 		});
 	});
 
@@ -203,17 +203,17 @@ test.describe("ruleset and setting set apart", function() {
 		assert.equal(f("[[Length]trpgrulesgroup[]]"), "ruleset");
 		assert.equal(f("[[Calendar]trpgrulesgroup[]]"), "setting");
 		assert.equal(f("[[Currency]trpgrulesgroup[]]"), "setting");
-		assert.equal(f("[[Volume]trpgrulesgroup[]]"), "setting", "a domain without domain tiddler");
+		assert.equal(f("[[Gravity]trpgrulesgroup[]]"), "setting", "a domain without domain tiddler");
 		assert.equal(f("[trpgrulesdomains[setting]]"), "Calendar Currency");
-		assert.match(f("[trpgrulesdomains[ruleset]]"), /^Ability Damage Dice Length Terms Weight$/);
+		assert.match(f("[trpgrulesdomains[ruleset]]"), /^Ability Damage Dice Length Terms Time Volume Weight$/);
 	});
 
 	test("a domain tiddler of the wiki: calendar and currency to the setting, the rest to the ruleset", function() {
-		h.add(wiki, {title: "Own Domain Volume", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json", text: JSON.stringify({domain: "Volume", type: "unit", units: {}})});
+		h.add(wiki, {title: "Own Domain Gravity", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json", text: JSON.stringify({domain: "Gravity", type: "unit", units: {}})});
 		try {
-			assert.equal(f("[[Volume]trpgrulesgroup[]]"), "ruleset");
+			assert.equal(f("[[Gravity]trpgrulesgroup[]]"), "ruleset");
 		} finally {
-			wiki.deleteTiddler("Own Domain Volume");
+			wiki.deleteTiddler("Own Domain Gravity");
 		}
 	});
 

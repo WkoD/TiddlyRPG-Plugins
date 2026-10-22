@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261017183752617
+modified: 20261022134915205
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -20,19 +20,27 @@ Domain types and their data:
                 pair, not over a common base, as the rules round per pair (ft->m 0.3, mi->km 1.6);
                 a value converts by the pair of its unit, else by the first pair of its system
     "defaults": ["<unit>"] - units for which this domain applies without a kind
-    "kinds":    {"<kind>": {"display": {"<system>": rule}}} - a kind (range, distance, size ...)
-                chooses the domain and optionally a display of its own; the value still carries
-                its unit (<<unit "60 ft" kind:"range">>) - a number without unit is not read. Where the
-                display of the kind would show a value that is not 0 as 0 (30 ft as distance:
-                "0 km"), the display of the domain applies
+    "kinds":    {"<kind>": {"display": {"<system>": rule}, "pair": true}} - a kind (range,
+                distance, size ...) chooses the domain and optionally a display of its own; the
+                value still carries its unit (<<unit "60 ft" kind:"range">>) - a number without
+                unit is not read. Where the display of the kind would show a value that is not 0
+                as 0 (30 ft as distance: "0 km"), the display of the domain applies. "pair": the
+                kind reads "a/b <unit>" as two values ("20/60 ft" -> "6/18 m"); without it "a/b"
+                is a fraction ("1/4 lb") when b is 2, 3, 4, 8 or 16 and a < b, else a pair with the
+                hint Rules/Check/Pair
     "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a
                 kind without display of its own: {"steps": [step, ...]}, the first step whose
                 "below" (in base units of the system) the value is under, else the last; a step
                 is {"unit": "m", "decimals": 2} or {"compound": ["ft", "in"]} - whole big units
                 and the rest in whole small units
-    keys: Rules/Unit/<id> (label), Rules/Unit/<id>/Parse (more words, comma separated),
+    keys: Rules/Unit/<id> (label), Rules/Unit/<id>/Plural (label for an amount other than 1,
+          optional: "round" / "rounds"), Rules/Unit/<id>/Parse (more words, comma separated),
           Rules/Unit/System (the system of a language: imperial, metric ...)
-    A value already in the display system stays as written; only the label is translated.
+    A value already in the display system stays as written; only the label is translated. A
+    domain whose units all have a system no language names (e.g. "none": durations) is never
+    converted, only labelled. Amounts: "1,5", "1/4", "½", "1½"; measures "10 x 10 x 1 ft" convert
+    every number; a unit followed by ² or ³ is not that unit (ft³ must be a unit of its own). The
+    value 0 shows in the unit its pair converts to ("0 ft" -> "0 m").
 
   label    terms shown by id, e.g. abilities, conditions
     "entries":  [{"id": "<id>"}]
@@ -121,8 +129,29 @@ function result(text,problem,values) {
 
 /* Numbers */
 
+var VULGAR = {"½": 0.5, "¼": 0.25, "¾": 0.75};
+
 function parseNumber(text) {
 	return parseFloat(text.replace(",","."));
+}
+
+// Whether "a/b" is a fraction: a small denominator of a measure (2, 3, 4, 8, 16) above the
+// numerator - "1/4 lb"; a range like "20/60" or "80/320" never is
+function isFraction(a,b) {
+	var n = parseInt(a,10),
+		d = parseInt(b,10);
+	return /^\d+$/.test(a.trim()) && /^\d+$/.test(b.trim()) && [2,3,4,8,16].indexOf(d) !== -1 && n < d;
+}
+
+// An amount as written before a unit: "3", "1,5", "1/4", "½", "1½"
+function parseAmount(text) {
+	text = text.trim();
+	var fraction = /^(\d+)\s*\/\s*(\d+)$/.exec(text);
+	if(fraction) {
+		return parseInt(fraction[1],10) / parseInt(fraction[2],10);
+	}
+	var m = /^(\d+(?:[.,]\d+)?)?\s*([½¼¾])?$/.exec(text);
+	return m ? (m[1] ? parseNumber(m[1]) : 0) + (m[2] ? VULGAR[m[2]] : 0) : NaN;
 }
 
 // Rounded half up to the decimals (2.275 -> 2.28, which toFixed gives as 2.27), trailing zeros
@@ -179,8 +208,11 @@ function displaySystem(wiki,domain) {
 	return systemOf(wiki,language.rulesLang(wiki,domain.domain));
 }
 
-function unitLabel(wiki,domain,id) {
-	return language.lookupRules(wiki,domain.domain,"Rules/Unit/" + id) || id;
+// The label of a unit; for an amount other than 1 the plural (Rules/Unit/<id>/Plural) if the
+// data has one: "1 round", "2 rounds"
+function unitLabel(wiki,domain,id,amount) {
+	var plural = amount !== undefined && amount !== 1 && language.lookupRules(wiki,domain.domain,"Rules/Unit/" + id + "/Plural");
+	return plural || language.lookupRules(wiki,domain.domain,"Rules/Unit/" + id) || id;
 }
 
 // The domain of units written next to each other ("7 ft 7 in"): the one of the kind if it knows
@@ -208,6 +240,34 @@ function domainOfUnits(wiki,ids,kindDomain) {
 
 function domainOfKind(wiki,kind) {
 	return byType(wiki,"unit").filter(function(d) { return d.kinds && d.kinds[kind]; })[0] || null;
+}
+
+// The kinds that read "a/b <unit>" as two values ("pair": true): their names, for the hint
+function pairKinds(wiki) {
+	var names = [];
+	byType(wiki,"unit").forEach(function(d) {
+		Object.keys(d.kinds || {}).forEach(function(k) {
+			if(d.kinds[k].pair && names.indexOf(k) === -1) {
+				names.push(k);
+			}
+		});
+	});
+	return names;
+}
+
+// The unit a value of a unit is converted to: the target of its pair (ft -> m)
+function pairTarget(domain,unit,target) {
+	var units = domain.units,
+		hit = null;
+	(domain.pairs || []).some(function(p) {
+		if(p[0] === unit && units[p[1]] && units[p[1]].system === target) {
+			hit = p[1];
+		} else if(p[1] === unit && units[p[0]] && units[p[0]].system === target) {
+			hit = p[0];
+		}
+		return !!hit;
+	});
+	return hit;
 }
 
 // A value in base units of the source system converted to base units of the target system, cut
@@ -262,11 +322,37 @@ function show(wiki,domain,system,value,kind) {
 	if(value && byKind && parseFloat(amount.replace(",",".")) === 0) {
 		return show(wiki,domain,system,value,null);
 	}
-	return amount + " " + unitLabel(wiki,domain,step.unit);
+	return amount + " " + unitLabel(wiki,domain,step.unit,parseFloat(amount.replace(",",".")));
+}
+
+// Several values with one unit ("20/60 ft", "10 × 10 × 1 ft") as text: the step the largest value
+// takes, every number with its decimals, the label once; a compound step shows each value on
+// its own
+function showMany(wiki,domain,system,values,kind,separator) {
+	var ofKind = kind && domain.kinds && domain.kinds[kind] && domain.kinds[kind].display,
+		rule = ofKind && ofKind[system] ? ofKind[system] : (domain.display || {})[system],
+		steps = rule && rule.steps || [],
+		largest = Math.max.apply(null,values),
+		step = steps.filter(function(s) { return s.below === undefined || largest < s.below; })[0] || steps[steps.length - 1];
+	if(!step) {
+		return null;
+	}
+	if(step.compound) {
+		return values.map(function(v) { return show(wiki,domain,system,v,kind); }).join(separator);
+	}
+	var factor = domain.units[step.unit].factor;
+	return values.map(function(v) {
+		return formatNumber(wiki,v / factor,step.decimals);
+	}).join(separator) + " " + unitLabel(wiki,domain,step.unit,largest / factor);
 }
 
 // <<unit value kind>>: "228 cm", "30 ft., fly 50 ft.", "7 ft 7 in"; a kind chooses the display.
 // A number without unit is not read: what a text means does not depend on a setting.
+// An amount is a number ("1,5"), a fraction ("1/4", "½", "1½"), two values of a kind that reads
+// pairs ("20/60 ft" with kind range, "pair": true) or measures ("10 x 10 x 1 ft"); every number
+// of a pair or of measures is converted. "a/b" without such a kind is a fraction when b is 2, 3,
+// 4, 8 or 16 and a < b ("1/4 lb"), else read as a pair with a hint (Rules/Check/Pair). A unit followed by ² or ³ is no length:
+// such a value needs a unit of its own (ft³ of a volume domain).
 exports.unit = function(wiki,text,kind) {
 	text = (text || "").toString().trim();
 	kind = (kind || "").trim();
@@ -288,11 +374,37 @@ exports.unit = function(wiki,text,kind) {
 	if(!unitInfo.pattern) {
 		return asPrice() || result(text,"Rules/Check/NoRules",{type: "unit"});
 	}
-	var re = new RegExp("(\\d+(?:[.,]\\d+)?)\\s*(" + unitInfo.pattern + ")(?![\\p{L}\\d])","giu"),
+	var NUM = "(?:\\d+(?:[.,]\\d+)?\\s?[½¼¾]?|[½¼¾])",
+		re = new RegExp("(" + NUM + "(?:\\s*[/x×]\\s*" + NUM + ")*)\\s*(" + unitInfo.pattern + ")(?![\\p{L}\\d²³])","giu"),
+		pairKind = !!(kindDomain && kindDomain.kinds[kind].pair),
+		problem = null,
 		found = [],
 		match;
 	while((match = re.exec(text))) {
-		found.push({start: match.index, end: match.index + match[0].length, number: match[1], unit: unitInfo.map[match[2].toLowerCase()]});
+		var amount = match[1],
+			dims = amount.split(/\s*[x×]\s*/),
+			q = {start: match.index, end: match.index + match[0].length, unit: unitInfo.map[match[2].toLowerCase()]};
+		if(dims.length > 1) {
+			q.form = "dims";
+			q.parts = dims;
+		} else if(/\//.test(amount)) {
+			var halves = amount.split(/\s*\/\s*/);
+			if(pairKind || !isFraction(halves[0],halves[1])) {
+				q.form = "pair";
+				q.parts = halves;
+				if(!pairKind) {
+					problem = problem || {key: "Rules/Check/Pair",values: {text: text,kinds: pairKinds(wiki).join(", ")}};
+				}
+			} else {
+				q.form = "single";
+				q.parts = [amount];
+			}
+		} else {
+			q.form = "single";
+			q.parts = [amount];
+		}
+		q.values = q.parts.map(parseAmount);
+		found.push(q);
 	}
 	if(!found.length) {
 		return asPrice() || result(text,"Rules/Check/Unit",{text: text});
@@ -302,7 +414,7 @@ exports.unit = function(wiki,text,kind) {
 	found.forEach(function(q) {
 		var last = groups[groups.length - 1],
 			units = last ? last.units.concat(q.unit) : null;
-		if(last && /^\s*$/.test(text.slice(last.end,q.start)) && domainOfUnits(wiki,units,kindDomain)) {
+		if(last && q.form === "single" && last.items[0].form === "single" && /^\s*$/.test(text.slice(last.end,q.start)) && domainOfUnits(wiki,units,kindDomain)) {
 			last.items.push(q);
 			last.units = units;
 			last.end = q.end;
@@ -317,27 +429,40 @@ exports.unit = function(wiki,text,kind) {
 		pos = 0;
 	groups.forEach(function(group) {
 		var domain = group.domain,
-			first = group.items[0].unit,
-			source = domain.units[first].system,
+			first = group.items[0],
+			source = domain.units[first.unit].system,
 			target = displaySystem(wiki,domain),
+			ownKind = domain === kindDomain ? kind : null,
+			separator = first.form === "pair" ? "/" : " × ",
 			shown = null;
 		if(target && target !== source) {
-			var value = 0;
-			group.items.forEach(function(q) {
-				value += parseNumber(q.number) * domain.units[q.unit].factor;
-			});
-			var converted = convert(domain,value,first,target);
-			shown = converted === null ? null : show(wiki,domain,target,converted,domain === kindDomain ? kind : null);
+			if(first.form === "single") {
+				var value = 0;
+				group.items.forEach(function(q) {
+					value += q.values[0] * domain.units[q.unit].factor;
+				});
+				var converted = convert(domain,value,first.unit,target),
+					to = pairTarget(domain,first.unit,target);
+				shown = converted === null ? null :
+					converted === 0 && to ? "0 " + unitLabel(wiki,domain,to,0) :
+					show(wiki,domain,target,converted,ownKind);
+			} else {
+				var values = first.values.map(function(v) {
+					return convert(domain,v * domain.units[first.unit].factor,first.unit,target);
+				});
+				shown = values.some(function(v) { return v === null; }) ? null : showMany(wiki,domain,target,values,ownKind,separator);
+			}
 		}
 		if(shown === null) {
 			shown = group.items.map(function(q) {
-				return asWritten(wiki,q.number) + " " + unitLabel(wiki,domain,q.unit);
+				var written = q.parts.map(function(p) { return asWritten(wiki,p.trim()); }).join(q.form === "pair" ? "/" : " × ");
+				return written + " " + unitLabel(wiki,domain,q.unit,Math.max.apply(null,q.values));
 			}).join(" ");
 		}
 		output += text.slice(pos,group.start) + shown;
 		pos = group.end;
 	});
-	return result(output + text.slice(pos));
+	return problem ? result(output + text.slice(pos),problem.key,problem.values) : result(output + text.slice(pos));
 };
 
 /* Tokens */

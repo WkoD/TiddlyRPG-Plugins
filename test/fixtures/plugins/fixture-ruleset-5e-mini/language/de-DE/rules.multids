@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261009200000000
+modified: 20261022134938895
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -55,3 +55,18 @@ Rules/Unit/lb/Parse: Pfund
 Rules/Unit/m: m
 Rules/Unit/mi: mi
 Rules/Unit/mi/Parse: Meile, Meilen
+Rules/Domain/Time: Zeit
+Rules/Domain/Volume: Volumen
+Rules/Unit/ft3: ft³
+Rules/Unit/ft3/Parse: Kubikfuß
+Rules/Unit/m3: m³
+Rules/Unit/m3/Parse: Kubikmeter
+Rules/Unit/round: Runde
+Rules/Unit/round/Plural: Runden
+Rules/Unit/round/Parse: Runden
+Rules/Unit/minute: Minute
+Rules/Unit/minute/Plural: Minuten
+Rules/Unit/minute/Parse: Minuten, Min.
+Rules/Unit/hour: Stunde
+Rules/Unit/hour/Plural: Stunden
+Rules/Unit/hour/Parse: Stunden, Std.

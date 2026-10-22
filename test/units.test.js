@@ -3,7 +3,9 @@
  * sizes and distances in one domain - and Weight): parsing (labels, written variants, 5etools
  * forms), pairs per unit, kinds with their display, the display without kind, compound values,
  * the decimal mark of the wiki language, a value already in the display system, what is not
- * understood - a number without unit among it, also with a kind.
+ * understood - a number without unit among it, also with a kind; pairs of a kind with "pair"
+ * (20/60 ft), fractions, measures (10 x 10 x 1 ft), ft³ as a volume (Volume), 0 in the unit of
+ * its pair, a domain without conversion (Time) with plural labels.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -154,6 +156,57 @@ test.describe("shown in de-DE", function() {
 			assert.equal(u("18 m", "range"), "60 ft");
 			assert.equal(u("60 ft", "range"), "60 ft");
 			assert.equal(u("1,5 kg"), "3 lb");
+		});
+	});
+});
+
+test.describe("pairs, fractions, measures, ³, 0, domains without conversion", function() {
+	var rules;
+
+	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
+		rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js");
+	});
+
+	test("a kind with pair reads a/b as two values, each converted", function() {
+		assert.equal(u("20/60 ft", "range"), "6/18 m");
+		assert.equal(u("15/30ft", "range"), "4,5/9 m");
+		assert.equal(u("20/60 ft.", "range"), "6/18 m", "5etools form");
+		assert.equal(rules.unit(wiki, "20/60 ft", "range").problem, null);
+	});
+
+	test("a/b without such a kind: a fraction for 2, 3, 4, 8, 16 below, else a pair with a hint", function() {
+		assert.equal(u("1/4 lb"), "0,1 kg");
+		assert.equal(u("½ lb"), "0,3 kg");
+		assert.equal(u("1½ lb"), "0,8 kg");
+		var r = rules.unit(wiki, "20/60 ft");
+		assert.equal(r.text, "6/18 m");
+		assert.equal(r.problem, "Rules/Check/Pair");
+		assert.equal(r.values.kinds, "range");
+	});
+
+	test("measures convert every number, in the step of the largest", function() {
+		assert.equal(u("10x10x1ft"), "3 × 3 × 0,3 m");
+		assert.equal(u("10 × 5 × 2 ft"), "3 × 1,5 × 0,6 m");
+	});
+
+	test("ft³ is a volume, never a length", function() {
+		assert.equal(u("64ft³"), "1,7 m³");
+		assert.equal(u("64 cubic feet"), "1,7 m³");
+	});
+
+	test("0 shows in the unit its pair converts to", function() {
+		assert.equal(u("0 ft"), "0 m");
+		assert.equal(u("0 ft., fly 30 ft."), "0 m, fly 9 m");
+	});
+
+	test("a domain whose system no language names is only labelled, with its plural", function() {
+		assert.equal(u("10 minutes"), "10 Minuten");
+		assert.equal(u("1 round"), "1 Runde");
+		assert.equal(u("3 Runden"), "3 Runden");
+		withRules({"mode": "all", "language": "en-GB"}, function() {
+			assert.equal(u("1 Stunde"), "1 hour");
+			assert.equal(u("8 Stunden"), "8 hours");
 		});
 	});
 });

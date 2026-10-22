@@ -200,7 +200,7 @@ test.describe("fields of the form", function() {
 		});
 	});
 	test("units that fit what follows the number; the picker: every candidate for an empty input", function() {
-		assert.deepEqual(f("[[60 f]trpgunitsuggest[]]"), ["60 ft"]);
+		assert.deepEqual(f("[[60 f]trpgunitsuggest[]]"), ["60 ft", "60 ft³"], "every unit whose label starts so, a volume too");
 		assert.ok(f("[[60]trpgunitsuggest[]]").length > 3);
 		assert.deepEqual(f("[[ft]trpgunitsuggest[]]"), []);
 		assert.deepEqual(f("[[Baile]] [[Town]] +[trpgpickmatch[]]"), ["Baile", "Town"]);
