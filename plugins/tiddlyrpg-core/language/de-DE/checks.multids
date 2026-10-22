@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261016184211000
+modified: 20261022135627402
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
@@ -35,7 +35,12 @@ Links/Missing: Link prüfen: $target$ gibt es nicht – anlegen, entlinken oder 
 Links/MissingOften: Link prüfen: $target$ gibt es nicht und $count$ Tiddler verlinken es – anlegen, entlinken oder bewusst stehen lassen
 Links/MissingSpot: Link prüfen: $target$ ist kein Tiddler, nur ein Spot von $place$ – mit <<spotlink "$place$" "$target$">> verlinken oder den Tiddler anlegen
 Locations/Tag: Tags prüfen: $tag$ ist ein Ort – Orte sind nie Tags, der Ort gehört ins Feld location
+Plugins/ExtensionBase: Erweiterung prüfen: es gibt keinen Bereich $domain$, den sie erweitern könnte
+Plugins/ExtensionId: Erweiterung prüfen: $domain$ hat „$id$“ schon
+Plugins/ExtensionType: Erweiterung prüfen: $domain$ hat den Typ $type$; erweitern lassen sich nur Bereiche mit Begriffen
 Plugins/Reference: Geldsystem prüfen: Die Münze der Preise des Regelwerks ist $reference$, das ist keine seiner Münzen ($coins$)
+Plugins/TraitCycle: Bereich $domain$ prüfen: „$id$“ ist sein eigener Vorfahr
+Plugins/TraitFor: Bereich $domain$ prüfen: „$id$“ gehört zu „$parent$“, das kein Eintrag davon ist
 Plugins/disabled: Auswahl prüfen: $configured$ ist deaktiviert – aktiv ist $active$
 Plugins/missing: Auswahl prüfen: $configured$ ist nicht installiert – aktiv ist $active$
 Plugins/type: Auswahl prüfen: $configured$ ist kein Plugin dieses Typs – aktiv ist $active$

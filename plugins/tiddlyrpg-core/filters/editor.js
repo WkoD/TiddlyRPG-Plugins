@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261016214011000
+modified: undefined
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -18,7 +18,9 @@ picker (editor/procedures) and the kinds of the search.
 [<t>trpgsimilar<name>]         the input titles that look like <name> written another way, <name>
                                itself left out (modules/checks.js similar)
 [trpgtermids[]]                the ids of the terms of the rules (domains of type label)
-[trpgtermsearch<text>]         those whose id or term contains <text> (any case)
+[trpgtermsearch<text>]         those whose id or term contains <text> (any case); a trait with its
+                               main entry ("armor medium")
+[<id>trpgtermcall[]]           the call of <<term>> for each input id, quoted when it has spaces
 [<text>trpgunitsuggest[]]      a number with the units that fit what follows it ("60 f" -> "60 ft")
 [<field>relationcandidates[]]  what the field may name (field tiddlyrpg-targets of its config,
                                modules/relations.js); without it every typed tiddler; never a
@@ -44,6 +46,7 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	types = require("$:/plugins/tiddlyrpg-core/modules/types.js"),
 	checks = require("$:/plugins/tiddlyrpg-core/modules/checks.js"),
 	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+	labels = require("$:/plugins/tiddlyrpg-core/modules/labels.js"),
 	relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
 	sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
@@ -101,22 +104,48 @@ exports.trpgsimilar = function(source,operator,options) {
 	});
 };
 
-// The label entries of the rules: [{id, text}] (text in the rules language)
+// The terms of the rules: [{id, text}] (text in the rules language) - every label entry that
+// stands alone, and every trait with the way from a main entry to it ("armor medium", "focus
+// arcane crystal"), as <<term>> takes it (modules/labels.js)
 function terms(wiki) {
 	var domains = language.domains(wiki),
 		out = [];
 	Object.keys(domains).sort().forEach(function(name) {
-		if(domains[name].type === "label") {
-			$tw.utils.each(domains[name].entries,function(entry) {
-				out.push({id: entry.id, text: rules.term(wiki,entry.id).text});
-			});
+		var domain = domains[name];
+		if(domain.type !== "label") {
+			return;
 		}
+		var byId = {};
+		$tw.utils.each(domain.entries,function(entry) { byId[entry.id] = entry; });
+		// The ways from a main entry down to an id
+		var ways = function(id,depth) {
+			var entry = byId[id],
+				found = entry && labels.standsAlone(entry) ? [[id]] : [];
+			if(entry && depth < 8) {
+				(entry.for || []).forEach(function(parent) {
+					ways(parent,depth + 1).forEach(function(way) { found.push(way.concat(id)); });
+				});
+			}
+			return found;
+		};
+		$tw.utils.each(domain.entries,function(entry) {
+			ways(entry.id,0).forEach(function(way) {
+				var id = way.join(" ");
+				out.push({id: id, text: rules.term(wiki,id).text});
+			});
+		});
 	});
 	return out;
 }
 
 exports.trpgtermids = function(source,operator,options) {
 	return terms(options.wiki).map(function(entry) { return entry.id; });
+};
+
+exports.trpgtermcall = function(source,operator,options) {
+	return each(source,function(id,results) {
+		results.push(/\s/.test(id) ? "<<term \"" + id + "\">>" : "<<term " + id + ">>");
+	});
 };
 
 exports.trpgtermsearch = function(source,operator,options) {

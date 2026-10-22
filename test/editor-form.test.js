@@ -203,6 +203,16 @@ test.describe("fields of the form", function() {
 		assert.deepEqual(f("[[60 f]trpgunitsuggest[]]"), ["60 ft", "60 ft³"], "every unit whose label starts so, a volume too");
 		assert.ok(f("[[60]trpgunitsuggest[]]").length > 3);
 		assert.deepEqual(f("[[ft]trpgunitsuggest[]]"), []);
+	});
+	test("the terms of the button Rules: entries that stand alone, a trait with its way from the main entry", function() {
+		var ids = f("[trpgtermsearch[medium]]");
+		assert.ok(ids.indexOf("medium") !== -1, "the size");
+		assert.ok(ids.indexOf("armor medium") !== -1, "the trait with its main entry");
+		assert.ok(f("[trpgtermsearch[crystal]]").indexOf("crystal") === -1, "a trait alone is no term");
+		assert.ok(f("[trpgtermsearch[crystal]]").indexOf("focus arcane crystal") !== -1);
+		assert.ok(f("[trpgtermsearch[arrow]]").indexOf("weapon ammunition arrow") !== -1, "every way: through a main entry that is a trait too");
+		assert.ok(f("[trpgtermsearch[arrow]]").indexOf("ammunition arrow") !== -1);
+		assert.deepEqual(f("[[armor medium]trpgtermcall[]] [[wis]trpgtermcall[]]"), ["<<term \"armor medium\">>", "<<term wis>>"]);
 		assert.deepEqual(f("[[Baile]] [[Town]] +[trpgpickmatch[]]"), ["Baile", "Town"]);
 		assert.deepEqual(f("[[Baile]] [[Town]] +[trpgpickmatch[tow]]"), ["Town"]);
 	});

@@ -1,0 +1,27 @@
+created: 20261022135703721
+modified: 20261022135703721
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/ItemCategory
+type: application/json
+
+{
+    "domain": "ItemCategory",
+    "type": "label",
+    "keys": "Rules/Category/",
+    "entries": [
+        {"id": "weapon", "main": true, "tag": "Equipment"},
+        {"id": "armor", "main": true, "tag": "Equipment"},
+        {"id": "ammunition", "main": true, "for": ["weapon"], "tag": "Consumable"},
+        {"id": "focus", "main": true, "tag": "Equipment"},
+        {"id": "potion", "main": true, "tag": "Consumable"},
+        {"id": "martial", "for": ["weapon"]},
+        {"id": "melee", "for": ["weapon"]},
+        {"id": "versatile", "for": ["weapon"]},
+        {"id": "light", "for": ["weapon", "armor"]},
+        {"id": "medium", "for": ["armor"]},
+        {"id": "arrow", "for": ["ammunition"]},
+        {"id": "arcane", "for": ["focus"]},
+        {"id": "crystal", "for": ["arcane"]}
+    ],
+    "example": "armor medium"
+}

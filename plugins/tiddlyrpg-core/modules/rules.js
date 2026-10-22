@@ -43,8 +43,15 @@ Domain types and their data:
     value 0 shows in the unit its pair converts to ("0 ft" -> "0 m").
 
   label    terms shown by id, e.g. abilities, conditions
-    "entries":  [{"id": "<id>"}]
-    keys: Rules/Term/<id>, Rules/Term/<id>/<variant>; a label with $value$ takes a number
+    "entries":  [{"id": "<id>"}] - or main entries and traits ({"id", "main": true, "tag"},
+                {"id", "for": [...]}) and their reading: modules/labels.js
+    "extends":  true - not a domain of its own: adds its "entries" to the label domain named in
+                "domain" (an extension of a campaign; modules/language.js)
+    keys: <keys><id>, <keys><id>/<variant> with "keys" of the domain, default Rules/Term/; a
+          label with $value$ takes a number. Ids are unique among the entries that stand alone; a
+          domain whose traits repeat ids of another domain needs keys of its own.
+    <<term "armor medium">>: a main entry with its traits; a single id finds only an entry that
+    stands alone.
 
   tokens   single tokens inside expressions, e.g. the die in 1d6 / 1W6, Bulk L
     "tokens":   [{"id": "<id>", "before": "<regex>", "after": "<regex>"}] - the token counts
@@ -83,6 +90,11 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 var PREFIX = "$:/tiddlyrpg/language/",
 	BASE = "en-GB",
 	MACROS = {unit: ["value","kind"], dice: ["value"], damage: ["value"], term: ["id","variant","value"]};
+
+// modules/labels.js, loaded when first used (it requires this module for the values of entries)
+function labels() {
+	return require("$:/plugins/tiddlyrpg-core/modules/labels.js");
+}
 
 function escape(text) {
 	return text.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
@@ -462,7 +474,9 @@ exports.unit = function(wiki,text,kind) {
 		output += text.slice(pos,group.start) + shown;
 		pos = group.end;
 	});
-	return problem ? result(output + text.slice(pos),problem.key,problem.values) : result(output + text.slice(pos));
+	var done = problem ? result(output + text.slice(pos),problem.key,problem.values) : result(output + text.slice(pos));
+	done.domains = groups.map(function(group) { return group.domain.domain; });
+	return done;
 };
 
 /* Tokens */
@@ -501,12 +515,14 @@ var dice = exports.dice = function(wiki,text) {
 
 /* Labels */
 
+// The entry of an id among the entries that stand alone (modules/labels.js: a trait is found only
+// with its main entry, <<term "armor medium">>)
 function findEntry(wiki,type,id) {
 	var lower = id.toLowerCase(),
 		found = null;
 	byType(wiki,type).some(function(domain) {
 		return (domain.entries || []).some(function(entry) {
-			if(entry.id.toLowerCase() === lower) {
+			if(entry.id.toLowerCase() === lower && labels().standsAlone(entry)) {
 				found = {domain: domain, entry: entry};
 				return true;
 			}
@@ -523,13 +539,18 @@ exports.term = function(wiki,id,variant,value) {
 	id = (id || "").toString().trim();
 	variant = (variant || "").toString().trim();
 	value = (value || "").toString().trim();
-	var written = [id,variant,value].filter(function(s) { return !!s; }).join(" "),
-		found = id && findEntry(wiki,"label",id);
+	var written = [id,variant,value].filter(function(s) { return !!s; }).join(" ");
+	// Several ids: a main entry and its traits (<<term "armor medium">>)
+	if(/\s/.test(id)) {
+		var chain = labels().chain(wiki,id.split(/\s+/));
+		return chain || result(written,"Rules/Check/Term",{id: id});
+	}
+	var found = id && findEntry(wiki,"label",id);
 	if(!found) {
 		return result(written,"Rules/Check/Term",{id: id});
 	}
 	var domain = found.domain.domain,
-		key = "Rules/Term/" + found.entry.id,
+		key = (found.domain.keys || "Rules/Term/") + found.entry.id,
 		text = language.lookupRules(wiki,domain,variant ? key + "/" + variant : key);
 	if(text === null) {
 		if(variant) {
@@ -670,6 +691,103 @@ exports.damage = function(wiki,text) {
 	return result(shown.join(" " + join + " "));
 };
 
+/* Values of fields (modules/fields.js) */
+
+// A number: "19", "+2", "-1", "1,5"; spec.min/spec.max limit it. Shown as written, with the
+// decimal mark of the wiki language and the sign it carries.
+var number = exports.number = function(wiki,spec,text) {
+	text = (text || "").toString().trim();
+	if(!/^[+\-−]?\d+(?:[.,]\d+)?$/.test(text)) {
+		return result(text,"Rules/Check/Number",{text: text});
+	}
+	var value = parseNumber(text.replace("−","-"));
+	if((spec.min !== undefined && value < spec.min) || (spec.max !== undefined && value > spec.max)) {
+		return result(text,"Rules/Check/NumberRange",{text: text, min: spec.min === undefined ? "" : spec.min, max: spec.max === undefined ? "" : spec.max});
+	}
+	var r = result(asWritten(wiki,text.replace("−","-")));
+	r.value = value;
+	return r;
+};
+
+// Yes or no: the words of Field/Boolean/Yes|No and their Parse in every language; shown in the
+// wiki language
+var boolean = exports.boolean = function(wiki,spec,text) {
+	text = (text || "").toString().trim().toLowerCase();
+	var yes = ["yes","true"].concat(words(wiki,["Field/Boolean/Yes","Field/Boolean/Yes/Parse"])).map(function(w) { return w.toLowerCase(); }),
+		no = ["no","false"].concat(words(wiki,["Field/Boolean/No","Field/Boolean/No/Parse"])).map(function(w) { return w.toLowerCase(); });
+	if(yes.indexOf(text) !== -1 || no.indexOf(text) !== -1) {
+		var r = result(language.t(wiki,yes.indexOf(text) !== -1 ? "Field/Boolean/Yes" : "Field/Boolean/No"));
+		r.value = yes.indexOf(text) !== -1;
+		return r;
+	}
+	return result(text,"Rules/Check/Boolean",{text: text});
+};
+
+// A dice expression to check: dice and numbers joined by + and - ("1d6", "1d4 + 1", "2"), with the
+// tokens of spec.domain (a tokens domain, e.g. Bulk "L") or of every tokens domain; an average
+// with the dice in brackets ("7 (2d6)") too
+var diceValue = exports.diceValue = function(wiki,spec,text) {
+	text = (text || "").toString().trim();
+	var tokens = [];
+	byType(wiki,"tokens").filter(function(domain) {
+		return !spec.domain || domain.domain === spec.domain;
+	}).forEach(function(domain) {
+		(domain.tokens || []).forEach(function(token) {
+			tokens = tokens.concat(words(wiki,["Rules/Token/" + token.id]));
+		});
+	});
+	var tok = tokens.length ? "(?:" + tokens.sort(function(a,b) { return b.length - a.length; }).map(escape).join("|") + ")" : null,
+		term = tok ? "(?:\\d*\\s*" + tok + "\\s*\\d*|\\d+)" : "\\d+",
+		re = new RegExp("^(?:\\d+\\s*\\(\\s*)?" + term + "(?:\\s*[+\\-−]\\s*" + term + ")*(?:\\s*\\))?$","i");
+	return re.test(text) ? dice(wiki,text) : result(text,"Rules/Check/Dice",{text: text});
+};
+
+/*
+The value of a field by its definition (spec, modules/fields.js): spec.format is one of
+  unit     spec.domain, spec.kind; spec.words: a label domain whose entries stand in place of a
+           number (range "self"), spec.only limits them; the units must belong to spec.domain
+  damage   a damage expression
+  dice     diceValue(), spec.domain a tokens domain
+  label    one entry (modules/labels.js), spec.domain, spec.only
+  labels   a list (modules/labels.js), spec.domain (a name or a list), spec.only, spec.value
+  number   spec.min, spec.max
+  boolean  yes or no
+  text     shown as written, never checked
+Returns {text, problem, values} like the macros.
+*/
+exports.value = function(wiki,spec,text) {
+	spec = spec || {};
+	text = (text === undefined || text === null ? "" : text).toString().trim();
+	switch(spec.format) {
+		case "unit":
+			if(spec.words) {
+				var word = labels().label(wiki,{domain: spec.words, only: spec.only},text);
+				if(!word.problem) {
+					return word;
+				}
+			}
+			var u = exports.unit(wiki,text,spec.kind);
+			if(!u.problem && spec.domain && (u.domains || []).some(function(d) { return d !== spec.domain; })) {
+				return result(text,"Rules/Check/UnitDomain",{text: text, domain: domainLabel(wiki,spec.domain)});
+			}
+			return u;
+		case "damage":
+			return exports.damage(wiki,text);
+		case "dice":
+			return diceValue(wiki,spec,text);
+		case "label":
+			return labels().label(wiki,spec,text);
+		case "labels":
+			return labels().labels(wiki,spec,text);
+		case "number":
+			return number(wiki,spec,text);
+		case "boolean":
+			return boolean(wiki,spec,text);
+		default:
+			return result(text);
+	}
+};
+
 /* The hub "Ruleset" */
 
 // The display name of a domain (Rules/Domain/<name> of the data plugins), else its name
@@ -721,7 +839,7 @@ exports.table = function(wiki,name) {
 	};
 	if(domain.type === "label") {
 		(domain.entries || []).forEach(function(entry) {
-			var prefix = "Rules/Term/" + entry.id,
+			var prefix = (domain.keys || "Rules/Term/") + entry.id,
 				all = $tw.utils.extend(keysIn(wiki,BASE,prefix),keysIn(wiki,code,prefix)),
 				variants = Object.keys(all).filter(function(k) { return k.charAt(0) === "/"; }).sort();
 			row(entry.id,html(all[""] || "") + variants.map(function(k) {

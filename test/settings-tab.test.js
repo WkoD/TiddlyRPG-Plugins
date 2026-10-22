@@ -186,7 +186,7 @@ test.describe("ruleset options", function() {
 		values[RULESET_RULES + "mode"] = "domain";
 		return withTiddlers(values, function() {
 			var html = tab(RULES_TAB);
-			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 8, "one per domain of the ruleset in the column shown in");
+			assert.equal((html.replace(/>\s+</g, "><").match(/<td><select/g) || []).length, 11, "one per domain of the ruleset in the column shown in");
 		});
 	});
 

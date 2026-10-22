@@ -122,14 +122,21 @@ exports.internalTitle = function(wiki,title) {
 };
 
 // The registered rules domains: {name: data}, the parsed JSON of the domain tiddlers (shadows of
-// the active ruleset and setting, or real tiddlers) plus `title`; unreadable ones are left out
-var domains = exports.domains = function(wiki) {
+// the active ruleset and setting, or real tiddlers) plus `title`; unreadable ones are left out.
+// A domain tiddler with "extends": true adds its "entries" to the label domain of the same name
+// (modules/labels.js) - a campaign extends a ruleset without changing it; the base keeps its
+// title, group and plugin, `extensions` lists the titles. What does not fit is in problems().
+function registry(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-rules-domains",function() {
-		var result = Object.create(null);
+		var result = Object.create(null),
+			extensions = [],
+			problems = [];
 		$tw.utils.each(wiki.filterTiddlers("[all[shadows+tiddlers]tag[" + DOMAIN_TAG + "]sort[]]"),function(title) {
 			var data = wiki.getTiddlerData(title,null),
 				name = data && typeof data.domain === "string" ? data.domain.trim() : "";
-			if(name && !result[name]) {
+			if(name && data.extends) {
+				extensions.push({title: title, name: name, data: data});
+			} else if(name && !result[name]) {
 				var source = wiki.tiddlerExists(title) ? "" : (wiki.getShadowSource(title) || ""),
 					plugin = source && wiki.getTiddler(source);
 				data.title = title;
@@ -142,8 +149,44 @@ var domains = exports.domains = function(wiki) {
 				result[name] = data;
 			}
 		});
-		return result;
+		extensions.forEach(function(ext) {
+			var base = result[ext.name];
+			if(!base) {
+				problems.push({title: ext.title, key: "Check/Plugins/ExtensionBase", params: {domain: ext.name}});
+				return;
+			}
+			if(base.type !== "label") {
+				problems.push({title: ext.title, key: "Check/Plugins/ExtensionType", params: {domain: ext.name, type: base.type}});
+				return;
+			}
+			var entries = (base.entries || []).slice(),
+				ids = entries.map(function(e) { return e.id; });
+			$tw.utils.each(ext.data.entries || [],function(entry) {
+				if(!entry || !entry.id) {
+					return;
+				}
+				if(ids.indexOf(entry.id) !== -1) {
+					problems.push({title: ext.title, key: "Check/Plugins/ExtensionId", params: {domain: ext.name, id: entry.id}});
+				} else {
+					entries.push(entry);
+					ids.push(entry.id);
+				}
+			});
+			base.entries = entries;
+			base.extensions = (base.extensions || []).concat(ext.title);
+		});
+		return {domains: result, problems: problems};
 	});
+}
+
+var domains = exports.domains = function(wiki) {
+	return registry(wiki).domains;
+};
+
+// The problems of the extensions of domains, each {title, key, params}: no base domain, a base
+// that is no label domain, an id the base has already (checks/plugins.js, rule plugins/domains)
+exports.domainProblems = function(wiki) {
+	return registry(wiki).problems;
 };
 
 function config(wiki,title) {

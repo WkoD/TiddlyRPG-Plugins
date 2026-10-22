@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022134938895
+modified: 20261022135715693
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -41,6 +41,27 @@ Rules/Term/wis: WEI
 Rules/Term/wis/name: Weisheit
 Rules/Term/wis/save: WEI-Rettungswurf
 Rules/Term/xp: EP
+Rules/Category/weapon: Waffe
+Rules/Category/armor: Rüstung
+Rules/Category/ammunition: Munition
+Rules/Category/focus: Fokus
+Rules/Category/potion: Trank
+Rules/Category/martial: Kriegswaffe
+Rules/Category/martial/weapon: Kriegswaffe
+Rules/Category/melee: Nahkampf
+Rules/Category/versatile: vielseitig
+Rules/Category/light: leicht
+Rules/Category/light/armor: leichte Rüstung
+Rules/Category/medium: mittel
+Rules/Category/medium/armor: mittelschwere Rüstung
+Rules/Term/medium: mittelgroß
+Rules/Category/arrow: Pfeil
+Rules/Category/arcane: arkan
+Rules/Category/arcane/focus: arkaner Fokus
+Rules/Category/crystal: Kristall
+Rules/Term/common: gewöhnlich
+Rules/Term/rare: selten
+Rules/Term/tiny: winzig
 Rules/Token/die: W
 Rules/Unit/System: metric
 Rules/Unit/cm: cm
@@ -57,6 +78,9 @@ Rules/Unit/mi: mi
 Rules/Unit/mi/Parse: Meile, Meilen
 Rules/Domain/Time: Zeit
 Rules/Domain/Volume: Volumen
+Rules/Domain/ItemCategory: Gegenstandsart
+Rules/Domain/Rarity: Seltenheit
+Rules/Domain/Size: Größe
 Rules/Unit/ft3: ft³
 Rules/Unit/ft3/Parse: Kubikfuß
 Rules/Unit/m3: m³

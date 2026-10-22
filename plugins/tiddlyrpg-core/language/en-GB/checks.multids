@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261016184211000
+modified: 20261022135627402
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -35,7 +35,12 @@ Links/Missing: Check the link: $target$ does not exist - create it, unlink it or
 Links/MissingOften: Check the link: $target$ does not exist and is linked from $count$ tiddlers - create it, unlink it or leave it on purpose
 Links/MissingSpot: Check the link: $target$ is no tiddler, only a spot of $place$ - link it with <<spotlink "$place$" "$target$">>, or create the tiddler
 Locations/Tag: Check the tags: $tag$ is a location - locations are never tags, the place goes into the field location
+Plugins/ExtensionBase: Check the extension: there is no domain $domain$ to extend
+Plugins/ExtensionId: Check the extension: $domain$ has "$id$" already
+Plugins/ExtensionType: Check the extension: $domain$ is of type $type$; only label domains can be extended
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
+Plugins/TraitCycle: Check the domain $domain$: "$id$" is its own ancestor
+Plugins/TraitFor: Check the domain $domain$: "$id$" belongs to "$parent$", which is no entry of it
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
 Plugins/missing: Check the choice: $configured$ is not installed - active is $active$
 Plugins/type: Check the choice: $configured$ is no plugin of this type - active is $active$

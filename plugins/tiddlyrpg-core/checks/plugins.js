@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/plugins.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015193638000
-modified: 20261015193638000
+modified: 20261022135641011
 
 Checks of the plugins of the wiki (modules/plugin-types.js, modules/currency.js;
 modules/checks.js runs them). The titles are system tiddlers: in the wiki the same problems show
@@ -16,12 +16,18 @@ scripts/check-wiki.js.
                     is not written ">=x.y.z"
   plugins/currency  error: a currency whose reference (the coin of the prices of the ruleset) is
                     none of its coins
+  plugins/domains   error: an extension of a rules domain without base domain, of a base that is
+                    no label domain, or with an id the base has; a trait whose "for" names no
+                    entry of its domain; a trait that is its own ancestor (modules/language.js,
+                    modules/labels.js)
 
 \*/
 
 "use strict";
 
 var pluginTypes = require("$:/plugins/tiddlyrpg-core/modules/plugin-types.js"),
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
+	labels = require("$:/plugins/tiddlyrpg-core/modules/labels.js"),
 	currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js");
 
 exports.rules = [
@@ -60,6 +66,15 @@ exports.rules = [
 			}
 			return [{title: wiki.getTiddlerText("$:/config/tiddlyrpg/currency").trim(), level: "error", key: "Check/Plugins/Reference",
 				params: {reference: cur.reference, coins: cur.coins.map(function(c) { return c.id; }).join(", ")}}];
+		}
+	},
+	{
+		id: "plugins/domains",
+		scope: "wiki",
+		run: function(wiki) {
+			return language.domainProblems(wiki).concat(labels.dataProblems(wiki)).map(function(problem) {
+				return {title: problem.title, level: "error", key: problem.key, params: problem.params};
+			});
 		}
 	}
 ];

@@ -162,6 +162,21 @@ and language keys `$:/tiddlyrpg/language/<code>/...`. The domain types (`unit`, 
 `modules/rules.js`; the fixture plugins in `test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose core
 version is not met.
 
+**Terms of the campaign:** a wiki adds terms to a domain of the ruleset without changing it - a
+domain tiddler of its own with `"extends": true`, the `domain` it extends and its `entries`, plus
+the language keys of the new terms in the wiki:
+
+```json
+{"domain": "ItemCategory", "extends": true, "entries": [{"id": "tattoo", "for": ["wondrous-item"]}]}
+```
+
+Only domains of terms (type `label`) can be extended; an id the domain has already is reported.
+
+**Main entries and traits:** a domain of terms may hold main entries (`"main": true`) and traits
+of them (`"for": ["weapon"]`), also traits of traits. A field lists them in any order -
+`category: weapon, martial, melee, versatile` - and `<<term "armor medium">>` names a main entry
+with its traits ("medium armor"). A trait never stands alone: `<<term medium>>` is the size.
+
 ## Rules terms in the text
 
 Macros write rules terms once and show them in the language the wiki chose (see "Rules
@@ -768,6 +783,7 @@ out every message of its level. An id that is no rule is a hint.
 | `macros/rules` | error | a rules macro with a text the ruleset does not understand |
 | `macros/unknown` | error | a macro nothing defines |
 | `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
+| `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a trait whose parent is no entry of its domain or that is its own ancestor (only `check-wiki.js`) |
 | `quests/marker` | hint | a quest without a marker |
 | `quests/similar` | hint | two names of quests or rumours that look like one written two ways: the same apart from case, spaces and punctuation, or - from five letters on - one letter or two swapped |
 | `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name) |

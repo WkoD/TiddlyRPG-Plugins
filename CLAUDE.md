@@ -221,6 +221,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     without conversion (durations) with plural labels
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain - without code changes
+  - `fields` - the values of fields by format (`rules.value()`, `modules/labels.js`): number,
+    boolean, dice of a domain, unit with words and its domain, label, labels (a list, entries
+    with a value, main entries with their traits and their tag, a trait without parent or
+    fitting twice), text
+  - `rules-extension` - a label domain extended by a domain tiddler of the wiki
+    (`"extends": true`): read, keys of the wiki, group of the base; the rule `plugins/domains`
+    (no base, another type, an id twice, a `for` to nowhere, a cycle)
   - `settings-tab` - the tab TiddlyRPG under ControlPanel -> Settings: the choice of ruleset and
     campaign setting with its hints, the whole row as click target, the note on an own calendar
     or currency (and that it wins over the setting); "Ruleset options" (rules language of the
@@ -347,7 +354,10 @@ the tiddler title:
   (see "Jump marks"), `visibility.js` (see "Views": player characters, the active view, the
   lock, campaign events), `markdown.js` (Markdown of a README as wikitext, see "Readme and
   license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`),
-  `checks.js` (see "Checks": the registry and the run of the rules), `types.js` (the type tags:
+  `checks.js` (see "Checks": the registry and the run of the rules), `labels.js` (values made of
+  the entries of label domains: one, a list, entries with a value, main entries and their
+  traits; `<<term>>` with several ids; the data problems of label domains - see "Rules
+  engine"), `types.js` (the type tags:
   the hubs and the item categories of the campaign; `UNTYPED`: pages that need no type),
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor").
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
@@ -631,6 +641,12 @@ Of each type one is active, chosen in
   showing uses the display language of the domain. What is not understood shows unchanged;
   `check()` gives the problems for the rule `macros/rules` (see "Checks") and leaves out calls in sections the active view does not see (the hint would show their
   text, `sections.hiddenRanges()`). Numbers show with `Number/Decimal` of the wiki language.
+  `value(wiki,spec,text)` reads the value of a field by its format (`unit`, `damage`, `dice`,
+  `label`, `labels`, `number`, `boolean`, `text`; header of `value()`), for the fields of the
+  schema. Label domains may hold main entries and traits and be extended by a campaign: the
+  rules of reading, showing and uniqueness live in `modules/labels.js` (its header); the
+  extensions are merged by `language.domains()`, their problems and those of the data are the
+  rule `plugins/domains`.
 - **Hubs `Ruleset` and `CampaignSetting`** (`Ruleset.tid`, `CampaignSetting.tid`, each hidden
   from `Information` without its plugin): the name (`Rules/System/Name`, `Setting/Name` of the
   plugin), then per domain of the group (`trpgrulesdomains[ruleset|setting]`) the HTML table of

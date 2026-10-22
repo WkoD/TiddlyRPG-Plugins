@@ -1,11 +1,12 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261022140126574
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown
 type: text/vnd.tiddlywiki
 
 <!-- Dropdown of the button Rules (editor/toolbar/term): a search over the terms of the rules
-     (trpgtermsearch: id or term, as the hub Ruleset lists them) - a pill sets <<term id>> at the
-     cursor; a value with its unit - the units of the rules that fit what follows the number
+     (trpgtermsearch: id or term, as the hub Ruleset lists them; a trait with its main entry,
+     "armor medium") - a pill sets <<term id>> at the cursor (trpgtermcall: quoted with spaces);
+     a value with its unit - the units of the rules that fit what follows the number
      (trpgunitsuggest) as pills, one sets <<unit "…">>. Without a ruleset there are neither. -->
 \procedure trpg.termhits()
 \whitespace trim
@@ -14,7 +15,7 @@ type: text/vnd.tiddlywiki
 <div class="trpg-pills">
 <$list filter="[trpgtermsearch<trpg-query>limit[15]]" variable="trpg-id" emptyMessage=<<trpg.t Editor/Term/None>>>
 <$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-neutral" tooltip=<<trpg-id>>>
-<$action-sendmessage $message="tm-edit-text-operation" $param="insert-text" text={{{ [<trpg-id>addprefix[<<term ]addsuffix[>>]] }}}/>
+<$action-sendmessage $message="tm-edit-text-operation" $param="insert-text" text={{{ [<trpg-id>trpgtermcall[]] }}}/>
 <$action-setfield $tiddler=<<trpg-input>> term=""/>
 <$action-deletetiddler $tiddler=<<dropdown-state>>/>
 <$text text={{{ [<trpg-id>trpgterm[]] }}}/> <code><$text text=<<trpg-id>>/></code>

@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022134938895
+modified: 20261022135715693
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -41,6 +41,27 @@ Rules/Term/wis: WIS
 Rules/Term/wis/name: Wisdom
 Rules/Term/wis/save: WIS save
 Rules/Term/xp: XP
+Rules/Category/weapon: weapon
+Rules/Category/armor: armor
+Rules/Category/ammunition: ammunition
+Rules/Category/focus: focus
+Rules/Category/potion: potion
+Rules/Category/martial: martial
+Rules/Category/martial/weapon: martial weapon
+Rules/Category/melee: melee
+Rules/Category/versatile: versatile
+Rules/Category/light: light
+Rules/Category/light/armor: light armor
+Rules/Category/medium: medium
+Rules/Category/medium/armor: medium armor
+Rules/Term/medium: medium
+Rules/Category/arrow: arrow
+Rules/Category/arcane: arcane
+Rules/Category/arcane/focus: arcane focus
+Rules/Category/crystal: crystal
+Rules/Term/common: common
+Rules/Term/rare: rare
+Rules/Term/tiny: Tiny
 Rules/Token/die: d
 Rules/Unit/System: imperial
 Rules/Unit/cm: cm
@@ -57,6 +78,9 @@ Rules/Unit/mi: mi
 Rules/Unit/mi/Parse: mile, miles
 Rules/Domain/Time: Time
 Rules/Domain/Volume: Volume
+Rules/Domain/ItemCategory: Item category
+Rules/Domain/Rarity: Rarity
+Rules/Domain/Size: Size
 Rules/Unit/ft3: ft³
 Rules/Unit/ft3/Parse: cubic feet, cubic foot, cu ft
 Rules/Unit/m3: m³
