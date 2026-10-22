@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022160742118
+modified: 20261022173314535
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -30,8 +30,8 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                of a skill); "times": {"list": "expertise", "factor": 2} multiplies a part when the
                entry stands in that list.
   schema       {"types": ["Item", ...], "fields": ["<field>", ...], "labels": {"<field>": "<key>"},
-                "summary": {"key", "byValue": {"<field>": {"<value>": "<key>"}}, "flags":
-                {"<field>": "<key>"}}, "groups": [group, ...]}
+                "summary": {"key", "byValue": {"<field>": {"<value>": "<key>"}}, "ifSet": {"<field>":
+                "<key>"}, "flags": {"<field>": "<key>"}}, "groups": [group, ...]}
                - per type which fields, in which order; several schemas of a type are merged,
                the ruleset's first, then the wiki's (a campaign adds fields).
   group        {"id", "layout": "list"|"row"|"inline", "fields": [...], "combine": [{"fields":
@@ -430,7 +430,7 @@ exports.read = function(wiki,fields,field) {
 		});
 		var labels = require("$:/plugins/tiddlyrpg-core/modules/labels.js");
 		r = {text: items.map(function(item) {
-			return labels.labelOf(wiki,item.domain,item.id) + (item.text !== undefined ? " " + item.text : "");
+			return labels.shown(wiki,item.domain,(item.domain.entries || []).filter(function(e) { return e.id === item.id; })[0] || {id: item.id},item.text);
 		}).join(", "), problem: null, values: {}, items: r.items};
 	} else {
 		r = {text: beside(wiki,s,r,text,fields,field), problem: r.problem, values: r.values, items: r.items, tag: r.tag};
@@ -525,7 +525,8 @@ var fill = exports.fill = function(wiki,fields,key,flags) {
 
 /*
 The header line of a schema ("1st-level abjuration (ritual)", "Martial weapon (melee), rare
-(requires attunement)"): fill() of its key, or of byValue's key for the value a field holds.
+(requires attunement)"): fill() of its key, or of byValue's key for the value a field holds, or
+of ifSet's while a field holds anything.
 Returns {text, fields}: the fields it names, which the block does not show again.
 */
 exports.summary = function(wiki,fields,schema) {
@@ -538,6 +539,12 @@ exports.summary = function(wiki,fields,schema) {
 		var value = raw(fields,field);
 		if(map[value]) {
 			key = map[value];
+		}
+	});
+	// A key of its own while a field holds anything (a swarm: "Medium swarm of Tiny beasts")
+	$tw.utils.each(sum.ifSet || {},function(other,field) {
+		if(raw(fields,field)) {
+			key = other;
 		}
 	});
 	var text = fill(wiki,fields,key,sum.flags),

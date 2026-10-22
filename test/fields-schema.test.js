@@ -8,7 +8,7 @@ var test = require("node:test"),
 	assert = require("node:assert/strict"),
 	h = require("./helpers");
 
-var $tw, wiki, fields, checks;
+var $tw, wiki, fields, checks, rules;
 
 var TAG = "$:/tags/tiddlyrpg/RulesFields";
 
@@ -18,6 +18,7 @@ test.before(function() {
 		wiki = $tw.wiki;
 		fields = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/fields.js");
 		checks = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/checks.js");
+		rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js");
 		h.setLanguage(wiki, "de-DE");
 	});
 });
@@ -167,6 +168,22 @@ test.describe("values", function() {
 	});
 });
 
+test.describe("an entry shown bare", function() {
+	test("with a value it shows the value alone, without one its term; read by its words", function() {
+		h.add(wiki, {title: "$:/tiddlyrpg/rules/domain/Move", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json",
+			text: JSON.stringify({domain: "Move", type: "label", keys: "Rules/Move/", entries: [{id: "walk", bare: true}, {id: "fly"}]})});
+		h.add(wiki, {title: "$:/tiddlyrpg/language/de-DE/Rules/Move/fly", text: "Fliegen"});
+		try {
+			var spec = {format: "labels", domain: "Move", value: {format: "unit", domain: "Length"}};
+			assert.equal(rules.value(wiki, spec, "walk 30 ft, fly 60 ft").text, "9 m, Fliegen 18 m");
+			assert.equal(rules.value(wiki, spec, "walk").text, "walk");
+		} finally {
+			wiki.deleteTiddler("$:/tiddlyrpg/rules/domain/Move");
+			wiki.deleteTiddler("$:/tiddlyrpg/language/de-DE/Rules/Move/fly");
+		}
+	});
+});
+
 test.describe("when", function() {
 	test("a field holds one of the values, an id of a list counts", function() {
 		var when = fields.spec(wiki, "damage").when;
@@ -205,6 +222,21 @@ test.describe("summary", function() {
 		assert.equal(fields.summary(wiki, {category: "potion", attunement: "yes"}, items).text, "Trank (erfordert Einstimmung)");
 		assert.equal(fields.summary(wiki, {rarity: "rare", attunement: "yes"}, items).text, "", "no kind: no header line");
 		assert.deepEqual(fields.summary(wiki, {rarity: "rare"}, items).fields.length, 0, "then the fields show as lines");
+	});
+
+	test("a key of its own while a field holds anything (ifSet)", function() {
+		withSchema("Swarm", {types: ["Organisation"], fields: ["size", "hp"], summary: {key: "Swarm/Plain", ifSet: {hp: "Swarm/Set"}}}, function() {
+			h.add(wiki, {title: "$:/tiddlyrpg/language/de-DE/Swarm/Plain", text: "$size$"});
+			h.add(wiki, {title: "$:/tiddlyrpg/language/de-DE/Swarm/Set", text: "$size$ mit $hp$"});
+			try {
+				var creature = fields.forTypes(wiki, ["Organisation"]);
+				assert.equal(fields.summary(wiki, {size: "tiny"}, creature).text, "winzig");
+				assert.equal(fields.summary(wiki, {size: "tiny", hp: "2d4"}, creature).text, "winzig mit 5 (2W4)");
+			} finally {
+				wiki.deleteTiddler("$:/tiddlyrpg/language/de-DE/Swarm/Plain");
+				wiki.deleteTiddler("$:/tiddlyrpg/language/de-DE/Swarm/Set");
+			}
+		});
 	});
 
 	test("another key for a value; empty without the field", function() {

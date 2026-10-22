@@ -3,12 +3,15 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261022150508705
+modified: 20261022173314535
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
 entries with their traits ("weapon, martial, melee, versatile"). Damage domains count as label
 domains here: their entries are the damage types (keys Rules/Damage/<id>).
+
+An entry with "bare": true shows its value alone when it has one ("9 m" for walk 30 ft); it is
+still read by its words.
 
 Main entries and traits, in the JSON of a label domain:
   {"id": "weapon", "main": true, "tag": "Equipment"}  a main entry, standing alone; "tag" is the
@@ -75,6 +78,15 @@ var labelOf = exports.labelOf = function(wiki,domain,id,variant) {
 	var key = keyOf(domain,id);
 	return (variant && language.lookupRules(wiki,domain.domain,key + "/" + variant)) ||
 		language.lookupRules(wiki,domain.domain,key) || id;
+};
+
+// An entry with its value in a list: "fly 15 m"; an entry marked "bare" with a value shows the
+// value alone (D&D walk: "9 m, fly 15 m")
+var shown = exports.shown = function(wiki,domain,entry,value) {
+	if(value === undefined || value === null || value === "") {
+		return labelOf(wiki,domain,entry.id);
+	}
+	return entry.bare ? value : labelOf(wiki,domain,entry.id) + " " + value;
 };
 
 // The words an entry is read by, lower case: its id (also with spaces for "-"), its label and
@@ -285,7 +297,7 @@ exports.labels = function(wiki,spec,text) {
 		return result(showStructured(wiki,domain,items),problem && problem.key,problem && problem.values,{items: items, tag: tagOf(domain,items)});
 	}
 	return result(items.map(function(item) {
-		return labelOf(wiki,item.domain,item.id) + (item.value ? " " + item.valueText : "");
+		return shown(wiki,item.domain,item.entry,item.value ? item.valueText : undefined);
 	}).join(", "),null,{},{items: items});
 };
 
