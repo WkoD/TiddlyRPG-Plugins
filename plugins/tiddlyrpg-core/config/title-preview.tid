@@ -1,0 +1,8 @@
+created: 20261022165732523
+list-before: $:/config/ViewTemplateTitleFilters/system
+modified: 20261022165732523
+tags: $:/tags/ViewTemplateTitleFilter
+title: $:/plugins/tiddlyrpg-core/config/title-preview
+type: text/vnd.tiddlywiki
+
+[<currentTiddler>has[trpg-preview]then[$:/plugins/tiddlyrpg-core/templates/title-preview]]

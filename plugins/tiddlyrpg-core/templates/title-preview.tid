@@ -1,0 +1,12 @@
+created: 20261022165732523
+modified: 20261022165732523
+title: $:/plugins/tiddlyrpg-core/templates/title-preview
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- Tiddler heading of the preview of an entry of a content package (cascade entry
+     config/title-preview, startup/content.js): the title it would be taken under, its field
+     caption; same markup as $:/core/ui/ViewTemplate/title/default. -->
+<h2 class="tc-title">
+<$text text={{!!caption}}/>
+</h2>

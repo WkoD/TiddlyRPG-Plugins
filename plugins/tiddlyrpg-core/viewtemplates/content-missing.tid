@@ -1,20 +1,21 @@
 created: 20261022165648795
 list-before: $:/core/ui/ViewTemplate/body
-modified: 20261022165648795
+modified: 20261022165822902
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/content-missing
 type: text/vnd.tiddlywiki
 
 \whitespace trim
 <!-- A missing tiddler (a link to a title nothing has yet) that a content package offers
-     (modules/content.js): a box naming the package and the type, with "Take" - the entry becomes
-     a tiddler under this title. Only with a package of the active ruleset (trpg.content). -->
+     (modules/content.js): a box naming the package and the type, with "Preview" (tm-trpg-content-preview) and "Take" -
+     the entry becomes a tiddler under this title. Only with a package of the active ruleset (trpg.content). -->
 <%if [<currentTiddler>!is[tiddler]!is[shadow]] :filter[trpg.content[]] %>
 <$list filter="[<currentTiddler>trpgcontentfor[]]" variable="trpg-id">
 <$let trpg-package={{{ [<trpg-id>trpgcontentoffer[package]] }}}
 	trpg-type={{{ [<trpg-id>trpgcontentoffer[type]trpgtitle[]] }}}>
 <div class="tc-tiddler-body trpg-content-offer">
 <span class="trpg-content-offer-text"><$text text={{{ [[Content/Offer]trpgtranslate[]substitute<trpg-package>,<trpg-type>] }}}/></span>
+<$button class="trpg-do-2 trpg-small" message="tm-trpg-content-preview" param=<<trpg-id>>><$text text={{{ [[Content/ShowPreview]trpgtranslate[]] }}}/></$button>
 <$button class="trpg-do trpg-small" message="tm-trpg-content-take" param=<<trpg-id>>><$text text={{{ [[Content/Take]trpgtranslate[]] }}}/></$button>
 </div>
 </$let>

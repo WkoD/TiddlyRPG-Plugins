@@ -179,6 +179,24 @@ test.describe("in the browser: the offers of the index", function() {
 		assert.doesNotMatch(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/content-missing\" mode=\"block\"/>", {currentTiddler: "Balor"}), /Übernehmen/, "a tiddler that exists: no box");
 	});
 
+	test("the preview: the type of the entry without its tag, the box, the title in the heading", function() {
+		var types = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/types.js"),
+			preview = "$:/temp/tiddlyrpg-core/content/preview";
+		h.add(wiki, {title: preview, caption: "Longsword", "trpg-preview": "longsword", "trpg-type": "Item", "trpg-package": "SRD mini", category: "weapon", text: "A sword Zx3."});
+		try {
+			assert.equal(types.of(wiki, preview).join(), "Item");
+			assert.equal(Array.from(h.filter(wiki, "[tag[Item]]")).indexOf(preview), -1, "no hub lists it");
+			var html = h.view(wiki, preview);
+			assert.match(html, /<h2 class="tc-title">Longsword<\/h2>/);
+			assert.match(html, /Vorschau aus SRD mini – noch nicht im Wiki/);
+			assert.match(html, /Übernehmen/);
+			assert.match(html, /Zx3/);
+			assert.doesNotMatch(html, /<pre/, "the text as wikitext, not as code");
+		} finally {
+			wiki.deleteTiddler(preview);
+		}
+	});
+
 	test("without a package: nothing", function() {
 		index([]);
 		try {

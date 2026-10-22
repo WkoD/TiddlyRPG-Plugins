@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/types.js
 type: application/javascript
 module-type: library
 created: 20261015194805000
-modified: 20261022141507011
+modified: 20261022165822902
 
 The type tags: a tiddler tagged with one of them has a type. They are the hubs (tag Index: Person,
 Location, Organisation, Event, Quest, the item categories, ...) and the item categories of the
@@ -18,7 +18,7 @@ Campaign, the pinned start page.
   typed(wiki,title)   whether <title> has a type tag
   isType(wiki,title)  whether <title> is a type tag
   of(wiki,title)      the type tags of a tiddler, also typed under a translated name (a draft
-                      not saved yet)
+                      not saved yet); the preview of a content entry: its trpg-type
 
 \*/
 
@@ -50,6 +50,11 @@ exports.of = function(wiki,title) {
 	var tiddler = wiki.getTiddler(title),
 		all = list(wiki),
 		out = [];
+	// The preview of an entry of a content package has the type of the entry, without its tag
+	// (no hub lists it)
+	if(tiddler && tiddler.fields["trpg-preview"] && all.indexOf(tiddler.fields["trpg-type"]) !== -1) {
+		return [tiddler.fields["trpg-type"]];
+	}
 	$tw.utils.each(tiddler ? tiddler.fields.tags || [] : [],function(tag) {
 		var name = language.internalTitle(wiki,tag);
 		if(all.indexOf(name) !== -1 && out.indexOf(name) === -1) {

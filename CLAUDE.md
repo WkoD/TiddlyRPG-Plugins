@@ -391,6 +391,10 @@ the tiddler title:
   language of the package - and turns an entry into fields (`currency.fromRules()` for the
   price). Every part of the packages hangs on `trpg.content` (`trpgcontentready`): without a
   package nothing shows. `viewtemplates/content-missing`: the offer on a missing tiddler.
+  `tm-trpg-content-preview` fetches an entry into `$:/temp/tiddlyrpg-core/content/preview`
+  (its type in `trpg-type`, no tag - no hub lists it, `types.of()`), shown like the taken
+  tiddler: heading and body through `config/title-preview` and `config/body-preview` before the
+  system rules of the core, the box `viewtemplates/content-preview` on top.
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
   vertical, interactive timeline of the events, newest at the top, undated ones at the bottom as
   `????`. Positions from `calendar.dayNumber`, long gaps collapsed; an event with more than one

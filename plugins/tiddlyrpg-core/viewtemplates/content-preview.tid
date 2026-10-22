@@ -1,0 +1,20 @@
+created: 20261022165732523
+list-before: $:/core/ui/ViewTemplate/body
+modified: 20261022165732523
+tags: $:/tags/ViewTemplate
+title: $:/plugins/tiddlyrpg-core/viewtemplates/content-preview
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- The preview of an entry of a content package (tm-trpg-content-preview, startup/content.js):
+     a temp tiddler with its fields and text, field trpg-preview its id. A box on top: from which
+     package, not in the wiki yet, and "Take". The block of values and the body below show it
+     as the taken tiddler would. -->
+<$list filter="[<currentTiddler>get[trpg-preview]]" variable="trpg-id">
+<div class="tc-tiddler-body trpg-content-offer">
+<span class="trpg-content-offer-text"><$text text={{{ [[Content/Preview]trpgtranslate[]substitute{!!trpg-package}] }}}/></span>
+<%if [<trpg-id>trpgcontentoffer[]] %>
+<$button class="trpg-do trpg-small" message="tm-trpg-content-take" param=<<trpg-id>>><$text text={{{ [[Content/Take]trpgtranslate[]] }}}/></$button>
+<%endif%>
+</div>
+</$list>
