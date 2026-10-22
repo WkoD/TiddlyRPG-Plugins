@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022164503295
+modified: 20261022164720681
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -34,10 +34,12 @@ Currency/Amount: Betrag
 Currency/Check/Reference: Das Geldsystem nennt $1$ als Münze, die den Preisen des Regelwerks entspricht, hat aber keine solche Münze.
 Currency/Coin: Münze
 Currency/Converter: Umrechner
-Currency/InputHint: Ein Preis in Münzen, z. B. 3 gp 5 sp; jede Münze der Tabelle, in jeder Sprache.
+Currency/InputHint: Ein Preis in Münzen, z. B. 3 gp 5 sp, oder eine Spanne, z. B. 50–100 gp; jede Münze der Tabelle, in jeder Sprache.
 Currency/Reference: Preise des Regelwerks in $1$ sind hier Preise in $2$.
 Currency/Unit: Kürzel
 Currency/Worth: Wert
+Currency/Range: –
+Currency/Range/Parse: bis
 Date/Column: Zeitpunkt
 Date/Day: $day$.
 Date/DayMonth: $day$. $month$
@@ -173,6 +175,7 @@ Item/Check/PriceCurrency: Preis prüfen: eine Zahl und eine Münze des Geldsyste
 Item/Check/PriceNoCurrency: Preis prüfen: Er braucht eine Münze des Geldsystems, z. B. 50 gp
 Item/Check/PriceUnit: Preis prüfen: die Einheit ist im Münzsystem unbekannt
 Item/Check/TwoBases: Gegenstand prüfen: Er hat nur einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
+Item/Check/PriceRange: Preis prüfen: Die untere Grenze der Spanne liegt über der oberen
 Item/Price: Preis
 Location/Check/ArtifactOwners: Ort prüfen: Ein Artefakt ist einzigartig und hat einen Besitzer (Feld owner hat mehrere Einträge)
 Location/Check/ArtifactTwice: Ort prüfen: Ein Artefakt ist einzigartig und liegt an einem Ort (Feld location hat mehrere Einträge)

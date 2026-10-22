@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022164503295
+modified: 20261022164720681
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -34,10 +34,12 @@ Currency/Amount: Amount
 Currency/Check/Reference: The currency names $1$ as the coin that matches the prices of the ruleset, but has no such coin.
 Currency/Coin: Coin
 Currency/Converter: Converter
-Currency/InputHint: A price as coins, e.g. 3 gp 5 sp; any coin of the table, in any language.
+Currency/InputHint: A price as coins, e.g. 3 gp 5 sp, or a range, e.g. 50–100 gp; any coin of the table, in any language.
 Currency/Reference: Prices of the ruleset in $1$ are prices in $2$ here.
 Currency/Unit: Short
 Currency/Worth: Worth
+Currency/Range: –
+Currency/Range/Parse: to
 Date/Column: Date
 Date/Day: $day$
 Date/DayMonth: $day$ $month$
@@ -173,6 +175,7 @@ Item/Check/PriceCurrency: Check the price: a number and a coin of the currency, 
 Item/Check/PriceNoCurrency: Check the price: it needs a coin of the currency, e.g. 50 gp
 Item/Check/PriceUnit: Check the price: the currency has no such unit
 Item/Check/TwoBases: Check the item: it has one base type only: Artifact (unique), Item (several) or Material
+Item/Check/PriceRange: Check the price: the lower bound of the range lies above the upper one
 Item/Price: Price
 Location/Check/ArtifactOwners: Check the location: an artifact is unique and has one owner (field owner has several entries)
 Location/Check/ArtifactTwice: Check the location: an artifact is unique and lies in one place only (field location has several entries)

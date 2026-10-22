@@ -563,7 +563,10 @@ used as a tag next to the base type. Its heading in the hub is its display name.
 **Price:** `price: 50 cr` or `price: 3 cr 5 sh` - numbers with coins of the currency (see
 "Currency"), shown as written with the coin labels of the language shown ("50 Kr" in German).
 Without a currency a price is a plain number (`price: 50`). A price that does not fit gets a hint
-below the title.
+below the title. A **range** is two prices with a dash or "to" between them (`price: 50-100 cr`,
+`50 to 100 cr`, German `bis`; the coin behind the upper bound counts for both, `5 sh - 2 cr` works
+too), shown as "50–100 Kr"; the lower bound must not be above the upper one. The converter of
+the hub Currency takes ranges too.
 
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
 body (PDF), not for a secret the active view does not see.

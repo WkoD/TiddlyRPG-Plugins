@@ -128,6 +128,65 @@ test.describe("<<unit>> with coins", function() {
 	});
 });
 
+test.describe("a range of prices", function() {
+	test("read and shown: a dash or a word of any language, the coin behind the upper bound counts for both", function() {
+		assert.equal(price("50-100 gp"), "50–100 GM");
+		assert.equal(price("50 - 100 gp"), "50–100 GM");
+		assert.equal(price("50 to 100 gp"), "50–100 GM");
+		assert.equal(price("50 bis 100 gp"), "50–100 GM");
+		assert.equal(price("5 sp - 2 gp"), "5 SM – 2 GM");
+		assert.equal(price("50 bis 100 xp"), "50 bis 100 xp", "unreadable: unchanged");
+	});
+
+	test("checked bound by bound and in order", function() {
+		assert.equal(f("[<p>pricecheck[]]", {p: "50–100 gp"}), "");
+		assert.equal(f("[<p>pricecheck[]]", {p: "5 sp - 2 gp"}), "");
+		assert.equal(f("[<p>pricecheck[]]", {p: "100-50 gp"}), "Item/Check/PriceRange");
+		assert.equal(f("[<p>pricecheck[]]", {p: "2 gp - 5 sp"}), "Item/Check/PriceRange", "the worth counts, not the number");
+		assert.equal(f("[<p>pricecheck[]]", {p: "50 gp - 100 xp"}), "Item/Check/PriceUnit");
+		assert.equal(f("[<p>pricecheck[]]", {p: "50-100"}), "Item/Check/PriceNoCurrency");
+	});
+
+	test("converted bound by bound; <<unit>> reads it", function() {
+		assert.equal(f("[<p>priceconvert[sp]]", {p: "5-10 gp"}), "50–100");
+		assert.equal(f("[<v>trpgunit[]]", {v: "50-100 gp"}), "50–100 GM");
+	});
+
+	test("en-GB", function() {
+		h.setLanguage(wiki, "en-GB");
+		try {
+			assert.equal(price("50 bis 100 gp"), "50–100 gp", "a German word read in English");
+		} finally {
+			h.setLanguage(wiki, "de-DE");
+		}
+	});
+});
+
+test.describe("prices of the ruleset in the coins of the setting (fromRules)", function() {
+	test("Faerûn: the coin of reference, else silver or copper - never electrum", function() {
+		assert.equal(currency.fromRules(wiki, 15), "15 gp");
+		assert.equal(currency.fromRules(wiki, 1500), "1500 gp", "not normalised to platinum");
+		assert.equal(currency.fromRules(wiki, 0.2), "2 sp");
+		assert.equal(currency.fromRules(wiki, 0.5), "5 sp");
+		assert.equal(currency.fromRules(wiki, 0.01), "1 cp");
+		assert.equal(currency.fromRules(wiki, [50, 100]), "50 gp - 100 gp");
+	});
+
+	test("Krynn: steel for gold; without setting a number", function() {
+		return withTiddlers({[SETTING]: "$:/plugins/fixture-setting-krynn"}, function() {
+			assert.equal(currency.fromRules(wiki, 15), "15 stl");
+			assert.equal(currency.fromRules(wiki, 0.2), "2 sp");
+			assert.equal(currency.fromRules(wiki, 0.5), "5 sp", "not 1 gp (50 cp)");
+		}).then(function() {
+			return withTiddlers({[SETTING]: "none"}, function() {
+				assert.equal(currency.fromRules(wiki, 0.2), "0.2");
+				assert.equal(f("[<p>pricecheck[]]", {p: "50-100"}), "", "a range of plain numbers");
+				assert.equal(price("50-100"), "50–100");
+			});
+		});
+	});
+});
+
 test.describe("other settings", function() {
 	test("without setting: no currency, a plain number is right, a coin is a hint", function() {
 		return withTiddlers({[SETTING]: "none"}, function() {

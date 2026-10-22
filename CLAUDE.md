@@ -843,8 +843,12 @@ module header.
 - Units are read in every language, case-insensitive. `<<unit>>` reads coins only when the text
   holds no length or weight: the German copper piece is "KM", the length "km".
 - `reference` is the coin that matches the price unit of the ruleset (`currency-reference` of
-  `$:/tiddlyrpg/rules/system`): read, checked (hub hint, `check-wiki.js`) and shown, not yet used
-  to convert prices of the ruleset.
+  `$:/tiddlyrpg/rules/system`): read, checked (hub hint, `check-wiki.js`), shown, and used by
+  `fromRules()` to write a price of the ruleset in the coins of the setting (the coin of
+  reference, else one a power of ten below it - no electrum -, else the smallest).
+- A range (`50-100 gp`, `50 to 100 gp`; words `Currency/Range/Parse` of the language packs of
+  core, no word of a setting) is read, shown (`Currency/Range`), checked (`Item/Check/PriceRange`)
+  and converted bound by bound.
 - Without a currency a price is a plain number; with one it needs a coin (`items/price`, keys
   `Item/Check/PriceNoCurrency` and `Item/Check/PriceCurrency`). The hub `Currency` is hidden
   from `Information` without a currency.

@@ -3,14 +3,15 @@ title: $:/plugins/tiddlyrpg-core/filters/currency.js
 type: application/javascript
 module-type: filteroperator
 created: 20261010063203140
-modified: 20261010063203140
+modified: 20261022164852090
 
 The currency (modules/currency.js):
 
 [<price>priceformat[]]          each price as written, with the unit labels of the display
                                 language ("3 gp 5 sp" -> "3 GM 5 SM"); unchanged without currency
 [<price>priceconvert<coin>]     each price in the coin, as number with the decimal mark of the
-                                wiki language (nothing if it cannot be read)
+                                wiki language (nothing if it cannot be read); a range bound by
+                                bound ("5–10")
 [<price>pricecheck[]]           the problem of each price as language key (Item/Check/...)
 [currency[id]]                  of the active currency (nothing without): id, title, base,
 [currency[coins]]               coins (the coin ids in order), table (wikitext), reference,
@@ -23,7 +24,8 @@ The currency (modules/currency.js):
 "use strict";
 
 var currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js"),
-	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js");
+	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 function each(source,fn) {
 	var results = [];
@@ -48,7 +50,12 @@ exports.priceconvert = function(source,operator,options) {
 		cur = currency.active(wiki);
 	return each(source,function(price) {
 		var value = cur && currency.convert(wiki,cur,price,operator.operand);
-		return value === null || value === undefined || value === false ? null : rules.formatNumber(wiki,value,2);
+		if(value === null || value === undefined || value === false) {
+			return null;
+		}
+		// A range bound by bound
+		return $tw.utils.isArray(value) ? value.map(function(v) { return rules.formatNumber(wiki,v,2); }).join(language.t(wiki,"Currency/Range")) :
+			rules.formatNumber(wiki,value,2);
 	});
 };
 
