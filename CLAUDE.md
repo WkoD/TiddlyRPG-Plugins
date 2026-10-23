@@ -1467,8 +1467,9 @@ its `CLAUDE.md`.)
 
 1. Change the format -> raise `version` in `plugins/tiddlyrpg-core/plugin.info` (semver:
    patch=fix, minor=new features, major=breaking change). For now all TiddlyRPG repos keep the
-   same version to show they fit together: raise `TiddlyRPG-DnD` (its `package.json` and every
-   `plugin.info`) to the same value and release it right after. A breaking change of a contract
+   same major and minor version to show they fit together; the patch level is each repo's own
+   (a fix is released alone). For a minor or major release raise `TiddlyRPG-DnD` (its
+   `package.json` and every `plugin.info`) to the same value and release it right after. A breaking change of a contract
    for data plugins (domain types, data formats, keys) also raises `tiddlyrpg-core-version` of
    the plugins there. `TiddlyRPG-DnD` raises its pin of this repo (`devDependencies`) to the new
    tag before its own release.
