@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261023173854355
+modified: 20261023181956562
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -43,14 +43,14 @@ Domain types and their data:
     value 0 shows in the unit its pair converts to ("0 ft" -> "0 m").
 
   label    terms shown by id, e.g. abilities, conditions
-    "entries":  [{"id": "<id>"}] - or main entries and traits ({"id", "main": true, "tag"},
+    "entries":  [{"id": "<id>"}] - or main entries and properties ({"id", "main": true, "tag"},
                 {"id", "for": [...]}) and their reading: modules/labels.js
     "extends":  true - not a domain of its own: adds its "entries" to the label domain named in
                 "domain" (an extension of a campaign; modules/language.js)
     keys: <keys><id>, <keys><id>/<variant> with "keys" of the domain, default Rules/Term/; a
           label with $value$ takes a number. Ids are unique among the entries that stand alone; a
-          domain whose traits repeat ids of another domain needs keys of its own.
-    <<term "armor medium">>: a main entry with its traits; a single id finds only an entry that
+          domain whose properties repeat ids of another domain needs keys of its own.
+    <<term "armor medium">>: a main entry with its properties; a single id finds only an entry that
     stands alone.
 
   tokens   single tokens inside expressions, e.g. the die in 1d6 / 1W6, Bulk L
@@ -516,8 +516,8 @@ var dice = exports.dice = function(wiki,text) {
 
 /* Labels */
 
-// The entry of an id among the entries that stand alone (modules/labels.js: a trait is found only
-// with its main entry, <<term "armor medium">>)
+// The entry of an id among the entries that stand alone (modules/labels.js: a property is found
+// only with its main entry, <<term "armor medium">>)
 function findEntry(wiki,type,id) {
 	var lower = id.toLowerCase(),
 		found = null;
@@ -541,7 +541,7 @@ exports.term = function(wiki,id,variant,value) {
 	variant = (variant || "").toString().trim();
 	value = (value || "").toString().trim();
 	var written = [id,variant,value].filter(function(s) { return !!s; }).join(" ");
-	// Several ids: a main entry and its traits (<<term "armor medium">>)
+	// Several ids: a main entry and its properties (<<term "armor medium">>)
 	if(/\s/.test(id)) {
 		var chain = labels().chain(wiki,id.split(/\s+/));
 		return chain || result(written,"Rules/Check/Term",{id: id});

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261022185851538
+modified: 20261023181956562
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -646,14 +646,14 @@ exports.copyFrom = function(wiki,draft,source) {
 };
 
 // The problems of rules.value() that name the field; the others are written for the macros
-var OWN = ["Label","Only","TraitParent","TraitTwice","Number","NumberRange","Boolean","Dice","UnitDomain"].map(function(name) {
+var OWN = ["Label","Only","PropertyParent","PropertyTwice","Number","NumberRange","Boolean","Dice","UnitDomain"].map(function(name) {
 	return "Rules/Check/" + name;
 });
 
 /*
 The problem of a written value of a field (rule fields/value, the reading in the editor):
 {level, key, params} or null - the problem of its format, naming the field, else
-Check/Fields/Value; a trait that fits two main entries is a hint.
+Check/Fields/Value; a property that fits two main entries is a hint.
 */
 exports.problem = function(wiki,fields,field,labels) {
 	var s = spec(wiki,field),
@@ -667,7 +667,7 @@ exports.problem = function(wiki,fields,field,labels) {
 		return null;
 	}
 	if(OWN.indexOf(r.problem) !== -1) {
-		return {level: r.problem === "Rules/Check/TraitTwice" ? "hint" : "error", key: r.problem,
+		return {level: r.problem === "Rules/Check/PropertyTwice" ? "hint" : "error", key: r.problem,
 			params: $tw.utils.extend({},r.values,{field: name})};
 	}
 	return {level: "error", key: "Check/Fields/Value", params: {field: name, text: text}};

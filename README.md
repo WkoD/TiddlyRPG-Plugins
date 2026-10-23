@@ -183,10 +183,11 @@ the language keys of the new terms in the wiki:
 
 Only domains of terms (type `label`) can be extended; an id the domain has already is reported.
 
-**Main entries and traits:** a domain of terms may hold main entries (`"main": true`) and traits
-of them (`"for": ["weapon"]`), also traits of traits. A field lists them in any order -
-`category: weapon, martial, melee, versatile` - and `<<term "armor medium">>` names a main entry
-with its traits ("medium armor"). A trait never stands alone: `<<term medium>>` is the size.
+**Main entries and properties:** a domain of terms may hold main entries (`"main": true`) and
+properties of them (`"for": ["weapon"]`), also properties of properties. A field lists them in any
+order - `category: weapon, martial, melee, versatile` - and `<<term "armor medium">>` names a main
+entry with its properties ("medium armor"). A property never stands alone: `<<term medium>>` is
+the size.
 
 ## Rules terms in the text
 
@@ -881,7 +882,7 @@ out every message of its level. An id that is no rule is a hint.
 | `expected/player` | hint | a player character without the field `player` |
 | `expected/text` | hint | a tiddler without text (not a quest, a tiddler with a file in `data`, a hub) |
 | `fields/schema` | error | a field of the rules with a name the core or a relation uses, a field defined twice, a schema that lists a field without definition, a field the field list of the editor still shows (only `check-wiki.js`) |
-| `fields/value` | error, hint | a value of a field of the rules its format does not read (error); a trait that fits two main entries (hint) |
+| `fields/value` | error, hint | a value of a field of the rules its format does not read (error); a property that fits two main entries (hint) |
 | `fields/when` | hint | a value of a field that counts only with another value, by itself or by its group (damage on a potion) |
 | `fields/tag` | hint | a value names the category of the wiki it belongs to (a potion: Consumable) and the tiddler lacks the tag; fix: set the tag |
 | `images/files` | error | a file in `image`, `map`, a spot or `<<image>>` that is not in `images/` (only `check-wiki.js`) |
@@ -897,7 +898,7 @@ out every message of its level. An id that is no rule is a hint.
 | `macros/rules` | error | a rules macro with a text the ruleset does not understand |
 | `macros/unknown` | error | a macro nothing defines |
 | `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
-| `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a trait whose parent is no entry of its domain or that is its own ancestor (only `check-wiki.js`) |
+| `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a property whose parent is no entry of its domain or that is its own ancestor (only `check-wiki.js`) |
 | `quests/marker` | hint | a quest without a marker |
 | `quests/similar` | hint | two names of quests or rumours that look like one written two ways: the same apart from case, spaces and punctuation, or - from five letters on - one letter or two swapped |
 | `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name); not an entry of a content package it may name |

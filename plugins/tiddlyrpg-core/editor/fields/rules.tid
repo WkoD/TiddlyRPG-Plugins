@@ -1,12 +1,12 @@
 created: 20261022160104767
-modified: 20261022170358071
+modified: 20261023181956562
 title: $:/plugins/tiddlyrpg-core/editor/fields/rules
 type: text/vnd.tiddlywiki
 
 <!-- Editor of a field of the rules (modules/fields.js, filters/fields.js) by its format:
      boolean   a checkbox (yes/no)
      select    one entry of its domain, the empty choice takes the field out
-     pills     a list of entries without values: a pill per entry that stands alone and per trait
+     pills     a list of entries without values: a pill per entry that stands alone and per property
                of an entry chosen ("weapon" brings "martial", "melee" ...), the value holds the
                ids parted by commas; what cannot be read stays in the value
      text      the input

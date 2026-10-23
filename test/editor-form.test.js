@@ -205,13 +205,13 @@ test.describe("fields of the form", function() {
 		assert.ok(f("[[60]trpgunitsuggest[]]").length > 3);
 		assert.deepEqual(f("[[ft]trpgunitsuggest[]]"), []);
 	});
-	test("the terms of the button Rules: entries that stand alone, a trait with its way from the main entry", function() {
+	test("the terms of the button Rules: entries that stand alone, a property with its way from the main entry", function() {
 		var ids = f("[trpgtermsearch[medium]]");
 		assert.ok(ids.indexOf("medium") !== -1, "the size");
-		assert.ok(ids.indexOf("armor medium") !== -1, "the trait with its main entry");
-		assert.ok(f("[trpgtermsearch[crystal]]").indexOf("crystal") === -1, "a trait alone is no term");
+		assert.ok(ids.indexOf("armor medium") !== -1, "the property with its main entry");
+		assert.ok(f("[trpgtermsearch[crystal]]").indexOf("crystal") === -1, "a property alone is no term");
 		assert.ok(f("[trpgtermsearch[crystal]]").indexOf("focus arcane crystal") !== -1);
-		assert.ok(f("[trpgtermsearch[arrow]]").indexOf("weapon ammunition arrow") !== -1, "every way: through a main entry that is a trait too");
+		assert.ok(f("[trpgtermsearch[arrow]]").indexOf("weapon ammunition arrow") !== -1, "every way: through a main entry that is a property too");
 		assert.ok(f("[trpgtermsearch[arrow]]").indexOf("ammunition arrow") !== -1);
 		assert.deepEqual(f("[[armor medium]trpgtermcall[]] [[wis]trpgtermcall[]]"), ["<<term \"armor medium\">>", "<<term wis>>"]);
 		assert.deepEqual(f("[[Baile]] [[Town]] +[trpgpickmatch[]]"), ["Baile", "Town"]);
@@ -427,14 +427,14 @@ test.describe("fields of the rules in the form", function() {
 		});
 	});
 
-	test("pills: the entries that stand alone, the traits of those chosen; toggling keeps what it cannot read", function() {
+	test("pills: the entries that stand alone, the properties of those chosen; toggling keeps what it cannot read", function() {
 		withDraft({tags: "Item"}, function() {
 			assert.deepEqual(f("[[" + draft + "]trpgfieldchoices[category]]"), ["weapon", "armor", "ammunition", "focus", "potion"]);
 		});
 		withDraft({tags: "Item", category: "weapon, Glimmer"}, function() {
 			var choices = f("[[" + draft + "]trpgfieldchoices[category]]");
 			assert.ok(choices.indexOf("martial") !== -1 && choices.indexOf("light") !== -1, choices.join());
-			assert.equal(choices.indexOf("medium"), -1, "a trait of armor");
+			assert.equal(choices.indexOf("medium"), -1, "a property of armor");
 			assert.deepEqual(f("[[" + draft + "]trpgfieldchosen[category]]"), ["weapon"]);
 			assert.deepEqual(f("[[" + draft + "]trpgfieldtoggle[category],[martial]]"), ["weapon, Glimmer, martial"]);
 			assert.deepEqual(f("[[" + draft + "]trpgfieldtoggle[category],[weapon]]"), ["Glimmer"]);

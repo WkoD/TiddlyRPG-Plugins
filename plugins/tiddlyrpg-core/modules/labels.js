@@ -3,31 +3,31 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261022173314535
+modified: 20261023181956562
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
-entries with their traits ("weapon, martial, melee, versatile"). Damage domains count as label
+entries with their properties ("weapon, martial, melee, versatile"). Damage domains count as label
 domains here: their entries are the damage types (keys Rules/Damage/<id>).
 
 An entry with "bare": true shows its value alone when it has one ("9 m" for walk 30 ft); it is
 still read by its words.
 
-Main entries and traits, in the JSON of a label domain:
+Main entries and properties, in the JSON of a label domain:
   {"id": "weapon", "main": true, "tag": "Equipment"}  a main entry, standing alone; "tag" is the
                                                      category tag of the wiki it stands for
-  {"id": "martial", "for": ["weapon"]}               a trait of weapon, never standing alone
-  {"id": "ammunition", "main": true, "for": ["weapon"]}  a main entry and a trait of weapon
-  {"id": "arrow", "for": ["ammunition"]}             a trait of a trait - any depth
-In a list the order does not matter and every level is written: an id that can be a trait of
-another id in the list is that trait ("weapon, ammunition": a weapon that takes ammunition),
-else it must stand alone ("ammunition": ammunition). A trait whose parents are all missing is a
-problem; a trait that fits two ids of the list gives a hint. Display, as in a rulebook: per main
-entry in the order of the domain its label, then its traits in brackets ("martial weapon (melee,
-versatile)"); a trait with a variant for its parent (Rules/Term/<trait>/<parent>, "medium
-armor") takes the place of the parent's label, the first one only; deeper traits follow their
+  {"id": "martial", "for": ["weapon"]}               a property of weapon, never standing alone
+  {"id": "ammunition", "main": true, "for": ["weapon"]}  a main entry and a property of weapon
+  {"id": "arrow", "for": ["ammunition"]}             a property of a property - any depth
+In a list the order does not matter and every level is written: an id that can be a property of
+another id in the list is that property ("weapon, ammunition": a weapon that takes ammunition),
+else it must stand alone ("ammunition": ammunition). A property whose parents are all missing is a
+problem; a property that fits two ids of the list gives a hint. Display, as in a rulebook: per main
+entry in the order of the domain its label, then its properties in brackets ("martial weapon (melee,
+versatile)"); a property with a variant for its parent (Rules/Term/<property>/<parent>, "medium
+armor") takes the place of the parent's label, the first one only; deeper properties follow their
 parent after ": "; several main entries are joined by Rules/List/And ("... and medium armor"). Ids need to be unique only among the
-entries that stand alone; a trait may carry an id of another domain ("medium" of Size) - its
+entries that stand alone; a property may carry an id of another domain ("medium" of Size) - its
 domain then needs keys of its own ("keys": "Rules/Category/"), as labels share their keys
 otherwise ("mittel" of the armor, "mittelgroß" of the size).
 
@@ -59,7 +59,7 @@ var standsAlone = exports.standsAlone = function(entry) {
 	return !entry.for || !!entry.main;
 };
 
-// Whether the entries of a domain are main entries and traits
+// Whether the entries of a domain are main entries and properties
 var structured = exports.structured = function(domain) {
 	return (domain.entries || []).some(function(e) { return e.main || e.for; });
 };
@@ -187,8 +187,8 @@ function readItem(wiki,spec,domains,text) {
 	return item;
 }
 
-// The roles of the items of a structured list: each a main entry or a trait with its parents
-// present; problems for a trait without parent and hints for one that fits twice
+// The roles of the items of a structured list: each a main entry or a property with its parents
+// present; problems for a property without parent and hints for one that fits twice
 function roles(items) {
 	var ids = items.map(function(item) { return item.id; }),
 		problem = null,
@@ -198,18 +198,18 @@ function roles(items) {
 		if(parents.length) {
 			item.parents = parents;
 			if(parents.length > 1 && !hint) {
-				hint = {key: "Rules/Check/TraitTwice", values: {id: item.id, parents: parents.join(", ")}};
+				hint = {key: "Rules/Check/PropertyTwice", values: {id: item.id, parents: parents.join(", ")}};
 			}
 		} else if(standsAlone(item.entry)) {
 			item.main = true;
 		} else if(!problem) {
-			problem = {key: "Rules/Check/TraitParent", values: {id: item.id, parents: (item.entry.for || []).join(", ")}};
+			problem = {key: "Rules/Check/PropertyParent", values: {id: item.id, parents: (item.entry.for || []).join(", ")}};
 		}
 	});
 	return problem || hint;
 }
 
-// The text of a structured list: per main entry its label and its traits (see the header)
+// The text of a structured list: per main entry its label and its properties (see the header)
 function showStructured(wiki,domain,items) {
 	var order = (domain.entries || []).map(function(e) { return e.id; }),
 		byOrder = function(a,b) { return order.indexOf(a.id) - order.indexOf(b.id); },
@@ -222,7 +222,7 @@ function showStructured(wiki,domain,items) {
 			return used.indexOf(item) === -1 && item.parents && item.parents.indexOf(id) !== -1;
 		}).sort(byOrder);
 	};
-	// The traits below an item as text ("crystal"), each with its own below it after ": "
+	// The properties below an item as text ("crystal"), each with its own below it after ": "
 	var below = function(item) {
 		used.push(item);
 		var kids = childrenOf(item.id);
@@ -291,7 +291,7 @@ exports.labels = function(wiki,spec,text) {
 	var domain = items[0].domain;
 	if(structured(domain) && items.every(function(item) { return item.domain === domain; })) {
 		var problem = roles(items);
-		if(problem && problem.key === "Rules/Check/TraitParent") {
+		if(problem && problem.key === "Rules/Check/PropertyParent") {
 			return result(text,problem.key,problem.values,{items: items});
 		}
 		return result(showStructured(wiki,domain,items),problem && problem.key,problem && problem.values,{items: items, tag: tagOf(domain,items)});
@@ -317,8 +317,8 @@ exports.label = function(wiki,spec,text) {
 };
 
 /*
-<<term "armor medium">>: ids of one structured label domain, a main entry and its traits, shown as
-in a list; null when no domain has them all (modules/rules.js term() then reports it).
+<<term "armor medium">>: ids of one structured label domain, a main entry and its properties,
+shown as in a list; null when no domain has them all (modules/rules.js term() then reports it).
 */
 exports.chain = function(wiki,ids) {
 	var found = null;
@@ -332,7 +332,7 @@ exports.chain = function(wiki,ids) {
 		}
 		var items = entries.map(function(entry) { return {id: entry.id, entry: entry, domain: domain}; }),
 			problem = roles(items);
-		if(problem && problem.key === "Rules/Check/TraitParent") {
+		if(problem && problem.key === "Rules/Check/PropertyParent") {
 			return false;
 		}
 		found = result(showStructured(wiki,domain,items));
@@ -342,8 +342,8 @@ exports.chain = function(wiki,ids) {
 };
 
 /*
-The problems of the data of the label domains, each {title, key, params}: a trait whose "for"
-names no entry of its domain, a cycle of traits (checks/plugins.js, rule plugins/domains; the
+The problems of the data of the label domains, each {title, key, params}: a property whose "for"
+names no entry of its domain, a cycle of properties (checks/plugins.js, rule plugins/domains; the
 extensions are reported by modules/language.js).
 */
 exports.dataProblems = function(wiki) {
@@ -353,7 +353,7 @@ exports.dataProblems = function(wiki) {
 		(domain.entries || []).forEach(function(entry) {
 			(entry.for || []).forEach(function(parent) {
 				if(ids.indexOf(parent) === -1) {
-					problems.push({title: domain.title, key: "Check/Plugins/TraitFor", params: {domain: domain.domain, id: entry.id, parent: parent}});
+					problems.push({title: domain.title, key: "Check/Plugins/PropertyFor", params: {domain: domain.domain, id: entry.id, parent: parent}});
 				}
 			});
 			// A cycle: the way up the parents comes back to the entry
@@ -372,7 +372,7 @@ exports.dataProblems = function(wiki) {
 					});
 				};
 			if(walk(entry.id)) {
-				problems.push({title: domain.title, key: "Check/Plugins/TraitCycle", params: {domain: domain.domain, id: entry.id}});
+				problems.push({title: domain.title, key: "Check/Plugins/PropertyCycle", params: {domain: domain.domain, id: entry.id}});
 			}
 		});
 	});

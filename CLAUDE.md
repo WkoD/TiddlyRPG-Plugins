@@ -226,7 +226,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     formula of its own) - without code changes
   - `fields` - the values of fields by format (`rules.value()`, `modules/labels.js`): number,
     boolean, dice of a domain, unit with words and its domain, label, labels (a list, entries
-    with a value, main entries with their traits and their tag, a trait without parent or
+    with a value, main entries with their properties and their tag, a property without parent or
     fitting twice), text
   - `rules-extension` - a label domain extended by a domain tiddler of the wiki
     (`"extends": true`): read, keys of the wiki, group of the base; the rule `plugins/domains`
@@ -375,7 +375,7 @@ the tiddler title:
   license of a plugin"; its parser `parsers/markdown.js`, type `text/x-tiddlyrpg-markdown`),
   `checks.js` (see "Checks": the registry and the run of the rules), `labels.js` (values made of
   the entries of label domains: one, a list, entries with a value, main entries and their
-  traits; `<<term>>` with several ids; the data problems of label domains - see "Rules
+  properties; `<<term>>` with several ids; the data problems of label domains - see "Rules
   engine"), `fields.js` (the fields of the rules: definitions and schemas per type, labels,
   derived values, the header line, `when`, `copyFrom()` - see "Rules engine"), `types.js`
   (the type tags: the hubs and the item categories of the campaign, `of()` the types of a
@@ -700,7 +700,7 @@ Of each type one is active, chosen in
   text, `sections.hiddenRanges()`). Numbers show with `Number/Decimal` of the wiki language.
   `value(wiki,spec,text)` reads the value of a field by its format (`unit`, `damage`, `dice`,
   `label`, `labels`, `number`, `boolean`, `text`; header of `value()`), for the fields of the
-  schema. Label domains may hold main entries and traits and be extended by a campaign: the
+  schema. Label domains may hold main entries and properties and be extended by a campaign: the
   rules of reading, showing and uniqueness live in `modules/labels.js` (its header); the
   extensions are merged by `language.domains()`, their problems and those of the data are the
   rule `plugins/domains`. Which fields a type has comes from the ruleset too: JSON tiddlers
@@ -816,7 +816,7 @@ tests reach it without a browser; the wikitext only asks and passes values.
   rules (`modules/fields.js`) come from the schema of the types of the draft: shown when
   written, offered when their `when` holds, after the general fields; their editor
   `editor/fields/rules` picks the input by format - a checkbox (boolean), a select (one entry), pills
-  (a list without values: entries that stand alone, then the traits of those chosen), else text
+  (a list without values: entries that stand alone, then the properties of those chosen), else text
   - with a reading below (the value as shown, the derived value of an empty field, the
   problem; `trpgfieldreading`). A ruleset hides its fields from the field list of the core
   itself (`config/form-fields-hidden` of the plugin; `fields/schema` reports one it does not).

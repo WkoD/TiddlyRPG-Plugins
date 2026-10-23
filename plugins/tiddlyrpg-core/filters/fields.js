@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261022185851538
+modified: 20261023181956562
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -30,7 +30,7 @@ The editor of a field of the rules (editor/fields/rules), for a draft:
 [<field>trpgfieldinput[]]              boolean (a checkbox), select (one entry of a domain), pills (a
                                        list of entries without values) or text
 [<draft>trpgfieldchoices<field>]       the ids to choose: the entries that stand alone (in "only");
-                                       for pills also the traits whose parent is in the field
+                                       for pills also the properties whose parent is in the field
 [<id>trpgfieldchoice<field>]           the label of each input id (a number: with its sign if signed)
 [<draft>trpgfieldchosen<field>]        the ids the field holds
 [<draft>trpgfieldtoggle<field>,<id>]   the value of the field with <id> added or taken out

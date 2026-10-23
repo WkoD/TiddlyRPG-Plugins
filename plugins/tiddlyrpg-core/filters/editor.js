@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261023173843884
+modified: 20261023181956562
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -18,8 +18,8 @@ picker (editor/procedures) and the kinds of the search.
 [<t>trpgsimilar<name>]         the input titles that look like <name> written another way, <name>
                                itself left out (modules/checks.js similar)
 [trpgtermids[]]                the ids of the terms of the rules (domains of type label)
-[trpgtermsearch<text>]         those whose id or term contains <text> (any case); a trait with its
-                               main entry ("armor medium")
+[trpgtermsearch<text>]         those whose id or term contains <text> (any case); a property with
+                               its main entry ("armor medium")
 [<id>trpgtermcall[]]           the call of <<term>> for each input id, quoted when it has spaces
 [<text>trpgunitsuggest[]]      a number with the units that fit what follows it ("60 f" -> "60 ft")
 [<field>relationcandidates[]]  what the field may name (field tiddlyrpg-targets of its config,
@@ -115,7 +115,7 @@ exports.trpgsimilar = function(source,operator,options) {
 };
 
 // The terms of the rules: [{id, text}] (text in the rules language) - every label entry that
-// stands alone, and every trait with the way from a main entry to it ("armor medium", "focus
+// stands alone, and every property with the way from a main entry to it ("armor medium", "focus
 // arcane crystal"), as <<term>> takes it (modules/labels.js)
 function terms(wiki) {
 	var domains = language.domains(wiki),

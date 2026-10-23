@@ -2,9 +2,9 @@
  * Domains of type label (modules/rules.js, <<term>>) against fixture-ruleset-5e-mini (Ability,
  * Terms): the label in the display language of its domain, a variant, the id in any case, an
  * unknown id or variant; ids unique among the entries that stand alone; a main entry with its
- * traits in one <<term>> ("armor medium"), a trait alone is no term, "medium" alone the size;
- * "GM" is the game master in the domain Terms (in a currency it would be a gold piece - parsing
- * stays within a domain).
+ * properties in one <<term>> ("armor medium"), a property alone is no term, "medium" alone the
+ * size; "GM" is the game master in the domain Terms (in a currency it would be a gold piece -
+ * parsing stays within a domain).
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -58,22 +58,22 @@ test.describe("en-GB", function() {
 	});
 });
 
-test.describe("a main entry with its traits", function() {
+test.describe("a main entry with its properties", function() {
 	test("de-DE: an absorbing variant takes the place of the main label, the rest follows", function() {
 		h.setLanguage(wiki, "de-DE");
 		assert.equal(t("armor medium"), "mittelschwere Rüstung");
 		assert.equal(t("medium armor"), "mittelschwere Rüstung", "the order does not matter");
 		assert.equal(t("weapon martial melee versatile"), "Kriegswaffe (Nahkampf, vielseitig)");
-		assert.equal(t("focus arcane crystal"), "arkaner Fokus: Kristall", "a deeper trait after its parent");
+		assert.equal(t("focus arcane crystal"), "arkaner Fokus: Kristall", "a deeper property after its parent");
 		assert.equal(t("weapon ammunition arrow"), "Waffe (Munition: Pfeil)");
 	});
 
-	test("a trait alone is no term; medium alone is the size", function() {
+	test("a property alone is no term; medium alone is the size", function() {
 		h.setLanguage(wiki, "de-DE");
 		assert.equal(t("medium"), "mittelgroß");
 		assert.equal(rules.term(wiki, "crystal").problem, "Rules/Check/Term");
 		assert.equal(rules.term(wiki, "armor crystal").problem, "Rules/Check/Term", "crystal belongs to arcane");
-		assert.equal(rules.term(wiki, "ammunition").problem, null, "a main entry that is also a trait stands alone");
+		assert.equal(rules.term(wiki, "ammunition").problem, null, "a main entry that is also a property stands alone");
 	});
 
 	test("en-GB", function() {
@@ -94,7 +94,7 @@ test.describe("what is not understood", function() {
 	});
 });
 
-test("the ids are unique among the entries that stand alone (a trait may repeat one)", function() {
+test("the ids are unique among the entries that stand alone (a property may repeat one)", function() {
 	var domains = language.domains(wiki),
 		seen = {},
 		twice = [];

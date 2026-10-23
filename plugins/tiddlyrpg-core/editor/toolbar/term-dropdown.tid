@@ -1,10 +1,10 @@
 created: 20261016184211000
-modified: 20261022140126574
+modified: 20261023181956562
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown
 type: text/vnd.tiddlywiki
 
 <!-- Dropdown of the button Rules (editor/toolbar/term): a search over the terms of the rules
-     (trpgtermsearch: id or term, as the hub Ruleset lists them; a trait with its main entry,
+     (trpgtermsearch: id or term, as the hub Ruleset lists them; a property with its main entry,
      "armor medium") - a pill sets <<term id>> at the cursor (trpgtermcall: quoted with spaces);
      a value with its unit - the units of the rules that fit what follows the number
      (trpgunitsuggest) as pills, one sets <<unit "…">>. Without a ruleset there are neither. -->

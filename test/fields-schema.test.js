@@ -431,7 +431,7 @@ test.describe("fields/value, fields/when, fields/tag", function() {
 		assert.ok(out.indexOf("error Rules/Check/Label Feld Seltenheit prüfen: „legendary“ ist hier kein bekannter Begriff") !== -1, out.join("\n"));
 		assert.ok(out.some(function(m) { return /^error Rules\/Check\/Number Feld Bonus prüfen/.test(m); }));
 		assert.ok(out.indexOf("error Check/Fields/Value Feld Gewicht prüfen: „schwer“ ist nicht lesbar") !== -1, out.join("\n"));
-		assert.ok(out.some(function(m) { return /^hint Rules\/Check\/TraitTwice Feld Art prüfen/.test(m); }));
+		assert.ok(out.some(function(m) { return /^hint Rules\/Check\/PropertyTwice Feld Art prüfen/.test(m); }));
 	});
 
 	test("a value whose condition does not hold; derived values are no problem", function() {

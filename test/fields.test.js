@@ -3,8 +3,8 @@
  * fixture-ruleset-5e-mini: number (sign, decimal mark, limits), boolean (words of every language),
  * dice (with the tokens of a domain, an average in brackets), unit (words in place of a number,
  * units of another domain), label (one entry, words of every language, only), labels (a list,
- * entries with a value, main entries with their traits, the tag, a trait without parent, a trait
- * that fits twice), text.
+ * entries with a value, main entries with their properties, the tag, a property without parent,
+ * a property that fits twice), text.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -111,7 +111,7 @@ test.describe("labels", function() {
 		assert.equal(v({format: "labels", domain: "Ability"}, "wis +6").problem, "Rules/Check/Label", "no value without spec.value");
 	});
 
-	test("main entries with their traits: order free, the tag of the main entry", function() {
+	test("main entries with their properties: order free, the tag of the main entry", function() {
 		var spec = {format: "labels", domain: "ItemCategory"},
 			r = v(spec, "versatile, weapon, melee, martial");
 		assert.equal(r.text, "Kriegswaffe (Nahkampf, vielseitig)");
@@ -119,15 +119,15 @@ test.describe("labels", function() {
 		assert.equal(v(spec, "armor, light").text, "leichte Rüstung");
 		assert.equal(v(spec, "weapon, light").text, "Waffe (leicht)", "light without a variant for weapon");
 		assert.equal(v(spec, "ammunition").tag, "Consumable");
-		assert.equal(v(spec, "weapon, ammunition").tag, "Equipment", "ammunition is a trait of the weapon here");
+		assert.equal(v(spec, "weapon, ammunition").tag, "Equipment", "ammunition is a property of the weapon here");
 	});
 
-	test("a trait without parent; a trait that fits twice", function() {
+	test("a property without parent; a property that fits twice", function() {
 		var spec = {format: "labels", domain: "ItemCategory"};
-		assert.equal(v(spec, "crystal").problem, "Rules/Check/TraitParent");
-		assert.equal(v(spec, "focus, crystal").problem, "Rules/Check/TraitParent", "crystal belongs to arcane");
+		assert.equal(v(spec, "crystal").problem, "Rules/Check/PropertyParent");
+		assert.equal(v(spec, "focus, crystal").problem, "Rules/Check/PropertyParent", "crystal belongs to arcane");
 		var r = v(spec, "weapon, armor, light");
-		assert.equal(r.problem, "Rules/Check/TraitTwice");
+		assert.equal(r.problem, "Rules/Check/PropertyTwice");
 		assert.equal(r.values.parents, "weapon, armor");
 	});
 });

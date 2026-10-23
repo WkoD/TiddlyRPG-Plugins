@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/fields.js
 type: application/javascript
 module-type: trpg-check
 created: 20261022140929737
-modified: 20261022160742118
+modified: 20261023181956562
 
 Checks of the fields of the rules (modules/fields.js; modules/checks.js runs them).
 
@@ -11,7 +11,8 @@ Checks of the fields of the rules (modules/fields.js; modules/checks.js runs the
                   twice (the ruleset and the wiki, or two tiddlers), a schema that lists a field
                   without definition, a field the field list of the core does not hide
   fields/value    error: a written value its format does not read (fields.problem(): the problem
-                  of the format, else Check/Fields/Value); hint: a trait that fits two main entries
+                  of the format, else Check/Fields/Value); hint: a property that fits two main
+                  entries
   fields/when     hint: a written value of a field whose "when" - or that of its group - does not
                   hold (damage on a potion)
   fields/tag      hint: a main entry of a list names the category tag of the wiki it stands for

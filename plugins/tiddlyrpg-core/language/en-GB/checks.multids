@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261022152822335
+modified: 20261023181956562
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -46,8 +46,8 @@ Plugins/ExtensionBase: Check the extension: there is no domain $domain$ to exten
 Plugins/ExtensionId: Check the extension: $domain$ has "$id$" already
 Plugins/ExtensionType: Check the extension: $domain$ is of type $type$; only label domains can be extended
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
-Plugins/TraitCycle: Check the domain $domain$: "$id$" is its own ancestor
-Plugins/TraitFor: Check the domain $domain$: "$id$" belongs to "$parent$", which is no entry of it
+Plugins/PropertyCycle: Check the domain $domain$: "$id$" is its own ancestor
+Plugins/PropertyFor: Check the domain $domain$: "$id$" belongs to "$parent$", which is no entry of it
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
 Plugins/missing: Check the choice: $configured$ is not installed - active is $active$
 Plugins/type: Check the choice: $configured$ is no plugin of this type - active is $active$
