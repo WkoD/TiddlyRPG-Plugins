@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-messages.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261023173843884
+modified: 20261023175042957
 
 Messages of the editor that the edit-text widget does not handle, so they reach the root widget:
 
@@ -14,7 +14,8 @@ Messages of the editor that the edit-text widget does not handle, so they reach 
                  Copies the values of its target into the draft where it has none
                  (modules/form.js copyFrom), a notification names what came. With source
                  instead of field (the row "Take values from", editor/form): from that tiddler,
-                 without a relation.
+                 and the relation that copies (base) names it if the draft has none and it fits
+                 (modules/form.js relateCopy).
   tm-trpg-probe  of the toolbar buttons with a dropdown (editor/toolbar), kind: what stands at the
                  cursor (editor/operation.js trpg-probe). Not a text operation: the engine focuses
                  the text after every operation, and the focus closes the dropdown that has just
@@ -50,7 +51,9 @@ exports.startup = function() {
 	$tw.rootWidget.addEventListener("tm-trpg-copy",function(event) {
 		var params = event.paramObject || {},
 			from = params.source && $tw.wiki.getTiddler(params.source),
+			related = from ? form.relateCopy($tw.wiki,params.draft,params.source,form.types($tw.wiki,params.source)) : [],
 			done = params.source ? form.copyValues($tw.wiki,params.draft,params.source,from && from.fields) : form.copyFrom($tw.wiki,params.draft,params.field);
+		done.fields = related.concat(done.fields);
 		if(done.source) {
 			notice.show($tw.wiki,form.copiedText($tw.wiki,params.draft,done));
 		}

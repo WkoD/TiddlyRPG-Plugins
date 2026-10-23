@@ -17,7 +17,8 @@
  * Boots the wiki with the plugins of this repo, so the calendar of the wiki applies and bodies
  * are read from their parse tree, like the format layer does. Plugins of other packages (a
  * setting with the calendar, a ruleset) come from the `plugins` folders of the packages in
- * <wiki folder>/node_modules; the ones of this repo win.
+ * <wiki folder>/node_modules; the ones of this repo win. The entries of the content packages
+ * there count as in the editable wiki (relations/missing).
  *
  * Exit code 1 if there is an error, 2 on a wrong call.
  */
@@ -60,6 +61,12 @@ $tw.boot.boot(function() {
 		usage("Unknown theme: " + unknown.join(", ") + " - themes: " + known.join(", "));
 	}
 	checks.setFolder(path.resolve(wikiDir));
+	// The entries of the content packages of the ruleset, as the browser loads them: a relation to
+	// an entry not taken yet is no missing tiddler
+	var content = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content.js"),
+		ruleset = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/plugin-types.js").active(wiki, "ruleset") || "";
+	wiki.addTiddler(new $tw.Tiddler({title: content.INDEX, type: "application/json", text: JSON.stringify({ruleset: ruleset,
+		packages: ruleset ? $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content-server.js").index(path.resolve(wikiDir), ruleset) : []})}));
 	var found = checks.all(wiki, {mode: "dm", player: "", name: "dm"}, themes.length ? themes : null),
 		titles = Object.keys(found).sort(),
 		counts = {error: 0, hint: 0};

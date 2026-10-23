@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261022182658042
+modified: 20261023175042957
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -24,6 +24,8 @@ a tiddler the view does not see counts the same - nothing tells it.
   entryOf(wiki,id)           one of entries(), or null
   offer(wiki,id)             one offer, or null
   find(wiki,title)           the offers titled so
+  forRelation(wiki,field,title)  the offer titled so that the relation <field> may name (its
+                             type a tag of tiddlyrpg-targets), or null - a target not taken yet
   titleOf(wiki,pkg,entry)    the title it is taken under, or null if taken
   toFields(wiki,pkg,entry,title)  the fields of the tiddler to take: tags (its type, its tags and
                              the tag of its package),
@@ -109,6 +111,13 @@ var offer = exports.offer = function(wiki,id) {
 
 var find = exports.find = function(wiki,title) {
 	return offers(wiki).filter(function(o) { return o.title === title; });
+};
+
+exports.forRelation = function(wiki,field,title) {
+	var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+		type = relations.types(wiki)[field],
+		tags = type ? relations.tagsOf(type.candidates) : [];
+	return find(wiki,title).filter(function(o) { return tags.indexOf(o.type) !== -1; })[0] || null;
 };
 
 function text(value) {

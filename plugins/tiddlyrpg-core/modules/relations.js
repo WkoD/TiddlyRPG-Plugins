@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261022171029770
+modified: 20261023175042957
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -111,6 +111,18 @@ var types = exports.types = function(wiki) {
 };
 
 // The names of all types in order: by axis, then the rest sorted
+// The tags a filter of candidates names ("[tag[Person]] [tag[Player]]"): the types a relation
+// may name (tiddlyrpg-targets), what may carry it (tiddlyrpg-sources)
+exports.tagsOf = function(filter) {
+	var out = [],
+		re = /tag\[([^\]]+)\]/g,
+		m;
+	while(filter && (m = re.exec(filter))) {
+		out.push(m[1]);
+	}
+	return out;
+};
+
 exports.ordered = function(wiki) {
 	var all = types(wiki);
 	return Object.keys(all).sort(function(a,b) {

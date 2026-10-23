@@ -264,10 +264,11 @@ category says weapon; a value written without it gets a hint below the title.
 
 **In the editor** the form offers these fields: a choice for a term, a checkbox for yes and no,
 small lists as pills, below each the reading of what is written. Choosing a base item copies its
-values once (see "Relations"). **Take values from** does the same without a relation: it offers
-the tiddlers whose type has the same values (an artifact takes from an item) and the entries of
-the content packages of these types; the one chosen fills the empty fields once, never the price.
-An entry of a package is not taken into the wiki for it, and nothing names it afterwards.
+values once (see "Relations"). **Take values from** offers the tiddlers whose type has the same
+values (an artifact takes from an item) and the entries of the content packages of these types;
+the one chosen fills the empty fields once, never the price, and becomes the base item if there
+is none and it is an item. An entry of a package is not taken into the wiki for it: `base` names
+an entry the wiki does not have yet, no error - the link to it offers to take it later.
 
 **Locked values:** `secret-fields` (see "Player characters, views and secrets").
 
@@ -293,7 +294,8 @@ and only those of the active ruleset):
   "Take";
 - the button "Content" of the editor toolbar: search, take, and the link into the text;
 - every relation in the form: the entries of its types beside the tiddlers (dashed);
-- "Take values from" in the form: the values of an entry, without taking it;
+- "Take values from" in the form: the values of an entry and the entry as base, without taking
+  it;
 - the search: a group of its own below the hits;
 - the hub `Content` (under `Information`): per type, with filters by value and pages, a preview
   of each entry and "Take".
@@ -301,7 +303,8 @@ and only those of the active ruleset):
 **Titles:** what is in the wiki always wins. An entry whose title exists with the same type
 counts as taken; with another type it is offered as "Title (Type)" ("Balor (Creature)" beside
 the person Balor). What a taken entry names in `base` or `spells` and the wiki lacks is offered
-in the message - nothing comes by itself.
+in the message - nothing comes by itself. A relation may name an entry not taken: that is no
+missing tiddler (`relations/missing`), also for `npm run check`.
 
 **The text** stays in the language of the package. Without a package, in the published copy and
 for who may not write, nothing of this shows.
@@ -896,7 +899,7 @@ out every message of its level. An id that is no rule is a hint.
 | `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a trait whose parent is no entry of its domain or that is its own ancestor (only `check-wiki.js`) |
 | `quests/marker` | hint | a quest without a marker |
 | `quests/similar` | hint | two names of quests or rumours that look like one written two ways: the same apart from case, spaces and punctuation, or - from five letters on - one letter or two swapped |
-| `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name) |
+| `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name); not an entry of a content package it may name |
 | `relations/included` | hint | an entry another field to the same target includes (`member` next to `leader`, `ancestor` next to `parent`) |
 | `relations/former` | error | `former` and `member` (or what includes it: `officer`, `leader`) or `owner` name the same target |
 | `relations/symmetric` | hint | a symmetric relation (`spouse`, `sibling`, `family`, `alliance`, `bond`, `enmity`) only on the other side |

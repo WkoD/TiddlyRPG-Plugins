@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023173843884
+modified: 20261023175042957
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -100,7 +100,7 @@ Editor/Form/CopyHint: Schreibt seine Regelwerte in die leeren Felder dieses Tidd
 Editor/Form/CopiedMissing: Nichts übernommen: $title$ gibt es im Wiki nicht
 Editor/Form/CopyFrom: Werte übernehmen von
 Editor/Form/CopyFromPick: Wählen
-Editor/Form/CopyFromHint: Füllt die leeren Felder mit den Regelwerten des Gewählten, einmal – kein Verweis, aus einem Paket kommt nichts ins Wiki
+Editor/Form/CopyFromHint: Füllt die leeren Felder mit den Regelwerten des Gewählten, einmal, und setzt ihn als Grundgegenstand, wo das passt – aus einem Paket kommt nichts ins Wiki
 Editor/Group/All: Ganze Gruppe
 Editor/Group/Caption: Gruppe
 Editor/Group/Head: Spielerfiguren, die dabei waren

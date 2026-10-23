@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194805000
-modified: 20261016184211000
+modified: 20261023175042957
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type
@@ -12,7 +12,9 @@ tw5-graph draws as well: they are no relations.
 
   relations/missing     error: a relation field names a tiddler that does not exist; for
                         location with the spot of that name, if there is one (a tiddler with
-                        the name of the spot joins it)
+                        the name of the spot joins it). Not for an entry of a content package
+                        the relation may name (modules/content.js forRelation: base: Warhammer
+                        of the SRD) - the DM takes it when they want, the link offers it
   relations/included    hint: an entry that another field to the same target includes
                         (tiddlyrpg-implies: member or officer next to leader, ancestor next to
                         parent) - it is neither drawn nor listed
@@ -44,7 +46,8 @@ A message that names another tiddler is left out for a view that does not see it
 var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
 	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
 	spots = require("$:/plugins/tiddlyrpg-core/modules/spots.js"),
-	dates = require("$:/plugins/tiddlyrpg-core/modules/dates.js");
+	dates = require("$:/plugins/tiddlyrpg-core/modules/dates.js"),
+	content = require("$:/plugins/tiddlyrpg-core/modules/content.js");
 
 var FAMILY = ["parent","ancestor","spouse","sibling"],
 	CORE_FIELDS = ["tags","list"];
@@ -85,7 +88,7 @@ exports.rules = [
 			var messages = [];
 			$tw.utils.each(fieldTypes(wiki),function(type) {
 				$tw.utils.each(list(wiki,title,type.name),function(target) {
-					if(exists(wiki,target)) {
+					if(exists(wiki,target) || content.forRelation(wiki,type.name,target)) {
 						return;
 					}
 					// A spot of that name the view sees, at a location it sees

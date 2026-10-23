@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261023173843884
+modified: 20261023175042957
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -50,6 +50,10 @@ both in step.
                             target does not exist
   copyValues(wiki,draft,source,fields)  the same from the fields of any source (a tiddler, an
                             entry of a content package): source names it in the result
+  relateCopy(wiki,draft,source,sourceTypes)  sets each relation that copies (tiddlyrpg-copy) to
+                            <source> where the draft has none and its targets take one of
+                            <sourceTypes> (an entry of a package need not be taken: the check
+                            knows it); the fields set
   copiedText(wiki,draft,done)  the notification of a copy: what came from where, or why nothing
   copySources(wiki,title)   what the form of <title> copies values from without a relation (the
                             row "Take values from", editor/form): the tiddlers with a value of
@@ -194,6 +198,23 @@ var copyValues = exports.copyValues = function(wiki,draft,source,fields) {
 		wiki.addTiddler(new $tw.Tiddler(tiddler,out));
 	}
 	return {source: source, fields: copied};
+};
+
+exports.relateCopy = function(wiki,draft,source,sourceTypes) {
+	var tiddler = wiki.getTiddler(draft),
+		set = {};
+	if(!tiddler) {
+		return [];
+	}
+	$tw.utils.each(relations.types(wiki),function(type,name) {
+		if(type.copy && !tiddler.fields[name] && relations.tagsOf(type.candidates).some(function(tag) { return sourceTypes.indexOf(tag) !== -1; })) {
+			set[name] = $tw.utils.stringifyList([source]);
+		}
+	});
+	if(Object.keys(set).length) {
+		wiki.addTiddler(new $tw.Tiddler(tiddler,set));
+	}
+	return Object.keys(set);
 };
 
 exports.copiedText = function(wiki,draft,done) {

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261022185851538
+modified: 20261023175042957
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -81,15 +81,10 @@ exports.trpgwikilink = function(source,operator,options) {
 
 exports.relationcontent = function(source,operator,options) {
 	var wiki = options.wiki,
-		all = require("$:/plugins/tiddlyrpg-core/modules/relations.js").types(wiki);
+		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+		all = relations.types(wiki);
 	return each(source,function(field) {
-		var type = all[field],
-			tags = [],
-			re = /tag\[([^\]]+)\]/g,
-			m;
-		while(type && type.candidates && (m = re.exec(type.candidates))) {
-			tags.push(m[1]);
-		}
+		var tags = all[field] ? relations.tagsOf(all[field].candidates) : [];
 		return content.offers(wiki).filter(function(o) { return tags.indexOf(o.type) !== -1; }).map(function(o) { return o.title; });
 	});
 };

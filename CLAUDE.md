@@ -1139,9 +1139,12 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   (`modules/inverse.js`, `startup/inverse.js`).
 - `tiddlyrpg-copy: yes` on a config (`base`): choosing the type in the editor copies the values
   of the rules of its target into the empty fields of the draft once (`form.copyFrom()`,
-  `tm-trpg-copy`, the button "Take the values"); no value is inherited. The same without a
-  relation: the row "Take values from" of the form (`form.copySources()`/`copyValues()`,
-  `tm-trpg-copy` with `source`, `tm-trpg-content-copy` for an entry of a package, not taken).
+  `tm-trpg-copy`, the button "Take the values"); no value is inherited. The row "Take values
+  from" of the form does the same from any source of the schema and sets the relation where
+  it fits (`form.copySources()`/`copyValues()`/`relateCopy()`, `tm-trpg-copy` with `source`,
+  `tm-trpg-content-copy` for an entry of a package, which is not taken). A relation to an
+  entry not taken is no missing tiddler (`content.forRelation()`; `check-wiki.js` loads the
+  index of the packages like the browser).
 - The types in play: a graph view draws only some types (`edges.fields`/`edges.functions`);
   the override passes them on (`trpgTypes`), so a type left out does not hide another one. The
   relation list uses all.

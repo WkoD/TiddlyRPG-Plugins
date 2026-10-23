@@ -548,6 +548,25 @@ test.describe("values from another tiddler or a package entry, without a relatio
 			"Von Longsword nichts zu übernehmen: die Werte stehen schon da, oder es hat keine");
 	});
 
+	test("the source becomes the base where the draft has none and the base may name it; no missing tiddler for an entry", function() {
+		var spare = "Draft of 'Frostklinge'";
+		h.add(wiki, {title: spare, "draft.of": "Frostklinge", tags: "Artifact", text: ""});
+		try {
+			assert.deepEqual(Array.from(form.relateCopy(wiki, spare, "Fireball", ["Spell"])), [], "a spell is no base");
+			assert.deepEqual(Array.from(form.relateCopy(wiki, spare, "Longsword", ["Item"])), ["base"]);
+			assert.equal(wiki.getTiddler(spare).fields.base, "Longsword");
+			assert.equal(wiki.tiddlerExists("Longsword"), false, "not taken");
+			assert.deepEqual(Array.from(form.relateCopy(wiki, spare, "Kurzschwert", ["Item"])), [], "a base there already stays");
+			assert.equal(checks.forDraft(wiki, spare).filter(function(m) { return m.id === "relations/missing"; }).length, 0, "the package has it");
+			h.add(wiki, Object.assign({}, wiki.getTiddler(spare).fields, {base: "Nirgends"}));
+			assert.equal(checks.forDraft(wiki, spare).filter(function(m) { return m.id === "relations/missing"; }).length, 1);
+			h.add(wiki, Object.assign({}, wiki.getTiddler(spare).fields, {base: "Fireball"}));
+			assert.equal(checks.forDraft(wiki, spare).filter(function(m) { return m.id === "relations/missing"; }).length, 1, "an entry the base may not name");
+		} finally {
+			wiki.deleteTiddler(spare);
+		}
+	});
+
 	test("the row in the form: label and picker while there is a source", function() {
 		var html = h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: DRAFT});
 		assert.match(html, /Werte übernehmen von/);

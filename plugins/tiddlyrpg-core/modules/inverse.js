@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/inverse.js
 type: application/javascript
 module-type: library
 created: 20261022171029770
-modified: 20261022171029770
+modified: 20261023175042957
 
 The way back of a relation in the form of its target: a relation whose config has
 tiddlyrpg-inverse: yes (owner) offers a row in the form of a tiddler it may name (a person: "give
@@ -33,17 +33,6 @@ function list(value) {
 	return $tw.utils.parseStringArray(value || "") || [];
 }
 
-// The tags a filter of candidates names ("[tag[Person]] [tag[Player]]")
-function tagsOf(filter) {
-	var out = [],
-		re = /tag\[([^\]]+)\]/g,
-		m;
-	while(filter && (m = re.exec(filter))) {
-		out.push(m[1]);
-	}
-	return out;
-}
-
 function config(wiki,name) {
 	var type = relations.types(wiki)[name];
 	return type ? (wiki.getTiddler(type.config) || {fields: {}}).fields : {};
@@ -55,7 +44,7 @@ exports.relations = function(wiki,title) {
 	return relations.ordered(wiki).filter(function(name) {
 		var fields = config(wiki,name);
 		return all[name].kind === "field" && fields["tiddlyrpg-inverse"] === "yes" &&
-			tagsOf(all[name].candidates).some(function(tag) { return own.indexOf(tag) !== -1; });
+			relations.tagsOf(all[name].candidates).some(function(tag) { return own.indexOf(tag) !== -1; });
 	});
 };
 
@@ -65,7 +54,7 @@ exports.sources = function(wiki,name) {
 			var tiddler = wiki.getTiddler(title);
 			return !(tiddler && tiddler.isDraft());
 		}),
-		tags = tagsOf(filter),
+		tags = relations.tagsOf(filter),
 		content = require("$:/plugins/tiddlyrpg-core/modules/content.js");
 	content.offers(wiki).forEach(function(o) {
 		if(tags.indexOf(o.type) !== -1 && out.indexOf(o.title) === -1) {

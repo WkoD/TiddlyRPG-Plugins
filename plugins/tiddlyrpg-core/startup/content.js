@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/content.js
 type: application/javascript
 module-type: startup
 created: 20261022165648795
-modified: 20261023173843884
+modified: 20261023175042957
 
 Content packages in the browser (modules/content.js): loads the index of the packages of the active
 ruleset from the server (server/content-route.js) into the temp tiddler of the index - at the
@@ -23,10 +23,13 @@ packages shows.
                          back while it is unchanged (modules/form.js noteCreated). A notification
                          names it and what it names in base and spells that the wiki lacks, each
                          with a button to take it too - nothing comes by itself.
-  tm-trpg-content-copy   param: the id of an entry; draft: the draft to fill (the row "Take
-                         values from", editor/form). Fetches the entry and copies its values of the
-                         rules into the draft where it has none (modules/form.js copyValues) -
-                         nothing is taken, nothing names it.
+  tm-trpg-content-copy   param: the id of an entry; draft: the draft to fill; relate (yes: the
+                         row "Take values from", editor/form): the relation that copies (base)
+                         names the entry if the draft has none (modules/form.js relateCopy).
+                         Fetches the entry and copies its values of the rules into the draft where
+                         it has none (modules/form.js copyValues) - the entry is not taken: the
+                         DM takes it later if they want (the link to it offers it). Without
+                         relate: "Take the values" of a base that is an entry not taken.
 
 \*/
 
@@ -164,7 +167,7 @@ function take(wiki,id,draft,copy) {
 	});
 }
 
-function copy(wiki,id,draft) {
+function copy(wiki,id,draft,relate) {
 	var offer = content.offer(wiki,id);
 	if(!offer || !wiki.tiddlerExists(draft)) {
 		return;
@@ -174,7 +177,9 @@ function copy(wiki,id,draft) {
 			notify(wiki,language.t(wiki,"Content/TakeFailed"));
 			return;
 		}
-		var done = form.copyValues(wiki,draft,offer.title,content.toFields(wiki,found.package,found.entry,offer.title));
+		var related = relate ? form.relateCopy(wiki,draft,offer.title,[offer.type]) : [],
+			done = form.copyValues(wiki,draft,offer.title,content.toFields(wiki,found.package,found.entry,offer.title));
+		done.fields = related.concat(done.fields);
 		notify(wiki,form.copiedText(wiki,draft,done));
 	});
 }
@@ -197,7 +202,8 @@ exports.startup = function() {
 		return false;
 	});
 	$tw.rootWidget.addEventListener("tm-trpg-content-copy",function(event) {
-		copy(wiki,event.param,(event.paramObject || {}).draft);
+		var params = event.paramObject || {};
+		copy(wiki,event.param,params.draft,params.relate === "yes");
 		return false;
 	});
 };

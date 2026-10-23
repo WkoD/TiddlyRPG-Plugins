@@ -253,6 +253,27 @@ test("the plugins of the packages in the wiki's node_modules are found", functio
 	}
 });
 
+test("a relation to an entry of a content package not taken is no missing tiddler", function() {
+	var base = path.join("node_modules", "srd-mini");
+	write(path.join(base, "package.json"), JSON.stringify({name: "srd-mini", version: "1.0.0", tiddlyrpg: {content: ["content/manifest.json"]}}));
+	write(path.join(base, "content", "manifest.json"), JSON.stringify({name: "SRD mini", ruleset: "$:/plugins/fixture-ruleset-5e-mini", language: "en-GB",
+		"tiddlyrpg-core-version": ">=2.0.0", files: ["items.json"]}));
+	write(path.join(base, "content", "items.json"), JSON.stringify({entries: [{id: "longsword", title: "Longsword", type: "Item", fields: {damage: "1d8 slashing"}}]}));
+	write("tiddlers/Glutklinge.tid", "title: Glutklinge\ntags: Item\nbase: Longsword\n\nA sword.\n");
+	write("tiddlers/Eisklinge.tid", "title: Eisklinge\ntags: Item\nbase: Nirgends\n\nA sword.\n");
+	try {
+		var result = check(["relations"]);
+		assert.doesNotMatch(result.out, /Glutklinge/, "base: an entry of the package");
+		assert.match(result.out, /Eisklinge\n.*\[relations\/missing\]/, "base: nothing of that name");
+		assert.equal(result.status, 1);
+	} finally {
+		fs.rmSync(path.join(dir, "node_modules"), {recursive: true, force: true});
+		["Glutklinge", "Eisklinge"].forEach(function(name) {
+			fs.rmSync(path.join(dir, "tiddlers", name + ".tid"), {force: true});
+		});
+	}
+});
+
 test.describe("themes, --github and the switches", function() {
 	test.before(function() {
 		write("tiddlers/Mix.tid", "title: Mix\ntags: Location\n\nA <<nope>> B.\n");
