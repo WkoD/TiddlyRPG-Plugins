@@ -433,8 +433,9 @@ actions ...`), shown first; without it, twice, or without actions to introduce i
 They count in any tiddler, and `<<secret>>` before one locks it like any section. A kind may be
 locked by a value of the rules: a curse is seen where the field `cursed` is - with
 `secret-fields: cursed` the DM and the players of the tagged characters see the field and the
-curse, nobody else; lifting the lock shows both. A curse whose field is empty gets a hint: everyone
-sees it. The hub `Ruleset` lists the kinds.
+curse, nobody else; lifting the lock shows both. A curse whose field is empty gets a hint. In a
+dated section or a spot such a section belongs to it and is locked with it. The hub `Ruleset`
+lists the kinds.
 
 The hints stand below the title of the tiddler, not in the published copy.
 

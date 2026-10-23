@@ -1209,7 +1209,11 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
   with `heading` gets the widget `trpg-section-heading` before its first section, with the keys
   of its sections - it shows while one of them is visible. `intro`: one section without a name
   introduces the kind (checks `IntroMissing`, `IntroTwice`, `IntroAlone`, told at the first
-  section concerned).
+  section concerned, counting what the view sees). In a short section of another kind (an effect
+  in a dated section or a spot) such a section does not end it: `group()` keeps it in that
+  section (`inner`), the walk and `transform()` read the rest as a level inside it - its
+  sections are children of the dated section and locked with it. Reserved ids: the kinds of the
+  core, `intro`, a widget, a global procedure or macro (`domainProblems()`).
   The core names none of them. They are known per wiki, so every function with a wiki first
   makes them the kinds of the model (`use()`), and the cached model carries their ids in its key.
   Their procedures (the name in bold, `trpg.sectionname`) are written by `startup/sections.js`

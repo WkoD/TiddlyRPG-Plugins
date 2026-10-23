@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261023183447205
+modified: 20261023194136107
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -50,6 +50,7 @@ Plugins/PropertyCycle: Check the domain $domain$: "$id$" is its own ancestor
 Plugins/PropertyFor: Check the domain $domain$: "$id$" belongs to "$parent$", which is no entry of it
 Plugins/SectionCore: Check the domain $domain$: "$id$" is a kind of sections of the core
 Plugins/SectionLock: Check the domain $domain$: "$id$" is locked by the field $field$, which the rules do not define
+Plugins/SectionMacro: Check the domain $domain$: "$id$" is the name of a global procedure or macro - its call would replace it
 Plugins/SectionWidget: Check the domain $domain$: "$id$" is the name of a widget - its block form would be that widget
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
 Plugins/missing: Check the choice: $configured$ is not installed - active is $active$

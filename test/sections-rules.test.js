@@ -109,6 +109,43 @@ test("<<secret>> before a section locks it; a heading only while one of its sect
 	}
 });
 
+test("in a dated section or a spot a section of the ruleset belongs to it and is locked with it", function() {
+	h.add(wiki, {title: "Fund", tags: "Event", date: "1351-07-01", text: "Offen.\n\n<<secret>><<date>>\nDie Gruppe fand die Axt.\n\n<<effect \"Verborgene Macht\">> Geheime Macht.\n\nMehr geheime Prosa.\n\n<<date>>\nWieder offen."});
+	h.add(wiki, {title: "Gruft", tags: "Location", text: "Ein Ort.\n\n<<secret>><<spot \"Krypta\">> Eine Krypta.\n\n<<effect \"Falle\">> Fallendetails."});
+	try {
+		var records = sections.read(wiki, "Fund").records,
+			date = records.filter(function(r) { return r.kind === "date"; })[0],
+			effect = records.filter(function(r) { return r.kind === "effect"; })[0];
+		assert.equal(effect.parent, date.id, "the effect stands in the dated section");
+		assert.equal(records.filter(function(r) { return r.kind === "date"; }).length, 2, "it ends no dated section");
+		assert.deepEqual(h.checks(wiki, "Fund", "sections"), []);
+		h.inView(wiki, "public", function() {
+			var fund = body("Fund");
+			assert.doesNotMatch(fund, /Geheime|Mehr geheime|Axt/);
+			assert.match(fund, /Wieder offen/);
+			assert.doesNotMatch(body("Gruft"), /Falle|Krypta/);
+		});
+		assert.ok(ascending(positions(body("Fund"), ["Die Gruppe fand", "Verborgene Macht.", "Mehr geheime Prosa.", "Wieder offen."])), "the DM: in the order of the text");
+	} finally {
+		wiki.deleteTiddler("Fund");
+		wiki.deleteTiddler("Gruft");
+	}
+});
+
+test("two domains of type section: one order over both, one heading per kind", function() {
+	h.add(wiki, {title: "Eigene Abschnitte", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json",
+		text: JSON.stringify({domain: "SectionCampaign", type: "section", keys: "Rules/Section/", entries: [{id: "ritual"}, {id: "lair", heading: true}]})});
+	h.add(wiki, {title: "Hort", tags: "Creature", text: "<<action \"A1\">> eins.\n\n<<lair \"L1\">> hort.\n\n<<ritual \"R1\">> ritual.\n\n<<action \"A2\">> zwei."});
+	try {
+		var html = body("Hort");
+		assert.ok(ascending(positions(html, ["eins.", "zwei.", "ritual.", "hort."])), "the kinds of the second domain after those of the first, an action not twice: " + html);
+		assert.equal((html.match(/trpg-section-heading-action/g) || []).length, 1);
+	} finally {
+		wiki.deleteTiddler("Hort");
+		wiki.deleteTiddler("Eigene Abschnitte");
+	}
+});
+
 test("the procedures: one per kind, global, so no unknown macro", function() {
 	var procedures = wiki.getTiddler("$:/temp/tiddlyrpg-core/sections/procedures");
 	assert.ok(procedures && procedures.hasTag("$:/tags/Global"));
@@ -168,6 +205,15 @@ test("checks of the intro: missing, twice, without the sections it introduces", 
 	assert.deepEqual(keys("<<legendary \"Biss\">> Beißt.\n\n<<legendary \"Flügel\">> Schlägt."), ["Section/Check/IntroMissing"], "told once");
 	assert.deepEqual(keys("<<legendary>> Drei Aktionen.\n\n<<legendary>> Noch einmal.\n\n<<legendary \"Biss\">> Beißt."), ["Section/Check/IntroTwice"]);
 	assert.deepEqual(keys("<<legendary>> Drei Aktionen."), ["Section/Check/IntroAlone"]);
+	h.add(wiki, {title: "Drache", tags: "Creature", text: "<<secret>><<legendary>> Geheim.\n\n<<legendary>> Offen.\n\n<<legendary \"Biss\">> Beißt."});
+	try {
+		assert.deepEqual(h.checks(wiki, "Drache", "sections").map(function(m) { return m.key; }), ["Section/Check/IntroTwice"], "the DM sees both");
+		h.inView(wiki, "public", function() {
+			assert.deepEqual(h.checks(wiki, "Drache", "sections"), [], "a locked intro does not count where it is not seen");
+		});
+	} finally {
+		wiki.deleteTiddler("Drache");
+	}
 	h.add(wiki, {title: "Drache", tags: "Creature", text: "<<legendary \"Biss\">> Beißt."});
 	try {
 		assert.match(h.checks(wiki, "Drache", "sections")[0].text, /<<legendary>> ist unvollständig, die Einleitung fehlt/);
@@ -178,10 +224,10 @@ test("checks of the intro: missing, twice, without the sections it introduces", 
 
 test("the domain: an id of a kind of the core, a lock by a field the rules do not know", function() {
 	h.add(wiki, {title: "$:/tiddlyrpg/rules/domain/Section", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json",
-		text: JSON.stringify({domain: "Section", type: "section", keys: "Rules/Section/", entries: [{id: "date"}, {id: "hex", lock: "nope"}]})});
+		text: JSON.stringify({domain: "Section", type: "section", keys: "Rules/Section/", entries: [{id: "date"}, {id: "intro"}, {id: "term"}, {id: "hex", lock: "nope"}]})});
 	try {
 		var keys = Array.from(sections.domainProblems(wiki).map(function(p) { return p.key + " " + p.params.id; }));
-		assert.deepEqual(keys, ["Check/Plugins/SectionCore date", "Check/Plugins/SectionLock hex"]);
+		assert.deepEqual(keys, ["Check/Plugins/SectionCore date", "Check/Plugins/SectionCore intro", "Check/Plugins/SectionMacro term", "Check/Plugins/SectionLock hex"]);
 		assert.equal(sections.rulesKinds(wiki).date, undefined, "the core keeps its kind");
 	} finally {
 		wiki.deleteTiddler("$:/tiddlyrpg/rules/domain/Section");

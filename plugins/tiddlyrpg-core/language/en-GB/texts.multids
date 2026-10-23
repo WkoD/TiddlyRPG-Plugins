@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023192045262
+modified: 20261023194136107
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -274,7 +274,7 @@ Section/Check/Inside: Check the text: a short form <<$macro$>> inside another bl
 Section/Check/IntroAlone: Check the text: an introduction <<$macro$>> without any <<$macro$ "Name">> - it introduces nothing
 Section/Check/IntroMissing: Check the text: <<$macro$>> is incomplete, the introduction is missing - a <<$macro$>> without a name holds it
 Section/Check/IntroTwice: Check the text: two introductions <<$macro$>> without a name - one is enough
-Section/Check/LockField: Check the text: <<$macro$ "$name$">> is locked by the field $field$, which is empty - everyone sees it
+Section/Check/LockField: Check the text: <<$macro$ "$name$">> belongs to the field $field$, which is empty
 Section/Check/NestEmpty: Check text: <<$macro$>> marks nothing - the text follows the marker in its paragraph
 Section/Check/Nested: Check the text: $kind$ nested in each other - the inner one does not count
 Section/Check/NoCharacter: Check the text: a lock names "$name$", who is no player character

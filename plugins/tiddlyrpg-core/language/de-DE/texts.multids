@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023192045262
+modified: 20261023194136107
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -274,7 +274,7 @@ Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines an
 Section/Check/IntroAlone: Text prüfen: eine Einleitung <<$macro$>> ohne ein <<$macro$ "Name">> – sie leitet nichts ein
 Section/Check/IntroMissing: Text prüfen: <<$macro$>> ist unvollständig, die Einleitung fehlt – ein <<$macro$>> ohne Namen nimmt sie auf
 Section/Check/IntroTwice: Text prüfen: zwei Einleitungen <<$macro$>> ohne Namen – eine genügt
-Section/Check/LockField: Text prüfen: <<$macro$ "$name$">> ist an das Feld $field$ gebunden, das leer ist – alle sehen den Abschnitt
+Section/Check/LockField: Text prüfen: <<$macro$ "$name$">> ist an das Feld $field$ gebunden, das leer ist
 Section/Check/NestEmpty: Text prüfen: <<$macro$>> markiert nichts – der Text folgt im selben Absatz auf die Marke
 Section/Check/Nested: Text prüfen: $kind$ ineinander verschachtelt – der innere zählt nicht
 Section/Check/NoCharacter: Text prüfen: Eine Sperre nennt „$name$“, das ist keine Spielerfigur

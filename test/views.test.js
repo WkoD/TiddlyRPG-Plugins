@@ -313,6 +313,8 @@ test.describe("sweep", function() {
 			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
 			// A section of the ruleset locked by a field (a curse with cursed, modules/sections.js)
 			{title: "Sweep Fluchaxt", tags: "Item", cursed: "yes", "secret-fields": "cursed", text: "An axe.\n\n<<curse \"Qx7 Fluch\">> Qx7 berserk."},
+			// A section of the ruleset in a locked spot belongs to the spot (modules/sections.js inner)
+			{title: "Sweep Gruft", tags: "Location", text: "A place.\n\n<<secret>><<spot \"Qx7 Krypta\">> Qx7 crypt.\n\n<<effect \"Qx7 Falle\">> Qx7 trap."},
 			{title: "Sweep Truhe", tags: "Item", weight: "Qx7schwer", price: "1399 gp", "secret-fields": "all", text: "A chest."},
 			// The source of the images of a locked tiddler (field source), its images and maps as tabs
 			{title: "Qx7 Karte", tags: "Location Secret", location: "Baile", source: "Qx7src",
