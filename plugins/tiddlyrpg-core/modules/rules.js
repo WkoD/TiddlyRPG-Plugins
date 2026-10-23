@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261022141507011
+modified: 20261023173854355
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -61,9 +61,10 @@ Domain types and their data:
   damage   damage expressions: parts of a calculation (dice, numbers, +/-, an average with the
            dice in brackets), qualifiers and a type; parts joined by "+", "plus", "and"
     "entries":  [{"id": "<id>"}, {"id": "<id>", "qualifier": true}]
-    keys: Rules/Damage/<id> (name), Rules/Damage/<id>/Phrase (the type as it reads after the
-          dice, "cold damage", "Kälteschaden"), Rules/Damage/<id>/Parse (more words),
-          Rules/Damage/Pattern ($dice$ $qualifiers$ $type$), Rules/Damage/Join (between parts),
+    keys: Rules/Damage/<id> (name; the type in the value of a field, "cold", "Kälte"),
+          Rules/Damage/<id>/Phrase (the type as it reads after the dice in text, "cold damage",
+          "Kälteschaden"), Rules/Damage/<id>/Parse (more words), Rules/Damage/Pattern ($dice$
+          $qualifiers$ $type$), Rules/Damage/Join (between parts in text; a field joins with +),
           Rules/Damage/Joiners, Rules/Damage/Fillers, Rules/Damage/Extras (words to read and
           drop: "plus", "damage", "extra"; comma separated)
     The dice of the calculation follow the tokens domains.
@@ -605,8 +606,10 @@ function calcPattern(wiki) {
 	});
 }
 
-// <<damage value>>: "1d8 slashing", "1d8 + 1d4 + 1 fire DMG", "1d8 bludgeon und 1d8 cold"
-exports.damage = function(wiki,text) {
+// <<damage value>>: "1d8 slashing", "1d8 + 1d4 + 1 fire DMG", "1d8 bludgeon und 1d8 cold".
+// short: the form of a field, where the label already says damage - "1d10 bludgeoning + 1d8 cold"
+// instead of "1d10 bludgeoning damage plus 1d8 cold damage"
+exports.damage = function(wiki,text,short) {
 	text = (text || "").toString().trim();
 	var known = damageWords(wiki);
 	if(!known.length) {
@@ -677,7 +680,7 @@ exports.damage = function(wiki,text) {
 	}
 	var name = domain.domain,
 		pattern = language.lookupRules(wiki,name,"Rules/Damage/Pattern") || "$dice$ $qualifiers$ $type$",
-		join = language.lookupRules(wiki,name,"Rules/Damage/Join") || "+";
+		join = short ? "+" : language.lookupRules(wiki,name,"Rules/Damage/Join") || "+";
 	var shown = parts.filter(function(p) { return p.calc.trim() || p.type; }).map(function(p) {
 		var key = "Rules/Damage/" + p.type;
 		return language.format(pattern,{
@@ -685,7 +688,7 @@ exports.damage = function(wiki,text) {
 			qualifiers: p.qualifiers.map(function(q) {
 				return language.lookupRules(wiki,name,"Rules/Damage/" + q) || q;
 			}).join(" "),
-			type: p.type ? (language.lookupRules(wiki,name,key + "/Phrase") || language.lookupRules(wiki,name,key) || p.type) : ""
+			type: p.type ? ((!short && language.lookupRules(wiki,name,key + "/Phrase")) || language.lookupRules(wiki,name,key) || p.type) : ""
 		}).replace(/\s+/g," ").trim();
 	});
 	return result(shown.join(" " + join + " "));
@@ -746,7 +749,7 @@ var diceValue = exports.diceValue = function(wiki,spec,text) {
 The value of a field by its definition (spec, modules/fields.js): spec.format is one of
   unit     spec.domain, spec.kind; spec.words: a label domain whose entries stand in place of a
            number (range "self"), spec.only limits them; the units must belong to spec.domain
-  damage   a damage expression
+  damage   a damage expression, in the short form ("1d10 bludgeoning + 1d8 cold")
   dice     diceValue(), spec.domain a tokens domain
   label    one entry (modules/labels.js), spec.domain, spec.only
   labels   a list (modules/labels.js), spec.domain (a name or a list), spec.only, spec.value,
@@ -773,7 +776,7 @@ exports.value = function(wiki,spec,text) {
 			}
 			return u;
 		case "damage":
-			return exports.damage(wiki,text);
+			return exports.damage(wiki,text,true);
 		case "dice":
 			return diceValue(wiki,spec,text);
 		case "label":

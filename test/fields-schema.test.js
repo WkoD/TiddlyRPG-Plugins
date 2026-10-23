@@ -327,11 +327,12 @@ test.describe("the block of values", function() {
 	}
 
 	test("sections parted by lines: the fields of no group with the price, then the groups; values as text", function() {
-		withTiddler({title: "Langschwert", tags: "Item", category: "weapon, martial, melee, versatile", damage: "1d8 slashing", range: "5 ft",
+		withTiddler({title: "Langschwert", tags: "Item", category: "weapon, martial, melee, versatile", damage: "1d8 slashing plus 1d6 fire damage", range: "5 ft",
 			rarity: "<b>rare</b>", weight: "3 lb", price: "15 gp"}, function() {
 			var html = block("Langschwert");
 			assert.match(html, /<div class="trpg-fields-summary">Kriegswaffe \(Nahkampf, vielseitig\), &lt;b&gt;rare&lt;\/b&gt;<\/div>/, "unread: as written, as text");
-			assert.match(html, /<span class="trpg-fields-label">Schaden<\/span> 1W8 Hiebschaden<\/span><\/div><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Reichweite<\/span>/);
+			// the short form: the label says damage already
+			assert.match(html, /<span class="trpg-fields-label">Schaden<\/span> 1W8 Hieb \+ 1W6 Feuer<\/span><\/div><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Reichweite<\/span>/);
 			assert.match(html, /<div class="trpg-fields-section trpg-fields-inline"><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Gewicht<\/span> [^<]+<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Preis<\/span> 15 GM<\/span>/, "a group names the price");
 			assert.doesNotMatch(html, /Rüstungsklasse/);
 		});
@@ -371,7 +372,7 @@ test.describe("the block of values", function() {
 			assert.match(html, /<div class="trpg-fields-summary">Zauber 3\. Grades<\/div>/);
 			assert.doesNotMatch(html, /Zaubergrad|Konzentration<\/span>/);
 			assert.match(html, /Wirkungsdauer<\/span> Konzentration, bis zu 1 Minute<\/span>/);
-			assert.match(html, /Schaden<\/span> 8W6 Feuerschaden/, "damage on a spell: no category, no condition");
+			assert.match(html, /Schaden<\/span> 8W6 Feuer</, "damage on a spell: no category, no condition");
 			assert.equal(h.checks(wiki, "Feuerball", "fields").length, 0);
 		});
 		withTiddler({title: "Wolf", tags: "Creature", size: "medium", str: "12", cr: "1/4", wis: "12", skills: "perception", expertise: "perception"}, function() {

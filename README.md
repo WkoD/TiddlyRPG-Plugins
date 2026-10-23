@@ -249,7 +249,9 @@ line in italics ("martial weapon (melee, versatile), rare (requires attunement)"
 evocation", "Medium beast, unaligned"), then the values in groups - the abilities as a table -
 separated by lines in the colour of the type, the price with them. The labels and the values
 follow the rules language: `range: 60 ft` shows "60 ft" or "18 m", `category: weapon, martial`
-"martial weapon" or "Kriegswaffe". A value is read in every language, as in the macros.
+"martial weapon" or "Kriegswaffe". A value is read in every language, as in the macros. Damage
+stands short, as in a weapon table - the label says damage already: "1d10 bludgeoning + 1d8 cold"
+or "1W10 Wucht + 1W8 Kälte"; `<<damage>>` in the text keeps the full phrase.
 
 **What the rules derive is not written:** the modifier beside an ability ("16 (+3)"), the average
 beside dice ("7 (2d6)"), a total ("19 (18 + 1)" with a bonus), and values from other values -
