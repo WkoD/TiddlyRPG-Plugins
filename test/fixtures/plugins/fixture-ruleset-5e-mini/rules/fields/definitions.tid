@@ -9,6 +9,7 @@ type: application/json
         "category": {"format": "labels", "domain": "ItemCategory"},
         "rarity": {"format": "label", "domain": "Rarity"},
         "attunement": {"format": "boolean"},
+        "cursed": {"format": "boolean"},
         "damage": {"format": "damage", "when": {"category": ["weapon"]}},
         "bonus": {"format": "number", "signed": true, "filter": true},
         "ac": {"format": "number", "when": {"category": ["armor"]}, "derive": {"kind": "total", "parts": [{"field": "bonus"}]}},

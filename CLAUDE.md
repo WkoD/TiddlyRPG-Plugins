@@ -43,8 +43,9 @@ questions, before it is built:
 
 Lock only with `Secret`, `<<secret>>`, `<$secret>` and - for the values of the rules - the field
 `secret-fields` (`modules/visibility.js` `fieldVisible()`; the block reads a tiddler without the
-values the view may not see, so nothing derived from them shows either, `filters/fields.js`).
-Asking the view itself (`trpgview`, `$:/state/tiddlyrpg/view`) is for the frame of the page only:
+values the view may not see, so nothing derived from them shows either, `filters/fields.js`). A
+section of a kind of the ruleset with `"lock"` follows that field (a curse with `cursed`, see
+"Sections"). Asking the view itself (`trpgview`, `$:/state/tiddlyrpg/view`) is for the frame of the page only:
 the page control, the page class, the sidebar.
 
 ## New features - what else to check
@@ -163,6 +164,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     short and block forms, numbering over both, nesting (with a kind registered in the test),
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
     timeline, span, pills, `datesection`, spots and the map, search, backlinks
+  - `sections-rules` - the kinds of sections of the ruleset (fixture 5e-mini: effect, curse with
+    `cursed`, action): both forms, the name before the text, the procedures, the lock by a field
+    in the views, the checks of a section and of the domain, the hub
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
     the band of the tiddler itself (one per phase, apart), the section lines as links, captions
     with macros, refresh
@@ -459,7 +463,8 @@ the tiddler title:
 - **Startup** (`startup/tag-names.js`): hook `th-saving-tiddler`, stores translated tag names
   ("Ort") under the internal name (`Location`). `startup/symmetric.js`,
   `startup/editor-messages.js`, `startup/editor-states.js`: see "Editor". `startup/plugin-types.js`: the switchers of the
-  plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting").
+  plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting"). `startup/sections.js`:
+  the procedures and block widgets of the kinds of sections of the ruleset (see "Sections").
 - **Licenses**: `ui/controlpanel-license` (ControlPanel -> License, `$:/tags/ControlPanel`)
   and `config/licenses` (`$:/config/tiddlyrpg/licenses`), see "Readme and license of a plugin";
   `files/tiddlywiki.files` loads `README.md` and `LICENSE` of the repo as the tabs.
@@ -1194,6 +1199,19 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
   core or plugin widget has these names; a wikitext `\widget` would need a dot). `register()`
   adds a kind: found, locked, nested and rendered without code of its own; the
   block widget is one `makeBlock()` line.
+- Kinds of the ruleset (`rulesKinds()`): the entries of a domain of type `section` (D&D: effect,
+  curse, trait, spellcasting, action ...) - kinds with `nest`, any tiddler, a name (`params.name`).
+  The core names none of them. They are known per wiki, so every function with a wiki first
+  makes them the kinds of the model (`use()`), and the cached model carries their ids in its key.
+  Their procedures (the name in bold, `trpg.sectionname`) are written by `startup/sections.js`
+  into a temp tiddler tagged `$:/tags/Global`, their block widgets added to the widget classes
+  (`registerBlocks()`, maker from `widgets/sections.js`) - both after `startup/plugin-types.js`
+  has unpacked the ruleset, and anew when it changes. A block of such a kind runs its name into
+  its first paragraph. `"lock": "<field>"` locks a section with a field of the rules
+  (`fieldLock()`: as `secret-fields` locks the field - a curse with `cursed`); it counts in
+  `visible()` and `lockOf()` like a lock of its own. Problems: no name, an empty lock field
+  (hint); in the data an id of the core or of another widget, a lock field the rules do not
+  define (`domainProblems()`, rule `plugins/domains`).
 - One walk over the parse tree per tiddler (`read()`, cached) gives the records (kind, form,
   key = start offset of marker or block, parent, locks, text range), the links and `<<spotlink>>`
   calls with their innermost section, and the problems. `group()` splits one level into

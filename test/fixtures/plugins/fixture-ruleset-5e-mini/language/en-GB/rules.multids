@@ -142,3 +142,7 @@ Rules/Summary/Creature: $size$
 Rules/Line/duration: {$concentration.flag$ }$duration$
 Rules/Line/Concentration: Concentration, up to
 Rules/Line/challenge: $cr${ ($xp$ XP)}
+Rules/Field/cursed: Cursed
+Rules/Section/effect: effect
+Rules/Section/curse: curse
+Rules/Section/action: action

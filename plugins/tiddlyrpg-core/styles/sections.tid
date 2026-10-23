@@ -1,5 +1,5 @@
 created: 20261015145856000
-modified: 20261022151302900
+modified: 20261023183447205
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/sections
 type: text/vnd.tiddlywiki
@@ -112,4 +112,12 @@ div.trpg-section-date > hr.trpg-date-rule:first-child {
 	border: none;
 	padding: 0;
 	margin: 0;
+}
+
+/* The name of a section of a kind of the ruleset (<<effect "Name">>): bold italics, as in a
+   rulebook; the text follows in the same line. */
+span.trpg-section-name {
+	font-weight: bold;
+	font-style: italic;
+	margin-right: 0.25em;
 }

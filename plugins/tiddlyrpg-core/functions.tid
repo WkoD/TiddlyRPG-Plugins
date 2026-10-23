@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261022165648795
+modified: 20261023183447205
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -239,6 +239,16 @@ type: text/vnd.tiddlywiki
 <%endif%>
 
 </$trpg-date>
+\end
+
+<!-- The name of a section of a kind of the ruleset (modules/sections.js rulesKinds, the
+     procedures of startup/sections.js): <<effect "Säureexplosion">> at the start of a paragraph,
+     <$effect name="...">...</$effect>. In bold italics before its text, as in a rulebook, with a
+     full stop unless it ends in a mark of its own; wikitext, so links stay links. What it holds
+     and its frame come from the parse tree (trpg-nest, the block). -->
+\procedure trpg.sectionname(name)
+\whitespace trim
+<span class="trpg-section-name"><$transclude $variable="name" $mode="inline"/><$list filter="[<name>trim[]split[]last[]] -[enlist[. ! ? :]]" variable="ignore">.</$list></span>
 \end
 
 <!-- A lock: <<secret "Theren" "Actia">> locks the section it stands at (modules/sections.js),

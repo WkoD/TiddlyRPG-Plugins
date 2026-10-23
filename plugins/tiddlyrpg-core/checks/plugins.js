@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/plugins.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015193638000
-modified: 20261023181956562
+modified: 20261023183447205
 
 Checks of the plugins of the wiki (modules/plugin-types.js, modules/currency.js;
 modules/checks.js runs them). The titles are system tiddlers: in the wiki the same problems show
@@ -19,7 +19,8 @@ scripts/check-wiki.js.
   plugins/domains   error: an extension of a rules domain without base domain, of a base that is
                     no label domain, or with an id the base has; a property whose "for" names no
                     entry of its domain; a property that is its own ancestor (modules/language.js,
-                    modules/labels.js)
+                    modules/labels.js); a kind of sections with the name of a kind of the core or
+                    a lock by a field the rules do not define (modules/sections.js)
 
 \*/
 
@@ -28,6 +29,7 @@ scripts/check-wiki.js.
 var pluginTypes = require("$:/plugins/tiddlyrpg-core/modules/plugin-types.js"),
 	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	labels = require("$:/plugins/tiddlyrpg-core/modules/labels.js"),
+	sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
 	currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js");
 
 exports.rules = [
@@ -72,7 +74,7 @@ exports.rules = [
 		id: "plugins/domains",
 		scope: "wiki",
 		run: function(wiki) {
-			return language.domainProblems(wiki).concat(labels.dataProblems(wiki)).map(function(problem) {
+			return language.domainProblems(wiki).concat(labels.dataProblems(wiki),sections.domainProblems(wiki)).map(function(problem) {
 				return {title: problem.title, level: "error", key: problem.key, params: problem.params};
 			});
 		}

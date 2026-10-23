@@ -6,7 +6,7 @@ type: application/json
 
 {
     "types": ["Item", "Artifact"],
-    "fields": ["category", "rarity", "attunement", "damage", "range", "bonus", "ac", "weight", "healing"],
+    "fields": ["category", "rarity", "attunement", "cursed", "damage", "range", "bonus", "ac", "weight", "healing"],
     "summary": {"key": "Rules/Summary/Item", "flags": {"attunement": "Rules/Summary/Attunement"}},
     "groups": [
         {"id": "properties", "fields": ["damage", "range", "ac", "bonus", "healing"], "relations": ["base"]},

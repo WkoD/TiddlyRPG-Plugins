@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261023181956562
+modified: 20261023183447205
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -71,6 +71,11 @@ Domain types and their data:
 
   calendar, currency: see modules/calendar.js and modules/currency.js. <<unit>> shows coins
   ("3 gp 5 sp") through the currency when the text holds no length or weight.
+
+  section  kinds of sections of the text (modules/sections.js rulesKinds): <<effect "Name">>
+    "entries":  [{"id": "effect"}, {"id": "curse", "lock": "cursed"}] - the id is the name of the
+                macro and of the block; "lock": a field of the rules whose lock locks the section
+    keys: <keys><id> (label of the kind, "keys" defaults to Rules/Section/)
 
 Every domain may have "example": an input shown in the settings tab next to its output ("228 cm",
 "1d8 cold", "wis save", a date for a calendar).
@@ -856,6 +861,13 @@ exports.table = function(wiki,name) {
 				phrase = text(key + "/Phrase");
 			row(entry.id,html(text(key)) + (phrase ? "<br><small>" + html(phrase) + "</small>" : "") +
 				(entry.qualifier ? " <small>(" + html(language.t(wiki,"Ruleset/Hub/Qualifier")) + ")</small>" : ""));
+		});
+	} else if(domain.type === "section") {
+		// A kind of sections: its call, its label, the field it is locked by
+		(domain.entries || []).forEach(function(entry) {
+			row(entry.id,"<code>" + html("<<" + entry.id + " \"…\">>") + "</code> " +
+				html(text((domain.keys || "Rules/Section/") + entry.id)) +
+				(entry.lock ? " <small>(" + html(language.format(language.t(wiki,"Ruleset/Hub/Lock"),{field: entry.lock})) + ")</small>" : ""));
 		});
 	} else if(domain.type === "tokens") {
 		(domain.tokens || []).forEach(function(token) {

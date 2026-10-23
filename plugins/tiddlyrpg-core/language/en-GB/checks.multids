@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261023181956562
+modified: 20261023183447205
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
@@ -48,6 +48,9 @@ Plugins/ExtensionType: Check the extension: $domain$ is of type $type$; only lab
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
 Plugins/PropertyCycle: Check the domain $domain$: "$id$" is its own ancestor
 Plugins/PropertyFor: Check the domain $domain$: "$id$" belongs to "$parent$", which is no entry of it
+Plugins/SectionCore: Check the domain $domain$: "$id$" is a kind of sections of the core
+Plugins/SectionLock: Check the domain $domain$: "$id$" is locked by the field $field$, which the rules do not define
+Plugins/SectionWidget: Check the domain $domain$: "$id$" is the name of a widget - its block form would be that widget
 Plugins/disabled: Check the choice: $configured$ is disabled - active is $active$
 Plugins/missing: Check the choice: $configured$ is not installed - active is $active$
 Plugins/type: Check the choice: $configured$ is no plugin of this type - active is $active$

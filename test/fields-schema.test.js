@@ -50,7 +50,7 @@ function schemaMessages() {
 test.describe("schemas", function() {
 	test("the fields of a type in the order of its schema, groups, labels", function() {
 		var schema = fields.forTypes(wiki, ["Item"]);
-		assert.equal(schema.fields.join(), "category,rarity,attunement,damage,range,bonus,ac,weight,healing");
+		assert.equal(schema.fields.join(), "category,rarity,attunement,cursed,damage,range,bonus,ac,weight,healing");
 		assert.equal(schema.groups.map(function(g) { return g.id; }).join(), "properties,trade");
 		assert.equal(fields.forTypes(wiki, ["Spell"]).labels.level, "Rules/Field/level/spell");
 		assert.equal(fields.forTypes(wiki, ["Location"]).fields.length, 0);

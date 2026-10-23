@@ -4,6 +4,7 @@ title: $:/config/EditTemplateFields/Visibility/
 
 ac: hide
 attunement: hide
+cursed: hide
 bonus: hide
 category: hide
 concentration: hide

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023181956562
+modified: 20261023183447205
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -259,6 +259,7 @@ Rules/Mode/wiki: die Wiki-Sprache
 Rules/List/And: und
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Arten:
+Ruleset/Hub/Lock: gesperrt mit dem Feld $field$
 Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
 Ruleset/Hub/Pairs: Umrechnung:
 Ruleset/Hub/Qualifier: Zusatz
@@ -268,6 +269,7 @@ Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
 Section/Check/DateLabel: Text prüfen: <<date "$text$">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"$text$"
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
+Section/Check/LockField: Text prüfen: <<$macro$ "$name$">> ist an das Feld $field$ gebunden, das leer ist – alle sehen den Abschnitt
 Section/Check/NestEmpty: Text prüfen: <<$macro$>> markiert nichts – der Text folgt im selben Absatz auf die Marke
 Section/Check/Nested: Text prüfen: $kind$ ineinander verschachtelt – der innere zählt nicht
 Section/Check/NoCharacter: Text prüfen: Eine Sperre nennt „$name$“, das ist keine Spielerfigur
@@ -277,6 +279,7 @@ Section/Check/QuestNoQuest: Text prüfen: „$name$“ ist ein Tiddler, aber kei
 Section/Check/QuestPosition: Text prüfen: <<quest "$name$" "$text$">> – der Status steht benannt: status:"$text$"
 Section/Check/QuestStatus: Text prüfen: „$status$“ ist kein Status eines Quests (open, complete, failed)
 Section/Check/SecretMidText: Text prüfen: <<secret>> mitten in einem Abschnitt wirkt nicht – an den Anfang des Abschnitts setzen oder <$secret>…</$secret> verwenden
+Section/Check/SectionName: Text prüfen: <<$macro$>> ohne Namen – der Name steht vorn: <<$macro$ "Name">>
 Section/Check/WrongType: Text prüfen: <<$macro$>> zählt nur in einem Tiddler mit Tag $type$
 Section/Kind/date: Datumsabschnitte
 Section/Kind/quest: Quest-Marker

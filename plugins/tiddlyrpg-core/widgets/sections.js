@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261015145856000
+modified: 20261023183447205
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -28,6 +28,9 @@ Rendering of the sections of a body (modules/sections.js).
 <$secret for="Theren Actia">...</$secret>     locks what it encloses
 <$quest name="Name" status="complete">...</$quest>    block form of a quest marker; inside a
   paragraph or a list item it is a span
+<$effect name="Name">...</$effect>    block form of a kind of the ruleset (modules/sections.js
+  rulesKinds, registerBlocks): its name shows first, through the procedure of the kind
+  (startup/sections.js).
 
 A section the active view does not see renders nothing. Every section is a div with the classes
 trpg-section trpg-section-<kind> (a quest also trpg-quest-real or trpg-quest-rumour) - the base
@@ -233,14 +236,25 @@ function makeBlock(kind) {
 			record = null;
 		}
 		var children = record ? sections.wrapInline(sections.transform(wiki,this.title,node.children || [],{})) : (node.children || []);
-		if(HEADINGS[kind]) {
+		var names = HEADINGS[kind] || (sections.kind(kind) && sections.kind(kind).domain ? ["name"] : null);
+		if(names) {
 			var heading = {type: "transclude", attributes: {"$variable": {type: "string", value: kind}}, isBlock: !this.inline, start: node.start, end: node.end};
-			$tw.utils.each(HEADINGS[kind],function(name) {
+			$tw.utils.each(names,function(name) {
 				if(node.attributes && node.attributes[name]) {
 					heading.attributes[name] = node.attributes[name];
 				}
 			});
-			children = [heading].concat(children);
+			// The name of a kind of the ruleset runs into its first paragraph, as in a rulebook
+			var first = HEADINGS[kind] ? -1 : children.findIndex(function(child) {
+				return !(child.type === "text" && !/\S/.test(child.text || ""));
+			});
+			if(first !== -1 && children[first].type === "element" && children[first].tag === "p") {
+				heading.isBlock = false;
+				children = children.slice();
+				children[first] = $tw.utils.extend({},children[first],{children: [heading,{type: "text", text: " "}].concat(children[first].children || [])});
+			} else {
+				children = [heading].concat(children);
+			}
 		}
 		var shown;
 		if(!record && kind === "secret") {
@@ -261,3 +275,7 @@ exports.date = makeBlock("date");
 exports.spot = makeBlock("spot");
 exports.secret = makeBlock("secret");
 exports.quest = makeBlock("quest");
+
+// The block forms of the kinds of the ruleset are made by the same function; they are registered
+// when the ruleset is known (sections.registerBlocks, startup/sections.js)
+sections.setBlockMaker(makeBlock);

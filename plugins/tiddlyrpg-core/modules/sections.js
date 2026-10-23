@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261016184211000
+modified: 20261023183447205
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -25,6 +25,13 @@ Every kind of section has a short and a block form:
           a paragraph marks the paragraph, <<quest "Name" status:"complete">> where it ends;
           <$quest name="Name" status="failed">...</$quest> what it encloses - several
           paragraphs, list items, or a part of a paragraph.
+
+A ruleset adds kinds of its own as data (rulesKinds(): a domain of type "section"), e.g. D&D
+<<effect "Name">>, <<curse "Name">>, <<action "Name">>: a named part of a text - an effect of an
+item, an action of a creature. Like a quest marker its short form holds its paragraph, its block
+form <$effect name="Name">...</$effect> what it encloses; the name shows in bold before the text.
+Any tiddler. An entry with "lock": "<field>" is locked with that field of the rules: the section
+is seen where the field is (visibility.fieldVisible - a curse with cursed).
 
 register() adds a kind: it is found, locked, nested and rendered like the others. A kind with
 nest: true (quest) splits nothing: its short form at the start of a paragraph or a list item
@@ -86,8 +93,9 @@ A kind: {types, params(node,form), visible(wiki,record,view), nest, check(wiki,m
   params   the parameters of a marker or block node
   visible  optional: a further condition for the view to see a section of this kind
   nest     optional: true for a kind that splits nothing (see the rules above)
-  check    optional: further problems of a record, [{key, params}] - asked by check(), not
-           cached, so it may look at other tiddlers
+  check    optional: further problems of a record, [{key, params, level}] (level: "hint", else
+           an error) - asked by check(wiki,model,record,title), not cached, so it may look at
+           other tiddlers
   classes  optional: further classes of a rendered section, from the record
   watch    optional: titles whose change re-renders a section of the kind
 */
@@ -96,7 +104,7 @@ var register = exports.register = function(name,def) {
 };
 
 exports.kind = function(name) {
-	return KINDS[name] || null;
+	return kindDef(name);
 };
 
 register("date",{
@@ -221,6 +229,150 @@ register("quest",{
 	}
 });
 
+/* ---------- Kinds of the ruleset ---------- */
+
+var RULES = Object.create(null),
+	CORE = ["date","spot","secret","quest"];
+
+// A kind of the ruleset: an entry {id, lock} of a domain {domain, keys} of type "section"
+function rulesKind(domain,entry) {
+	var lock = entry.lock ? entry.lock.toString().trim() : "";
+	return {
+		types: null,
+		nest: true,
+		domain: domain.domain,
+		label: (domain.keys || "Rules/Section/") + entry.id,
+		lock: lock,
+		// <<effect "Name">>, <<effect name:"Name">>; <$effect name="Name">
+		params: function(node) {
+			var name = attribute(node,"name");
+			if(name === undefined) {
+				name = attribute(node,"0") || "";
+			}
+			return {name: name.trim(), plain: plain(name)};
+		},
+		check: function(wiki,model,record,title) {
+			var problems = [],
+				macro = record.kind,
+				tiddler = wiki.getTiddler(title);
+			if(!record.params.name) {
+				problems.push({key: "Section/Check/SectionName", params: {macro: macro}});
+			}
+			// A lock by a field that is empty locks nothing: everyone sees the section
+			if(lock && tiddler && !(tiddler.fields[lock] || "").toString().trim()) {
+				problems.push({level: "hint", key: "Section/Check/LockField", params: {macro: macro, name: record.params.plain,
+					field: require("$:/plugins/tiddlyrpg-core/modules/fields.js").label(wiki,lock)}});
+			}
+			return problems;
+		}
+	};
+}
+
+/*
+The kinds the active ruleset adds (global cache): {id: kind}, from the domains of type "section",
+each entry {"id": "effect"} or {"id": "curse", "lock": "cursed"}; the label of a kind is the key
+<keys><id> of its domain (Rules/Section/<id>). An id of a kind of the core is left out (the domain
+check reports it, labels.problems()).
+*/
+var rulesKinds = exports.rulesKinds = function(wiki) {
+	return wiki.getGlobalCache("tiddlyrpg-section-kinds",function() {
+		var out = Object.create(null);
+		$tw.utils.each(language.domains(wiki),function(domain) {
+			if(domain.type !== "section") {
+				return;
+			}
+			$tw.utils.each(domain.entries || [],function(entry) {
+				if(entry && entry.id && CORE.indexOf(entry.id) === -1 && !out[entry.id]) {
+					out[entry.id] = rulesKind(domain,entry);
+				}
+			});
+		});
+		return out;
+	});
+};
+
+// The kinds of the ruleset of <wiki> become those the model knows; returns their ids (the key of
+// the cached model, so that a change of the ruleset reads the bodies anew)
+function use(wiki) {
+	RULES = rulesKinds(wiki);
+	return Object.keys(RULES).join(" ");
+}
+
+function kindDef(name) {
+	return KINDS[name] || RULES[name] || null;
+}
+
+// The label of a kind: Section/Kind/<kind> of the core, the key of a kind of the ruleset
+exports.kindLabel = function(wiki,kind) {
+	var def = kindDef(kind);
+	return def && def.domain ? language.lookupRules(wiki,def.domain,def.label) || kind : language.t(wiki,"Section/Kind/" + kind);
+};
+
+/*
+The block forms of the kinds of the ruleset (<$effect name="Name">): widget classes made by
+widgets/sections.js (setBlockMaker), added to those of TiddlyWiki for each kind of the ruleset of
+<wiki> (startup/sections.js, at the start and when the ruleset changes). A kind keeps its class
+when the ruleset changes - a block of a kind the ruleset no longer has renders as a block without
+a model. A name another widget has (a widget of the core, of a plugin) is left out; the domain
+check reports it.
+*/
+var blockMaker = null,
+	OWN_BLOCKS = Object.create(null);
+
+exports.setBlockMaker = function(make) {
+	blockMaker = make;
+};
+
+function widgetClasses(wiki) {
+	var Widget = require("$:/core/modules/widgets/widget.js").widget;
+	// The first widget gathers the classes of the core and of the plugins
+	if(!Widget.prototype.widgetClasses) {
+		new Widget({},{wiki: wiki});
+	}
+	return Widget.prototype.widgetClasses;
+}
+
+exports.registerBlocks = function(wiki) {
+	var classes = widgetClasses(wiki);
+	$tw.utils.each(Object.keys(rulesKinds(wiki)),function(id) {
+		if(blockMaker && !classes[id]) {
+			classes[id] = blockMaker(id);
+			OWN_BLOCKS[id] = true;
+		}
+	});
+};
+
+// The problems of the domains of type "section", each {title, key, params}: an id that is a kind
+// of the core or the name of another widget, a lock by a field the rules do not define
+// (checks/plugins.js, rule plugins/domains)
+exports.domainProblems = function(wiki) {
+	var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
+		problems = [];
+	$tw.utils.each(language.domains(wiki),function(domain) {
+		if(domain.type !== "section") {
+			return;
+		}
+		$tw.utils.each(domain.entries || [],function(entry) {
+			if(entry && CORE.indexOf(entry.id) !== -1) {
+				problems.push({title: domain.title, key: "Check/Plugins/SectionCore", params: {domain: domain.domain, id: entry.id}});
+			} else if(entry && entry.id && widgetClasses(wiki)[entry.id] && !OWN_BLOCKS[entry.id]) {
+				problems.push({title: domain.title, key: "Check/Plugins/SectionWidget", params: {domain: domain.domain, id: entry.id}});
+			}
+			if(entry && entry.lock && !fields.spec(wiki,entry.lock.toString().trim())) {
+				problems.push({title: domain.title, key: "Check/Plugins/SectionLock", params: {domain: domain.domain, id: entry.id, field: entry.lock}});
+			}
+		});
+	});
+	return problems;
+};
+
+// The characters a section is locked for by a field of its kind (lock), or null: the player
+// characters <title> is tagged with, as for the lock of its values
+function fieldLock(wiki,title,record) {
+	var def = kindDef(record.kind);
+	return def && def.lock && visibility.fieldLocked(wiki,title,def.lock) ? visibility.characters(wiki,title) : null;
+}
+
 /* ---------- Nodes ---------- */
 
 // The kind of a short marker <<kind ...>> (a transclude node with a position) that splits a
@@ -228,7 +380,7 @@ register("quest",{
 var shortKind = exports.shortKind = function(node) {
 	if(node && node.type === "transclude" && node.start !== undefined) {
 		var name = attribute(node,"$variable");
-		return name && KINDS[name] && !KINDS[name].nest ? name : null;
+		return name && kindDef(name) && !kindDef(name).nest ? name : null;
 	}
 	return null;
 };
@@ -237,14 +389,14 @@ var shortKind = exports.shortKind = function(node) {
 var nestKind = exports.nestKind = function(node) {
 	if(node && node.type === "transclude" && node.start !== undefined) {
 		var name = attribute(node,"$variable");
-		return name && KINDS[name] && KINDS[name].nest ? name : null;
+		return name && kindDef(name) && kindDef(name).nest ? name : null;
 	}
 	return null;
 };
 
 // The kind of a block <$kind ...>...</$kind>, or null
 var blockKind = exports.blockKind = function(node) {
-	return node && KINDS[node.type] && node.tag === "$" + node.type ? node.type : null;
+	return node && kindDef(node.type) && node.tag === "$" + node.type ? node.type : null;
 };
 
 function isPragma(node) {
@@ -327,7 +479,7 @@ function group(nodes) {
 	$tw.utils.each(nodes,function(node) {
 		var current = groups[groups.length - 1],
 			bk = blockKind(node);
-		if(bk && bk !== "secret" && !KINDS[bk].nest) {
+		if(bk && bk !== "secret" && !kindDef(bk).nest) {
 			groups.push({kind: bk, form: "block", marker: node, head: node, prefix: pending, nodes: [node], open: false});
 			pending = [];
 			groups.push({kind: null, form: null, marker: null, head: null, prefix: [], nodes: [], open: false});
@@ -414,7 +566,8 @@ The model of a body (cached per tiddler):
   errors     [{key, kind, start}]
 */
 var read = exports.read = function(wiki,title) {
-	return wiki.getCacheForTiddler(title,"tiddlyrpg-section-model",function() {
+	var kinds = use(wiki);
+	return wiki.getCacheForTiddler(title,"tiddlyrpg-section-model " + kinds,function() {
 		var tiddler = wiki.getTiddler(title),
 			parser = tiddler ? wiki.parseTiddler(title) : null;
 		return build(tiddler ? tiddler.fields.text || "" : "",parser && parser.tree ? parser.tree : [],function(tag) {
@@ -429,6 +582,7 @@ The model of a text that is no tiddler (the text in the editor, modules/editor.j
 positions, so start and end are offsets in <text>.
 */
 exports.readText = function(wiki,text,tags) {
+	use(wiki);
 	var parser = wiki.parseText("text/vnd.tiddlywiki",text || "");
 	tags = tags || [];
 	return build(text || "",parser && parser.tree ? parser.tree : [],function(tag) {
@@ -451,7 +605,7 @@ function build(text,tree,hasTag) {
 				key: key,
 				start: node ? node.start : range.from,
 				end: node ? node.end : range.to,
-				params: node && KINDS[kind] ? KINDS[kind].params(node,form) : {},
+				params: node && kindDef(kind) ? kindDef(kind).params(node,form) : {},
 				parent: parent,
 				locks: prefix.map(function(marker) { return KINDS.secret.params(marker,"short").names; }),
 				from: range.from,
@@ -587,7 +741,7 @@ function build(text,tree,hasTag) {
 	});
 	// Kinds in the wrong tiddler, kinds within the same kind
 	$tw.utils.each(records,function(record) {
-		var def = KINDS[record.kind];
+		var def = kindDef(record.kind);
 		if(!def) {
 			return;
 		}
@@ -651,7 +805,7 @@ var visible = exports.visible = function(wiki,title,id,view) {
 	view = view || visibility.current(wiki);
 	for(var up = id; up !== -1; up = model.records[up].parent) {
 		var record = model.records[up],
-			def = KINDS[record.kind];
+			def = kindDef(record.kind);
 		if(def && def.visible && !def.visible(wiki,record,view)) {
 			return false;
 		}
@@ -660,21 +814,28 @@ var visible = exports.visible = function(wiki,title,id,view) {
 				return false;
 			}
 		}
+		var byField = fieldLock(wiki,title,record);
+		if(byField && !visibility.allows(wiki,byField,view)) {
+			return false;
+		}
 	}
 	return true;
 };
 
 /*
 The lock shown on a section: null if the record has no lock of its own, else the characters
-it is for ([] = DM only). Several locks narrow: only who passes all of them.
+it is for ([] = DM only). Several locks narrow: only who passes all of them. The lock by a field
+of its kind (a curse with cursed) counts as one of them.
 */
 exports.lockOf = function(wiki,title,id) {
-	var record = read(wiki,title).records[id];
-	if(!record || !record.locks.length) {
+	var record = read(wiki,title).records[id],
+		byField = record ? fieldLock(wiki,title,record) : null,
+		locks = record ? record.locks.concat(byField ? [byField] : []) : [];
+	if(!locks.length) {
 		return null;
 	}
 	var names = null;
-	$tw.utils.each(record.locks,function(list) {
+	$tw.utils.each(locks,function(list) {
 		var valid = characters(wiki,list);
 		names = names === null ? valid : names.filter(function(name) { return valid.indexOf(name) !== -1; });
 	});
@@ -709,19 +870,22 @@ exports.check = function(wiki,title,view) {
 	}
 	view = view || visibility.current(wiki);
 	$tw.utils.each(model.errors,function(error) {
-		var def = KINDS[error.kind];
+		var def = kindDef(error.kind);
 		problems.push({key: error.key, params: {
 			macro: error.kind,
-			kind: language.t(wiki,"Section/Kind/" + error.kind),
+			kind: exports.kindLabel(wiki,error.kind),
 			type: def && def.types ? language.title(wiki,def.types[0]) : ""
 		}});
 	});
 	$tw.utils.each(model.records,function(record) {
 		// The problems of the kind itself (a quest: its name, status, date section)
-		var def = KINDS[record.kind];
+		var def = kindDef(record.kind);
 		if(def && def.check && record.counts && visible(wiki,title,record.id,view)) {
-			$tw.utils.each(def.check(wiki,model,record),function(problem) {
+			$tw.utils.each(def.check(wiki,model,record,title),function(problem) {
 				var entry = {key: problem.key, params: problem.params || {}};
+				if(problem.level) {
+					entry.level = problem.level;
+				}
 				if(problem.key === "Section/Check/QuestPosition" && record.form === "short") {
 					entry.fix = {kind: "questStatus", start: record.start};
 				}
@@ -826,7 +990,7 @@ function findNest(nodes,key) {
 			return node;
 		}
 		var bk = blockKind(node);
-		if(bk && KINDS[bk].nest && node.start !== undefined && node.start.toString() === key) {
+		if(bk && kindDef(bk).nest && node.start !== undefined && node.start.toString() === key) {
 			return node;
 		}
 		var found = findNest(bk ? wrapNests(node.children || []) : node.children || [],key);
@@ -849,6 +1013,7 @@ with nest: render only what it holds - a quest marker in the history of its ques
 */
 var transform = exports.transform = function(wiki,title,nodes,options) {
 	options = options || {};
+	use(wiki);
 	if(options.nest) {
 		var found = findNest(transform(wiki,title,nodes,{root: options.root}),options.nest);
 		return found ? [found.isBlock ? found : {type: "element", tag: "p", children: [found], isBlock: true}] : [];

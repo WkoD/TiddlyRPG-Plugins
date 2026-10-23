@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/sections.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015193638000
-modified: 20261016184211000
+modified: 20261023183447205
 
 Checks of the sections of a body (modules/sections.js check(); modules/checks.js runs them).
 
@@ -11,7 +11,10 @@ Checks of the sections of a body (modules/sections.js check(); modules/checks.js
                       <<secret>> in the middle of a section, a kind in the wrong tiddler, a
                       caption by position, a lock naming no player character, and the problems
                       of a kind itself (a quest marker: no name, no dated section, a name that is
-                      no quest, an unknown status, a status by position)
+                      no quest, an unknown status, a status by position; a section of the
+                      ruleset without name)
+                      hint: a section of the ruleset locked by a field that is empty (a curse
+                      without cursed) - everyone sees it
 
 \*/
 
@@ -24,7 +27,7 @@ exports.rules = [
 		id: "sections/structure",
 		run: function(wiki,title,view) {
 			return sections.check(wiki,title,view).map(function(problem) {
-				var message = {level: "error", key: problem.key, params: problem.params};
+				var message = {level: problem.level || "error", key: problem.key, params: problem.params};
 				if(problem.fix) {
 					message.fix = problem.fix;
 				}
