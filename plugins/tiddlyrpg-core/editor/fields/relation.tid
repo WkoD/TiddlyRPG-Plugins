@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261023175042957
+modified: 20261023180848471
 title: $:/plugins/tiddlyrpg-core/editor/fields/relation
 type: text/vnd.tiddlywiki
 
@@ -14,9 +14,9 @@ type: text/vnd.tiddlywiki
      modules/form.js copyFrom); the button "Take the values" does it again later, from the
      package for an entry not taken (tm-trpg-content-copy). The picker
      offers the entries of the content packages of its types too (relationcontent): one chosen
-     is taken at once, as created by the draft - cancelling takes it back -, and a base from a
-     package gives its values when it is there. Variables: currentTiddler (the draft),
-     currentField. -->
+     is named, not taken - the DM takes it later from its link if they want (no missing
+     tiddler: checks/relations.js) -, a base from a package gives its values from there.
+     Variables: currentTiddler (the draft), currentField. -->
 \whitespace trim
 <$let trpg-single={{{ [<currentTiddler>trpgformsingle<currentField>then[yes]else[no]] }}}
 	trpg-self={{{ [<currentTiddler>get[draft.of]] ~[<currentTiddler>] }}}
@@ -40,7 +40,7 @@ type: text/vnd.tiddlywiki
 <$transclude $variable="trpg.picker" id={{{ [<currentTiddler>addsuffix[/]addsuffix<currentField>] }}}
 	candidates="[<currentField>relationcandidates[]] [<currentField>relationcontent[]] -[<currentTiddler>get<currentField>enlist-input[]] -[<trpg-self>] -[<currentTiddler>]"
 	placeholder={{{ [<trpg-single>match[yes]] :filter[<trpg-has>match[yes]] +[then[Editor/Form/Change]else[Editor/Form/Add]trpgtranslate[]] }}}
-	actions="""<%if [<trpg-single>match[yes]] %><$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value={{{ [<trpg-pick>format:titlelist[]] }}}/><%else%><$action-listops $tiddler=<<currentTiddler>> $field=<<currentField>> $subfilter="[<trpg-pick>]"/><%endif%><%if [<trpg-pick>is[missing]trpgcontentfor[]] %><$action-sendmessage $message="tm-trpg-content-take" $param={{{ [<trpg-pick>trpgcontentfor[]first[]] }}} draft=<<currentTiddler>> copy={{{ [<currentField>trpgrelationcopy[]] }}}/><%elseif [<currentField>trpgrelationcopy[]] %><$action-sendmessage $message="tm-trpg-copy" draft=<<currentTiddler>> field=<<currentField>>/><%endif%>"""/>
+	actions="""<%if [<trpg-single>match[yes]] %><$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value={{{ [<trpg-pick>format:titlelist[]] }}}/><%else%><$action-listops $tiddler=<<currentTiddler>> $field=<<currentField>> $subfilter="[<trpg-pick>]"/><%endif%><%if [<currentField>trpgrelationcopy[]] %><%if [<trpg-pick>is[missing]trpgcontentfor[]] %><$action-sendmessage $message="tm-trpg-content-copy" $param={{{ [<trpg-pick>trpgcontentfor[]first[]] }}} draft=<<currentTiddler>>/><%else%><$action-sendmessage $message="tm-trpg-copy" draft=<<currentTiddler>> field=<<currentField>>/><%endif%><%endif%>"""/>
 <%if [<currentField>trpgrelationcopy[]] :filter[<trpg-has>match[yes]] %>
 <$let trpg-target={{{ [<currentTiddler>get<currentField>enlist-input[]first[]] }}}>
 <$button class="trpg-do-2 trpg-small" tooltip={{{ [[Editor/Form/CopyHint]trpgtranslate[]] }}}>

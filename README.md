@@ -503,8 +503,9 @@ relation list show the way back by themselves.
   "Possessions": the items chosen there get its title in `owner` when it is saved (an artifact
   has one owner - the old one goes). The field stays where it belongs, on the item.
 - **From a content package:** every relation offers the entries of the content packages of its
-  types beside the tiddlers of the wiki (dashed); one chosen is taken into the wiki at once,
-  cancelling the editor takes it back.
+  types beside the tiddlers of the wiki (dashed); one chosen is named, not taken - its link
+  offers to take it later (a base gives its values from the package at once). "Possessions"
+  takes an item it gives, since the item carries `owner`.
 - **Values from the base item:** choosing `base` in the editor copies the values of the rules of
   the base item into the empty fields, once ("Take the values" does it again later); nothing
   stays linked - a change of the base item changes nothing here, the price never comes along,

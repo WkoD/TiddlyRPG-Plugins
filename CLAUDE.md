@@ -402,9 +402,10 @@ the tiddler title:
   filters from the fields of the schema (one entry or a list of a domain, a number whose
   definition says `"filter": true`), header line, preview
   and take; what is taken as a link (`filters/content.js`). Every picker of a relation offers
-  the entries of its types too (`relationcontent`, dashed): one chosen is taken at once as
-  created by the draft, so cancelling takes it back; a base from a package gives its values once
-  it is there. The button "Content" of the editor toolbar (`editor/toolbar/content`) searches the
+  the entries of its types too (`relationcontent`, dashed): one chosen is named, not taken (no
+  missing tiddler, `content.forRelation()`); a base from a package gives its values from there
+  (`tm-trpg-content-copy`). "Possessions" takes the item it gives, as created by the draft - the
+  item carries `owner`. The button "Content" of the editor toolbar (`editor/toolbar/content`) searches the
   offers, takes one the same way and sets its link at the cursor. The search of the wiki lists
   the offers whose title holds the text in a group of its own.
 - **Widgets** (`widgets/*`): `trpg-timeline` (`timeline.js`, attributes `filter`, `self`):
