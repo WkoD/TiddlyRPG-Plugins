@@ -165,8 +165,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the hints; locks in the text (`<<secret>>`, `<$secret>`) and what they hide: body, table,
     timeline, span, pills, `datesection`, spots and the map, search, backlinks
   - `sections-rules` - the kinds of sections of the ruleset (fixture 5e-mini: effect, curse with
-    `cursed`, action): both forms, the name before the text, the procedures, the lock by a field
-    in the views, the checks of a section and of the domain, the hub
+    `cursed`, trait, action with a heading, legendary with heading and intro): both forms, a short
+    form to the next marker, the order of the domain with headings and intro, `<<secret>>` before
+    a section and a heading over locked sections, the name before the text, the procedures, the
+    lock by a field in the views, the checks of a section, of an intro and of the domain, the hub
   - `timeline` - cards, bars, beams, order, details, sections (only spans are bars), arrows,
     the band of the tiddler itself (one per phase, apart), the section lines as links, captions
     with macros, refresh
@@ -1200,7 +1202,14 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
   adds a kind: found, locked, nested and rendered without code of its own; the
   block widget is one `makeBlock()` line.
 - Kinds of the ruleset (`rulesKinds()`): the entries of a domain of type `section` (D&D: effect,
-  curse, trait, spellcasting, action ...) - kinds with `nest`, any tiddler, a name (`params.name`).
+  curse, trait, spellcasting, action ...) - short forms that run to the next marker like a date
+  (so `<<secret>>` before one locks it), any tiddler, a name (`params.name`). On rendering
+  `arrange()` collects the sections of these kinds of a level at the place of the first one, in
+  the order of the domain (`order`), a kind in the order of the text with its intro first; a kind
+  with `heading` gets the widget `trpg-section-heading` before its first section, with the keys
+  of its sections - it shows while one of them is visible. `intro`: one section without a name
+  introduces the kind (checks `IntroMissing`, `IntroTwice`, `IntroAlone`, told at the first
+  section concerned).
   The core names none of them. They are known per wiki, so every function with a wiki first
   makes them the kinds of the model (`use()`), and the cached model carries their ids in its key.
   Their procedures (the name in bold, `trpg.sectionname`) are written by `startup/sections.js`

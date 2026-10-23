@@ -1,5 +1,5 @@
 created: 20261023183447205
-modified: 20261023183447205
+modified: 20261023192109191
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Section
 type: application/json
@@ -8,6 +8,12 @@ type: application/json
     "domain": "Section",
     "type": "section",
     "keys": "Rules/Section/",
-    "entries": [{"id": "effect"}, {"id": "curse", "lock": "cursed"}, {"id": "action"}],
+    "entries": [
+        {"id": "effect"},
+        {"id": "curse", "lock": "cursed"},
+        {"id": "trait"},
+        {"id": "action", "heading": true},
+        {"id": "legendary", "heading": true, "intro": true}
+    ],
     "example": "effect"
 }

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261023183447205
+modified: 20261023192230845
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -73,9 +73,14 @@ Domain types and their data:
   ("3 gp 5 sp") through the currency when the text holds no length or weight.
 
   section  kinds of sections of the text (modules/sections.js rulesKinds): <<effect "Name">>
-    "entries":  [{"id": "effect"}, {"id": "curse", "lock": "cursed"}] - the id is the name of the
-                macro and of the block; "lock": a field of the rules whose lock locks the section
-    keys: <keys><id> (label of the kind, "keys" defaults to Rules/Section/)
+    "entries":  [{"id": "effect"}, {"id": "curse", "lock": "cursed"}, {"id": "action",
+                "heading": true}, {"id": "legendary-action", "heading": true, "intro": true}] - the
+                id is the name of the macro and of the block, the order of the entries the order
+                in which a text shows its sections; "lock": a field of the rules whose lock locks
+                the section; "heading": a heading before the sections of the kind; "intro": one
+                section without a name introduces them
+    keys: <keys><id> (label of the kind, "keys" defaults to Rules/Section/), <keys><id>/Heading
+          (the heading, "Actions")
 
 Every domain may have "example": an input shown in the settings tab next to its output ("228 cm",
 "1d8 cold", "wis save", a date for a calendar).
@@ -865,9 +870,19 @@ exports.table = function(wiki,name) {
 	} else if(domain.type === "section") {
 		// A kind of sections: its call, its label, the field it is locked by
 		(domain.entries || []).forEach(function(entry) {
-			row(entry.id,"<code>" + html("<<" + entry.id + " \"…\">>") + "</code> " +
-				html(text((domain.keys || "Rules/Section/") + entry.id)) +
-				(entry.lock ? " <small>(" + html(language.format(language.t(wiki,"Ruleset/Hub/Lock"),{field: entry.lock})) + ")</small>" : ""));
+			var key = (domain.keys || "Rules/Section/") + entry.id,
+				notes = [];
+			if(entry.heading) {
+				notes.push(language.format(language.t(wiki,"Ruleset/Hub/Heading"),{heading: text(key + "/Heading")}));
+			}
+			if(entry.intro) {
+				notes.push(language.t(wiki,"Ruleset/Hub/Intro"));
+			}
+			if(entry.lock) {
+				notes.push(language.format(language.t(wiki,"Ruleset/Hub/Lock"),{field: entry.lock}));
+			}
+			row(entry.id,"<code>" + html("<<" + entry.id + " \"…\">>") + "</code> " + html(text(key)) +
+				(notes.length ? " <small>(" + html(notes.join(", ")) + ")</small>" : ""));
 		});
 	} else if(domain.type === "tokens") {
 		(domain.tokens || []).forEach(function(token) {

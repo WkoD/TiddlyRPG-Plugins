@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023183447205
+modified: 20261023192045262
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -259,6 +259,8 @@ Rules/Mode/wiki: die Wiki-Sprache
 Rules/List/And: und
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Arten:
+Ruleset/Hub/Heading: Überschrift „$heading$“
+Ruleset/Hub/Intro: mit Einleitung
 Ruleset/Hub/Lock: gesperrt mit dem Feld $field$
 Ruleset/Hub/None: Kein Regelwerk ist aktiv (ControlPanel -> Einstellungen -> TiddlyRPG).
 Ruleset/Hub/Pairs: Umrechnung:
@@ -269,6 +271,9 @@ Secret/DMOnly: Geheim: nur DM
 Secret/For: Geheim: $names$
 Section/Check/DateLabel: Text prüfen: <<date "$text$">> - der erste Parameter ist die Nummer eines Abschnitts, eine Überschrift steht in label:"$text$"
 Section/Check/Inside: Text prüfen: Eine Kurzform <<$macro$>> innerhalb eines anderen Blocks zählt nicht – dort die Blockform verwenden
+Section/Check/IntroAlone: Text prüfen: eine Einleitung <<$macro$>> ohne ein <<$macro$ "Name">> – sie leitet nichts ein
+Section/Check/IntroMissing: Text prüfen: <<$macro$>> ist unvollständig, die Einleitung fehlt – ein <<$macro$>> ohne Namen nimmt sie auf
+Section/Check/IntroTwice: Text prüfen: zwei Einleitungen <<$macro$>> ohne Namen – eine genügt
 Section/Check/LockField: Text prüfen: <<$macro$ "$name$">> ist an das Feld $field$ gebunden, das leer ist – alle sehen den Abschnitt
 Section/Check/NestEmpty: Text prüfen: <<$macro$>> markiert nichts – der Text folgt im selben Absatz auf die Marke
 Section/Check/Nested: Text prüfen: $kind$ ineinander verschachtelt – der innere zählt nicht

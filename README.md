@@ -407,28 +407,34 @@ Text of the section.
 **Kinds of the ruleset.** A ruleset adds named parts of a text as kinds of its own - D&D: what
 an item does (`<<effect>>`), its curse (`<<curse>>`), what a creature has and does (`<<trait>>`,
 `<<spellcasting>>`, `<<action>>`, `<<bonus-action>>`, `<<reaction>>`, `<<legendary-action>>`,
-`<<lair-action>>`). Like a quest marker the short form holds its paragraph, so prose may stand
-before and after; its name shows in bold before the text, as in a rulebook:
+`<<lair-action>>`). The short form stands at the start of a paragraph and, like a dated section,
+runs to the next marker: a list, a table or more paragraphs after it belong to it. Its name shows
+in bold before the text, as in a rulebook. The prose of the tiddler comes first; a section with a
+fixed end takes the block form `<$effect name="Name">...</$effect>`:
 
 ```
 An old axe of the war of the dragons.
 
 <<effect "Acid burst">> When a foe dies by the axe, its body bursts.
 
-<$effect name="Hatred of Raksha">
-
-Every hit charges the axe.
+<<secret>><<effect "Hatred of Raksha">> Every hit charges the axe.
 
 The sixth hit deals more.
-
-</$effect>
 ```
 
-They count in any tiddler, and `<<secret>>` locks one like any section. A kind may be locked by a
-value of the rules: a curse is seen where the field `cursed` is - with `secret-fields: cursed` the
-DM and the players of the tagged characters see the field and the curse, nobody else; lifting the
-lock shows both. A curse whose field is empty gets a hint: everyone sees it. The hub `Ruleset`
-lists the kinds.
+**Order and headings, as in a stat block:** the sections are shown together, in the order of
+the kinds of the ruleset - D&D: effects, curse; traits, spellcasting, actions, bonus actions,
+reactions, legendary and lair actions -, those of a kind in the order of the text. A kind with a
+heading gets it before its first section ("Actions", in the colour of the labels of the values);
+the heading shows while the reader sees one of its sections. Legendary and lair actions have an
+introduction: one section without a name (`<<legendary-action>> The dragon can take 3 legendary
+actions ...`), shown first; without it, twice, or without actions to introduce it is reported.
+
+They count in any tiddler, and `<<secret>>` before one locks it like any section. A kind may be
+locked by a value of the rules: a curse is seen where the field `cursed` is - with
+`secret-fields: cursed` the DM and the players of the tagged characters see the field and the
+curse, nobody else; lifting the lock shows both. A curse whose field is empty gets a hint: everyone
+sees it. The hub `Ruleset` lists the kinds.
 
 The hints stand below the title of the tiddler, not in the published copy.
 
@@ -938,7 +944,7 @@ out every message of its level. An id that is no rule is a hint.
 | `relations/deadleader` | hint | a dead tiddler leads something a living one leads as well: there is a successor, the dead one is a member now (of a location: no entry). A dead leader without successor stays leader - death ends no membership |
 | `secrets/view` | error | a tiddler asks the view itself (`$:/state/tiddlyrpg/view`, `trpgview`) instead of locking; a list filtered with `trpg.visible` is fine |
 | `secrets/transclusion` | error | a secret tiddler is transcluded where someone sees it who may not see the secret (fine inside a tiddler or section locked for the same players or fewer) |
-| `sections/structure` | error, hint | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker, a section of the ruleset without name (error); a section locked by a field that is empty - a curse without `cursed` (hint) |
+| `sections/structure` | error, hint | a short form inside another block, sections of a kind nested, `<<secret>>` in the middle of a section, a kind in the wrong tiddler, a caption by position, a lock naming no player character, the problems of a quest marker, a section of the ruleset without name, the introduction of a kind missing, twice or alone (error); a section locked by a field that is empty - a curse without `cursed` (hint) |
 | `spots/spotlink` | error | a `<<spotlink>>` whose location does not exist or does not have the spot |
 | `spots/joinedtext` | hint | a spot joined to another location has a text of its own - it shows only here, not where the spot leads; move it into that location (a spot joined to an organisation or a person keeps its text) |
 | `spots/similar` | hint | a spot without tiddler whose name looks like a title written another way (as `quests/similar`) |

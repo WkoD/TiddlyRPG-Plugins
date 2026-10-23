@@ -146,3 +146,7 @@ Rules/Field/cursed: Cursed
 Rules/Section/effect: effect
 Rules/Section/curse: curse
 Rules/Section/action: action
+Rules/Section/trait: trait
+Rules/Section/legendary: legendary action
+Rules/Section/action/Heading: Actions
+Rules/Section/legendary/Heading: Legendary actions

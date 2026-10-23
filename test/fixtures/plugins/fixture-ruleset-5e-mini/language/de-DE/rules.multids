@@ -146,3 +146,7 @@ Rules/Field/cursed: Verflucht
 Rules/Section/effect: Effekt
 Rules/Section/curse: Fluch
 Rules/Section/action: Aktion
+Rules/Section/trait: Merkmal
+Rules/Section/legendary: legendäre Aktion
+Rules/Section/action/Heading: Aktionen
+Rules/Section/legendary/Heading: Legendäre Aktionen

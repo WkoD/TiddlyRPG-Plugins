@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261023183447205
+modified: 20261023192045262
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -18,6 +18,13 @@ Rendering of the sections of a body (modules/sections.js).
 
 <$trpg-body $tiddler="Event" $quest="123"/>
   only what the quest marker at position 123 holds (the history of a quest, modules/quests.js)
+
+<$trpg-section-heading kind="action" keys="120 260"/>
+  made by sections.transform(), not written by hand: the heading of a kind of the ruleset
+  ("Actions", sections.heading()) before its sections, the keys of the sections it stands for. It
+  shows while the view sees one of them - a heading over sections all locked would tell they are
+  there. In the colour of the type of the tiddler, mixed with the text like the labels of the
+  block of values (styles/sections).
 
 <$trpg-nest key="..." kind="quest">...</$trpg-nest>
   made by sections.transform(), not written by hand: what a marker of a kind with nest holds - a
@@ -209,6 +216,44 @@ NestWidget.prototype.execute = function() {
 	setup(this,record && record.kind === kind ? record : null,kind,this.parseTreeNode.children || []);
 };
 
+/* ---------- trpg-section-heading ---------- */
+
+var HeadingWidget = function(parseTreeNode,options) {
+	this.initialise(parseTreeNode,options);
+};
+
+HeadingWidget.prototype = new Widget();
+HeadingWidget.prototype.refresh = refresh;
+
+HeadingWidget.prototype.execute = function() {
+	var wiki = this.wiki,
+		title = this.title = modelTitle(this);
+	this.kind = this.getAttribute("kind","");
+	this.shown = this.getAttribute("keys","").split(" ").some(function(key) {
+		var record = key ? sections.byKey(wiki,title,key) : null;
+		return !!record && sections.visible(wiki,title,record.id);
+	});
+	this.text = sections.heading(wiki,this.kind);
+	this.colour = wiki.filterTiddlers("[<title>trpgfieldcolor[]]",$tw.rootWidget.makeFakeWidgetWithVariables({title: title}))[0] || "";
+};
+
+HeadingWidget.prototype.render = function(parent,nextSibling) {
+	this.parentDomNode = parent;
+	this.computeAttributes();
+	this.execute();
+	if(!this.shown || !this.text) {
+		return;
+	}
+	var div = this.document.createElement("div");
+	div.className = "trpg-section-heading trpg-section-heading-" + this.kind;
+	if(this.colour) {
+		div.setAttribute("style","--trpg-type:" + this.colour + ";");
+	}
+	div.appendChild(this.document.createTextNode(this.text));
+	parent.insertBefore(div,nextSibling);
+	this.domNodes.push(div);
+};
+
 /* ---------- Blocks ---------- */
 
 // The attributes of a block passed on to the procedure of its heading
@@ -271,6 +316,7 @@ function makeBlock(kind) {
 exports["trpg-body"] = BodyWidget;
 exports["trpg-section"] = SectionWidget;
 exports["trpg-nest"] = NestWidget;
+exports["trpg-section-heading"] = HeadingWidget;
 exports.date = makeBlock("date");
 exports.spot = makeBlock("spot");
 exports.secret = makeBlock("secret");

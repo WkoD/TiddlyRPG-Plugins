@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023183447205
+modified: 20261023192045262
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -259,6 +259,8 @@ Rules/Mode/wiki: the wiki language
 Rules/List/And: and
 Ruleset/Hub/Id: Id
 Ruleset/Hub/Kinds: Kinds:
+Ruleset/Hub/Heading: heading "$heading$"
+Ruleset/Hub/Intro: with an introduction
 Ruleset/Hub/Lock: locked with the field $field$
 Ruleset/Hub/None: No ruleset is active (ControlPanel -> Settings -> TiddlyRPG).
 Ruleset/Hub/Pairs: Conversion:
@@ -269,6 +271,9 @@ Secret/DMOnly: Secret: DM only
 Secret/For: Secret: $names$
 Section/Check/DateLabel: Check the text: <<date "$text$">> - the first parameter is the number of a section, a caption goes into label:"$text$"
 Section/Check/Inside: Check the text: a short form <<$macro$>> inside another block does not count - use the block form there
+Section/Check/IntroAlone: Check the text: an introduction <<$macro$>> without any <<$macro$ "Name">> - it introduces nothing
+Section/Check/IntroMissing: Check the text: <<$macro$>> is incomplete, the introduction is missing - a <<$macro$>> without a name holds it
+Section/Check/IntroTwice: Check the text: two introductions <<$macro$>> without a name - one is enough
 Section/Check/LockField: Check the text: <<$macro$ "$name$">> is locked by the field $field$, which is empty - everyone sees it
 Section/Check/NestEmpty: Check text: <<$macro$>> marks nothing - the text follows the marker in its paragraph
 Section/Check/Nested: Check the text: $kind$ nested in each other - the inner one does not count

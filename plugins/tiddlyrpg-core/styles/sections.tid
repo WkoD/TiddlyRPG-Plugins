@@ -1,5 +1,5 @@
 created: 20261015145856000
-modified: 20261023184038408
+modified: 20261023192045262
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/sections
 type: text/vnd.tiddlywiki
@@ -119,4 +119,23 @@ div.trpg-section-date > hr.trpg-date-rule:first-child {
 span.trpg-section-name {
 	font-weight: bold;
 	font-style: italic;
+}
+
+/* The sections of the kinds of the ruleset close together, as the entries of a stat block; the
+   heading of a kind (widgets/sections.js trpg-section-heading) in small capitals over a line, in
+   the colour of the labels of the block of values (styles/fields: the type colour mixed with the
+   text). */
+div.trpg-section-rules > p {
+	margin: 0.35em 0;
+}
+div.trpg-section-heading {
+	--trpg-type-c: var(--trpg-type, var(--tpc-muted-foreground, #888));
+	--trpg-type-ink: color-mix(in srgb, var(--trpg-type-c) 55%, var(--tpc-foreground, #222));
+	font-variant: small-caps;
+	font-size: 1.3em;
+	letter-spacing: 0.02em;
+	color: var(--trpg-type-ink);
+	border-bottom: 1px solid var(--trpg-type-ink);
+	margin: 1.1em 0 0.45em;
+	padding-bottom: 0.1em;
 }

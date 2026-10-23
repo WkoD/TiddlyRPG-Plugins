@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261023183447205
+modified: 20261023192005674
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -28,10 +28,17 @@ Every kind of section has a short and a block form:
 
 A ruleset adds kinds of its own as data (rulesKinds(): a domain of type "section"), e.g. D&D
 <<effect "Name">>, <<curse "Name">>, <<action "Name">>: a named part of a text - an effect of an
-item, an action of a creature. Like a quest marker its short form holds its paragraph, its block
-form <$effect name="Name">...</$effect> what it encloses; the name shows in bold before the text.
-Any tiddler. An entry with "lock": "<field>" is locked with that field of the rules: the section
-is seen where the field is (visibility.fieldVisible - a curse with cursed).
+item, an action of a creature. The short form stands at the start of a paragraph and, like a date
+or a spot, runs to the next marker (a list or a table after it belongs to it, <<secret>> before
+it locks it); the block form <$effect name="Name">...</$effect> ends with its closing tag. The
+name shows in bold before the text. Any tiddler. On rendering, the sections of these kinds of a
+level are collected at the place of the first one in the order of the domain - within a kind in
+the order of the text -, like the stat block of a rulebook (arrange()); a kind with "heading"
+gets its heading before its first section, shown while one of them is visible
+(trpg-section-heading). A kind with "intro" has one section without a name, the introduction of
+its sections, shown first ("The dragon can take 3 legendary actions..."); elsewhere a section
+needs its name. An entry with "lock": "<field>" is locked with that field of the rules: the
+section is seen where the field is (visibility.fieldVisible - a curse with cursed).
 
 register() adds a kind: it is found, locked, nested and rendered like the others. A kind with
 nest: true (quest) splits nothing: its short form at the start of a paragraph or a list item
@@ -234,15 +241,30 @@ register("quest",{
 var RULES = Object.create(null),
 	CORE = ["date","spot","secret","quest"];
 
-// A kind of the ruleset: an entry {id, lock} of a domain {domain, keys} of type "section"
-function rulesKind(domain,entry) {
-	var lock = entry.lock ? entry.lock.toString().trim() : "";
+// The sections of a kind on the level of <record> (the same parent), in the order of the text
+function siblings(model,record) {
+	return model.records.filter(function(r) {
+		return r.kind === record.kind && r.parent === record.parent && r.counts;
+	});
+}
+
+// A kind of the ruleset: an entry {id, lock, heading, intro} of a domain {domain, keys} of type
+// "section"; order: its place in the domain
+function rulesKind(domain,entry,order) {
+	var lock = entry.lock ? entry.lock.toString().trim() : "",
+		keys = domain.keys || "Rules/Section/",
+		intro = !!entry.intro;
 	return {
 		types: null,
-		nest: true,
 		domain: domain.domain,
-		label: (domain.keys || "Rules/Section/") + entry.id,
+		label: keys + entry.id,
+		headingKey: entry.heading ? keys + entry.id + "/Heading" : "",
+		intro: intro,
+		order: order,
 		lock: lock,
+		classes: function() {
+			return "trpg-section-rules";
+		},
 		// <<effect "Name">>, <<effect name:"Name">>; <$effect name="Name">
 		params: function(node) {
 			var name = attribute(node,"name");
@@ -255,8 +277,23 @@ function rulesKind(domain,entry) {
 			var problems = [],
 				macro = record.kind,
 				tiddler = wiki.getTiddler(title);
-			if(!record.params.name) {
+			var level = siblings(model,record),
+				intros = level.filter(function(r) { return !r.params.name; }),
+				named = level.filter(function(r) { return !!r.params.name; });
+			if(!record.params.name && !intro) {
 				problems.push({key: "Section/Check/SectionName", params: {macro: macro}});
+			}
+			// The intro of a kind that has one: once, with sections of the kind; told at the
+			// first section concerned
+			if(intro && !record.params.name) {
+				if(intros[0] !== record) {
+					problems.push({key: "Section/Check/IntroTwice", params: {macro: macro}});
+				} else if(!named.length) {
+					problems.push({key: "Section/Check/IntroAlone", params: {macro: macro}});
+				}
+			}
+			if(intro && record.params.name && named[0] === record && !intros.length) {
+				problems.push({key: "Section/Check/IntroMissing", params: {macro: macro}});
 			}
 			// A lock by a field that is empty locks nothing: everyone sees the section
 			if(lock && tiddler && !(tiddler.fields[lock] || "").toString().trim()) {
@@ -281,9 +318,9 @@ var rulesKinds = exports.rulesKinds = function(wiki) {
 			if(domain.type !== "section") {
 				return;
 			}
-			$tw.utils.each(domain.entries || [],function(entry) {
+			$tw.utils.each(domain.entries || [],function(entry,index) {
 				if(entry && entry.id && CORE.indexOf(entry.id) === -1 && !out[entry.id]) {
-					out[entry.id] = rulesKind(domain,entry);
+					out[entry.id] = rulesKind(domain,entry,index);
 				}
 			});
 		});
@@ -301,6 +338,12 @@ function use(wiki) {
 function kindDef(name) {
 	return KINDS[name] || RULES[name] || null;
 }
+
+// The heading of a kind of the ruleset that has one ("Actions"), else ""
+exports.heading = function(wiki,kind) {
+	var def = kindDef(kind);
+	return def && def.headingKey ? language.lookupRules(wiki,def.domain,def.headingKey) || "" : "";
+};
 
 // The label of a kind: Section/Kind/<kind> of the core, the key of a kind of the ruleset
 exports.kindLabel = function(wiki,kind) {
@@ -1002,9 +1045,54 @@ function findNest(nodes,key) {
 }
 
 /*
+The groups of a level in the order to render, each {group} or {heading: kind, keys}: the sections
+of the kinds of the ruleset collected at the place of the first one, in the order of their domain,
+within a kind its intro first, then the order of the text; before the first section of a kind with
+a heading its heading, with the keys of the sections it stands for (shown while one is visible).
+*/
+function arrange(groups,model) {
+	var rules = [],
+		first = -1;
+	$tw.utils.each(groups,function(g,index) {
+		var def = g.kind ? kindDef(g.kind) : null;
+		if(def && def.domain) {
+			var key = g.marker.start.toString(),
+				record = model.byKey[key];
+			rules.push({group: g, index: index, key: key, order: def.order, opening: def.intro && record && !record.params.name ? 0 : 1});
+			first = first === -1 ? index : first;
+		}
+	});
+	if(!rules.length) {
+		return groups.map(function(g) { return {group: g}; });
+	}
+	rules.sort(function(a,b) {
+		return a.order - b.order || a.opening - b.opening || a.index - b.index;
+	});
+	var sorted = [];
+	$tw.utils.each(rules,function(r,i) {
+		var def = kindDef(r.group.kind);
+		if(def.headingKey && (i === 0 || rules[i - 1].group.kind !== r.group.kind)) {
+			sorted.push({heading: r.group.kind, keys: rules.filter(function(x) { return x.group.kind === r.group.kind; }).map(function(x) { return x.key; })});
+		}
+		sorted.push({group: r.group});
+	});
+	var out = [];
+	$tw.utils.each(groups,function(g,index) {
+		var def = g.kind ? kindDef(g.kind) : null;
+		if(index === first) {
+			Array.prototype.push.apply(out,sorted);
+		} else if(!(def && def.domain)) {
+			out.push({group: g});
+		}
+	});
+	return out;
+}
+
+/*
 The parse tree of a level, prepared for rendering: each short section and a locked intro are
 wrapped in a widget trpg-section (widgets/sections.js), which renders them only for a view that
 sees them, what a marker with nest holds in a widget trpg-nest; blocks render themselves. The
+sections of the kinds of the ruleset in their order, with their headings (arrange()). The
 pragmas at the start stay around everything.
 options: only (render only sections of this kind), omit (leave them out), match (a function on
 the record: render only matching sections), nomarker (without the node of the marker), root
@@ -1025,18 +1113,20 @@ var transform = exports.transform = function(wiki,title,nodes,options) {
 	}
 	var model = read(wiki,title),
 		out = [];
-	$tw.utils.each(group(nodes).groups,function(g) {
+	var kept = group(nodes).groups.filter(function(g) {
 		var key = g.kind ? g.marker.start.toString() : (g.prefix.length && options.root ? "intro" : null),
 			record = key ? model.byKey[key] || null : null;
-		if(options.only && g.kind !== options.only) {
+		return !(options.only && g.kind !== options.only) && !(options.omit && g.kind === options.omit) &&
+			!(options.match && !(record && options.match(record)));
+	});
+	$tw.utils.each(arrange(kept,model),function(item) {
+		if(item.heading) {
+			out.push({type: "trpg-section-heading", attributes: {kind: {type: "string", value: item.heading},
+				keys: {type: "string", value: item.keys.join(" ")}}, isBlock: true});
 			return;
 		}
-		if(options.omit && g.kind === options.omit) {
-			return;
-		}
-		if(options.match && !(record && options.match(record))) {
-			return;
-		}
+		var g = item.group,
+			key = g.kind ? g.marker.start.toString() : (g.prefix.length && options.root ? "intro" : null);
 		if(g.form === "block") {
 			out.push(g.marker);
 			return;
