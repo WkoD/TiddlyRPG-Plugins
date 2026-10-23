@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/content.js
 type: application/javascript
 module-type: startup
 created: 20261022165648795
-modified: 20261022184902362
+modified: 20261023173843884
 
 Content packages in the browser (modules/content.js): loads the index of the packages of the active
 ruleset from the server (server/content-route.js) into the temp tiddler of the index - at the
@@ -23,6 +23,10 @@ packages shows.
                          back while it is unchanged (modules/form.js noteCreated). A notification
                          names it and what it names in base and spells that the wiki lacks, each
                          with a button to take it too - nothing comes by itself.
+  tm-trpg-content-copy   param: the id of an entry; draft: the draft to fill (the row "Take
+                         values from", editor/form). Fetches the entry and copies its values of the
+                         rules into the draft where it has none (modules/form.js copyValues) -
+                         nothing is taken, nothing names it.
 
 \*/
 
@@ -160,6 +164,21 @@ function take(wiki,id,draft,copy) {
 	});
 }
 
+function copy(wiki,id,draft) {
+	var offer = content.offer(wiki,id);
+	if(!offer || !wiki.tiddlerExists(draft)) {
+		return;
+	}
+	fetchEntry(wiki,id,function(found) {
+		if(!found) {
+			notify(wiki,language.t(wiki,"Content/TakeFailed"));
+			return;
+		}
+		var done = form.copyValues(wiki,draft,offer.title,content.toFields(wiki,found.package,found.entry,offer.title));
+		notify(wiki,form.copiedText(wiki,draft,done));
+	});
+}
+
 exports.startup = function() {
 	var wiki = $tw.wiki;
 	load(wiki);
@@ -175,6 +194,10 @@ exports.startup = function() {
 	$tw.rootWidget.addEventListener("tm-trpg-content-take",function(event) {
 		var params = event.paramObject || {};
 		take(wiki,event.param,params.draft,params.copy);
+		return false;
+	});
+	$tw.rootWidget.addEventListener("tm-trpg-content-copy",function(event) {
+		copy(wiki,event.param,(event.paramObject || {}).draft);
 		return false;
 	});
 };

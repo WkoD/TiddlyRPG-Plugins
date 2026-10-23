@@ -393,11 +393,12 @@ test.describe("sweep", function() {
 			out.push({where: "ControlPanel License", text: seen(h.render(wiki, "text/html", "{{$:/plugins/tiddlyrpg-core/ui/controlpanel-license}}"))});
 			// The editor: the hits of the picker for every field of the form, the quests and
 			// rumours and the locations of a link to a spot, with the names written almost alike;
-			// the spots of each location (link to a spot), the player characters (lock, party),
-			// (+ on the hubs is in the view of each hub)
+			// what an item copies values from (Qx7 Klinge has values); the spots of each location
+			// (link to a spot), the player characters (lock, party), (+ on the hubs is in the view
+			// of each hub)
 			f("[trpgformknown[]]").map(function(field) {
 				return "[[" + field + "]relationcandidates[]]";
-			}).concat(["[questnames[]]", "[all[tiddlers]tag[Location]!is[draft]]"]).forEach(function(candidates) {
+			}).concat(["[questnames[]]", "[all[tiddlers]tag[Location]!is[draft]]", "[[Sweep Frost]trpgcopysources[]]"]).forEach(function(candidates) {
 				out.push({where: "picker " + candidates, text: seen(h.render(wiki, "text/html",
 					"<$let trpg-candidates=\"" + candidates + "\" userInput=\"" + WORD + "\"><$list filter={{$:/plugins/tiddlyrpg-core/editor/picker!!first-search-filter}} variable=\"trpg-pick\"><$transclude $variable=\"trpg.pickpill\" title=<<trpg-pick>>/>|</$list></$let>" +
 					"<$list filter=\"[subfilter[" + candidates + "]trpgsimilar[Qx7 Fadn]] [subfilter[" + candidates + "]trpgsimilar[Qx7 Akt]] :filter[trpg.visible[]]\"><<currentTiddler>>|</$list>"))});

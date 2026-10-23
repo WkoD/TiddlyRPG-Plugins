@@ -849,7 +849,8 @@ tests reach it without a browser; the wikitext only asks and passes values.
   picker, `trpgsimilar`, the "new name" pill); values that stand in the draft show as they are.
   The sweep in `test/views.test.js` renders the pickers and dropdowns with a draft.
 - **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, the fields
-  of the rules in it, symmetric, fixes, a created tiddler undone on cancelling, notifications), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
+  of the rules in it, values from a base or without a relation, symmetric, fixes, a created
+  tiddler undone on cancelling, notifications), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
   every new input).
 
 ## Unknown macros
@@ -1138,7 +1139,9 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   (`modules/inverse.js`, `startup/inverse.js`).
 - `tiddlyrpg-copy: yes` on a config (`base`): choosing the type in the editor copies the values
   of the rules of its target into the empty fields of the draft once (`form.copyFrom()`,
-  `tm-trpg-copy`, the button "Take the values"); no value is inherited.
+  `tm-trpg-copy`, the button "Take the values"); no value is inherited. The same without a
+  relation: the row "Take values from" of the form (`form.copySources()`/`copyValues()`,
+  `tm-trpg-copy` with `source`, `tm-trpg-content-copy` for an entry of a package, not taken).
 - The types in play: a graph view draws only some types (`edges.fields`/`edges.functions`);
   the override passes them on (`trpgTypes`), so a type left out does not hide another one. The
   relation list uses all.

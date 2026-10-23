@@ -497,6 +497,69 @@ test.describe("values from the base (a relation with tiddlyrpg-copy)", function(
 	});
 });
 
+test.describe("values from another tiddler or a package entry, without a relation (the row Take values from)", function() {
+	var INDEX = "$:/temp/tiddlyrpg-core/content/index",
+		DRAFT = "Draft of 'Glutklinge'",
+		content;
+
+	test.before(function() {
+		content = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content.js");
+		h.add(wiki, {title: INDEX, type: "application/json", text: JSON.stringify({packages: [{name: "SRD mini", language: "en-GB", entries: [
+			{id: "longsword", title: "Longsword", type: "Item", fields: {category: "weapon, martial, melee, versatile", damage: "1d8 slashing", weight: "3 lb", price: "15 gp"}},
+			{id: "fireball", title: "Fireball", type: "Spell", fields: {level: "3"}}
+		]}]})});
+		h.add(wiki, {title: "Kurzschwert", tags: "Item Equipment", category: "weapon, martial, melee", damage: "1d6 piercing", text: "."});
+		h.add(wiki, {title: "Seil", tags: "Item", text: "Ohne Werte."});
+		h.add(wiki, {title: DRAFT, "draft.of": "Glutklinge", tags: "Artifact", bonus: "+1", text: ""});
+	});
+
+	test.after(function() {
+		[INDEX, "Kurzschwert", "Seil", DRAFT, "$:/temp/tiddlyrpg-core/editor/notice"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
+	test("the sources: tiddlers of the type with a value of the rules, the offers of the type; none without a schema", function() {
+		assert.deepEqual(Array.from(form.copySources(wiki, DRAFT)), ["Kurzschwert", "Longsword"], "an artifact copies from items: one schema");
+		h.add(wiki, {title: "Draft of 'Dolch'", "draft.of": "Dolch", tags: "Item", text: ""});
+		try {
+			assert.deepEqual(f("[[Draft of 'Dolch']trpgcopysources[]]"), ["Kurzschwert", "Longsword"], "not Seil (no value), not the draft itself, not the spell");
+		} finally {
+			wiki.deleteTiddler("Draft of 'Dolch'");
+		}
+		h.add(wiki, {title: "Draft of 'Ort'", "draft.of": "Ort", tags: "Location", text: ""});
+		try {
+			assert.deepEqual(Array.from(form.copySources(wiki, "Draft of 'Ort'")), []);
+		} finally {
+			wiki.deleteTiddler("Draft of 'Ort'");
+		}
+	});
+
+	test("a package entry: its values into the empty fields, never the price; nothing taken, no base", function() {
+		var pkg = content.packages(wiki)[0],
+			entry = pkg.entries[0],
+			done = form.copyValues(wiki, DRAFT, "Longsword", content.toFields(wiki, pkg, entry, "Longsword")),
+			fields = wiki.getTiddler(DRAFT).fields;
+		assert.deepEqual(Array.from(done.fields), ["category", "damage", "weight"]);
+		assert.equal(fields.bonus, "+1", "nothing written over");
+		assert.equal(fields.price, undefined);
+		assert.equal(fields.base, undefined, "no relation");
+		assert.equal(wiki.tiddlerExists("Longsword"), false, "the entry stays in the package");
+		assert.equal(form.copiedText(wiki, DRAFT, done), "Von Longsword übernommen: Art, Schaden, Gewicht");
+		assert.equal(form.copiedText(wiki, DRAFT, form.copyValues(wiki, DRAFT, "Longsword", content.toFields(wiki, pkg, entry, "Longsword"))),
+			"Von Longsword nichts zu übernehmen: die Werte stehen schon da, oder es hat keine");
+	});
+
+	test("the row in the form: label and picker while there is a source", function() {
+		var html = h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: DRAFT});
+		assert.match(html, /Werte übernehmen von/);
+		h.add(wiki, {title: "Draft of 'Ort'", "draft.of": "Ort", tags: "Location", text: ""});
+		try {
+			assert.doesNotMatch(h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: "Draft of 'Ort'"}), /Werte übernehmen von/);
+		} finally {
+			wiki.deleteTiddler("Draft of 'Ort'");
+		}
+	});
+});
+
 test.describe("the entries of the content packages in the pickers; the way back (give an item)", function() {
 	var INDEX = "$:/temp/tiddlyrpg-core/content/index";
 

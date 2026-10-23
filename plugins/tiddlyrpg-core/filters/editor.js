@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261022171029770
+modified: 20261023173843884
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -41,6 +41,8 @@ picker (editor/procedures) and the kinds of the search.
 [<draft>trpgdatemarkers[]]     the number of dated sections in the text of the draft
 [trpgformknown[]]              the fields the form knows (modules/form.js known)
 [<draft>trpgformoffered[]]     the fields the form offers to add for a draft (modules/form.js offered)
+[<draft>trpgcopysources[]]     what the form copies values from without a relation: tiddlers of
+                               its type and offers of the packages (modules/form.js copySources)
 [trpgtypelist[]]               the type tags (modules/types.js)
 [<name>trpgtaken[]]            the tiddler named like each input name in any case, a name for a
                                new tiddler that cannot be taken (modules/editor.js taken)
@@ -289,6 +291,16 @@ exports.trpgrelationcopy = function(source,operator,options) {
 exports.trpgformlabel = function(source,operator,options) {
 	return each(source,function(title,results) {
 		results.push(form.label(options.wiki,title,operator.operand));
+	});
+};
+
+exports.trpgcopysources = function(source,operator,options) {
+	return each(source,function(title,results) {
+		form.copySources(options.wiki,title).forEach(function(other) {
+			if(results.indexOf(other) === -1) {
+				results.push(other);
+			}
+		});
 	});
 };
 

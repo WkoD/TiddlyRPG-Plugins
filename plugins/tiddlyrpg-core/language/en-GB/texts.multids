@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022171123189
+modified: 20261023173843884
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -98,6 +98,9 @@ Editor/Form/CopiedNone: Nothing to take from $title$: the values are there alrea
 Editor/Form/Copy: Take the values
 Editor/Form/CopyHint: Writes the values of the rules it has into the empty fields of this tiddler, once - nothing stays linked
 Editor/Form/CopiedMissing: Nothing taken: $title$ does not exist in the wiki
+Editor/Form/CopyFrom: Take values from
+Editor/Form/CopyFromPick: Choose
+Editor/Form/CopyFromHint: Fills the empty fields with the values of the rules of the chosen one, once - no relation, nothing of a package comes into the wiki
 Editor/Group/All: Whole party
 Editor/Group/Caption: Party
 Editor/Group/Head: Player characters who were there

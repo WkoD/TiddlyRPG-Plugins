@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/editor-messages.js
 type: application/javascript
 module-type: startup
 created: 20261016184211000
-modified: 20261022184902362
+modified: 20261023173843884
 
 Messages of the editor that the edit-text widget does not handle, so they reach the root widget:
 
@@ -12,7 +12,9 @@ Messages of the editor that the edit-text widget does not handle, so they reach 
                  draft.
   tm-trpg-copy   of a relation that copies (tiddlyrpg-copy, editor/fields/relation): draft, field.
                  Copies the values of its target into the draft where it has none
-                 (modules/form.js copyFrom), a notification names what came.
+                 (modules/form.js copyFrom), a notification names what came. With source
+                 instead of field (the row "Take values from", editor/form): from that tiddler,
+                 without a relation.
   tm-trpg-probe  of the toolbar buttons with a dropdown (editor/toolbar), kind: what stands at the
                  cursor (editor/operation.js trpg-probe). Not a text operation: the engine focuses
                  the text after every operation, and the focus closes the dropdown that has just
@@ -30,7 +32,6 @@ exports.synchronous = true;
 
 var fixes = require("$:/plugins/tiddlyrpg-core/modules/fixes.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
-	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
 
 
@@ -48,12 +49,10 @@ exports.startup = function() {
 	});
 	$tw.rootWidget.addEventListener("tm-trpg-copy",function(event) {
 		var params = event.paramObject || {},
-			done = form.copyFrom($tw.wiki,params.draft,params.field);
+			from = params.source && $tw.wiki.getTiddler(params.source),
+			done = params.source ? form.copyValues($tw.wiki,params.draft,params.source,from && from.fields) : form.copyFrom($tw.wiki,params.draft,params.field);
 		if(done.source) {
-			notice.show($tw.wiki,language.format(language.t($tw.wiki,done.missing ? "Editor/Form/CopiedMissing" : (done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone")),{
-				title: language.title($tw.wiki,done.source),
-				fields: done.fields.map(function(name) { return form.label($tw.wiki,params.draft,name); }).join(", ")
-			}));
+			notice.show($tw.wiki,form.copiedText($tw.wiki,params.draft,done));
 		}
 		return false;
 	});

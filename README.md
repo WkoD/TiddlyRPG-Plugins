@@ -264,7 +264,10 @@ category says weapon; a value written without it gets a hint below the title.
 
 **In the editor** the form offers these fields: a choice for a term, a checkbox for yes and no,
 small lists as pills, below each the reading of what is written. Choosing a base item copies its
-values once (see "Relations").
+values once (see "Relations"). **Take values from** does the same without a relation: it offers
+the tiddlers whose type has the same values (an artifact takes from an item) and the entries of
+the content packages of these types; the one chosen fills the empty fields once, never the price.
+An entry of a package is not taken into the wiki for it, and nothing names it afterwards.
 
 **Locked values:** `secret-fields` (see "Player characters, views and secrets").
 
@@ -290,6 +293,7 @@ and only those of the active ruleset):
   "Take";
 - the button "Content" of the editor toolbar: search, take, and the link into the text;
 - every relation in the form: the entries of its types beside the tiddlers (dashed);
+- "Take values from" in the form: the values of an entry, without taking it;
 - the search: a group of its own below the hits;
 - the hub `Content` (under `Information`): per type, with filters by value and pages, a preview
   of each entry and "Take".
@@ -501,7 +505,7 @@ relation list show the way back by themselves.
 - **Values from the base item:** choosing `base` in the editor copies the values of the rules of
   the base item into the empty fields, once ("Take the values" does it again later); nothing
   stays linked - a change of the base item changes nothing here, the price never comes along,
-  a locked value comes with its lock.
+  a locked value comes with its lock. Values without a relation: see "Values of the rules".
 - **Every relation its own edge:** two different relations between the same tiddlers are two
   edges (`under` and `mentor`: "answers to" and "student of").
 - The colour of an edge comes from its axis; `alliance`, `enmity`, `bond`, `former` and `patron`

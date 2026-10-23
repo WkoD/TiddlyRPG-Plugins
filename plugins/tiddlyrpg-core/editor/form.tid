@@ -1,6 +1,6 @@
 created: 20261016184211000
 list-after: $:/core/ui/EditTemplate/body
-modified: 20261022171029770
+modified: 20261023173843884
 tags: $:/tags/EditTemplate
 title: $:/plugins/tiddlyrpg-core/editor/form
 type: text/vnd.tiddlywiki
@@ -90,6 +90,25 @@ type: text/vnd.tiddlywiki
 </$list>
 \end
 
+<!-- Values copied once without a relation (trpgcopysources, modules/form.js copySources): from
+     another tiddler of the type (tm-trpg-copy with source) or from an entry of a content package
+     (tm-trpg-content-copy) - the entry is not taken, nothing names it. Fills the empty fields of
+     the rules, never the price. Only for a type with a schema and something to copy from. -->
+\procedure trpg.formcopy()
+\whitespace trim
+<$list filter="[<currentTiddler>trpgcopysources[]] :filter[trpg.visible[]] +[limit[1]]" variable="ignore">
+<div class="trpg-form-row">
+<span class="trpg-form-label" title={{{ [[Editor/Form/CopyFromHint]trpgtranslate[]] }}}><$text text={{{ [[Editor/Form/CopyFrom]trpgtranslate[]] }}}/></span>
+<span class="trpg-form-value">
+<$transclude $variable="trpg.picker" id={{{ [<currentTiddler>addsuffix[/copy-from]] }}}
+	candidates="[<currentTiddler>trpgcopysources[]]"
+	placeholder={{{ [[Editor/Form/CopyFromPick]trpgtranslate[]] }}}
+	actions="""<%if [<trpg-pick>is[missing]trpgcontentfor[]] %><$action-sendmessage $message="tm-trpg-content-copy" $param={{{ [<trpg-pick>trpgcontentfor[]first[]] }}} draft=<<currentTiddler>>/><%else%><$action-sendmessage $message="tm-trpg-copy" draft=<<currentTiddler>> source=<<trpg-pick>>/><%endif%>"""/>
+</span>
+</div>
+</$list>
+\end
+
 \procedure trpg.formkinds()
 \whitespace trim
 <%if [<currentTiddler>trpgtypes[]] :intersection[enlist[Artifact Item Material]] +[limit[1]] %>
@@ -158,6 +177,7 @@ type: text/vnd.tiddlywiki
 </div>
 <%endif%>
 <$transclude $variable="trpg.formkinds"/>
+<$transclude $variable="trpg.formcopy"/>
 <$list filter="[<currentTiddler>trpgformfields[]]" variable="trpg-field">
 <div class="trpg-form-row">
 <$transclude $variable="trpg.formlabel"/>

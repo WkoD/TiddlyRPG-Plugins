@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261022164503295
+modified: 20261023173843884
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -48,7 +48,15 @@ both in step.
                             linked (modules/fields.js copyFrom: never the price, a lock comes with
                             its value); {source, fields, missing} - the fields copied; missing: the
                             target does not exist
-  dropped(wiki,title)       the known fields of <title> and of its form-extra its types do not
+  copyValues(wiki,draft,source,fields)  the same from the fields of any source (a tiddler, an
+                            entry of a content package): source names it in the result
+  copiedText(wiki,draft,done)  the notification of a copy: what came from where, or why nothing
+  copySources(wiki,title)   what the form of <title> copies values from without a relation (the
+                            row "Take values from", editor/form): the tiddlers with a value of
+                            the rules whose type shares a schema with <title> (an artifact copies
+                            from an item), and the offers of the content packages of these types
+                            (modules/content.js) - none without a schema
+  dropped(wiki,title)      the known fields of <title> and of its form-extra its types do not
                             have; none if no type has a config
   states(wiki,draft)        the temp and state tiddlers of the editor that belong to <draft>
   noteCreated(wiki,draft,tiddler)  remembers a tiddler the toolbar of <draft> saved at once (a
@@ -172,15 +180,65 @@ exports.copyFrom = function(wiki,draft,field) {
 		type = relations.types(wiki)[field],
 		source = tiddler && type && type.copy ? list(tiddler.fields[field])[0] : null,
 		from = source && wiki.getTiddler(source);
-	if(!from) {
+	return copyValues(wiki,draft,source,from && from.fields);
+};
+
+var copyValues = exports.copyValues = function(wiki,draft,source,fields) {
+	var tiddler = wiki.getTiddler(draft);
+	if(!tiddler || !fields) {
 		return {source: source || "", fields: [], missing: !!source};
 	}
-	var out = rulesFields().copyFrom(wiki,tiddler.fields,from.fields),
+	var out = rulesFields().copyFrom(wiki,tiddler.fields,fields),
 		copied = Object.keys(out).filter(function(name) { return name !== "secret-fields"; });
 	if(Object.keys(out).length) {
 		wiki.addTiddler(new $tw.Tiddler(tiddler,out));
 	}
 	return {source: source, fields: copied};
+};
+
+exports.copiedText = function(wiki,draft,done) {
+	var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
+	return language.format(language.t(wiki,done.missing ? "Editor/Form/CopiedMissing" : (done.fields.length ? "Editor/Form/Copied" : "Editor/Form/CopiedNone")),{
+		title: language.title(wiki,done.source),
+		fields: done.fields.map(function(name) { return exports.label(wiki,draft,name); }).join(", ")
+	});
+};
+
+// The tiddlers of the wiki with a value of the rules whose type shares a schema with <title> (an
+// artifact copies from an item), and the offers of the content packages of these types: what the
+// form copies values from
+exports.copySources = function(wiki,title) {
+	var tiddler = wiki.getTiddler(title),
+		self = tiddler ? [title,tiddler.fields["draft.of"]] : [title],
+		own = typeTags.of(wiki,title),
+		schema = rulesFields().forTypes(wiki,own),
+		shared = [],
+		out = [];
+	rulesFields().registry(wiki).schemas.forEach(function(s) {
+		if(s.types.some(function(type) { return own.indexOf(type) !== -1; })) {
+			s.types.forEach(function(type) {
+				if(shared.indexOf(type) === -1) {
+					shared.push(type);
+				}
+			});
+		}
+	});
+	shared.forEach(function(type) {
+		wiki.getTiddlersWithTag(type).forEach(function(other) {
+			var fields = (wiki.getTiddler(other) || {fields: {}}).fields;
+			if(self.indexOf(other) === -1 && out.indexOf(other) === -1 && !fields["draft.of"] && schema.fields.some(function(field) {
+				return fields[field];
+			})) {
+				out.push(other);
+			}
+		});
+	});
+	require("$:/plugins/tiddlyrpg-core/modules/content.js").offers(wiki).forEach(function(o) {
+		if(shared.indexOf(o.type) !== -1 && out.indexOf(o.title) === -1) {
+			out.push(o.title);
+		}
+	});
+	return out;
 };
 
 exports.single = function(wiki,title,field) {
