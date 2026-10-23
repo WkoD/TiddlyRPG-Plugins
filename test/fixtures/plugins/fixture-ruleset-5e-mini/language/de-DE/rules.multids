@@ -150,3 +150,5 @@ Rules/Section/trait: Merkmal
 Rules/Section/legendary: legendäre Aktion
 Rules/Section/action/Heading: Aktionen
 Rules/Section/legendary/Heading: Legendäre Aktionen
+Rules/Term/spell-slot: Zauberplatz
+Rules/Term/spell-slot/level: Zauberplatz des $value.ordinal$ Grades

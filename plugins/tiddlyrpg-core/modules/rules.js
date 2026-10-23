@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261023192230845
+modified: 20261023195802630
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -48,7 +48,8 @@ Domain types and their data:
     "extends":  true - not a domain of its own: adds its "entries" to the label domain named in
                 "domain" (an extension of a campaign; modules/language.js)
     keys: <keys><id>, <keys><id>/<variant> with "keys" of the domain, default Rules/Term/; a
-          label with $value$ takes a number. Ids are unique among the entries that stand alone; a
+          label with $value$ takes a number, with $value.ordinal$ as ordinal (Rules/Ordinal/<n>:
+          "spell slot of $value.ordinal$ level"). Ids are unique among the entries that stand alone; a
           domain whose properties repeat ids of another domain needs keys of its own.
     <<term "armor medium">>: a main entry with its properties; a single id finds only an entry that
     stands alone.
@@ -545,7 +546,8 @@ function findEntry(wiki,type,id) {
 
 // <<term id variant|value>>: "wis", "wis save", "frightened 2"
 // A term in the rules language: <id>, with a variant ("save": Rules/Term/<id>/<variant>) and/or
-// a value ("frightened 2": in place of $value$ in the text, or after it)
+// a value ("frightened 2": in place of $value$ in the text, or after it; in place of
+// $value.ordinal$ as ordinal, Rules/Ordinal/<value>, else as written: "spell slot of 3rd level")
 exports.term = function(wiki,id,variant,value) {
 	id = (id || "").toString().trim();
 	variant = (variant || "").toString().trim();
@@ -570,9 +572,10 @@ exports.term = function(wiki,id,variant,value) {
 		text = found.entry.id;
 	}
 	if(value) {
-		text = text.indexOf("$value$") !== -1 ? text.replace("$value$",value) : text + " " + value;
+		text = text.indexOf("$value.ordinal$") !== -1 ? text.replace("$value.ordinal$",language.lookupRules(wiki,domain,"Rules/Ordinal/" + value) || value) :
+			text.indexOf("$value$") !== -1 ? text.replace("$value$",value) : text + " " + value;
 	}
-	return result(text.replace(/\s*\$value\$/,""));
+	return result(text.replace(/\s*\$value(?:\.ordinal)?\$/,""));
 };
 
 /* Damage */

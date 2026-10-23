@@ -94,6 +94,22 @@ test.describe("what is not understood", function() {
 	});
 });
 
+test("a value as ordinal: $value.ordinal$ from Rules/Ordinal/<n>, else as written; without a value nothing of it", function() {
+	var v = function(id, variant, value) { return rules.term(wiki, id, variant, value).text; };
+	h.setLanguage(wiki, "de-DE");
+	try {
+		assert.equal(v("spell-slot", "level", "3"), "Zauberplatz des 3. Grades");
+		assert.equal(rules.term(wiki, "spell-slot", "level", "3").problem, null);
+		h.setLanguage(wiki, "en-GB");
+		assert.equal(v("spell-slot", "level", "3"), "spell slot of 3rd level");
+		assert.equal(v("spell-slot", "level", "18"), "spell slot of 18 level", "no ordinal key: the number as written");
+		assert.equal(v("spell-slot", "level"), "spell slot of level", "without a value the placeholder goes");
+		assert.equal(v("spell-slot"), "spell slot");
+	} finally {
+		h.setLanguage(wiki, "de-DE");
+	}
+});
+
 test("the ids are unique among the entries that stand alone (a property may repeat one)", function() {
 	var domains = language.domains(wiki),
 		seen = {},

@@ -150,3 +150,5 @@ Rules/Section/trait: trait
 Rules/Section/legendary: legendary action
 Rules/Section/action/Heading: Actions
 Rules/Section/legendary/Heading: Legendary actions
+Rules/Term/spell-slot: spell slot
+Rules/Term/spell-slot/level: spell slot of $value.ordinal$ level

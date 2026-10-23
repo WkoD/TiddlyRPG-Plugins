@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261023181956562
+modified: 20261023195802630
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
@@ -112,7 +112,7 @@ function index(wiki,domain) {
 				var base = PREFIX + code + "/" + key,
 					label = wiki.getTiddlerText(base),
 					parse = wiki.getTiddlerText(base + "/Parse");
-				if(label && label.indexOf("$value$") === -1) {
+				if(label && label.indexOf("$value") === -1) {
 					add(label,entry.id);
 				}
 				(parse || "").split(",").forEach(function(word) { add(word,entry.id); });
@@ -129,7 +129,7 @@ function index(wiki,domain) {
 				var rest = title.substr(start.length).split("/"),
 					text = tiddler.fields.text || "";
 				if(rest.length === 2 && ids.indexOf(rest[0]) !== -1 && ids.indexOf(rest[1]) === -1 &&
-					rest[1] !== "Parse" && rest[1] !== "Plural" && text.indexOf("$value$") === -1) {
+					rest[1] !== "Parse" && rest[1] !== "Plural" && text.indexOf("$value") === -1) {
 					add(text,rest[0]);
 				}
 				return true;
