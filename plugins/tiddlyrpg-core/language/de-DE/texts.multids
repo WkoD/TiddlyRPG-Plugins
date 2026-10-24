@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261024091845803
+modified: 20261024152302984
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -177,7 +177,6 @@ Event/End: (Ende)
 Event/Event: Ereignis
 Event/Start: (Start)
 Event/Timeline: Zeitstrahl
-Item/Check/NoBase: Gegenstand prüfen: Eine Kategorie wie Buch braucht dazu einen Grundtyp: Artefakt (einzigartig), Gegenstand (mehrfach) oder Material
 Item/Check/PriceCurrency: Preis prüfen: eine Zahl und eine Münze des Geldsystems, z. B. 50 gp - oder eine reine Zahl, wenn das Wiki kein Geldsystem hat
 Item/Check/PriceNoCurrency: Preis prüfen: Er braucht eine Münze des Geldsystems, z. B. 50 gp
 Item/Check/PriceUnit: Preis prüfen: die Einheit ist im Münzsystem unbekannt

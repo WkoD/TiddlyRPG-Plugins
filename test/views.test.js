@@ -309,6 +309,12 @@ test.describe("sweep", function() {
 			{title: "Qx7 Bann", tags: "Spell Secret", text: "Qx7 spell."},
 			{title: "Sweep Magier", tags: "Person", spells: "[[Qx7 Bann]]", text: "A mage."},
 			{title: "Qx7 Wolf", tags: "Creature Secret", location: "Baile", text: "Qx7 wolf."},
+			// The relation folk to a locked folk, and a locked member of a folk everyone sees (the
+			// heading of the categories in the hub Information, the group Angehörige)
+			{title: "Qx7 Volk", tags: "Information Folk Secret", text: "Qx7 folk."},
+			{title: "Sweep Nu", tags: "Person", folk: "[[Qx7 Volk]]", text: "A hunter."},
+			{title: "Sweep Volk", tags: "Information Folk", text: "A folk."},
+			{title: "Qx7 Kater", tags: "Person Secret", folk: "[[Sweep Volk]]", text: "Qx7 cat."},
 			// Locked values of a tiddler everyone sees (secret-fields): one field, and all with the price
 			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
 			// A section of the ruleset locked by a field (a curse with cursed, modules/sections.js)
@@ -441,7 +447,7 @@ test.describe("sweep", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
 			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
-			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", YEAR].forEach(function(word) {
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

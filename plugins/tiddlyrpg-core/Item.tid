@@ -1,7 +1,7 @@
 caption: <<trpg.title Item>>
 color: #ff80ff
 created: 20200209095911454
-modified: 20261007163804094
+modified: 20261024152302984
 tags: Index
 title: Item
 type: text/vnd.tiddlywiki
@@ -17,12 +17,12 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- Items have one base type (Artifact: unique, Item: several, Material) and any number of
-     categories: hubs tagged $:/tags/tiddlyrpg/ItemKind (Book, Consumable, Equipment, or one of
-     the campaign). This hub lists every base type, first the items without a category, then one
+     categories of the items (modules/categories.js: Book, Consumable, Equipment, or one of the
+     campaign). This hub lists every base type, first the items without a category, then one
      heading per category (sorted by its displayed name). A category hub transcludes it ({{ || Item }}) and lists only its own
      items, per base type. -->
-<$let trpg-kinds={{{ [all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]sortsub:string<trpg.kind.name>format:titlelist[]join[ ]] }}}
-	trpg-kind={{{ [<currentTiddler>tag[$:/tags/tiddlyrpg/ItemKind]] }}}>
+<$let trpg-kinds={{{ [trpgcategories[Artifact]] [trpgcategories[Item]] [trpgcategories[Material]] +[sortsub:string<trpg.kind.name>format:titlelist[]join[ ]] }}}
+	trpg-kind={{{ [enlist<trpg-kinds>match<currentTiddler>] }}}>
 <$list filter="Artifact Item Material" variable="type">
 <%if [<trpg-kind>!is[blank]] %>
 <%if [tag<type>tag<trpg-kind>] :filter[trpg.visible[]] %>

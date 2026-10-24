@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261022161106186
+modified: 20261024152302984
 title: $:/tiddlyrpg/language/en-GB/FieldInverse/
 
 ancestor: Descendants
@@ -7,6 +7,7 @@ base: Variants
 component: Part of
 creator: Created
 creature: Individuals
+folk: Members
 former: Former
 leader: Leaders
 location: Present

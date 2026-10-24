@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261024091845803
+modified: 20261024152302984
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -177,7 +177,6 @@ Event/End: (end)
 Event/Event: Event
 Event/Start: (start)
 Event/Timeline: Timeline
-Item/Check/NoBase: Check the item: a category such as Book needs a base type as well: Artifact (unique), Item (several) or Material
 Item/Check/PriceCurrency: Check the price: a number and a coin of the currency, e.g. 50 gp - or a plain number if the wiki has no currency
 Item/Check/PriceNoCurrency: Check the price: it needs a coin of the currency, e.g. 50 gp
 Item/Check/PriceUnit: Check the price: the currency has no such unit

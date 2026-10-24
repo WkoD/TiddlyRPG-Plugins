@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022170135456
+modified: 20261024152302984
 title: $:/tiddlyrpg/language/en-GB/Title/
 
 Artifact: Artifact
@@ -14,6 +14,7 @@ Currency: Currency
 Deity: Deity
 Equipment: Equipment
 Event: Event
+Folk: Folk
 Index: Index
 Information: Information
 Item: Item

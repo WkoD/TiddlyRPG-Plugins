@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261022172648948
+modified: 20261024152302984
 title: $:/tiddlyrpg/language/en-GB/Field/
 
 alliance: Alliance
@@ -12,6 +12,7 @@ creature: Creature
 date: Date
 enmity: Enmity
 family: Family
+folk: Folk
 former: Formerly with
 image: Images
 leader: Leads

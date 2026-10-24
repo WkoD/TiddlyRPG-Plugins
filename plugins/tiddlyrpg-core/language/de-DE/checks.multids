@@ -1,7 +1,8 @@
 created: 20261015193638000
-modified: 20261023194136107
+modified: 20261024152302984
 title: $:/tiddlyrpg/language/de-DE/Check/
 
+Categories/NoBase: Tags prüfen: $category$ braucht dazu einen Grundtyp: $bases$
 Checks/Unknown: Felder prüfen: $field$ nennt „$id$“, das ist keine Prüfung
 Dates/Beyond: Text prüfen: <<date $n$>> – das Feld date hat $count$ Abschnitte
 Dates/Day: Datum prüfen: $point$ – den Tag $day$ gibt es im Monat $month$ des Jahres $year$ nicht

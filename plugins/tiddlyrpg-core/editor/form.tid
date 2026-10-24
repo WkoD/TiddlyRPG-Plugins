@@ -1,6 +1,6 @@
 created: 20261016184211000
 list-after: $:/core/ui/EditTemplate/body
-modified: 20261023175042957
+modified: 20261024152302984
 tags: $:/tags/EditTemplate
 title: $:/plugins/tiddlyrpg-core/editor/form
 type: text/vnd.tiddlywiki
@@ -9,10 +9,10 @@ type: text/vnd.tiddlywiki
      (editor/procedures): the fields the type expects and every field of the form the draft has,
      labelled (trpgformlabel: Field/<field>, a field of the rules by its schema), each with its editor (trpgfieldeditor: editor/fields/*). An empty
      field is not saved: its label is in italics; × takes a field out (its value and the place in the
-     form). "More fields" offers the fields of the type as pills (trpgformoffered). An item gets
-     its categories as pills to choose (tag $:/tags/tiddlyrpg/ItemKind), one at most: another
-     replaces it, a second click takes it out. A draft without a type tag
-     gets the types as pills instead. Below the fields the messages of the checks for the draft
+     form). "More fields" offers the fields of the type as pills (trpgformoffered). A base type
+     offers its categories as pills to choose (trpgcategories: an item Book, Consumable,
+     Equipment, Information Folk), one at most: another replaces it, a second click takes it out.
+     A draft without a type tag gets the types as pills instead. Below the fields the messages of the checks for the draft
      with their fixes (procedure trpg.formchecks). Not for system tiddlers, hubs (tag Index) or
      what is no wikitext. -->
 \procedure trpg.formmore()
@@ -113,16 +113,18 @@ type: text/vnd.tiddlywiki
 
 \procedure trpg.formkinds()
 \whitespace trim
-<%if [<currentTiddler>trpgtypes[]] :intersection[enlist[Artifact Item Material]] +[limit[1]] %>
+<$let trpg-kinds={{{ [<currentTiddler>trpgtypes[]] :map:flat[trpgcategories<currentTiddler>] +[unique[]!is[draft]format:titlelist[]join[ ]] }}}>
+<%if [<trpg-kinds>!is[blank]] %>
 <div class="trpg-form-row">
 <span class="trpg-form-label"><$text text={{{ [[Editor/Form/Kinds]trpgtranslate[]] }}}/></span>
 <span class="trpg-pills">
-<$list filter="[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]!is[draft]] :sort:string[trpgtitle[]]" variable="trpg-kind">
-<$transclude $variable="trpg.choicepill" tiddler=<<currentTiddler>> field="tags" value=<<trpg-kind>> label={{{ [<trpg-kind>trpgtitle[]] }}} style={{{ [<trpg-kind>get[color]addprefix[--trpg-kind:]] }}} others="[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]]"/>
+<$list filter="[enlist<trpg-kinds>] :sort:string[trpgtitle[]]" variable="trpg-kind">
+<$transclude $variable="trpg.choicepill" tiddler=<<currentTiddler>> field="tags" value=<<trpg-kind>> label={{{ [<trpg-kind>trpgtitle[]] }}} style={{{ [<trpg-kind>get[color]addprefix[--trpg-kind:]] }}} others="[enlist<trpg-kinds>]"/>
 </$list>
 </span>
 </div>
 <%endif%>
+</$let>
 \end
 
 <!-- The messages of the checks for the draft (trpgdraftcheck, modules/checks.js forDraft), each
@@ -172,7 +174,7 @@ type: text/vnd.tiddlywiki
 <div class="trpg-form-row">
 <span class="trpg-form-label"><$text text={{{ [[Editor/Form/Type]trpgtranslate[]] }}}/></span>
 <span class="trpg-pills">
-<$list filter="[trpgtypelist[]] -[all[shadows+tiddlers]tag[$:/tags/tiddlyrpg/ItemKind]] :sort:string[trpgtitle[]]" variable="trpg-type">
+<$list filter="[trpgtypelist[]] -[trpgcategories[]] :sort:string[trpgtitle[]]" variable="trpg-type">
 <$transclude $variable="trpg.choicepill" tiddler=<<currentTiddler>> field="tags" value=<<trpg-type>> label={{{ [<trpg-type>trpgtitle[]] }}} style={{{ [<trpg-type>get[color]addprefix[--trpg-kind:]] }}}/>
 </$list>
 </span>

@@ -63,7 +63,7 @@ A tour for the DM and the players. The sections after it hold the details.
 - A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
   `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
-  `Information`, `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
+  `Information` (with the category `Folk`, see "Folks"), `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
   shows the player characters as cards with the level of the party (the tiddler `PlayerLevel`).
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
   while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
@@ -523,6 +523,7 @@ relation list show the way back by themselves.
 | | `sibling` | `sibling: Bjorn` (both ends) | Sibling | Siblings |
 | | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
 | | `creature` | `creature: Fukuro` (a person, player character or form of a creature: its kind) | is a | Creature / Individuals |
+| | `folk` | `folk: Nichny` (a person, player character or creature; a half-elf names two) | belongs to | Folk / Members |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
 | | `patron` | `patron: Sola` | worships | Patron / Followers |
@@ -687,8 +688,11 @@ The hub `Item` lists the base types, each first with the items without a categor
 heading per category; a category hub lists only its own items. How many of an item exist is
 told by the text - a list field carries every name once.
 
-**An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/ItemKind`,
-used as a tag next to the base type. Its heading in the hub is its display name.
+**An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/Category`,
+used as a tag next to the base type. Its heading in the hub is its display name. Its field
+`tiddlyrpg-bases` names the base types it stands next to - without it the three of the items;
+`tiddlyrpg-bases: Information` makes a category of information like `Folk`. The tag of the
+releases before 2.2.0, `$:/tags/tiddlyrpg/ItemKind`, still makes a category of the items.
 
 **Price:** `price: 50 cr` or `price: 3 cr 5 sh` - numbers with coins of the currency (see
 "Currency"), shown as written with the coin labels of the language shown ("50 Kr" in German).
@@ -700,6 +704,21 @@ the hub Currency takes ranges too.
 
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
 body (PDF), not for a secret the active view does not see.
+
+## Folks
+
+A folk - humans, elves, a people of the campaign - is an information with the category `Folk`
+(`tags: Information Folk`). It is no creature: it has no stat block, its values are those of a
+folk (size, speed, languages, senses - what the ruleset defines for `Folk`). A being of the folk
+with values of its own (a warrior, a priestess) is a `Creature` that names the folk.
+
+- The hub `Information` lists the folks under a heading of their own, the hub `Folk` only
+  them. `Folk` alone, without `Information`, gets a message below the title with the fix.
+- A person, player character or creature names its folk in `folk` - only where it tells
+  something; a half-elf may name two. The folk lists them as "Members"; the ego graph draws
+  the edge, its colour is the grey of `Information`.
+- A lock hides the folk or the person (`Secret`), not the membership alone: a secret folk of an
+  open person is a folk tagged `Secret`.
 
 ## Images and sources
 
@@ -910,6 +929,7 @@ out every message of its level. An id that is no rule is a hint.
 
 | Id | Level | Message |
 |---|---|---|
+| `categories/base` | error | a category without one of its base types: a category of the items without `Artifact`, `Item` or `Material`, `Folk` without `Information`; fix for one base type: set its tag |
 | `checks/switches` | hint | `trpg-noerror` or `trpg-noinfo` names an id that is no rule |
 | `dates/format` | error | a part of the date field that cannot be read, a day or month the calendar does not have, start after end, sections out of order |
 | `dates/field` | hint | an empty side or section in the date field |
@@ -928,7 +948,7 @@ out every message of its level. An id that is no rule is a hint.
 | `images/folder` | error | `<<image "...">>` in a tiddler without type and without `folder:` |
 | `images/unused` | hint | a file in the image folder of a type or in `images/map/` that no tiddler names (only `check-wiki.js`, the path of the file as title) |
 | `images/joined` | hint | images or maps at a spot joined to a tiddler - they show in that tiddler |
-| `items/base` | error | a category without base type, two base types |
+| `items/base` | error | two base types |
 | `items/price` | error | a price that does not fit the currency |
 | `links/missing` | hint | a link to a tiddler that does not exist; from how many tiddlers it is linked; for the name of a spot its location and `<<spotlink>>` |
 | `locations/structure` | error | a location in two places or in a cycle, naming no location, with a parent hidden from someone who sees it; a person in two places; an artifact in two places, with two owners, or with owner and location |
@@ -993,7 +1013,7 @@ event) also while empty, every other field of the type under "More fields". A re
 picks from what it may name, as pills with ×, a location with its path; a person, a location
 and an artifact have one `location`, an artifact one `owner`. The date shows the reading of
 each section, an event also how many `<<date>>` its text has; a price its output and the coin;
-images and maps a preview. An item gets one category. The values of the rules follow the fields
+images and maps a preview. An item gets one category, an information as well (`Folk`). The values of the rules follow the fields
 of the type (see "Values of the rules"); the lock of values and "Take the values" of a base item
 stand with them. A draft without type gets the types to
 choose; a change of type takes out the fields the new type does not have. Below the fields the
@@ -1007,7 +1027,8 @@ off under ControlPanel -> Settings -> TiddlyRPG -> Editor. Files written by hand
 both ends.
 
 **New tiddlers:** "+" beside edit and close on the hub of a type opens a draft of that type; an
-event asks for its date first, an item or a category for the base type. A name that another
+event asks for its date first, an item or a category of the items for the base type; `Folk`
+makes an information at once. A name that another
 tiddler has, in any case, is refused with a red line where it is typed (sub-location, rumour).
 
 **Search:** switches of the kinds above the hits choose what to show - none chosen is all; the

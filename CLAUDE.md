@@ -143,10 +143,16 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     `$:/status/IsReadOnly`). `h.view` opens the tabs of `h.tabs` for the tiddler it renders (the
     tab states are per tiddler, `h.openTabs`): the list of the relations block and of the events,
     since the graph widget needs a browser; the sweep renders both tabs of each
-  - `items` - base type and categories and their messages (`checks/items.js`), the price
-    with the currency of the fixture setting, the hub lists of `Item` and of a category, a
-    category of the campaign, the file of a book (field `data`), colour and image folder
-    through the base type
+  - `items` - the base type and its message (`checks/items.js`), the price with the currency
+    of the fixture setting, the hub lists of `Item` and of a category, a category of the
+    campaign (also under the tag before 2.2.0), the file of a book (field `data`), colour and
+    image folder through the base type
+  - `categories` - the categories of the base types (`modules/categories.js`): the item
+    categories and `Folk` under `Information`, one of the campaign with and without
+    `tiddlyrpg-bases` and under the tag before 2.2.0, the rule `categories/base` with its
+    fix, the hub `Information` with a heading per category (only with an entry the view
+    sees) and the hub of a category, the pills of the form, "+" on `Folk`, the relation
+    `folk` (targets, way back, several, list, ego graph)
   - `currency` - the currency engine against the fixture settings (Faerûn-like, Krynn with
     steel): parse, format, convert, check, base and reference, without currency, without
     ruleset, `<<unit>>` with coins (km stays a length), unusable data
@@ -385,8 +391,9 @@ the tiddler title:
   properties; `<<term>>` with several ids; the data problems of label domains - see "Rules
   engine"), `fields.js` (the fields of the rules: definitions and schemas per type, labels,
   derived values, the header line, `when`, `copyFrom()` - see "Rules engine"), `types.js`
-  (the type tags: the hubs and the item categories of the campaign, `of()` the types of a
-  tiddler; `UNTYPED`: pages that need no type),
+  (the type tags: the hubs and the categories, `of()` the types of a tiddler; `UNTYPED`: pages
+  that need no type), `categories.js` (the categories of the base types, see "Items and
+  categories"),
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor"), `notice.js` (the notifications
   of the editor: each shown from a slot of its own, so two in a row keep their texts).
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
@@ -442,6 +449,7 @@ the tiddler title:
   `currencyunit`, `currencycoin`, see "Currency engine"), `sections.js` (`hassections`,
   `sectionbacklinks`, `visiblelinks`, `trpgsearch`),
   `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`),
+  `categories.js` (`trpgcategories`, `trpgcategorybases`, see "Items and categories"),
   `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
@@ -554,9 +562,10 @@ the tiddler title:
   `editor/operation.js`, the form `editor/form` with the field editors `editor/fields/*`, the
   config of the picker `editor/picker` - see "Editor".
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Information, Index, Quest, Spell, Creature:
-  titles without prefix,
-  tag `Index`; the item categories also tagged `$:/tags/tiddlyrpg/ItemKind`, see "Items"; plus
+  Material, Book, Consumable, Equipment, Event, Information, Folk, Index, Quest, Spell,
+  Creature: titles without prefix,
+  tag `Index`; the categories also tagged `$:/tags/tiddlyrpg/Category`, see "Items and
+  categories"; plus
   Campaign, Calendar, Currency, Ruleset, CampaignSetting): the hubs tagged `Index` are the types
   (`modules/types.js`) - their `color` field gives graph nodes, tiddler borders, the rules in a
   tiddler and tag pills their colour; `caption` is `<<trpg.title ...>>`. `Campaign` is the pinned start page and no
@@ -1106,20 +1115,29 @@ only call their operators.
   `leader` already holds (`Location/Check/LedAndLocation`). The relation list shows the places
   led as the group "Controls".
 
-## Items
+## Items and categories
 
-The rules of items live **once** in `checks/items.js` (base type and categories) and
-`filters/location.js` (owner and location of an artifact). Meaning and examples: `README.md`
-("Items").
+The rules of items live **once** in `checks/items.js` (base type), `modules/categories.js` with
+`checks/categories.js` (the categories of every base type) and `filters/location.js` (owner and
+location of an artifact). Meaning and examples: `README.md` ("Items", "Folks").
 
 - Base types `Artifact` (unique), `Item` (several), `Material`; one per item. Everything that
   tells the item types apart (colour in the graph templates, `multitag` lists of `activity` and
   `relations`, the image folder in `modules/images.js`) names only these three - a category never
   stands alone.
-- Categories are hubs tagged `$:/tags/tiddlyrpg/ItemKind` (`Book`, `Consumable`, `Equipment` from
-  here, more from a campaign). They need no code: the hub `Item` reads them from the tag, and
-  a category hub is `{{ || Item }}`, which then lists only its own items. Behaviour of one
-  category hangs on its tag (`viewtemplates/book`, `styles/item`).
+- Categories are hubs tagged `$:/tags/tiddlyrpg/Category` with their base types in
+  `tiddlyrpg-bases` (`Book`, `Consumable`, `Equipment` from here: `Artifact Item Material`;
+  without the field the same; more from a campaign). The rule of them lives **once** in
+  `modules/categories.js`; the tag before 2.2.0, `$:/tags/tiddlyrpg/ItemKind`, is read there as
+  a category of the items. They need no code: the hub `Item` reads them through
+  `trpgcategories`, and a category hub is `{{ || Item }}`, which then lists only its own items.
+  Behaviour of one category hangs on its tag (`viewtemplates/book`, `styles/item`).
+- The same for every base type: `Folk` is a category of `Information` (`{{ || Information }}`,
+  the colour of `Information`); the form offers the categories of the base types of a draft
+  (`trpg.formkinds`), "+" on a category of one base type sets both tags at once
+  (`ui/new-procedures`), `categories/base` (`checks/categories.js`) asks for the base type. A
+  folk is named by the relation `folk` (axis family; several allowed, not in `form.SINGLE`) and
+  shows the relations block (`viewtemplates/relations`) for its way back.
 - Their messages stand below the title (`items/base`, `items/price`: the price against the
   currency), see "Checks".
 - The price (field `price`) shows as the first line of the block of values

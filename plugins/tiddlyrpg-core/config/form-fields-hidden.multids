@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261022170835208
+modified: 20261024152302984
 title: $:/config/EditTemplateFields/Visibility/
 
 alliance: hide
@@ -12,6 +12,7 @@ creature: hide
 date: hide
 enmity: hide
 family: hide
+folk: hide
 former: hide
 image: hide
 leader: hide

@@ -1,8 +1,9 @@
 caption: <<trpg.title Book>>
 color: #ff80ff
 created: 20200814090152724
-modified: 20261006154328000
-tags: Index $:/tags/tiddlyrpg/ItemKind
+modified: 20261024152302984
+tags: Index $:/tags/tiddlyrpg/Category
+tiddlyrpg-bases: Artifact Item Material
 title: Book
 type: text/vnd.tiddlywiki
 

@@ -1,15 +1,40 @@
 caption: <<trpg.title Information>>
 color: #7c7c7c
 created: 20200804121707247
-modified: 20261022170135456
+modified: 20261024152302984
 tags: Index
 title: Information
 type: text/vnd.tiddlywiki
 
-<!-- The tiddlers tagged Information; the hubs Calendar, Currency, Ruleset and CampaignSetting only
-     when there is a calendar, a currency, an active ruleset or an active campaign setting. -->
-<$list filter="[all[shadows+tiddlers]tag[Information]sort[title]] -[{$:/config/tiddlyrpg/calendar}is[blank]then[Calendar]] -[{$:/config/tiddlyrpg/currency}is[blank]then[Currency]] -[trpgplugin[ruleset]count[]match[0]then[Ruleset]] -[trpgplugin[setting]count[]match[0]then[CampaignSetting]] -[trpg.content[]count[]match[0]then[Content]] :filter[trpg.visible[]]">
+\define trpg.kind.name() [addprefix[Plural/]trpgtranslate[]] :filter[!prefix[Plural/]] ~[trpgtitle[]]
+
+\function trpg.uncategorised() [all[current]tags[]] :intersection[enlist<trpg-kinds>] +[count[]match[0]]
+
+\procedure trpg.infos(filter)
+<$list filter="[subfilter<filter>] :filter[trpg.visible[]]">
 <div class="tc-menu-list-subitem">
 <$link to={{!!title}}><$text text={{{ [<currentTiddler>trpgtitle[]] }}}/></$link>
 </div>
 </$list>
+\end
+
+<!-- The tiddlers tagged Information; the hubs Calendar, Currency, Ruleset and CampaignSetting only
+     when there is a calendar, a currency, an active ruleset or an active campaign setting. First
+     those without a category, then one heading per category of Information (modules/categories.js:
+     Folk, or one of the campaign; sorted by its displayed name), only with an entry the view sees.
+     A category hub transcludes it ({{ || Information }}) and lists only its own entries. -->
+<$let trpg-kinds={{{ [trpgcategories[Information]sortsub:string<trpg.kind.name>format:titlelist[]join[ ]] }}}
+	trpg-kind={{{ [enlist<trpg-kinds>match<currentTiddler>] }}}>
+<%if [<trpg-kind>!is[blank]] %>
+<$transclude $variable="trpg.infos" filter="[all[shadows+tiddlers]tag[Information]tag<trpg-kind>sort[title]]"/>
+<%else%>
+<$transclude $variable="trpg.infos" filter="[all[shadows+tiddlers]tag[Information]sort[title]] -[{$:/config/tiddlyrpg/calendar}is[blank]then[Calendar]] -[{$:/config/tiddlyrpg/currency}is[blank]then[Currency]] -[trpgplugin[ruleset]count[]match[0]then[Ruleset]] -[trpgplugin[setting]count[]match[0]then[CampaignSetting]] -[trpg.content[]count[]match[0]then[Content]] :filter[trpg.uncategorised[]]"/>
+<$list filter="[enlist<trpg-kinds>]" variable="kind">
+<%if [all[shadows+tiddlers]tag[Information]tag<kind>] :filter[trpg.visible[]] %>
+
+!!! <$text text={{{ [<kind>subfilter<trpg.kind.name>] }}}/>
+<$transclude $variable="trpg.infos" filter="[all[shadows+tiddlers]tag[Information]tag<kind>sort[title]]"/>
+<%endif%>
+</$list>
+<%endif%>
+</$let>

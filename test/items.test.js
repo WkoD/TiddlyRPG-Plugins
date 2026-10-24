@@ -1,8 +1,9 @@
 /*
- * Items (checks/items.js): base type and categories and their messages, the price with the
- * currency of the fixture setting (without currency: currency.test.js), the hub lists of
- * Item and of a category, a category of the campaign, the file of a book (field data) and
- * colour and image folder through the base type. Items at a location: location.test.js.
+ * Items (checks/items.js): the base type and its message, the price with the currency of the
+ * fixture setting (without currency: currency.test.js), the hub lists of Item and of a category,
+ * a category of the campaign, the file of a book (field data) and colour and image folder
+ * through the base type. Items at a location: location.test.js. A category without base type:
+ * categories.test.js.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -64,12 +65,6 @@ test.describe("base type", function() {
 		assert.deepEqual(keysOf(["Sword", "Chronicle", "Newspaper", "Potion", "Snail", "Moss"]), []);
 	});
 
-	test("category without base type", function() {
-		withTiddlers([{title: "Loose Book", tags: "Book"}], function() {
-			assert.deepEqual(keys("Loose Book"), ["Item/Check/NoBase"]);
-		});
-	});
-
 	test("two base types", function() {
 		withTiddlers([{title: "Undecided", tags: "Artifact Item"}], function() {
 			assert.deepEqual(keys("Undecided"), ["Item/Check/TwoBases"]);
@@ -78,24 +73,6 @@ test.describe("base type", function() {
 
 	test("the hubs themselves: no hint", function() {
 		assert.deepEqual(keysOf(["Book", "Consumable", "Equipment", "Item"]), []);
-	});
-
-	test("a category of the campaign counts too", function() {
-		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Loose Rune", tags: "Rune"}], function() {
-			assert.deepEqual(keys("Loose Rune"), ["Item/Check/NoBase"]);
-		});
-	});
-
-	test("hint below the title, not in the published copy", function() {
-		withTiddlers([{title: "Loose Book", tags: "Book"}], function() {
-			assert.ok(h.view(wiki, "Loose Book").indexOf("Gegenstand prüfen: Eine Kategorie wie Buch braucht dazu einen Grundtyp") !== -1);
-			h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
-			try {
-				assert.ok(h.view(wiki, "Loose Book").indexOf("Gegenstand prüfen") === -1);
-			} finally {
-				wiki.deleteTiddler("$:/status/IsReadOnly");
-			}
-		});
 	});
 });
 
@@ -138,8 +115,20 @@ test.describe("hubs", function() {
 	});
 
 	test("a category of the campaign: heading with its display name", function() {
+		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/Category"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
+			assert.ok(inOrder(h.body(wiki, "Item"), ["Gegenstände", "Rune", "Hagalaz", "Materialien"]));
+		});
+	});
+
+	test("a category of the campaign under the tag before 2.2.0 (ItemKind) counts too", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
 			assert.ok(inOrder(h.body(wiki, "Item"), ["Gegenstände", "Rune", "Hagalaz", "Materialien"]));
+		});
+	});
+
+	test("a category of other base types is no heading here", function() {
+		withTiddlers([{title: "Mythos", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "Information"}, {title: "Odin", tags: "Information Mythos Item"}], function() {
+			assert.equal(h.body(wiki, "Item").indexOf("Mythos"), -1);
 		});
 	});
 

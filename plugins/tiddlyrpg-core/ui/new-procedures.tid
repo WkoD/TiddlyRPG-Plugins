@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261017162026260
+modified: 20261024152302984
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/ui/new-procedures
 type: text/vnd.tiddlywiki
@@ -8,16 +8,18 @@ type: text/vnd.tiddlywiki
      (tv-config-toolbar-class, icon and text as the toolbar shows them): a new draft with the type
      tag and nothing else - the form in the editor shows the fields the type expects (editor/form).
      An event asks for its date first (ui/new-event) and starts with the field date and <<date>> at
-     the start of the text. Items (the hub Item) and a category of items (tag
-     $:/tags/tiddlyrpg/ItemKind, never alone, items/base) offer the base types as a plain list. Only
-     in the editable wiki. -->
+     the start of the text. Items (the hub Item) and a category of several base types
+     (modules/categories.js, never alone, categories/base) offer the base types as a plain list; a
+     category of one base type takes it at once (Folk: Folk Information). Only in the editable
+     wiki. -->
 \procedure trpg.newbutton(type)
 \whitespace trim
 <$let trpg-popup=<<qualify "$:/state/popup/tiddlyrpg/new">>
 	trpg-hint={{{ [[New/Hub]trpgtranslate[]addsuffix[ ]] [<type>trpgtitle[]] +[join[]] }}}
-	trpg-kind={{{ [<type>tag[$:/tags/tiddlyrpg/ItemKind]then[yes]] }}}
+	trpg-kind={{{ [<type>trpgcategorybases[]first[]then<type>] }}}
+	trpg-bases={{{ [<type>match[Item]then[Artifact Item Material]] ~[<type>trpgcategorybases[]format:titlelist[]join[ ]] }}}
 	trpg-class={{{ [<tv-config-toolbar-class>] [[trpg-hub-plus]] +[join[ ]] }}}>
-<%if [<type>match[Event]] [<type>match[Item]] [<trpg-kind>match[yes]] +[limit[1]] %>
+<%if [<type>match[Event]] [enlist<trpg-bases>count[]compare:number:gt[1]] +[limit[1]] %>
 <span class="tc-popup-keep">
 <$button popup=<<trpg-popup>> class=<<trpg-class>> tooltip=<<trpg-hint>> aria-label=<<trpg-hint>> selectedClass="tc-selected">
 <%if [<tv-config-toolbar-icons>match[yes]] %>
@@ -38,9 +40,9 @@ type: text/vnd.tiddlywiki
 </$let>
 </div>
 <%else%>
-<$list filter="Artifact Item Material" variable="trpg-base">
+<$list filter="[enlist<trpg-bases>]" variable="trpg-base">
 <$button class="tc-btn-invisible">
-<$action-sendmessage $message="tm-new-tiddler" tags={{{ [<trpg-kind>match[yes]then<type>] [<trpg-base>] +[format:titlelist[]join[ ]] }}}/>
+<$action-sendmessage $message="tm-new-tiddler" tags={{{ [<trpg-kind>!is[blank]] [<trpg-base>] +[format:titlelist[]join[ ]] }}}/>
 <$action-deletetiddler $tiddler=<<trpg-popup>>/>
 <$text text={{{ [<trpg-base>trpgtitle[]] }}}/>
 </$button>
@@ -50,7 +52,7 @@ type: text/vnd.tiddlywiki
 </$reveal>
 <%else%>
 <$button class=<<trpg-class>> tooltip=<<trpg-hint>> aria-label=<<trpg-hint>>>
-<$action-sendmessage $message="tm-new-tiddler" tags={{{ [<type>format:titlelist[]] }}}/>
+<$action-sendmessage $message="tm-new-tiddler" tags={{{ [<type>] [enlist<trpg-bases>] +[format:titlelist[]join[ ]] }}}/>
 <%if [<tv-config-toolbar-icons>match[yes]] %>
 {{$:/core/images/new-button}}
 <%endif%>

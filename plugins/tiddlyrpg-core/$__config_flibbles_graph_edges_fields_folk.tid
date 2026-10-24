@@ -1,0 +1,9 @@
+created: 20261024152302984
+modified: 20261024152302984
+tiddlyrpg-targets: [tag[Folk]]
+title: $:/config/flibbles/graph/edges/fields/folk
+type: application/json
+
+{
+    "label": "Folk"
+}
