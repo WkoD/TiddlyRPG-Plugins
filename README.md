@@ -491,7 +491,7 @@ Several paragraphs ...
   "open", "complete", "failed" - each only when there is something with that status, "open" on
   at first; complete and failed cards are grey.
 - **The page of a quest** shows the planning, the quests linked with it and the history: every
-  marker, newest first, with its date, its event (a jump to the section) and its text. A rumour
+  marker, newest first, with its date, its event (a jump to the marker) and its text. A rumour
   opens the same page without a tiddler; in the editable wiki it offers "Create quest" and
   "Rename" (rewrites every marker; a name that exists already merges both, with a warning).
   Renaming a quest tiddler rewrites its markers too (Relink).
@@ -813,9 +813,9 @@ narrowest matching section, nothing without a match):
 <$trpg-jump anchor={{{ [[Der dunkle Turm]datesection[1351-11-12]addprefix[date-]] }}}>[[Der dunkle Turm]]</$trpg-jump>
 ```
 
-A jump target is any element with `data-trpg-anchor` inside the opened tiddler; so far only the
-section headings (`date-<n>`) carry one. Without a target (edit mode, folded, a section the
-view does not see) the link opens the tiddler as usual.
+A jump target is any element with `data-trpg-anchor` inside the opened tiddler: the section
+headings (`date-<n>`), the headings of spots and the quest markers. Without a target (edit
+mode, folded, a section the view does not see) the link opens the tiddler as usual.
 
 ## Calendar
 

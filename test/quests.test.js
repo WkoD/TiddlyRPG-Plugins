@@ -2,7 +2,7 @@
  * Quests (modules/quests.js, filters/quests.js, the kind quest of modules/sections.js): the
  * markers in an event - short form for its paragraph or list item, stacked at its start or
  * mid-text, the block for several paragraphs or inside one - and that they split no dated
- * section; the hints; status, order, quest or rumour, the links between
+ * section; their jump marks; the hints; status, order, quest or rumour, the links between
  * quests; the hub Quest with its switches and cards, the page of a quest and of a rumour; what
  * the views see; renaming through Relink.
  */
@@ -73,9 +73,9 @@ test.describe("markers in the text", function() {
 
 	test("the event: a frame per marker, stacked ones around the same paragraph, a list item framed inside, labels with quest or rumour", function() {
 		var html = body("Questfahrt");
-		assert.match(html, /<div class="trpg-section trpg-section-quest trpg-quest-real"><div class="trpg-section trpg-section-quest trpg-quest-rumour"><div class="trpg-section trpg-section-quest trpg-quest-rumour"><p><span class="trpg-quest-label trpg-quest-real">/);
+		assert.match(html, /<div class="trpg-section trpg-section-quest trpg-quest-real" data-trpg-anchor="quest-\d+"><div class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+"><div class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+"><p><span class="trpg-quest-label trpg-quest-real">/);
 		assert.match(html, /<span class="trpg-quest-kind">Gerücht<\/span><a[^>]*>Echo<\/a><\/span>Am Turm in <a[^>]*>Baile<\/a> hallte es\.<\/p><\/div><\/div><\/div>/);
-		assert.match(html, /<li><div class="trpg-section trpg-section-quest trpg-quest-rumour"><span class="trpg-quest-label trpg-quest-rumour"><span class="trpg-quest-kind">Gerücht<\/span><a[^>]*>Liste<\/a><\/span>Ein Punkt<\/div><\/li><li>Ein anderer<\/li>/);
+		assert.match(html, /<li><div class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+"><span class="trpg-quest-label trpg-quest-rumour"><span class="trpg-quest-kind">Gerücht<\/span><a[^>]*>Liste<\/a><\/span>Ein Punkt<\/div><\/li><li>Ein anderer<\/li>/);
 		assert.match(html, /<span class="trpg-quest-kind">Quest<\/span><a[^>]*>Turm<\/a><span class="trpg-quest-status">abgeschlossen<\/span>/);
 		assert.match(html, /Dazwischen\./);
 		assert.ok(html.indexOf("trpg-section-quest") < html.indexOf("Dazwischen") && html.lastIndexOf("Dazwischen") < html.indexOf("Zwei"), html);
@@ -89,6 +89,29 @@ test.describe("markers in the text", function() {
 		assert.match(plain("<$trpg-body $tiddler=\"Questfahrt\" $mode=\"block\" $quest=\"" + key("Spur") + "\"/>"), /Am Turm in Baile.*hallte es\./);
 	});
 
+	test("jump marks: quest-<key> on the frame of every marker, none before any content of the body; questmark:anchor the same", function() {
+		var anchors = function(title) {
+			return (body(title).match(/data-trpg-anchor="quest-\d+"/g) || []).map(function(m) { return m.slice(18, -1); }).sort();
+		};
+		var marks = function(name) { return f("[[" + name + "]questmarks[]] :map[questmark:anchor[]]"); };
+		var keys = function(name) { return f("[[" + name + "]questmarks[]] :map[questmark:key[]addprefix[quest-]]"); };
+		assert.equal(anchors("Questfahrt").length, 6);
+		assert.deepEqual(anchors("Questfahrt"), f("[questnames[]questmarks[]] :map[questmark:anchor[]]").sort());
+		withTiddlers([
+			{title: "Q Anfang", tags: "Event", date: "1351", text: "<<date>>\n\n<<quest \"Qa1\">><<quest \"Qa2\">>Gleich am Anfang.\n\n<<quest \"Qa3\">>Danach."},
+			{title: "Q Block vorn", tags: "Event", date: "1351", text: "\\define x() y\n<<date>>\n\n<$quest name=\"Qa4\">\n\nBlock.\n\n</$quest>"},
+			{title: "Q Liste vorn", tags: "Event", date: "1351", text: "<<date>>\n\n* <<quest \"Qa5\">>Punkt"},
+			{title: "Q Liste danach", tags: "Event", date: "1351", text: "<<date>>\n\nText vorher.\n\n* <<quest \"Qa6\">>Punkt"}
+		], function() {
+			assert.deepEqual([marks("Qa1"), marks("Qa2"), marks("Qa4"), marks("Qa5")], [[""], [""], [""], [""]]);
+			assert.deepEqual(marks("Qa3"), keys("Qa3"));
+			assert.deepEqual(anchors("Q Anfang"), keys("Qa3"));
+			assert.deepEqual(anchors("Q Block vorn"), []);
+			assert.deepEqual(anchors("Q Liste vorn"), []);
+			assert.deepEqual(anchors("Q Liste danach"), keys("Qa6"));
+		});
+	});
+
 	test("mid-text: no hint, the rest of the paragraph tinted, an inner one linked", function() {
 		withTiddlers([
 			{title: "Q Mitte", tags: "Event", date: "1351", text: "<<date>>\n\nText <<quest \"Qm1\">> mitten."},
@@ -99,9 +122,9 @@ test.describe("markers in the text", function() {
 			["Q Mitte", "Q Innen", "Q Punkt", "Q Eingebettet"].forEach(function(title) {
 				assert.deepEqual(sectionTexts(title), [], title);
 			});
-			assert.match(body("Q Mitte"), /<p>Text <span class="trpg-section trpg-section-quest trpg-quest-rumour"><span class="trpg-quest-label[^]*<\/span> mitten\.<\/span><\/p>/);
-			assert.match(body("Q Punkt"), /<li>Text <span class="trpg-section trpg-section-quest trpg-quest-rumour">/);
-			assert.match(body("Q Eingebettet"), /Text <span class="trpg-section trpg-section-quest trpg-quest-rumour"><span class="trpg-quest-label[^]*<\/span>mitten<\/span> weiter\./);
+			assert.match(body("Q Mitte"), /<p>Text <span class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+"><span class="trpg-quest-label[^]*<\/span> mitten\.<\/span><\/p>/);
+			assert.match(body("Q Punkt"), /<li>Text <span class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+">/);
+			assert.match(body("Q Eingebettet"), /Text <span class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+"><span class="trpg-quest-label[^]*<\/span>mitten<\/span> weiter\./);
 			assert.deepEqual(f("[[Qm2]questlinks[]]"), ["Qm3"]);
 			assert.deepEqual(f("[[Qm3]questlinks[]]"), ["Qm2"]);
 		});
@@ -134,7 +157,7 @@ test.describe("index", function() {
 		assert.deepEqual(f("[questnames[]questreal[]]"), ["Turm"]);
 		assert.deepEqual(f("[[Turm]queststatus[]] [[Block]queststatus[]] [[Spur]queststatus[]]"), ["complete", "failed", "open"]);
 		assert.deepEqual(f("[[Turm]questmarks[]] :map[questmark:number[]]"), ["3", "1"]);
-		assert.deepEqual(f("[[Turm]questmarks[]] :map[questmark:anchor[]]"), ["date-3", ""]);
+		assert.deepEqual(f("[[Turm]questmarks[]] :map[questmark:anchor[]]"), f("[[Turm]questmarks[]] :map[questmark:key[]addprefix[quest-]]"));
 	});
 
 	test("a newer marker without status opens a quest again", function() {
@@ -223,6 +246,16 @@ test.describe("views", function() {
 			h.inView(wiki, "player:Anna", function() {
 				assert.ok(f("[questnames[]]").indexOf("Schatten") !== -1);
 				assert.deepEqual(f("[[Spur]queststatus[]]"), ["open"]);
+			});
+		});
+	});
+
+	test("jump marks only on the markers the view sees", function() {
+		withTiddlers([LOCKED], function() {
+			var count = function() { return (body("Geheime Fahrt").match(/data-trpg-anchor="quest-/g) || []).length; };
+			assert.equal(count(), 2);
+			h.inView(wiki, "public", function() {
+				assert.equal(count(), 0);
 			});
 		});
 	});

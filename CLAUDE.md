@@ -183,9 +183,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     fails for an input without its case (see "Inputs keep their focus")
   - `editor`, `editor-form`, `editor-ui` - the editor: see "Editor" -> "Tests"
   - `quests` - the quest markers in an event (short form, block, stacked) and that they split
-    no dated section; their hints, status, order, quest or rumour, the links between quests;
-    the hub `Quest` with its switches and cards, the page of a quest and of a rumour; what the
-    views see; renaming through Relink (see "Quests")
+    no dated section; their jump marks (none at the very start of the body); their hints,
+    status, order, quest or rumour, the links between quests; the hub `Quest` with its switches
+    and cards, the page of a quest and of a rumour; what the views see; renaming through Relink
+    (see "Quests")
   - `relations` - the relation filters (`filters/relations.js`: targets, the way back,
     label), the relation list forward and back (headings with their number, pills), included
     types, symmetric types, family, the groups of a location (Control, Influence, Present,
@@ -979,8 +980,11 @@ from wikitext right after `$action-navigate` comes before the refresh that shows
 
 - A **jump mark** is any element with `data-trpg-anchor="<name>"` inside a tiddler, name in
   kebab-case. The section headings of the procedure `date` carry one (`date-<n>`) - not a
-  section at the very start of the body, where a jump would only hide the title - and the
-  headings of spots (`spot-<plain name>`, `spots.anchor()`).
+  section at the very start of the body, where a jump would only hide the title -, the
+  headings of spots (`spot-<plain name>`, `spots.anchor()`) and the frames of quest markers
+  (`quest-<key>`, `anchor()` of the kind in `modules/sections.js`; none for a marker before any
+  content of the body, `lead` of the model). A kind of section gets its mark through `anchor()`,
+  `widgets/sections.js` sets it.
 - `<$trpg-jump anchor="...">` (`widgets/jump.js`) wraps ordinary links. It sees their
   `tm-navigate` on its way to the navigator, passes it on unchanged and calls
   `modules/anchor-jump.js`, which waits for the next change event (the main refresh runs before)

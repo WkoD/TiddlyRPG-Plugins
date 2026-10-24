@@ -1,12 +1,12 @@
 created: 20261015143331000
-modified: 20261015143331000
+modified: 20261024144154808
 title: $:/plugins/tiddlyrpg-core/templates/quest-card
 type: text/vnd.tiddlywiki
 
 <!-- A quest or rumour as a card of the hub Quest (templates/quest-list), currentTiddler is its
      name (modules/quests.js): the date of its newest marker and who takes part, the name, the
      start of what that marker holds (trpg-body, two lines), its event with a jump to the
-     section, the number of markers or the status. Grey when complete or failed, like the dead.
+     marker, the number of markers or the status. Grey when complete or failed, like the dead.
      A click on "History" opens templates/quest-body below. -->
 \whitespace trim
 <$let trpg-last={{{ [<currentTiddler>questlast[]] }}}

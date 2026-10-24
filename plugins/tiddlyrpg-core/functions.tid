@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261024091845803
+modified: 20261024144535553
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -289,8 +289,8 @@ type: text/vnd.tiddlywiki
      start of a paragraph, <<quest "Name" status:"complete">> where the quest ends,
      <$quest name="Name">...</$quest> around what it marks. Draws the label of the marker: quest
      (a tiddler tagged Quest) or rumour, the name as a link, the status where it is set. What
-     it marks and its frame come from the parse tree (trpg-nest, the block), not from this
-     procedure. Nothing for a quest the view does not see. -->
+     it marks, its frame and its jump mark come from the parse tree (trpg-nest, the block), not
+     from this procedure. Nothing for a quest the view does not see. -->
 \procedure quest(name,status)
 \whitespace trim
 <%if [<name>!is[blank]trpg.visible[]] %>

@@ -1,5 +1,5 @@
 created: 20261015143331000
-modified: 20261016184211000
+modified: 20261024144154808
 title: $:/plugins/tiddlyrpg-core/templates/quest-body
 type: text/vnd.tiddlywiki
 
@@ -14,7 +14,7 @@ type: text/vnd.tiddlywiki
      is a tiddler but no quest, a red line says so instead of the button; the quests linked
      with it; the history as a timeline: every marker the view sees, newest first, its date
      beside a line with a point (a diamond where a status is set), its event (a jump to the
-     section), the status and what it holds through trpg-body. Also the details of a card of the
+     marker), the status and what it holds through trpg-body. Also the details of a card of the
      hub (templates/quest-card). The new name is read after the input only: a variable around it
      would render the input anew on every key and lose the focus. -->
 \whitespace trim

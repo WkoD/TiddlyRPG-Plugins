@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/quests.js
 type: application/javascript
 module-type: library
 created: 20261015143331000
-modified: 20261015180520000
+modified: 20261024144154808
 
 Quests - the one place of these rules. A quest is a name; its markers stand in events
 (<<quest "Name">>, <$quest name="Name">, modules/sections.js). A tiddler with the name tagged
@@ -51,10 +51,11 @@ function compareParts(a,b) {
 }
 
 /*
-The index: {marks: [{id, name, status, event, key, sectionId, start, number, firstSection, date,
+The index: {marks: [{id, name, status, event, key, sectionId, start, number, anchor, date,
 parent, links}], names: [names of the markers]} in date order (oldest first). id: "<key>@<event>";
-number: the dated section (0 for none), firstSection: it stands at the very start of the body
-(no jump mark); date: its text in the date field ("" for none); parent: the name of the quest
+number: the dated section (0 for none), anchor: its jump mark ("quest-<key>", "" at the very start
+of the body; the kind quest of modules/sections.js); date: its text in the date field ("" for
+none); parent: the name of the quest
 whose marker directly encloses this one ("" for none, also for one of the same name); links:
 [{to, spot, section}] what it links ([[...]], <<spotlink>>: the location and the spot), with the innermost section
 of the link (a lock inside the marker hides it).
@@ -113,8 +114,7 @@ var index = exports.index = function(wiki) {
 					sectionId: record.id,
 					start: record.start,
 					number: number,
-					// the first section at the very start of the body has no jump mark
-					firstSection: !!(dated && dated.first),
+					anchor: sections.kind("quest").anchor(record),
 					date: section ? section.text : "",
 					parent: up && up.kind === "quest" && up.params.name !== record.params.name ? up.params.name : "",
 					links: linked

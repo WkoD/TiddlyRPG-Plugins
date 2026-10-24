@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261023194136107
+modified: 20261024144154808
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -107,6 +107,8 @@ A kind: {types, params(node,form), visible(wiki,record,view), nest, check(wiki,m
            not cached, so it may look at other tiddlers
   classes  optional: further classes of a rendered section, from the record
   watch    optional: titles whose change re-renders a section of the kind
+  anchor   optional: the jump mark of a rendered section (data-trpg-anchor, modules/anchor-jump.js),
+           from the record; "" for none
 */
 var register = exports.register = function(name,def) {
 	KINDS[name] = def;
@@ -208,6 +210,11 @@ register("quest",{
 	},
 	watch: function(record) {
 		return record.params.name ? [record.params.name] : [];
+	},
+	// "quest-<key>": the history of a quest and its card jump to the marker itself - none at the
+	// very start of the body, where a jump would only hide the title
+	anchor: function(record) {
+		return record.lead ? "" : "quest-" + record.key;
 	},
 	check: function(wiki,model,record) {
 		var problems = [],
@@ -643,7 +650,8 @@ The model of a body (cached per tiddler):
               marker or block ("intro" for the intro); locks: lists of names, one per lock;
               from/to: the range of the text; counts: false if reported; number/explicit/label/
               first: dates (number counting on, the first is 1; first: only whitespace or
-              pragmas before it)
+              pragmas before it); lead: only markers before it, no content (the very start of
+              the body)
   links      [{to, section, frame}]; section: the id of the innermost record, -1 for none
   spotlinks  [{place, spec, start, section}] - the <<spotlink>> calls
   errors     [{key, kind, start}]
@@ -858,6 +866,34 @@ function build(text,tree,hasTag) {
 			record.label = record.params.label;
 			record.first = text.substring(0,record.start).replace(/^[ \t]*\\.*$/mg,"").trim() === "";
 		}
+	});
+	// The markers and blocks before any content of the body: only whitespace, pragmas and
+	// elements or blocks that begin with markers come before them (a paragraph, a list item)
+	var leading = Object.create(null);
+	var lead = function(nodes) {
+		for(var i = 0; i < nodes.length; i++) {
+			var node = nodes[i];
+			if(isBlank(node)) {
+				continue;
+			}
+			if(shortKind(node) || nestKind(node)) {
+				leading[node.start] = true;
+				continue;
+			}
+			if(blockKind(node)) {
+				leading[node.start] = true;
+			} else if(!isPragma(node) && !(node.type === "element" && (node.children || []).length)) {
+				return false;
+			}
+			if(!lead(node.children || [])) {
+				return false;
+			}
+		}
+		return true;
+	};
+	lead(tree);
+	$tw.utils.each(records,function(record) {
+		record.lead = record.start !== undefined && !!leading[record.start];
 	});
 	errors.sort(function(a,b) { return (a.start || 0) - (b.start || 0); });
 	return {records: records, links: links, spotlinks: spotlinks, errors: errors, byKey: byKey};

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/quests.js
 type: application/javascript
 module-type: filteroperator
 created: 20261015143331000
-modified: 20261015181607000
+modified: 20261024144154808
 
 Filter operators of the quests (modules/quests.js), all for the active view:
 
@@ -28,7 +28,7 @@ Filter operators of the quests (modules/quests.js), all for the active view:
 [<id>questmark:event[]]         of a marker: its event; key (its position, for $quest of
                                 trpg-body), number (its dated section), date (the text of the
                                 section), status (as written: complete, failed or empty), anchor
-                                (the jump mark of its section, empty for the first)
+                                (its jump mark "quest-<key>", empty at the very start of the body)
 \*/
 
 "use strict";
@@ -146,7 +146,7 @@ exports.questmark = function(source,operator,options) {
 				case "number": value = mark.number ? mark.number.toString() : ""; break;
 				case "date": value = mark.date; break;
 				case "status": value = mark.status; break;
-				case "anchor": value = mark.number && !mark.firstSection ? "date-" + mark.number : ""; break;
+				case "anchor": value = mark.anchor; break;
 			}
 		}
 		results.push(value);
