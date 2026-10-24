@@ -1,6 +1,6 @@
 caption: <<trpg.t Relations/List>>
 created: 20260713135021000
-modified: 20261022161612307
+modified: 20261024162413827
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
@@ -13,7 +13,8 @@ type: text/vnd.tiddlywiki
 \function trpg.control(place) [trpg.here<place>] :filter[get[leader]enlist-input[]match<place>]
 \function trpg.influence(place) [trpg.here<place>tag[Organisation]] -[trpg.control<place>]
 \function trpg.creatures(place) [trpg.here<place>tag[Creature]] -[trpg.control<place>]
-\function trpg.present(place) [trpg.here<place>] -[trpg.control<place>] -[trpg.influence<place>] -[trpg.creatures<place>]
+\function trpg.folks(place) [trpg.here<place>tag[Folk]] -[trpg.control<place>] -[trpg.creatures<place>]
+\function trpg.present(place) [trpg.here<place>] -[trpg.control<place>] -[trpg.influence<place>] -[trpg.creatures<place>] -[trpg.folks<place>]
 
 \procedure trpg.heading(label,count)
 \whitespace trim
@@ -34,6 +35,7 @@ type: text/vnd.tiddlywiki
 <$let hits={{{ [trpg.influence<place>] }}}><$transclude $variable="trpg.group" label={{{ [[Relations/Influence]trpgtranslate[]] }}}/></$let>
 <$let hits={{{ [trpg.present<place>] }}}><$transclude $variable="trpg.group" label={{{ [[FieldInverse/location]trpgtranslate[]] }}}/></$let>
 <$let hits={{{ [trpg.creatures<place>] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural[Creature]] }}}/></$let>
+<$let hits={{{ [trpg.folks<place>] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural[Folk]] }}}/></$let>
 <%if [trpg.within<place>] :filter[<depth>compare:number:lt[10]] %>
 <$transclude $variable="trpg.heading" label={{{ [trpg.plural[Location]] }}} count={{{ [trpg.within<place>count[]] }}}/>
 <$list filter="[trpg.within<place>]" variable="trpg-sub">
@@ -64,7 +66,8 @@ type: text/vnd.tiddlywiki
      with entries, everyone in one of them: "Control" (FieldInverse/rules: who leads it, field
      leader), "Influence" (Relations/Influence: the other organisations there), "Present"
      (FieldInverse/location: everyone else there - persons, players, deities, items), "Creatures"
-     (Plural/Creature: the kinds that live there, field location of a creature), "Locations"
+     (Plural/Creature: the kinds that live there, field location of a creature), "Folks"
+     (Plural/Folk: the folks that live there, field location of a folk), "Locations"
      (the places within, both kinds, a spot dashed). Every place within with entries is a folded
      branch (<details>) with the number of its entries, and the same groups inside; one without
      is a leaf. The parent is in the path below the title, the places a tiddler leads in the

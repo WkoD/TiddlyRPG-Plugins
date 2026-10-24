@@ -240,3 +240,46 @@ test.describe("relation folk", function() {
 		assert.ok(graph.edges.some(function(edge) { return edge.from === "Ki-Ra" && edge.to === "Nichny" && edge.props.label === "gehört zu"; }));
 	});
 });
+
+test.describe("a folk at a location", function() {
+	var added = [
+		{title: "Bergvolk", tags: "Information Folk", location: "Baile Town", text: "Lives in the hills."},
+		{title: "Schattenvolk", tags: "Information Folk Secret", location: "Baile", text: "Hidden."}
+	];
+
+	test.before(function() {
+		added.forEach(function(fields) { h.add(wiki, fields); });
+	});
+
+	test.after(function() {
+		added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+	});
+
+	function list(self) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
+	}
+
+	test("the form offers location, several places alike; the folk is there", function() {
+		var form = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/form.js");
+		assert.ok(f("[[$:/config/tiddlyrpg/form/Folk]get[more]enlist-input[]]").indexOf("location") !== -1);
+		assert.ok(!form.single(wiki, "Bergvolk", "location"), "a folk may live in several places");
+		assert.ok(f("[[Baile]occupants[]]").indexOf("Bergvolk") !== -1);
+		assert.ok(f("[[Town]occupants[]]").indexOf("Bergvolk") !== -1);
+	});
+
+	test("the place lists it under Völker, not among those present; a secret folk only for the DM", function() {
+		var dm = list("Baile"),
+			pub = h.inView(wiki, "public", function() { return list("Baile"); });
+		assert.match(dm, /Völker<span class="trpg-relations-count"> · 2<\/span>/);
+		assert.ok(inOrder(dm, ["Völker<span", ">Bergvolk<", ">Schattenvolk<"]), dm);
+		assert.equal((dm.match(/>Bergvolk</g) || []).length, 1, "in one group only");
+		assert.match(pub, /Völker<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.equal(pub.indexOf("Schattenvolk"), -1, pub);
+	});
+
+	test("the folk names its places; the ego graph draws the edge", function() {
+		assert.match(list("Bergvolk"), />Baile</);
+		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Bergvolk"});
+		assert.ok(graph.edges.some(function(edge) { return edge.from === "Bergvolk" && edge.to === "Baile"; }), JSON.stringify(graph.edges));
+	});
+});

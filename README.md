@@ -515,7 +515,7 @@ relation list show the way back by themselves.
 | Axis | Field | On the dependent, e.g. | Edge | List forward / back |
 |---|---|---|---|---|
 | place | `leader` (on a location) | `leader: Baile` (organisation) | controls | Controls / Control (on the location) |
-| | `location` | `location: Baile` | in | Location / Influence (organisations), Present (the rest), Creatures (kinds living there, several places each), Locations (places) |
+| | `location` | `location: Baile` | in | Location / Influence (organisations), Present (the rest), Creatures (kinds living there, several places each), Folks (folks living there, several places each), Locations (places) |
 | power | `leader` | `leader: [[Haus Eiree]]` (person) | leads | Leads / Leaders |
 | | `officer` | `officer: Guild` | officer of | Officer of / Officers |
 | | `member` | `member: Guild` | member of | Member of / Members |
@@ -721,6 +721,8 @@ with values of its own (a warrior, a priestess) is a `Creature` that names the f
 - A person, player character or creature names its folk in `folk` - only where it tells
   something; a half-elf may name two. The folk lists them as "Members"; the ego graph draws
   the edge, its colour is the grey of `Information`.
+- A folk names where it lives in `location`, several places alike; the place lists it under
+  "Folks", apart from those present.
 - A lock hides the folk or the person (`Secret`), not the membership alone: a secret folk of an
   open person is a folk tagged `Secret`.
 

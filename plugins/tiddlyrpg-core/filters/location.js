@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/location.js
 type: application/javascript
 module-type: filteroperator
 created: 20261006064449000
-modified: 20261022161612307
+modified: 20261024162413827
 
 The location rules - the one place of them. A location lies in another one in two ways:
 
@@ -15,16 +15,18 @@ A location has one parent: the location that has it as a spot, otherwise its fie
 Only tiddlers tagged Location count as parents. For persons, players and deities the field
 location is where they are most likely found (one entry); organisations may have several. For
 items (checks/items.js) it is where they lie or are found: an artifact is unique and has one
-owner or one location; items and materials may have several of each. What breaks these rules
-is reported by checks/locations.js.
+owner or one location; items and materials may have several of each. Creatures and folks name
+where their kind lives, several places alike. What breaks these rules is reported by
+checks/locations.js.
 
 [<title>locationparent[]]       the parent of a location
 [<title>locationpath[]]         the parents of a location from the root down (without itself);
                                 stops at the first repetition of a cycle
 [<title>sublocations[]]         the locations directly in <title>; suffix "all": all below;
                                 operand "spot" or "location": only that way
-[<title>occupants[]]            persons, players, organisations, deities and items whose
-                                location is <title> or (below, only through spots) a part of it;
+[<title>occupants[]]            persons, players, organisations, deities, items, creatures and
+                                folks whose location is <title> or (below, only through spots) a
+                                part of it;
                                 who leads a location (field leader) is there too
 [<title>locationgroups[]]       where <title> is, for the path below the title: the places of its
                                 field location and the locations it leads (field leader), grouped
@@ -39,7 +41,7 @@ is reported by checks/locations.js.
 var spots = require("$:/plugins/tiddlyrpg-core/modules/spots.js"),
 	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
 
-var OCCUPANTS = ["Person","Player","Organisation","Deity","Artifact","Item","Material","Creature"];
+var OCCUPANTS = ["Person","Player","Organisation","Deity","Artifact","Item","Material","Creature","Folk"];
 
 function isLocation(wiki,title) {
 	var tiddler = wiki.getTiddler(title);

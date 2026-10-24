@@ -152,7 +152,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     `tiddlyrpg-bases` and under the tag before 2.2.0, the rule `categories/base` with its
     fix, the hub `Information` with a heading per category (only with an entry the view
     sees) and the hub of a category, the pills of the form, "+" on `Folk`, the relation
-    `folk` (targets, way back, several, list, ego graph)
+    `folk` (targets, way back, several, list, ego graph), a folk at a location (`location` in
+    the form, the group "Völker" of the place in the public view and the view of the DM)
   - `currency` - the currency engine against the fixture settings (Faerûn-like, Krynn with
     steel): parse, format, convert, check, base and reference, without currency, without
     ruleset, `<<unit>>` with coins (km stays a length), unusable data
@@ -1172,7 +1173,9 @@ location of an artifact). Meaning and examples: `README.md` ("Items", "Folks").
   (`trpg.formkinds`), "+" on a category of one base type sets both tags at once
   (`ui/new-procedures`), `categories/base` (`checks/categories.js`) asks for the base type. A
   folk is named by the relation `folk` (axis family; several allowed, not in `form.SINGLE`) and
-  shows the relations block (`viewtemplates/relations`) for its way back.
+  shows the relations block (`viewtemplates/relations`) for its way back. Where it lives is its
+  field `location` (`config/form/Folk`, several places; an occupant in `filters/location.js`, the
+  group "Folks" of the place).
 - Their messages stand below the title (`items/base`, `items/price`: the price against the
   currency), see "Checks".
 - The price (field `price`) shows as the first line of the block of values
@@ -1229,7 +1232,8 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   with entries, everyone in one of them: "Control" (`FieldInverse/rules`: who leads it),
   "Influence" (`Relations/Influence`: the other organisations there), "Present"
   (`FieldInverse/location`: everyone else), "Creatures" (`Plural/Creature`: the kinds living
-  there, a creature may live in several places), "Locations" (the places within as a tree - a
+  there, a creature may live in several places), "Folks" (`Plural/Folk`: the folks living
+  there, several places alike), "Locations" (the places within as a tree - a
   branch with the number of its entries and the same groups inside, a leaf without; a spot
   dashed). `rules` has no way back anywhere else.
 - The tree (`styles/location`): the arrow of a branch a CSS triangle in the colour of `Location`
