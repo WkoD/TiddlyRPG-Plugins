@@ -1,13 +1,9 @@
 caption: <<trpg.title Organisation>>
 color: #ff8000
 created: 20200209100141327
-modified: 20261007163804094
+modified: 20261024161412996
 tags: Index
 title: Organisation
 type: text/vnd.tiddlywiki
 
-<$list filter="[tag[Organisation]] :filter[trpg.visible[]] +[sort[title]]">
-<div class="tc-menu-list-subitem">
-<<trpg.link title={{!!title}}>>
-</div>
-</$list>
+<$transclude $variable="trpg.hub.list" filter="[[Organisation]trpghubentries[]]" letters="yes"/>

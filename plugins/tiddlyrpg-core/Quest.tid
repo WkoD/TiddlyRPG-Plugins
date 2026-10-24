@@ -1,8 +1,9 @@
 caption: <<trpg.title Quest>>
 color: #e6b400
 created: 20261015143331000
-modified: 20261015143331000
+modified: 20261024161412996
 tags: Index
+tiddlyrpg-entries: [questnames[]] :filter[queststatus[]match[open]]
 title: Quest
 type: text/vnd.tiddlywiki
 

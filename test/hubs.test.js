@@ -19,8 +19,8 @@ test.describe("de-DE", function() {
 		h.setLanguage(wiki, "de-DE");
 	});
 
-	test("hub heading translated", function() {
-		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">\s*Ort\s*<\/h2>/);
+	test("hub heading translated, the number of its entries behind it", function() {
+		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">Ort<span class="trpg-hub-count">\d+<\/span><\/h2>/);
 	});
 
 	test("Campaign hub heading translated", function() {
@@ -48,9 +48,9 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("index: six types in German order plus quests", function() {
+	test("index: the types, quests and players in German order", function() {
 		var index = h.body(wiki, "Index"),
-			order = ["Gegenstände", "Götter", "Informationen", "Organisationen", "Orte", "Personen", "Quests"].map(function(s) { return index.indexOf(s); });
+			order = ["Gegenstände", "Götter", "Informationen", "Kreaturen", "Organisationen", "Orte", "Personen", "Quests", "Spieler", "Zauber"].map(function(s) { return index.indexOf(s); });
 		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), index);
 		assert.ok(index.indexOf("Offene Punkte") === -1, index);
 	});
@@ -101,8 +101,8 @@ test.describe("en-GB", function() {
 		assert.ok(index.indexOf("Deities") !== -1 && index.indexOf("Quests") !== -1 && index.indexOf("Open Items") === -1, index);
 	});
 
-	test("en hub heading uses the default template", function() {
-		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">\s*Location\s*<\/h2>/);
+	test("en hub heading: the name and the number", function() {
+		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">Location<span class="trpg-hub-count">\d+<\/span><\/h2>/);
 	});
 });
 
@@ -203,8 +203,126 @@ test.describe("trpg.link", function() {
 		assert.match(css, /\.tc-tagged-Spell \{\s*border: 2px solid #9b59d0;\s*--trpg-type: #9b59d0;\s*\}/);
 		assert.match(css, /\.tc-tiddler-frame\.tc-tagged-Creature:not\(\.trpg-dead\) \{\s*background-color: color-mix\(in srgb, #2aa198 9%/);
 		assert.match(css, /\.tc-tiddler-frame hr \{\s*border: none;\s*height: 2px;\s*background: linear-gradient\(to right, var\(--trpg-type, /);
-		assert.match(h.view(wiki, "Spell"), /<h2 class="tc-title">\s*Zauber\s*<\/h2>/);
+		assert.match(h.view(wiki, "Spell"), /<h2 class="tc-title">Zauber<span class="trpg-hub-count">\d+<\/span><\/h2>/);
 		assert.match(h.render(wiki, "text/html", "{{Index}}"), />Kreaturen</);
+	});
+});
+
+test.describe("hubs in their colour: frame, list, number", function() {
+	var added = [
+		{title: "Ärger Hub", tags: "Person"},
+		{title: "Azur Hub", tags: "Person"},
+		{title: "Xaver Hub", tags: "Person Secret"},
+		{title: "Dorf Info", tags: "Information"}
+	];
+
+	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
+		added.forEach(function(fields) {
+			h.add(wiki, fields);
+		});
+	});
+
+	test.after(function() {
+		added.forEach(function(fields) {
+			wiki.deleteTiddler(fields.title);
+		});
+	});
+
+	// The first result of a filter with the global definitions, as the page renders it
+	function text(filter) {
+		return h.render(wiki, "text/plain", "<$text text={{{ " + filter + " }}}/>");
+	}
+
+	// The number in the heading of a hub
+	function count(title) {
+		return Number((h.view(wiki, title).match(/<span class="trpg-hub-count">(\d+)<\/span>/) || [])[1]);
+	}
+
+	// True if the strings occur in the text in this order
+	function inOrder(text, strings) {
+		var from = 0;
+		return strings.every(function(s) {
+			var p = text.indexOf(s, from);
+			from = p + s.length;
+			return p !== -1;
+		});
+	}
+
+	test("the stylesheet frames every hub and Campaign in its colour, not Index", function() {
+		var css = wiki.renderTiddler("text/plain", "$:/plugins/tiddlyrpg-core/styles/hubs");
+		assert.match(css, /\.tc-tiddler-frame\[data-tiddler-title=Person\] \{\s*--trpg-hub: #00a600;\s*\}/);
+		assert.match(css, /\.tc-tiddler-frame\[data-tiddler-title=Folk\] \{\s*--trpg-hub: #7c7c7c;\s*\}/);
+		assert.match(css, /\.tc-tiddler-frame\[data-tiddler-title=Campaign\] \{\s*--trpg-hub: #7c7c7c;\s*\}/);
+		assert.match(css, /\.tc-tiddler-frame\.trpg-hub \{\s*--trpg-type: var\(--trpg-hub\);/);
+		assert.doesNotMatch(css, /data-tiddler-title=Index\]/);
+		assert.doesNotMatch(wiki.renderTiddler("text/plain", "$:/plugins/tiddlyrpg-core/styles/border"), /\.tc-tagged-Index \{/);
+	});
+
+	test("Campaign and Index grey like Information; Index is no hub, a hub keeps its colour", function() {
+		var grey = wiki.getTiddler("Information").fields.color;
+		assert.equal(wiki.getTiddler("Campaign").fields.color, grey);
+		assert.equal(colour("Index"), grey);
+		assert.equal(colour("Location"), "#ff2b2b");
+		assert.equal(text("Index Location Campaign :filter[trpg.hub[]] +[join[,]]"), "Location");
+		assert.equal(text("[function[trpg.pillstyle],[Location]]"), "");
+	});
+
+	test("class trpg-hub and the rule on a hub, the class without rule on Campaign, neither on Index", function() {
+		var hub = h.view(wiki, "Location"),
+			campaign = h.view(wiki, "Campaign"),
+			index = h.view(wiki, "Index");
+		assert.match(hub, /class="trpg-hub\s+tc-tiddler-frame/);
+		assert.ok(hub.indexOf("<div class=\"trpg-hub-rule\">") !== -1, hub);
+		assert.match(campaign, /class="trpg-hub\s+trpg-pinned\s+tc-tiddler-frame|class="trpg-pinned\s+trpg-hub\s+tc-tiddler-frame/);
+		assert.equal(campaign.indexOf("trpg-hub-rule"), -1);
+		assert.doesNotMatch(index, /class="[^"]*\btrpg-hub\s[^"]*tc-tiddler-frame/);
+		assert.equal(index.indexOf("trpg-hub-rule"), -1);
+	});
+
+	test("the list sorted by the displayed name, an umlaut with its letter, a heading per letter", function() {
+		var person = h.view(wiki, "Person");
+		assert.ok(inOrder(person, ["trpg-hub-letter\">A<", "Ärger Hub", "Azur Hub", "trpg-hub-letter\">B<", "Barkeep"]), person);
+		assert.equal(person.indexOf("trpg-hub-letter\">Ä<"), -1, person);
+		assert.equal((person.match(/trpg-hub-letter">A</g) || []).length, 1, "each letter once");
+		assert.equal((person.match(/>Azur Hub</g) || []).length, 1, "each entry once");
+		assert.match(person, /class="[^"]*trpg-dead-link[^"]*" href="#Grum">Grum</);
+	});
+
+	test("Information sorted by the displayed name, not by the title", function() {
+		var information = h.view(wiki, "Information");
+		assert.ok(inOrder(information, [">Dorf Info<", ">Kalender<"]), information);
+	});
+
+	test("number and letters only of what the view sees", function() {
+		var visible = "[tag[Person]] :filter[trpg.visible[]] +[count[]]",
+			dm = count("Person"),
+			pub = h.inView(wiki, "public", function() {
+				return {count: count("Person"), filter: Number(text(visible)), body: h.view(wiki, "Person")};
+			});
+		assert.equal(dm, Number(text(visible)));
+		assert.equal(pub.count, pub.filter);
+		assert.ok(pub.count < dm, pub.count + " < " + dm);
+		assert.ok(h.view(wiki, "Person").indexOf("trpg-hub-letter\">X<") !== -1);
+		assert.equal(pub.body.indexOf("trpg-hub-letter\">X<"), -1, pub.body);
+		assert.equal(pub.body.indexOf("Xaver"), -1, pub.body);
+	});
+
+	test("Index: each hub with the number in its heading; Quest the open quests, Player the active characters", function() {
+		var index = h.view(wiki, "Index"),
+			number = function(name) { return Number((index.match(new RegExp(">" + name + "</span><span class=\"trpg-hub-index-n\">(\\d+)<")) || [])[1]); };
+		assert.equal(number("Personen"), count("Person"));
+		assert.equal(number("Informationen"), count("Information"));
+		assert.equal(number("Quests"), Number(text("[questnames[]] :filter[queststatus[]match[open]] +[count[]]")));
+		assert.equal(number("Spieler"), Number(text("[tag[Player]] :filter[trpg.visible[]] +[count[]]")));
+		assert.match(index, /<div class="trpg-hub-index-row" style="--trpg-hub:#00a600;"><a [^>]*href="#Person">/);
+	});
+
+	test("Campaign: the heading of the player characters once, then the list of the hubs, then the cards", function() {
+		var campaign = h.view(wiki, "Campaign");
+		assert.equal((campaign.match(/>Spielerfiguren</g) || []).length, 1, campaign);
+		assert.ok(inOrder(campaign, [">Spielerfiguren<", "trpg-campaign-index", "trpg-hub-index", "trpg-players"]), campaign);
+		assert.ok(h.view(wiki, "Player").indexOf(">Spielerfiguren<") !== -1, "the hub Player keeps it");
 	});
 });
 

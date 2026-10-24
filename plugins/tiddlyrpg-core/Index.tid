@@ -1,17 +1,20 @@
+color: #7c7c7c
 created: 20200308185530421
-modified: 20261022151240943
+modified: 20261024161412996
 tags: Index
 title: Index
 type: text/vnd.tiddlywiki
 
-\define trpg.index.sort() [addprefix[Plural/]trpgtranslate[]]
-
-<ul>
-<div class="tc-menu-list-subitem">
-<$list filter="Item Deity Information Organisation Location Person Spell Creature +[sortsub:string<trpg.index.sort>]">
-<li><$link to={{!!title}}><$text text={{{ [<currentTiddler>addprefix[Plural/]trpgtranslate[]] }}}/></$link></li>
-</$list>
-<br>
-<li><$link to="Quest"><$text text={{{ [[Plural/Quest]trpgtranslate[]] }}}/></$link></li>
+\whitespace trim
+<!-- The type hubs, Quest and Player in the order of their plural (trpgsortname), each a bar in its
+     colour with the number of its entries the view sees (trpg.hub.entries; for Quest the open
+     quests and rumours, for Player the active characters) - styles/hubs. The hub Campaign
+     includes it beside the player characters. Its colour (grey like Information) colours its
+     tag pill; it is no type (modules/types.js) and frames no hub (styles/border, styles/hubs). -->
+<div class="trpg-hub-index">
+<$list filter="Item Deity Information Organisation Location Person Spell Creature Quest Player +[trpgsortname[plural]]">
+<div class="trpg-hub-index-row" style={{{ [<currentTiddler>get[color]addprefix[--trpg-hub:]] }}}>
+<$link to=<<currentTiddler>>><span class="trpg-hub-index-name"><$text text={{{ [<currentTiddler>addprefix[Plural/]trpgtranslate[]] }}}/></span><span class="trpg-hub-index-n"><$text text={{{ [trpg.hub.entries<currentTiddler>count[]] }}}/></span></$link>
 </div>
-</ul>
+</$list>
+</div>

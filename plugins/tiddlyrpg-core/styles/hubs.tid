@@ -1,0 +1,120 @@
+created: 20261024161412996
+modified: 20261024161412996
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/hubs
+type: text/vnd.tiddlywiki
+
+\rules except dash
+<!-- The type hubs (trpg.hub, class trpg-hub from config/class-hub) and Campaign in the colour of
+     their field color, as the tiddlers of a type (styles/border): a frame, a light tint inside,
+     the colour as --trpg-type for the rules of the tiddler; the title in a dark shade of it
+     (55 %, like the labels of the block of values, styles/fields), the number of the entries
+     behind it as a pill (templates/title-hub), a strong rule below title and tags
+     (viewtemplates/hub-rule). The lists (trpg.hub.list) in columns, a group or a letter never
+     split; the headings of the groups and letters in small capitals over a line that fades out.
+     The list of the hubs (Index) as bars in the colour of each hub with right-aligned numbers;
+     on Campaign beside the player characters, below the rule of their heading. -->
+<$list filter="[all[shadows+tiddlers]tag[Index]has[color]] -[[Index]] [[Campaign]] +[sort[]]">
+.tc-tiddler-frame[data-tiddler-title=<$text text={{{ [<currentTiddler>escapecss[]] }}}/>] {
+--trpg-hub: <$text text={{!!color}}/>;
+}
+</$list>
+.tc-tiddler-frame.trpg-hub {
+--trpg-type: var(--trpg-hub);
+--trpg-hub-ink: color-mix(in srgb, var(--trpg-hub) 55%, <<colour foreground>>);
+border: 2px solid var(--trpg-hub);
+background-color: color-mix(in srgb, var(--trpg-hub) 9%, <<colour tiddler-background>>);
+}
+.tc-tiddler-frame.trpg-hub .tc-tiddler-title .tc-title {
+color: var(--trpg-hub-ink);
+}
+.trpg-hub-count {
+margin-left: 0.5em;
+padding: 0 0.55em;
+border: 1px solid var(--trpg-hub);
+border-radius: 1em;
+background: color-mix(in srgb, var(--trpg-hub) 18%, <<colour tiddler-background>>);
+color: var(--trpg-hub-ink);
+font-size: 0.45em;
+font-weight: normal;
+vertical-align: middle;
+}
+.trpg-hub-rule {
+border-top: 3px solid var(--trpg-hub);
+margin: 0.6em 0 0.8em;
+}
+.trpg-hub-list {
+columns: 3 11em;
+column-gap: 2em;
+}
+.trpg-hub-list .tc-menu-list-subitem,
+.trpg-hub-group {
+break-inside: avoid;
+}
+.trpg-hub-group {
+margin-bottom: 0.6em;
+}
+.trpg-hub-letter,
+.tc-tiddler-frame.trpg-hub .tc-tiddler-body h3,
+.tc-tiddler-frame.trpg-hub .tc-tiddler-body h4 {
+margin: 0.2em 0 0.25em;
+padding-bottom: 0.05em;
+border-bottom: 1px solid transparent;
+border-image: linear-gradient(to right, var(--trpg-hub-ink), transparent) 1;
+color: var(--trpg-hub-ink);
+font-variant: small-caps;
+font-weight: bold;
+letter-spacing: 0.02em;
+}
+.trpg-hub-letter {
+font-size: 1.15em;
+}
+.tc-tiddler-frame.trpg-hub .tc-tiddler-body h3 {
+margin-top: 0.9em;
+border-bottom-width: 2px;
+border-image: linear-gradient(to right, var(--trpg-hub), transparent) 1;
+font-size: 1.4em;
+}
+.tc-tiddler-frame.trpg-hub .tc-tiddler-body h4 {
+font-size: 1.1em;
+}
+.tc-tiddler-frame.trpg-hub .tc-tiddler-body h2 {
+border-bottom: 3px solid var(--trpg-hub);
+color: var(--trpg-hub-ink);
+font-variant: small-caps;
+font-weight: bold;
+}
+.tc-tiddler-frame[data-tiddler-title=Campaign] .tc-tags-wrapper {
+display: none;
+}
+.trpg-campaign-index {
+float: right;
+margin: 0.2em 0 0.6em 1em;
+}
+.trpg-hub-index {
+width: 11.5em;
+font-size: 0.95em;
+}
+.trpg-hub-index-row {
+margin: 0 0 0.3em;
+}
+.trpg-hub-index-row a {
+display: grid;
+grid-template-columns: 1fr 2.2em;
+padding: 0.2em 0.6em;
+border-left: 5px solid var(--trpg-hub);
+background: color-mix(in srgb, var(--trpg-hub) 14%, <<colour tiddler-background>>);
+color: color-mix(in srgb, var(--trpg-hub) 55%, <<colour foreground>>);
+font-weight: bold;
+text-decoration: none;
+}
+.trpg-hub-index-row a:hover {
+background: color-mix(in srgb, var(--trpg-hub) 30%, <<colour tiddler-background>>);
+text-decoration: none;
+}
+.trpg-hub-index-n {
+font-weight: normal;
+font-variant-numeric: tabular-nums;
+opacity: 0.8;
+text-align: right;
+}

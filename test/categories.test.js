@@ -152,7 +152,7 @@ test.describe("hubs", function() {
 		var hub = h.body(wiki, "Folk");
 		assert.ok(inOrder(hub, ["Nichny", "Yuan-Ti"]), hub);
 		assert.ok(["Spielerstufe", "Völker", "Kalender"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
-		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">\s*Volk\s*<\/h2>/);
+		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">Volk<span class="trpg-hub-count">2<\/span><\/h2>/);
 	});
 
 	test("a heading only with an entry the view sees", function() {

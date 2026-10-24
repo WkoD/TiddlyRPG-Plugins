@@ -57,9 +57,10 @@ A tour for the DM and the players. The sections after it hold the details.
 
 **Getting around.**
 
-- The start page `Campaign` always stands at the end of the page. It shows the hub `Index`
-  with every hub, the player characters, the quests and rumours, and the events as timeline and
-  table.
+- The start page `Campaign` always stands at the end of the page. It shows the player
+  characters, beside them the hub `Index` - every hub, `Quest` and `Player` in alphabetical
+  order, each a bar in its colour with the number of its entries -, the quests and rumours, and
+  the events as timeline and table.
 - A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
   `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
@@ -67,7 +68,10 @@ A tour for the DM and the players. The sections after it hold the details.
   shows the player characters as cards with the level of the party (the tiddler `PlayerLevel`).
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
   while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
-  that hub.
+  that hub. A hub shows in its colour too: frame and title, the number of its entries behind the
+  title, its list in columns, sorted by the names as they read in the wiki language (an umlaut
+  with its letter); `Person`, `Location` and `Organisation` with a heading per first letter. The
+  numbers count only what the view sees.
 - A **tiddler** shows the path of the locations where it is below its title, and its years or
   its span right-aligned below the tags. Below the text of a person, player character,
   organisation, deity, location or item come its relations (graph or list, see "Relations") and

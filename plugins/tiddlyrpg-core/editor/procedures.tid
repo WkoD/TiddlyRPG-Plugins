@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261022171029770
+modified: 20261024161412996
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/editor/procedures
 type: text/vnd.tiddlywiki
@@ -22,7 +22,7 @@ type: text/vnd.tiddlywiki
 
 <!-- The style of a pill in the colour of the type of <title> (the hub of a type tag); a rumour (a
      name with markers, no tiddler) in the silver of the rumours -->
-\function trpg.pillstyle(title) [<title>tags[]is[shadow]tag[Index]has[color]first[]get[color]addprefix[--trpg-kind:]] ~[<title>!is[tiddler]questmarked[]then[--trpg-kind:var(--trpg-rumour, #9aa1aa)]]
+\function trpg.pillstyle(title) [<title>tags[]is[shadow]tag[Index]has[color]!match[Index]first[]get[color]addprefix[--trpg-kind:]] ~[<title>!is[tiddler]questmarked[]then[--trpg-kind:var(--trpg-rumour, #9aa1aa)]]
 
 <!-- The picker: an input, and while it has the focus the candidates (filter <candidates>) the
      view sees, all of them for an empty input, else those whose name contains what is typed

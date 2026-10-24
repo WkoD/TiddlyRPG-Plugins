@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/timeline.js
 type: application/javascript
 module-type: widget
 created: 20261001133844000
-modified: 20261014194538000
+modified: 20261024161412996
 
 Vertical, interactive timeline of event tiddlers.
 
@@ -280,7 +280,7 @@ TimelineWidget.prototype.collect = function() {
 		events = [],
 		undated = [],
 		eventColour = this.colourOf("Event") || "#48a4ff",
-		campaignColour = this.colourOf("Campaign") || "#0069d2",
+		campaignColour = this.colourOf("Campaign") || "#7c7c7c",
 		view = visibility.current(wiki);
 	$tw.utils.each(this.list,function(title) {
 		var tiddler = wiki.getTiddler(title);

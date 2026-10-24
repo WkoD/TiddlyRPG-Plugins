@@ -1,7 +1,7 @@
 caption: <<trpg.title Player>>
 color: #005500
 created: 20200209100237010
-modified: 20261014185321000
+modified: 20261024161412996
 tags: Index
 title: Player
 type: text/vnd.tiddlywiki
@@ -10,7 +10,9 @@ type: text/vnd.tiddlywiki
 <!-- The player characters as cards with portrait (the first image of the field image, without
      tabs), name and player: the active ones (tag
      Player), below them those someone played before (any other tiddler with a field player).
-     Which view the wiki shows is chosen in the page controls (ui/view-switcher). -->
+     Which view the wiki shows is chosen in the page controls (ui/view-switcher). The hub Campaign
+     sets trpg-player-heading to "no": it shows the first heading itself, beside the list of the
+     hubs. -->
 \procedure trpg.playercard()
 \whitespace trim
 <$link to=<<currentTiddler>> class={{{ [<currentTiddler>trpg.dead[]then[trpg-player-card trpg-dead]else[trpg-player-card]] }}}>
@@ -20,7 +22,7 @@ type: text/vnd.tiddlywiki
 </$link>
 \end
 
-<h3><$text text={{{ [[Player/Active]trpgtranslate[]] }}}/></h3>
+<%if [<trpg-player-heading>!match[no]] %><h3><$text text={{{ [[Player/Active]trpgtranslate[]] }}}/></h3><%endif%>
 <div class="trpg-players">
 <$list filter="[tag[Player]!is[draft]] :filter[trpg.visible[]] +[sort[title]]"><<trpg.playercard>></$list>
 </div>

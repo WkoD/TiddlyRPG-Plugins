@@ -1,13 +1,9 @@
 caption: <<trpg.title Person>>
 color: #00a600
 created: 20200209095738040
-modified: 20261007163804094
+modified: 20261024161412996
 tags: Index
 title: Person
 type: text/vnd.tiddlywiki
 
-<$list filter="[tag[Person]] :filter[trpg.visible[]] +[sort[title]]">
-<div class="tc-menu-list-subitem">
-<<trpg.link title={{!!title}}>>
-</div>
-</$list>
+<$transclude $variable="trpg.hub.list" filter="[[Person]trpghubentries[]]" letters="yes"/>

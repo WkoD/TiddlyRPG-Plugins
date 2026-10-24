@@ -180,7 +180,11 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     with macros, refresh
     on the rules and plugin configs
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`; `trpg.link`
-    and `trpg.pill` (type colour, rumour silver, dead striped, spot dashed, a text behind)
+    and `trpg.pill` (type colour, rumour silver, dead striped, spot dashed, a text behind); the
+    hubs in their colour (`styles/hubs`, class `trpg-hub`, the rule, not `Index`; `Campaign`
+    and `Index` grey), the list sorted by the display name with a letter per group, the number
+    in the heading and in `Index` in the public view and the view of the DM, `Campaign` with
+    the list of the hubs below its first heading
   - `tag-pill` - the tag pill defined again in `functions` instead of an override of
     `$:/core/macros/tag`: its translated name and colours wherever the core renders it, the
     colours in the tag picker (see "Core overrides")
@@ -450,6 +454,7 @@ the tiddler title:
   `sectionbacklinks`, `visiblelinks`, `trpgsearch`),
   `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`),
   `categories.js` (`trpgcategories`, `trpgcategorybases`, see "Items and categories"),
+  `hubs.js` (`trpghubentries`, `trpgsortname`, `trpginitial`, see "Index/hub tiddlers"),
   `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
@@ -510,6 +515,7 @@ the tiddler title:
   spots, see "Locations"), `image` (the
   field `image` through `trpg.images`: one image on its own, several as tabs),
   `location-path` (path below the title), `checks` (the messages below it, see "Checks"),
+  `hub-rule` (the rule below title and tags of a type hub),
   `book` (the file of a book, field `data`, below the body), `relations` (tab list "Graph"/"List" via
   `$:/plugins/flibbles/graph/ui/grouped-tabs`, tab contents `relations/graph` + `relations/list`;
   one type scope filter for both tabs; a tab state per tiddler, like "Timeline"/"List" of
@@ -533,18 +539,20 @@ the tiddler title:
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
   and the frame of a locked tiddler outside the frame of its type; wikitext for the colours),
   `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
-  `Player`) and `editor` (the controls of the editor, see "Editor").
+  `Player`), `hubs` (the hubs and `Campaign` in their colour, their lists, the list of the hubs
+  of `Index`; see "Index/hub tiddlers") and `editor` (the controls of the editor, see "Editor").
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/quest-body`, `templates/quest-card`, `templates/quest-list` (see "Quests"),
-  `templates/title-translated`,
+  `templates/title-translated`, `templates/title-hub`,
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-secret` (class
   `trpg-secret-tiddler` for a locked tiddler the view sees), `class-rumour` (class
   `trpg-rumour-tiddler` for the page of a rumour the view sees: silver, styles/quest),
   `class-pinned`, `class-readonly`, `class-rules-highlight` with `rules-highlight`,
-  `class-view`, `title-translated`, `subtitle`, `view-tags` - see below; `dm-published`
+  `class-view`, `class-hub`, `title-translated`, `title-hub`, `subtitle`, `view-tags` - see
+  below; `dm-published`
   (`$:/config/tiddlyrpg/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
   sidebar tabs, see "Views"); for the editor `form/<type>`, `form-fields-hidden`,
   `field-editors`, `shortcut-info` and `symmetric` (see "Editor").
@@ -569,9 +577,36 @@ the tiddler title:
   Campaign, Calendar, Currency, Ruleset, CampaignSetting): the hubs tagged `Index` are the types
   (`modules/types.js`) - their `color` field gives graph nodes, tiddler borders, the rules in a
   tiddler and tag pills their colour; `caption` is `<<trpg.title ...>>`. `Campaign` is the pinned start page and no
-  type: tag `$:/tags/Pinned` only, its colour is the one of campaign events in the timeline. The
+  type: tag `$:/tags/Pinned` only, its colour (the grey of `Information`) is the one of campaign
+  events in the timeline. `Index` has that grey too, for its tag pill only: it is tagged `Index`
+  itself, so every reader of the colours of the types leaves it out (`modules/types.js`,
+  `styles/border`, `config/type-colour`, `trpg.pillstyle`, `trpg.hub`). The
   hub `Secret` (the tag of the lock) has neither tag `Index` nor `color`: it must not colour or
   frame what it locks.
+  - **A hub in its colour** (`trpg.hub`: tagged `Index` with a colour, not `Index`):
+    `config/class-hub` gives its frame and the one of `Campaign` the class `trpg-hub`;
+    `styles/hubs` sets `--trpg-hub` per title and frames, tints and colours the title from it
+    (the frame comes from the title, not from a tag: a hub is tagged `Index` only);
+    `viewtemplates/hub-rule` draws the rule below the tags (not on `Campaign`);
+    `config/title-hub` puts the number of the entries behind the title
+    (`templates/title-hub`; not on `Quest`, `Player`, `Event`, which show their own numbers or
+    none).
+  - **What a hub lists** - one source for its list, the number in its title and in `Index`:
+    `trpg.hub.entries` (`trpghubentries` with the lock): the filter in the field
+    `tiddlyrpg-entries` (`Item`: the three base types; `Information`: what it lists, the hubs
+    `Calendar` ... only while they have something to show; `Quest`: the open quests and
+    rumours), for a category its tiddlers with one of its base types, else the tiddlers tagged
+    with the hub. A new hub with a list of another kind gets the field.
+  - **The list** `trpg.hub.list(filter,letters)` (`functions`): what the view sees of the
+    filter, sorted by the display name in the collation of the wiki language (`trpgsortname`;
+    `sort` of the core compares code units, an umlaut would follow "Z"), in columns; with
+    `letters="yes"` (`Person`, `Location`, `Organisation`) a heading per first letter
+    (`trpginitial`: without accent, `#` for the rest), taken from the entries the view sees.
+    `Item` and `Information` call it once per group, their headings sorted by the plural
+    (`trpgsortname[plural]`).
+  - **`Index`** lists the hubs, `Quest` and `Player` by their plural with their numbers; `Campaign`
+    sets the heading of the player characters itself and floats `Index` beside the cards below
+    it, `Player` leaves that heading out while `trpg-player-heading` is `no`.
 - **tw5-graph schema + graph templates**: field edge types (`$:/config/flibbles/graph/edges/fields/*`,
   with `tiddlyrpg-targets`: what the field may name, see "Relations") + relink field types; the function edge types `rules` (leader -> location, "controls"),
   `spots` (a spot that is a location -> the location it is part of, dashed) and a copy of
@@ -1358,9 +1393,10 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
 - **`trpg.dead`** - deceased/destroyed: the `date` field ends (last section a span whose end is
   not `..`, operator `dateended`), **events excluded**. Used by `config/class-dead` (class
   `trpg-dead`, stylesheet `styles/dead`), the graph templates, the atlas views of the
-  wikis and `trpg.link`.
+  wikis, `trpg.link` and `trpg.hub.list`.
 - **`trpg.link`** - a link to a tiddler, struck through when `trpg.dead` holds (class
-  `trpg-dead-link`, stylesheet `styles/dead`). The type hubs list their titles with it.
+  `trpg-dead-link`, stylesheet `styles/dead`). The hub `Secret` lists its titles with it, the
+  type hubs with `trpg.hub.list` (the same class, the display name).
 - **`trpg.pill`** - a tiddler as a pill in the colour of its type, a link to it: the colour of
   the cascade `$:/tags/TiddlerColourFilter`, a rumour in the silver of the rumours, else
   `tag-background`; striped when `trpg.dead` holds (class `trpg-pill-dead`, like its tag pill);
@@ -1389,6 +1425,10 @@ More cascade entries instead of core overrides:
   the span `trpg-rule` around what `unit`, `dice`, `damage` and `term` show (`functions`) dotted.
 - `config/title-translated` (`$:/tags/ViewTemplateTitleFilter`, before `default`): tiddlers whose
   display name differs from the title get the heading `templates/title-translated`.
+- `config/title-hub` (`$:/tags/ViewTemplateTitleFilter`, before `title-translated`): a type hub
+  with a list gets `templates/title-hub`, the translated name and the number of its entries.
+- `config/class-hub` (`$:/tags/ClassFilters/TiddlerTemplate`): class `trpg-hub` for a type hub
+  and `Campaign` (`styles/hubs`).
 - `config/subtitle` (`$:/tags/ViewTemplateSubtitleFilter`, before `default`): every tiddler gets
   `templates/subtitle`, the core default without the modifier (always the same person here; git
   keeps the history). Other entries tagged `$:/tags/ViewTemplate/Subtitle` still show.

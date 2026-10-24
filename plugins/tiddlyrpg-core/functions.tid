@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261024152302984
+modified: 20261024161412996
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -22,10 +22,50 @@ type: text/vnd.tiddlywiki
 \function trpg.dead() [!is[system]!tag[Event]] :filter[get[date]dateended[]]
 
 <!-- Link to a tiddler, struck through when it is deceased/destroyed (trpg.dead; class
-     trpg-dead-link, stylesheet styles/dead). Used by the type hubs. -->
+     trpg-dead-link, stylesheet styles/dead). Used by the hub Secret; the type hubs: trpg.hub.list. -->
 \procedure trpg.link(title)
 \whitespace trim
 <$link to=<<title>> class={{{ [<title>trpg.dead[]then[trpg-dead-link]] }}}/>
+\end
+
+<!-- The input titles that are type hubs: tagged Index with a colour, the hub Index itself not.
+     They show in their colour (styles/hubs, config/class-hub, viewtemplates/hub-rule). -->
+\function trpg.hub() [tag[Index]has[color]!match[Index]]
+
+<!-- The entries of a type hub the active view sees (filters/hubs.js trpghubentries: the field
+     tiddlyrpg-entries, a category, else the tag); their number is in the title of the hub
+     (templates/title-hub) and in the list of the hub Index. -->
+\function trpg.hub.entries(hub) [<hub>trpghubentries[]] :filter[trpg.visible[]]
+
+<!-- The list of a type hub (Person, Location, ..., the groups of Item and Information): the
+     titles of <filter> the active view sees, sorted by their display name in the collation of
+     the wiki language (trpgsortname), in columns (styles/hubs), each a link with its display
+     name, struck through when dead (trpg.dead, class trpg-dead-link). <letters> "yes": a
+     heading per first letter (trpginitial) - from the titles the view sees, so a letter shows
+     only above an entry. -->
+\procedure trpg.hub.entry()
+\whitespace trim
+<div class="tc-menu-list-subitem"><$link to=<<currentTiddler>> class={{{ [<currentTiddler>trpg.dead[]then[trpg-dead-link]] }}}><$text text={{{ [<currentTiddler>trpgtitle[]] }}}/></$link></div>
+\end
+
+\procedure trpg.hub.list(filter,letters)
+\whitespace trim
+<$let trpg-entries={{{ [subfilter<filter>!is[draft]] :filter[trpg.visible[]] +[trpgsortname[]format:titlelist[]join[ ]] }}}>
+<%if [<trpg-entries>!is[blank]] %>
+<div class="trpg-hub-list">
+<%if [<letters>match[yes]] %>
+<$list filter="[enlist<trpg-entries>trpginitial[]unique[]]" variable="trpg-letter">
+<div class="trpg-hub-group">
+<div class="trpg-hub-letter"><$text text=<<trpg-letter>>/></div>
+<$list filter="[enlist<trpg-entries>] :filter[trpginitial[]match<trpg-letter>]"><<trpg.hub.entry>></$list>
+</div>
+</$list>
+<%else%>
+<$list filter="[enlist<trpg-entries>]"><<trpg.hub.entry>></$list>
+<%endif%>
+</div>
+<%endif%>
+</$let>
 \end
 
 <!-- A tiddler as a pill in the colour of its type, a link to it (styles/location): the colour of

@@ -1,0 +1,14 @@
+created: 20261024161412996
+modified: 20261024161412996
+title: $:/plugins/tiddlyrpg-core/templates/title-hub
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<!-- Heading of a type hub whose body is a list (cascade entry config/title-hub; Quest, Player and
+     Event show their own numbers or none): the translated display name, behind it the number of
+     the entries the active view sees (trpg.hub.entries) as a pill - styles/hubs. Same markup as
+     templates/title-translated plus the pill. -->
+<h2 class="tc-title">
+<$text text={{{ [<currentTiddler>trpgtitle[]] }}}/>
+<span class="trpg-hub-count"><$text text={{{ [trpg.hub.entries<currentTiddler>count[]] }}}/></span>
+</h2>

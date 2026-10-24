@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261015145856000
+modified: 20261024161412996
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/view
 type: text/vnd.tiddlywiki
@@ -50,17 +50,28 @@ type: text/vnd.tiddlywiki
 	gap: 0.8em;
 	margin: 0.5em 0 1em 0;
 }
+/* A card: a broad band in the colour of the Player hub on top, on the background of the tiddler,
+   the name in a dark shade of that colour (like the labels of the block of values); 12.6em, so
+   two fit beside the list of the hubs on the hub Campaign. The level below them likewise. */
 a.trpg-player-card {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 14em;
+	box-sizing: border-box;
+	width: 12.6em;
 	padding: 0.8em 0.5em;
 	border: 1px solid {{Player!!color}};
+	border-top: 5px solid {{Player!!color}};
 	border-radius: 6px;
+	background: <<colour tiddler-background>>;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 	text-decoration: none;
 	color: <<colour foreground>>;
 	text-align: center;
+}
+a.trpg-player-card .trpg-player-name,
+.trpg-player-level b {
+	color: color-mix(in srgb, {{Player!!color}} 70%, <<colour foreground>>);
 }
 a.trpg-player-card:hover {
 	background: <<colour tiddler-editor-background>>;
@@ -83,5 +94,7 @@ a.trpg-player-card:hover {
 }
 a.trpg-player-card.trpg-dead {
 	border-style: dashed;
+	border-top-style: solid;
+	background: color-mix(in srgb, <<colour foreground>> 4%, <<colour tiddler-background>>);
 	opacity: 0.7;
 }

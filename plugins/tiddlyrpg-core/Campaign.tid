@@ -1,15 +1,26 @@
 caption: <<trpg.title Campaign>>
-color: #0069D2
+color: #7c7c7c
 created: 20171009090415567
-modified: 20261015202135000
+modified: 20261024161412996
 tags: $:/tags/Pinned
 title: Campaign
 type: text/vnd.tiddlywiki
 
-@@float:right;{{||Index}}
-@@
+<!-- The heading of the player characters stands here, so the list of the hubs (Index) begins
+     below its rule; the hub Player leaves it out (trpg-player-heading). -->
+<h3><$text text={{{ [[Player/Active]trpgtranslate[]] }}}/></h3>
+
+<div class="trpg-campaign-index">
+
+{{||Index}}
+
+</div>
+
+<$let trpg-player-heading="no">
 
 {{||Player}}
+
+</$let>
 
 @@clear:both;
 ---

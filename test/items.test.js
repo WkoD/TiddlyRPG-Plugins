@@ -133,8 +133,8 @@ test.describe("hubs", function() {
 	});
 
 	test("category hubs translated", function() {
-		assert.match(h.view(wiki, "Consumable"), /<h2 class="tc-title">\s*Verbrauchsgut\s*<\/h2>/);
-		assert.match(h.view(wiki, "Equipment"), /<h2 class="tc-title">\s*Ausrüstung\s*<\/h2>/);
+		assert.match(h.view(wiki, "Consumable"), /<h2 class="tc-title">Verbrauchsgut<span class="trpg-hub-count">\d+<\/span><\/h2>/);
+		assert.match(h.view(wiki, "Equipment"), /<h2 class="tc-title">Ausrüstung<span class="trpg-hub-count">\d+<\/span><\/h2>/);
 	});
 
 	["Item", "Book", "Consumable", "Equipment"].forEach(function(title) {
