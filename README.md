@@ -98,7 +98,7 @@ A tour for the DM and the players. The sections after it hold the details.
 - Images: the field `image`, `<<image>>` in a text, the field `source` for where they come from
   (see "Images and sources").
 - Rules terms such as `<<unit "30 ft">>` and `<<term hp>>` show in the language the wiki
-  chose (see "Rules terms in the text").
+  chose, with a dotted underline (see "Rules terms in the text").
 - Values of the rules - the damage of a weapon, the level of a spell, the hit points of a
   creature: the form offers the fields the ruleset defines for the type, the tiddler shows them
   as a block like a stat block (see "Values of the rules").
@@ -209,6 +209,12 @@ German.) What a macro does not understand shows unchanged, with a hint below the
 words of every language are read: `<<damage "2W6 Feuer">>` works as well. A number always carries its unit
 (`<<unit 60>>` is not read, also not with a kind): what a text means never depends on a setting.
 A kind only chooses how a value is shown, e.g. a range in whole feet.
+
+**Highlight.** What the four macros show stands out in the text with a dotted underline, so a
+reader sees which words are rules terms; a link is told apart by its colour and its solid
+underline on hover. ControlPanel -> Settings -> TiddlyRPG -> "Ruleset options" -> "Highlight"
+switches it off ("none"); the setting is the tiddler `$:/config/tiddlyrpg/rules/highlight`
+(`underline` or `none`).
 
 **In headings.** The caption of a dated section is wikitext: `<<date label:"Fight at <<unit '30
 ft'>>">>` - use the other kind of quotes inside. Links in a caption stay links.

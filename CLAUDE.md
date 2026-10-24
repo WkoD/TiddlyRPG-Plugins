@@ -478,7 +478,8 @@ the tiddler title:
   gives anything - `ui/settings-ruleset` (the choice of ruleset and campaign setting, like the
   theme switcher, the button filling the row; a note when the wiki has its own calendar or
   currency, whose real config tiddler wins over the shadow of a setting),
-  `ui/settings-ruleset-options` (with a ruleset: the rules language of the group `ruleset`) and
+  `ui/settings-ruleset-options` (with a ruleset: the rules language of the group `ruleset` and the
+  highlight of the rules macros, `$:/config/tiddlyrpg/rules/highlight`) and
   `ui/settings-setting-options` (with a setting or an own calendar or currency: the rules
   language of the group `setting` and the order of day and month, see "Calendar engine"). Both take their procedures from
   `ui/settings-rules` (`\import`; operators `trpgrulesdomains` with a group, `trpgrulesdomain`,
@@ -533,7 +534,7 @@ the tiddler title:
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-secret` (class
   `trpg-secret-tiddler` for a locked tiddler the view sees), `class-rumour` (class
   `trpg-rumour-tiddler` for the page of a rumour the view sees: silver, styles/quest),
-  `class-pinned`, `class-readonly`,
+  `class-pinned`, `class-readonly`, `class-rules-highlight` with `rules-highlight`,
   `class-view`, `title-translated`, `subtitle`, `view-tags` - see below; `dm-published`
   (`$:/config/tiddlyrpg/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
   sidebar tabs, see "Views"); for the editor `form/<type>`, `form-fields-hidden`,
@@ -1358,6 +1359,10 @@ More cascade entries instead of core overrides:
   published copy. `styles/readonly` then hides edit/clone/delete/new-*/import/manager and the save
   button: the same list as `$:/plugins/tiddlywiki/tiddlyweb/readonly`, which is missing from the
   offline build. Check the list against that original when raising the engine version.
+- `config/class-rules-highlight` (`$:/tags/ClassFilters/PageTemplate`): class
+  `trpg-rules-underline` on the page container while `$:/config/tiddlyrpg/rules/highlight`
+  (`config/rules-highlight`, default `underline`) is `underline`; `styles/rules` then underlines
+  the span `trpg-rule` around what `unit`, `dice`, `damage` and `term` show (`functions`) dotted.
 - `config/title-translated` (`$:/tags/ViewTemplateTitleFilter`, before `default`): tiddlers whose
   display name differs from the title get the heading `templates/title-translated`.
 - `config/subtitle` (`$:/tags/ViewTemplateSubtitleFilter`, before `default`): every tiddler gets

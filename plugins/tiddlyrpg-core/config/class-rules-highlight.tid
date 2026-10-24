@@ -1,0 +1,7 @@
+created: 20261024091845803
+modified: 20261024091845803
+tags: $:/tags/ClassFilters/PageTemplate
+title: $:/plugins/tiddlyrpg-core/config/class-rules-highlight
+type: text/vnd.tiddlywiki
+
+[{$:/config/tiddlyrpg/rules/highlight}match[underline]then[trpg-rules-underline]]

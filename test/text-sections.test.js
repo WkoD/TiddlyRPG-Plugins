@@ -125,11 +125,11 @@ test.describe("rules macros in sections", function() {
 			text: "<<date>>\n\nWeit <<unit \"30 ft\">>.\n\n<$date>\n\n<<damage \"1d8 cold\">>\n\n</$date>\n\n<<secret>><<date>>\n\n<<term wis save>>"}, function() {
 			assert.deepEqual(numbers("Regeltext"), [1, 2, 3]);
 			var dm = body("Regeltext");
-			assert.ok(dm.indexOf("Weit 9 m.") !== -1, dm);
-			assert.ok(dm.indexOf("1W8 Kälteschaden") !== -1, dm);
-			assert.ok(dm.indexOf("WEI-Rettungswurf") !== -1, dm);
+			assert.ok(dm.indexOf("Weit <span class=\"trpg-rule\">9 m</span>.") !== -1, dm);
+			assert.ok(dm.indexOf("<span class=\"trpg-rule\">1W8 Kälteschaden</span>") !== -1, dm);
+			assert.ok(dm.indexOf("<span class=\"trpg-rule\">WEI-Rettungswurf</span>") !== -1, dm);
 			var pub = inView("public", function() { return body("Regeltext"); });
-			assert.ok(pub.indexOf("Weit 9 m.") !== -1 && pub.indexOf("WEI-Rettungswurf") === -1, pub);
+			assert.ok(pub.indexOf("Weit <span class=\"trpg-rule\">9 m</span>.") !== -1 && pub.indexOf("WEI-Rettungswurf") === -1, pub);
 		});
 	});
 

@@ -1,5 +1,5 @@
 created: 20261010063203140
-modified: 20261011180604762
+modified: 20261024091845803
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/rules
 type: text/css
@@ -43,6 +43,13 @@ type: text/css
 }
 .trpg-chooser .tc-chooser-item > button[disabled] {
 	cursor: default;
+}
+/* The rules macros in the text (functions: unit, dice, damage, term) with the highlight of the
+   setting $:/config/tiddlyrpg/rules/highlight (config/class-rules-highlight on the page):
+   dotted, unlike a link, which the theme underlines solid on hover */
+.trpg-rules-underline .trpg-rule {
+	text-decoration: underline dotted;
+	text-underline-offset: 0.2em;
 }
 /* A note below the choice: an own calendar or currency of the wiki */
 .trpg-settings-note {

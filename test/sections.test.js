@@ -94,7 +94,7 @@ test.describe("a caption is inline wikitext", function() {
 
 	test("event table: the caption with its macro", function() {
 		var table = h.render(wiki, "text/html", "<$let trpg-events=\"[[Brücke]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
-		assert.ok(table.indexOf("Brücke</a> – Kampf auf " + feet) !== -1, table);
+		assert.ok(table.indexOf("Brücke</a> – Kampf auf <span class=\"trpg-rule\">" + feet + "</span>") !== -1, table);
 	});
 
 	test("relink: a renamed title in a caption, alone or after the number, and in <$date label>", function() {

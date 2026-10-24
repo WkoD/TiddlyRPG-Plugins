@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023194136107
+modified: 20261024091845803
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -302,6 +302,10 @@ Settings/Dates/Order/wiki: wie in der Wiki-Sprache
 Settings/Editor/Caption: Editor
 Settings/Editor/Symmetric: Speichern trägt symmetrische Beziehungen (spouse, sibling, family, alliance, bond, enmity) auch am anderen Ende ein
 Settings/Editor/Toolbar: Die Knöpfe des Editors schaltet man unter Aussehen -> Werkzeugleisten -> Editor-Werkzeugleiste, ihre Tastenkürzel unter Tastaturkürzel.
+Settings/Highlight/Caption: Hervorhebung
+Settings/Highlight/Hint: Wie Einheiten, Würfel, Schaden und Begriffe aus den Makros im Text hervortreten.
+Settings/Highlight/none: keine
+Settings/Highlight/underline: gepunktet unterstrichen
 Settings/Hint: Einstellungen von tiddlyrpg-core für dieses Wiki. Sie werden mit dem Wiki gespeichert und gelten für alle, die es lesen.
 Settings/Problem/NoChoice: Mehrere sind installiert und keins ist gewählt – aktiv ist das erste nach Titel, $1$.
 Settings/Problem/disabled: Festgelegt ist $1$, das ist deaktiviert – aktiv ist $2$.

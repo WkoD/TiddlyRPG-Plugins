@@ -2,13 +2,15 @@ caption: <<trpg.t Settings/RulesetOptions/Caption>>
 condition: [trpgplugin[ruleset]]
 created: 20261011154416000
 list-after: $:/plugins/tiddlyrpg-core/ui/settings-ruleset
-modified: 20261011175213295
+modified: 20261024092620791
 tags: $:/tags/tiddlyrpg/SettingsTab
 title: $:/plugins/tiddlyrpg-core/ui/settings-ruleset-options
 type: text/vnd.tiddlywiki
 
-<!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the settings of the active ruleset - the rules
-     language of its domains (ui/settings-rules, group ruleset), below a link to the hub Ruleset.
+<!-- Tab of ControlPanel -> Settings -> TiddlyRPG: the settings of the active ruleset - below a
+     link to the hub Ruleset the highlight of the rules macros in the text
+     ($:/config/tiddlyrpg/rules/highlight: none, underline - config/class-rules-highlight,
+     styles/rules), last the rules language of its domains (ui/settings-rules, group ruleset).
      Shows only while a ruleset is active. -->
 \import [[$:/plugins/tiddlyrpg-core/ui/settings-rules]]
 <$let trpg-disabled={{{ [{$:/status/IsReadOnly}match[yes]then[yes]else[no]] }}}>
@@ -16,6 +18,16 @@ type: text/vnd.tiddlywiki
 <<trpg.t Settings/RulesetOptions/Hint>>
 
 <<trpg.t Settings/RulesetOptions/Hub>> <$link to="Ruleset"><$text text={{{ [[Ruleset]trpgtitle[]] }}}/></$link>
+
+!! <<trpg.t Settings/Highlight/Caption>>
+
+<<trpg.t Settings/Highlight/Hint>>
+
+<$select tiddler="$:/config/tiddlyrpg/rules/highlight" default="underline" disabled=<<trpg-disabled>>>
+<$list filter="none underline" variable="trpg-highlight">
+<option value=<<trpg-highlight>>><$text text={{{ [<trpg-highlight>addprefix[Settings/Highlight/]trpgtranslate[]] }}}/></option>
+</$list>
+</$select>
 
 !! <<trpg.t Settings/Rules/Caption>>
 

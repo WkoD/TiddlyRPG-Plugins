@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261023194136107
+modified: 20261024091845803
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -302,6 +302,10 @@ Settings/Dates/Order/wiki: as in the wiki language
 Settings/Editor/Caption: Editor
 Settings/Editor/Symmetric: Saving writes symmetric relations (spouse, sibling, family, alliance, bond, enmity) to the other end as well
 Settings/Editor/Toolbar: The buttons of the editor are switched on and off under Appearance -> Toolbars -> Editor Toolbar, their shortcuts under Keyboard Shortcuts.
+Settings/Highlight/Caption: Highlight
+Settings/Highlight/Hint: How units, dice, damage and terms written as macros stand out in the text.
+Settings/Highlight/none: none
+Settings/Highlight/underline: dotted underline
 Settings/Hint: Settings of tiddlyrpg-core for this wiki. They are saved with the wiki and apply to everyone who reads it.
 Settings/Problem/NoChoice: Several are installed and none is chosen - active is the first by title, $1$.
 Settings/Problem/disabled: Set is $1$, which is disabled - active is $2$.

@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261023192045262
+modified: 20261024091845803
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -127,21 +127,22 @@ type: text/vnd.tiddlywiki
      <<unit "228 cm">>, <<unit "60 ft" kind:"range">>, <<dice "4d6">>, <<damage "1d8 slashing">>,
      <<term wis variant:"save">>, <<term frightened value:2>>. Filtered attributes, so that they recompute when
      the rules language changes. What is not understood shows unchanged; the hint stands below
-     the title (checks/macros.js). -->
+     the title (checks/macros.js). Each in a span trpg-rule: the highlight of the setting
+     ($:/config/tiddlyrpg/rules/highlight, config/class-rules-highlight, styles/rules). -->
 \procedure unit(value,kind)
-<$text text={{{ [<value>trpgunit<kind>] }}}/>
+<span class="trpg-rule"><$text text={{{ [<value>trpgunit<kind>] }}}/></span>
 \end
 
 \procedure dice(value)
-<$text text={{{ [<value>trpgdice[]] }}}/>
+<span class="trpg-rule"><$text text={{{ [<value>trpgdice[]] }}}/></span>
 \end
 
 \procedure damage(value)
-<$text text={{{ [<value>trpgdamage[]] }}}/>
+<span class="trpg-rule"><$text text={{{ [<value>trpgdamage[]] }}}/></span>
 \end
 
 \procedure term(id,variant,value)
-<$text text={{{ [<id>trpgterm<variant>,<value>] }}}/>
+<span class="trpg-rule"><$text text={{{ [<id>trpgterm<variant>,<value>] }}}/></span>
 \end
 
 <!-- Locations linked in a section of the body of the current tiddler (0 = before the first

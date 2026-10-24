@@ -190,6 +190,19 @@ test.describe("ruleset options", function() {
 		});
 	});
 
+	test("the highlight of the rules macros: none or dotted underline, underline by default", function() {
+		var page = "[all[shadows+tiddlers]tag[$:/tags/ClassFilters/PageTemplate]!is[draft]] :map:flat[subfilter{!!text}]",
+			html = tab(RULES_TAB).replace(/>\s+</g, "><");
+		assert.match(html, />Hervorhebung<\/h2>[^]*<select[^>]*><option value="none">keine<\/option><option value="underline">gepunktet unterstrichen<\/option><\/select>/);
+		assert.equal(wiki.getTiddlerText("$:/config/tiddlyrpg/rules/highlight"), "underline");
+		assert.ok(h.filter(wiki, page).indexOf("trpg-rules-underline") !== -1);
+		assert.equal(h.render(wiki, "text/html", "<<unit \"30 ft\">> <<dice \"4d6\">> <<damage \"1d8 cold\">> <<term wis variant:\"save\">>"),
+			"<p><span class=\"trpg-rule\">9 m</span> <span class=\"trpg-rule\">4W6</span> <span class=\"trpg-rule\">1W8 Kälteschaden</span> <span class=\"trpg-rule\">WEI-Rettungswurf</span></p>");
+		return withTiddlers({"$:/config/tiddlyrpg/rules/highlight": "none"}, function() {
+			assert.equal(h.filter(wiki, page).indexOf("trpg-rules-underline"), -1);
+		});
+	});
+
 	test("shown only with a ruleset", function() {
 		assert.match(tab(), />Regelwerk Einstellungen</);
 		return withTiddlers({"$:/config/tiddlyrpg/ruleset": "none"}, function() {
