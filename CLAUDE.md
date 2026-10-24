@@ -858,7 +858,9 @@ tests reach it without a browser; the wikitext only asks and passes values.
   picker, `trpgsimilar`, the "new name" pill); values that stand in the draft show as they are.
   The sweep in `test/views.test.js` renders the pickers and dropdowns with a draft.
 - **Tests**: `editor.test.js` (the functions on text), `editor-form.test.js` (form, the fields
-  of the rules in it, values from a base or without a relation, symmetric, fixes, a created
+  of the rules in it, values from a base or without a relation - also the way in the browser:
+  the actions of the templates against the listeners of `startup/editor-messages.js` and
+  `startup/content.js`, the route as a stub -, symmetric, fixes, a created
   tiddler undone on cancelling, notifications), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
   every new input).
 

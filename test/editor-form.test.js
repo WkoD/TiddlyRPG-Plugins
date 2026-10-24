@@ -3,7 +3,8 @@
  * fields that hold one entry, what a field may name; symmetric relations on both ends on saving
  * (modules/symmetric.js, startup/symmetric.js); the messages of a draft with their fixes
  * (modules/checks.js forDraft, modules/fixes.js); the new hint of a section without marker; the
- * notifications of the editor (modules/notice.js).
+ * notifications of the editor (modules/notice.js); values copied from a base or a package entry,
+ * as functions and through the messages the editor sends in the browser.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -576,6 +577,119 @@ test.describe("values from another tiddler or a package entry, without a relatio
 		} finally {
 			wiki.deleteTiddler("Draft of 'Ort'");
 		}
+	});
+});
+
+test.describe("copying values in the browser: the actions of the editor reach the root widget", function() {
+	// The actions as the templates hold them (the picker of a relation that copies, its button
+	// "Take the values", the row "Take values from"), run against the listeners of
+	// startup/editor-messages.js and startup/content.js; the route of the server is a stub
+	var INDEX = "$:/temp/tiddlyrpg-core/content/index",
+		NOTICE = "$:/temp/tiddlyrpg-core/editor/notice",
+		DRAFT = "Draft of 'Eisklinge'",
+		RELATION = "$:/plugins/tiddlyrpg-core/editor/fields/relation",
+		FORM = "$:/plugins/tiddlyrpg-core/editor/form",
+		LONGSWORD = {id: "longsword", title: "Longsword", type: "Item", fields: {category: "weapon, martial, melee, versatile", damage: "1d8 slashing", weight: "3 lb", price: "15 gp"}},
+		PACKAGE = {name: "SRD mini", language: "en-GB"},
+		httpRequest, requested, answer;
+
+	// The attribute actions="""…""" of a template that sends the message
+	function actions(title, message) {
+		var found = (wiki.getTiddlerText(title).match(/actions="""[\s\S]*?"""/g) || []).filter(function(a) {
+			return a.indexOf("$message=\"" + message + "\"") !== -1;
+		});
+		assert.equal(found.length, 1, title + " sends " + message + " from one picker");
+		return found[0].slice('actions="""'.length, -3);
+	}
+
+	function invoke(text, variables) {
+		$tw.rootWidget.invokeActionString(text, $tw.rootWidget, null, variables);
+	}
+
+	function draft(fields) {
+		wiki.deleteTiddler(NOTICE);
+		h.add(wiki, Object.assign({title: DRAFT, "draft.of": "Eisklinge", tags: "Item", bonus: "+1", text: ""}, fields || {}));
+	}
+
+	test.before(function() {
+		$tw.modules.execute("$:/plugins/tiddlyrpg-core/startup/editor-messages.js").startup();
+		$tw.modules.execute("$:/plugins/tiddlyrpg-core/startup/content.js").startup();
+		httpRequest = $tw.utils.httpRequest;
+		$tw.utils.httpRequest = function(options) {
+			requested.push(options.url);
+			options.callback(answer ? null : "404", answer ? JSON.stringify(answer) : null);
+		};
+		// After the startup: without a server it leaves the index empty
+		h.add(wiki, {title: INDEX, type: "application/json", text: JSON.stringify({packages: [Object.assign({entries: [LONGSWORD]}, PACKAGE)]})});
+		h.add(wiki, {title: "Kurzschwert", tags: "Item Equipment", category: "weapon, martial, melee", damage: "1d6 piercing", weight: "2 lb", price: "10 gp", text: "."});
+	});
+
+	test.beforeEach(function() {
+		requested = [];
+		answer = {package: PACKAGE, entry: LONGSWORD};
+	});
+
+	test.after(function() {
+		$tw.utils.httpRequest = httpRequest;
+		[INDEX, NOTICE, DRAFT, "Kurzschwert"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
+	test("picking a base from the wiki: base set, its values into the empty fields, a notice", function() {
+		draft();
+		invoke(actions(RELATION, "tm-trpg-copy"), {currentTiddler: DRAFT, currentField: "base", "trpg-single": "yes", "trpg-pick": "Kurzschwert"});
+		var fields = wiki.getTiddler(DRAFT).fields;
+		assert.equal(fields.base, "Kurzschwert");
+		assert.equal(fields.damage, "1d6 piercing");
+		assert.equal(fields.bonus, "+1", "nothing written over");
+		assert.equal(fields.price, undefined, "never the price");
+		assert.match(wiki.getTiddlerText(NOTICE), /^Von Kurzschwert übernommen: /);
+		assert.deepEqual(requested, [], "no request for a tiddler of the wiki");
+	});
+
+	test("picking a base from a package: the entry fetched by its id, its values copied, the entry not taken", function() {
+		draft();
+		invoke(actions(RELATION, "tm-trpg-content-copy"), {currentTiddler: DRAFT, currentField: "base", "trpg-single": "yes", "trpg-pick": "Longsword"});
+		var fields = wiki.getTiddler(DRAFT).fields;
+		assert.equal(requested.length, 1);
+		assert.match(requested[0], /^tiddlyrpg\/content\/entry\.json\?ruleset=[^&]*&id=longsword$/);
+		assert.equal(fields.base, "Longsword");
+		assert.equal(fields.damage, "1d8 slashing");
+		assert.equal(fields.weight, "3 lb");
+		assert.equal(fields.price, undefined, "never the price");
+		assert.equal(wiki.tiddlerExists("Longsword"), false, "the entry stays in the package");
+		assert.equal(wiki.getTiddlerText(NOTICE), "Von Longsword übernommen: Art, Schaden, Gewicht");
+	});
+
+	test("the button Take the values: again later, from the wiki or from the package", function() {
+		var button = /<\$button class="trpg-do-2[^"]*"[^>]*>([\s\S]*?)<\$text/.exec(wiki.getTiddlerText(RELATION))[1];
+		draft({base: "Kurzschwert"});
+		invoke(button, {currentTiddler: DRAFT, currentField: "base", "trpg-target": "Kurzschwert"});
+		assert.equal(wiki.getTiddler(DRAFT).fields.damage, "1d6 piercing");
+		draft({base: "Longsword"});
+		invoke(button, {currentTiddler: DRAFT, currentField: "base", "trpg-target": "Longsword"});
+		assert.equal(requested.length, 1);
+		assert.equal(wiki.getTiddler(DRAFT).fields.damage, "1d8 slashing");
+	});
+
+	test("the row Take values from: from a tiddler or an entry, the base named where the draft has none", function() {
+		draft();
+		invoke(actions(FORM, "tm-trpg-copy"), {currentTiddler: DRAFT, "trpg-pick": "Kurzschwert"});
+		assert.equal(wiki.getTiddler(DRAFT).fields.base, "Kurzschwert");
+		assert.equal(wiki.getTiddler(DRAFT).fields.damage, "1d6 piercing");
+		draft();
+		invoke(actions(FORM, "tm-trpg-content-copy"), {currentTiddler: DRAFT, "trpg-pick": "Longsword"});
+		assert.equal(requested.length, 1);
+		assert.equal(wiki.getTiddler(DRAFT).fields.base, "Longsword", "relate: the base names the entry");
+		assert.equal(wiki.getTiddler(DRAFT).fields.damage, "1d8 slashing");
+		assert.equal(wiki.tiddlerExists("Longsword"), false);
+	});
+
+	test("an entry the server does not give: nothing copied, a notice says so", function() {
+		answer = null;
+		draft();
+		invoke(actions(FORM, "tm-trpg-content-copy"), {currentTiddler: DRAFT, "trpg-pick": "Longsword"});
+		assert.equal(wiki.getTiddler(DRAFT).fields.damage, undefined);
+		assert.equal(wiki.getTiddlerText(NOTICE), "Nicht übernommen: Der Eintrag war nicht abrufbar, oder sein Titel ist inzwischen vergeben");
 	});
 });
 

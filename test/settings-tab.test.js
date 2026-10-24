@@ -200,6 +200,10 @@ test.describe("ruleset options", function() {
 			"<p><span class=\"trpg-rule\">9 m</span> <span class=\"trpg-rule\">4W6</span> <span class=\"trpg-rule\">1W8 Kälteschaden</span> <span class=\"trpg-rule\">WEI-Rettungswurf</span></p>");
 		return withTiddlers({"$:/config/tiddlyrpg/rules/highlight": "none"}, function() {
 			assert.equal(h.filter(wiki, page).indexOf("trpg-rules-underline"), -1);
+		}).then(function() {
+			return withTiddlers({"$:/config/tiddlyrpg/rules/highlight": "underline\n"}, function() {
+				assert.ok(h.filter(wiki, page).indexOf("trpg-rules-underline") !== -1, "a value written by hand with a line break");
+			});
 		});
 	});
 

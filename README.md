@@ -211,8 +211,8 @@ words of every language are read: `<<damage "2W6 Feuer">>` works as well. A numb
 A kind only chooses how a value is shown, e.g. a range in whole feet.
 
 **Highlight.** What the four macros show stands out in the text with a dotted underline, so a
-reader sees which words are rules terms; a link is told apart by its colour and its solid
-underline on hover. ControlPanel -> Settings -> TiddlyRPG -> "Ruleset options" -> "Highlight"
+reader sees which words are rules terms; a link is told apart by its colour and a solid
+underline (a link within the wiki on hover, an external one always). ControlPanel -> Settings -> TiddlyRPG -> "Ruleset options" -> "Highlight"
 switches it off ("none"); the setting is the tiddler `$:/config/tiddlyrpg/rules/highlight`
 (`underline` or `none`).
 
