@@ -585,3 +585,94 @@ test.describe("the lock of values (secret-fields)", function() {
 		}
 	});
 });
+
+test.describe("the level of a player character", function() {
+	var form;
+
+	test.before(function() {
+		form = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/form.js");
+	});
+
+	function block(title) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/fields\" mode=\"block\"/>", {currentTiddler: title}).replace(/>\s+</g, "><");
+	}
+
+	function card(title) {
+		return h.render(wiki, "text/plain", "<$list filter=\"[[" + title + "]trpgfieldcard[]]\" variable=\"l\"><<l>>|</$list>");
+	}
+
+	function withTiddlers(list, fn) {
+		list.forEach(function(f) { h.add(wiki, f); });
+		try {
+			return fn();
+		} finally {
+			list.forEach(function(f) { wiki.deleteTiddler(f.title); });
+		}
+	}
+
+	test("band: the level by the XP, the XP of the next level; the entries in the order of the column", function() {
+		assert.equal(read({xp: "0"}, "player-level").text, "1");
+		assert.equal(read({xp: "400"}, "player-level").text, "2", "the entries need not stand in order");
+		assert.equal(read({xp: "900"}, "player-level").text, "3", "reached at the threshold");
+		assert.equal(read({xp: "1000"}, "xp-next").text, "2700");
+		assert.equal(read({xp: "99999"}, "player-level").text, "5");
+		assert.equal(read({xp: "99999"}, "xp-next").text, "", "nothing after the last level");
+		assert.equal(read({}, "player-level").text, "", "nothing without XP");
+		assert.equal(read({xp: "-5"}, "player-level").text, "", "nothing below the first entry");
+		assert.equal(read({xp: "1000"}, "player-level").derived, true);
+	});
+
+	test("edit false: the form neither shows nor offers the level, it offers the XP; no lock of it alone", function() {
+		withTiddlers([{title: "Draft of 'Held'", "draft.of": "Held", "draft.title": "Held", tags: "Player", xp: "1000"}], function() {
+			var shown = form.fields(wiki, "Draft of 'Held'"),
+				offered = form.offered(wiki, "Draft of 'Held'");
+			assert.ok(shown.indexOf("xp") !== -1, shown.join());
+			["player-level", "xp-next"].forEach(function(field) {
+				assert.equal(shown.indexOf(field), -1, field + " shown");
+				assert.equal(offered.indexOf(field), -1, field + " offered");
+			});
+			assert.deepEqual(Array.from(h.filter(wiki, "[[Draft of 'Held']trpglockfields[]]")), ["xp"]);
+		});
+	});
+
+	test("the block of a player character: level, XP and the next level in one line", function() {
+		withTiddlers([{title: "Held", tags: "Player", player: "Anna", xp: "1000"}], function() {
+			var html = block("Held");
+			assert.match(html, /Stufe<\/span> 3<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">EP<\/span> 1000<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Nächste Stufe<\/span> 2700/, html);
+		});
+	});
+
+	test("the card: the level of an active and of a former player character; none without XP", function() {
+		withTiddlers([
+			{title: "Held", tags: "Player", player: "Anna", xp: "1000"},
+			{title: "Alter Held", tags: "Person", player: "Bert", xp: "6500"},
+			{title: "Neuling", tags: "Player", player: "Cara"}
+		], function() {
+			assert.equal(card("Held"), "Stufe 3|");
+			assert.equal(card("Alter Held"), "Stufe 5|", "a Person reads the schema of Player");
+			assert.equal(card("Neuling"), "");
+			var hub = h.view(wiki, "Player");
+			assert.match(hub, /<span class="trpg-player-name">Held<\/span><span class="trpg-player-line">Stufe 3<\/span><span class="trpg-player-of">Anna<\/span>/);
+			assert.match(hub, /<span class="trpg-player-name">Neuling<\/span><span class="trpg-player-of">Cara<\/span>/);
+		});
+	});
+
+	test("locked XP: neither XP nor level for others, also not on the card of a former one", function() {
+		withTiddlers([
+			{title: "Held", tags: "Player Frigg", player: "Anna", xp: "1000", "secret-fields": "xp"},
+			{title: "Alter Held", tags: "Person", player: "Bert", xp: "6500", "secret-fields": "xp"}
+		], function() {
+			h.inView(wiki, "public", function() {
+				assert.equal(card("Held"), "");
+				assert.equal(card("Alter Held"), "", "the lock covers a field of the rules outside the schema of its type");
+				assert.doesNotMatch(block("Held"), /1000|Stufe|2700/);
+				assert.doesNotMatch(h.view(wiki, "Player"), /Stufe [35]/);
+			});
+			h.inView(wiki, "player:Anna", function() {
+				assert.equal(card("Held"), "Stufe 3|", "the player of the character tagged sees it");
+			});
+			assert.equal(card("Held"), "Stufe 3|", "the DM");
+			assert.equal(card("Alter Held"), "Stufe 5|", "the DM");
+		});
+	});
+});

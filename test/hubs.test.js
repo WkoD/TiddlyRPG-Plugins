@@ -62,14 +62,14 @@ test.describe("de-DE", function() {
 		});
 	});
 
-	test("information lists Kalender and Spielerstufe", function() {
+	test("information lists Kalender", function() {
 		var information = h.body(wiki, "Information");
-		assert.ok(information.indexOf("Kalender") !== -1 && information.indexOf("Spielerstufe") !== -1, information);
+		assert.ok(information.indexOf("Kalender") !== -1, information);
 	});
 
-	test("player hub: level", function() {
+	test("player hub: no level of the party any more", function() {
 		var player = h.body(wiki, "Player");
-		assert.ok(player.indexOf("Spielerstufe") !== -1 && player.indexOf("100000 EXP") !== -1, player);
+		assert.ok(player.indexOf("Spielerstufe") === -1 && player.indexOf("Frigg") !== -1, player);
 	});
 
 	test("calendar hub: name, epithet, leap festival", function() {

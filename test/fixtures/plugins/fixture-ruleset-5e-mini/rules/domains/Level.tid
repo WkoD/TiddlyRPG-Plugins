@@ -1,0 +1,17 @@
+created: 20261024170203713
+modified: 20261024170203713
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Level
+type: application/json
+
+{
+    "domain": "Level",
+    "type": "table",
+    "entries": [
+        {"id": "1", "xp": 0},
+        {"id": "3", "xp": 900},
+        {"id": "2", "xp": 300},
+        {"id": "4", "xp": 2700},
+        {"id": "5", "xp": 6500}
+    ]
+}

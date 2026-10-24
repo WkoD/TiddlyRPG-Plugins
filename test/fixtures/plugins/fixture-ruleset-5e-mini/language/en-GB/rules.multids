@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022150206856
+modified: 20261024170203713
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -85,6 +85,7 @@ Rules/Domain/ItemCategory: Item category
 Rules/Domain/Rarity: Rarity
 Rules/Domain/Size: Size
 Rules/Domain/Challenge: Challenge
+Rules/Domain/Level: Level
 Rules/Domain/Skill: Skills
 Rules/Domain/Sense: Senses
 Rules/Unit/ft3: ft³
@@ -126,6 +127,8 @@ Rules/Field/wis: WIS
 Rules/Field/cr: Challenge
 Rules/Field/proficiency: Proficiency Bonus
 Rules/Field/xp: XP
+Rules/Field/player-level: Level
+Rules/Field/xp-next: Next level
 Rules/Field/saves: Saving Throws
 Rules/Field/skills: Skills
 Rules/Field/expertise: Expertise

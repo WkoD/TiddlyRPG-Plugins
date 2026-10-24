@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261023181956562
+modified: 20261024170203713
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -20,6 +20,10 @@ header line does not name it already.
 [<title>trpgfieldsection:layout[<id>]] list, row or inline; :relations the relations it shows
 [<title>trpgfieldshow[<field>]]        the text of a line: a combine filled, the price formatted
 [<title>trpgfieldlabel[<field>]]       the label of a field, by the schema of the tiddler
+[<title>trpgfieldcard[]]               the lines of the card of a player character in the hub Player:
+                                       "<label> <value>" of each field in "card" of the schema of
+                                       Player that has a text - written or derived, read as the block
+                                       reads (without what the view may not see); for a former one too
 [<title>trpgfieldcolor[]]              the colour of its first type that has one
 [<title>trpgfieldlocked[<field>]]      "yes" if secret-fields locks the field, or the line would show
                                        otherwise without the values it locks (derived from them);
@@ -58,6 +62,19 @@ var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 var PRICE = "price",
 	REST = "-";
 
+// The fields of the rules a lock of <title> covers: those of its schema and every other field of
+// the rules it has - a former player character is a Person and keeps its xp, which the card of
+// the hub Player reads
+function lockable(wiki,title,values) {
+	var list = fields.forTiddler(wiki,title).fields.slice();
+	$tw.utils.each(values,function(value,field) {
+		if(list.indexOf(field) === -1 && fields.spec(wiki,field)) {
+			list.push(field);
+		}
+	});
+	return list;
+}
+
 // The fields of a tiddler as the block reads them: without the values secret-fields locks from the
 // active view (modules/visibility.js) - what derives from them has nothing to read then. The
 // editor reads them all (draft: true).
@@ -69,7 +86,7 @@ function valuesOf(wiki,title,draft) {
 	var values = $tw.utils.extend({},tiddler.fields);
 	if(!draft && visibility.lockedFields(wiki,title)) {
 		var view = visibility.current(wiki),
-			list = fields.forTiddler(wiki,title).fields;
+			list = lockable(wiki,title,values);
 		list.concat(["price"]).forEach(function(field) {
 			if(!visibility.fieldVisible(wiki,title,field,view,list)) {
 				delete values[field];
@@ -193,7 +210,7 @@ function lineText(wiki,title,field,values) {
 // see them
 function othersOf(wiki,title) {
 	var values = valuesOf(wiki,title,true),
-		list = fields.forTiddler(wiki,title).fields;
+		list = lockable(wiki,title,values);
 	list.concat([PRICE]).forEach(function(field) {
 		if(visibility.fieldLocked(wiki,title,field,list)) {
 			delete values[field];
@@ -216,6 +233,24 @@ exports.trpgfieldlabel = function(source,operator,options) {
 			return [language.t(options.wiki,"Item/Price")];
 		}
 		return [fields.label(options.wiki,operator.operand,fields.forTiddler(options.wiki,title).labels)];
+	});
+};
+
+// The card of the hub Player reads the fields of the schema of Player, also for a former player
+// character (another type)
+exports.trpgfieldcard = function(source,operator,options) {
+	var wiki = options.wiki,
+		schema = fields.forTypes(wiki,["Player"]);
+	return each(source,function(title) {
+		var values = valuesOf(wiki,title),
+			out = [];
+		(schema.card || []).forEach(function(field) {
+			var text = fields.spec(wiki,field) ? fields.read(wiki,values,field).text : "";
+			if(text) {
+				out.push(fields.label(wiki,field,schema.labels) + " " + text);
+			}
+		});
+		return out;
 	});
 };
 
@@ -383,7 +418,8 @@ exports.trpglockfields = function(source,operator,options) {
 	return each(source,function(title) {
 		var values = valuesOf(wiki,title,true);
 		return fields.forTiddler(wiki,title).fields.filter(function(field) {
-			return (values[field] || "").toString().trim() !== "";
+			var s = fields.spec(wiki,field);
+			return (values[field] || "").toString().trim() !== "" && !(s && s.edit === false);
 		});
 	});
 };

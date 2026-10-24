@@ -1,0 +1,14 @@
+created: 20261024170203713
+modified: 20261024170203713
+tags: $:/tags/tiddlyrpg/RulesFields
+title: $:/tiddlyrpg/rules/fields/characters
+type: application/json
+
+{
+    "types": ["Player"],
+    "fields": ["player-level", "xp", "xp-next"],
+    "groups": [
+        {"id": "advancement", "layout": "inline", "fields": ["player-level", "xp", "xp-next"]}
+    ],
+    "card": ["player-level"]
+}

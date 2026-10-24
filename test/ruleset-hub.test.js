@@ -86,6 +86,12 @@ test("units: labels, pairs and kinds", function() {
 	assert.match(html, /Arten: range, distance, size/);
 });
 
+test("a table: each row with its columns, numbers in the wiki language", function() {
+	var table = tableAfter(hub(), "Stufe");
+	assert.match(table, /<td><code>3<\/code><\/td><td><code>xp<\/code> 900<\/td><\/tr>/);
+	assert.match(table, /<td><code>5<\/code><\/td><td><code>xp<\/code> 6500<\/td><\/tr>/);
+});
+
 test("tokens: the token per language", function() {
 	assert.match(tableAfter(hub(), "Würfel"), /<td><code>die<\/code><\/td><td><code>W<\/code><\/td><\/tr>/);
 });

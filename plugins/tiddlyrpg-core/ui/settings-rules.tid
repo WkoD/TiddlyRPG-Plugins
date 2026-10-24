@@ -1,5 +1,5 @@
 created: 20261009190000000
-modified: 20261011160657000
+modified: 20261024170203713
 title: $:/plugins/tiddlyrpg-core/ui/settings-rules
 type: text/vnd.tiddlywiki
 
@@ -7,7 +7,8 @@ type: text/vnd.tiddlywiki
      ui/settings-ruleset-options (group ruleset) and ui/settings-setting-options (group setting)
      through \import: the language the domains are shown in with its mode, stored in
      $:/config/tiddlyrpg/rules/<group>/...; the table of the domains of the group: the language
-     each one follows, selectable in the mode "per domain", and an example. Only languages with
+     each one follows, selectable in the mode "per domain", and an example - a domain of the type
+     table has no language and is left out. Only languages with
      keys are offered (trpgruleslangs). A unit domain names the system that language brings
      ("metrisch", trpgrulessystem): weights in English show pounds. The caller sets
      trpg-disabled (yes in the published copy). -->
@@ -52,10 +53,10 @@ type: text/vnd.tiddlywiki
 <$radio tiddler=<<trpg-mode>> value="domain" default="wiki" disabled=<<trpg-disabled>>> <<trpg.t Rules/Mode/domain>></$radio>
 </div>
 
-<%if [trpgrulesdomains<group>first[]] %>
+<%if [trpgrulesdomains<group>] :filter[trpgrulesdomain[type]!match[table]] +[first[]] %>
 <table class="trpg-rules-table">
 <tr><th><<trpg.t Settings/Rules/Domain>></th><th><<trpg.t Settings/Rules/Set/display>></th><th><<trpg.t Settings/Rules/Example>></th></tr>
-<$list filter="[trpgrulesdomains<group>]" variable="trpg-domain">
+<$list filter="[trpgrulesdomains<group>] :filter[trpgrulesdomain[type]!match[table]]" variable="trpg-domain">
 <tr>
 <td><$text text={{{ [<trpg-domain>addprefix[Rules/Domain/]trpgtranslate[]removeprefix[Rules/Domain/]] ~[<trpg-domain>addprefix[Rules/Domain/]trpgtranslate[]] }}}/></td>
 <td><$transclude $variable="trpg.rulescell" group=<<group>> domain=<<trpg-domain>>/></td>

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261024152302984
+modified: 20261024170203713
 title: $:/tiddlyrpg/language/en-GB/Title/
 
 Artifact: Artifact
@@ -23,7 +23,6 @@ Material: Material
 Organisation: Organisation
 Person: Person
 Player: Player
-PlayerLevel: Player Level
 Quest: Quest
 Ruleset: Ruleset
 Secret: Secret

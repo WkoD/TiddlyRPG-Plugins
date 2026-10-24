@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261022150206856
+modified: 20261024170203713
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -85,6 +85,7 @@ Rules/Domain/ItemCategory: Gegenstandsart
 Rules/Domain/Rarity: Seltenheit
 Rules/Domain/Size: Größe
 Rules/Domain/Challenge: Herausforderungsgrad
+Rules/Domain/Level: Stufe
 Rules/Domain/Skill: Fertigkeiten
 Rules/Domain/Sense: Sinne
 Rules/Unit/ft3: ft³
@@ -126,6 +127,8 @@ Rules/Field/wis: WEI
 Rules/Field/cr: Herausforderungsgrad
 Rules/Field/proficiency: Übungsbonus
 Rules/Field/xp: EP
+Rules/Field/player-level: Stufe
+Rules/Field/xp-next: Nächste Stufe
 Rules/Field/saves: Rettungswürfe
 Rules/Field/skills: Fertigkeiten
 Rules/Field/expertise: Expertise

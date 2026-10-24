@@ -1,14 +1,15 @@
 caption: <<trpg.title Player>>
 color: #005500
 created: 20200209100237010
-modified: 20261024161412996
+modified: 20261024170203713
 tags: Index
 title: Player
 type: text/vnd.tiddlywiki
 
 \whitespace trim
 <!-- The player characters as cards with portrait (the first image of the field image, without
-     tabs), name and player: the active ones (tag
+     tabs), name, the lines of the ruleset ("card" of the schema of Player, filters/fields.js
+     trpgfieldcard: "Level 13", derived from the XP) and player: the active ones (tag
      Player), below them those someone played before (any other tiddler with a field player).
      Which view the wiki shows is chosen in the page controls (ui/view-switcher). The hub Campaign
      sets trpg-player-heading to "no": it shows the first heading itself, beside the list of the
@@ -18,6 +19,7 @@ type: text/vnd.tiddlywiki
 <$link to=<<currentTiddler>> class={{{ [<currentTiddler>trpg.dead[]then[trpg-player-card trpg-dead]else[trpg-player-card]] }}}>
 <span class="trpg-player-portrait"><$list filter="[<currentTiddler>imagetabs[]first[]jsonget[path]]" variable="trpg-path"><$image source=<<trpg-path>>/></$list></span>
 <span class="trpg-player-name"><$text text={{{ [<currentTiddler>get[caption]else<currentTiddler>] }}}/></span>
+<$list filter="[<currentTiddler>trpgfieldcard[]]" variable="trpg-line"><span class="trpg-player-line"><$text text=<<trpg-line>>/></span></$list>
 <span class="trpg-player-of"><$text text={{{ [<currentTiddler>get[player]] }}}/></span>
 </$link>
 \end
@@ -32,5 +34,3 @@ type: text/vnd.tiddlywiki
 <$list filter="[!is[system]!is[draft]!tag[Player]has[player]] :filter[trpg.visible[]] +[sort[title]]"><<trpg.playercard>></$list>
 </div>
 </$list>
-<h3><$text text={{{ [[PlayerLevel]trpgtitle[]] }}}/></h3>
-<div class="trpg-player-level"><b>{{PlayerLevel}}</b></div>

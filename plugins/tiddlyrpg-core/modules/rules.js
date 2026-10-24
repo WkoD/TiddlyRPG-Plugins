@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261023195802630
+modified: 20261024170203713
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -69,6 +69,11 @@ Domain types and their data:
           Rules/Damage/Joiners, Rules/Damage/Fillers, Rules/Damage/Extras (words to read and
           drop: "plus", "damage", "extra"; comma separated)
     The dice of the calculation follow the tokens domains.
+
+  table    rows of numbers a field derives from (modules/fields.js "band": the level of a
+           character by its XP) - no terms, no keys, no language: its ids are not read in text,
+           so they may repeat those of a label domain; the settings offer no language for it
+    "entries":  [{"id": "<id>", "<column>": <number>, ...}]
 
   calendar, currency: see modules/calendar.js and modules/currency.js. <<unit>> shows coins
   ("3 gp 5 sp") through the currency when the text holds no length or weight.
@@ -833,7 +838,8 @@ function keysIn(wiki,code,prefix) {
 /*
 The table of a domain for the hub, as HTML: one row per entry, unit or token, and the column of
 the language the domain is shown in (rulesLang; a key missing there in en-GB, like
-lookupRules). Units also list their pairs and kinds. Calendar and currency point to their hubs.
+lookupRules). Units also list their pairs and kinds, a table its rows with their columns. Calendar
+and currency point to their hubs.
 Empty for an unknown domain.
 */
 exports.table = function(wiki,name) {
@@ -894,6 +900,13 @@ exports.table = function(wiki,name) {
 	} else if(domain.type === "unit") {
 		Object.keys(domain.units || {}).forEach(function(id) {
 			row(id,html(text("Rules/Unit/" + id)));
+		});
+	} else if(domain.type === "table") {
+		// A row of numbers: its columns with their values
+		(domain.entries || []).forEach(function(entry) {
+			row(entry.id,Object.keys(entry).filter(function(k) { return k !== "id"; }).map(function(k) {
+				return "<code>" + html(k) + "</code> " + html(typeof entry[k] === "number" ? formatNumber(wiki,entry[k],4) : String(entry[k]));
+			}).join(", "));
 		});
 	}
 	var pack = wiki.getTiddler("$:/languages/" + code),

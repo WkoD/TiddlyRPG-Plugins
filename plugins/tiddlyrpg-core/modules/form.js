@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261023175042957
+modified: 20261024170203713
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -20,7 +20,7 @@ that way). It shows for a draft
   - every known field the draft has, whatever its type - the field list of the core hides them
     ($:/config/EditTemplateFields/Visibility/<field>), so they must show here.
 It offers the fields of more that it does not show, and the fields of the rules it does not show
-whose "when" holds; a draft whose types have no config is offered every known field. Order:
+whose "when" holds - never a field that is only derived ("edit": false, modules/fields.js); a draft whose types have no config is offered every known field. Order:
 GENERAL first, then the fields of the rules in the order of the schema, then the relation fields
 by axis (modules/relations.js ordered). An empty field is not saved: the picker and the inputs write the
 field only with a value, × takes it out again.
@@ -110,10 +110,15 @@ var known = exports.known = function(wiki) {
 	});
 };
 
-// known() with the fields of the rules of the types of <title> after GENERAL
+// known() with the fields of the rules of the types of <title> after GENERAL; a field only derived
+// ("edit": false, the level of a player character) is no field of the form
 var knownFor = exports.knownFor = function(wiki,title) {
 	var all = known(wiki),
-		schema = rulesFields().forTiddler(wiki,title).fields;
+		rules = rulesFields(),
+		schema = rules.forTiddler(wiki,title).fields.filter(function(field) {
+			var s = rules.spec(wiki,field);
+			return !s || s.edit !== false;
+		});
 	return all.slice(0,GENERAL.length).concat(schema).concat(schema.length ? [LOCK] : []).concat(all.slice(GENERAL.length));
 };
 

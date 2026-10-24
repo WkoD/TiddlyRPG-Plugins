@@ -161,7 +161,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     reference coin and its hint
   - `ruleset-hub` - the hubs `Ruleset` and `CampaignSetting`: each listed only with its plugin,
     a table per domain of its group in its display language (en-GB for a missing key), variants,
-    phrases, units with pairs and kinds, tokens; calendar and currency pointing to their hubs
+    phrases, units with pairs and kinds, tokens, a table with its columns; calendar and currency
+    pointing to their hubs
   - `spots` - spots of a location (`modules/spots.js`): plain names with links, joined
     tiddlers, the body without the spots, the text of a spot for the tooltip, headings and jump
     marks below the maps, spots in notes of the DM; `<<spotlink>>`: link, pill, the messages on a
@@ -256,8 +257,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the preview, the hub Content (types, filters, search, pages, taken as link), nothing without
     a package
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
-    with those of the wiki, labels, derived values (modifier, average, total, lookup, sum over
-    the entries of a list, computed entries), the header line, `when`, `copyFrom()` with the
+    with those of the wiki, labels, derived values (modifier, average, total, lookup, band - the
+    level of a player character by its XP from a table domain -, sum over the entries of a list,
+    computed entries), a field only derived (`"edit": false`: not in the form, no lock of its
+    own), the card of a player character (`card`, `trpgfieldcard`, a former one and a locked XP), the header line, `when`, `copyFrom()` with the
     lock; patterns with parts in braces (`fill()`), a label in a variant and in the variant
     another field names (`$size.@creature-type$`, a locked field names none), combined lines; the rule `fields/schema` (a
     reserved name, a field defined twice, without definition); the block of values

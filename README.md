@@ -65,7 +65,8 @@ A tour for the DM and the players. The sections after it hold the details.
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
   `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
   `Information` (with the category `Folk`, see "Folks"), `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
-  shows the player characters as cards with the level of the party (the tiddler `PlayerLevel`).
+  shows the player characters as cards, with their level where the ruleset derives one (see
+  "Player characters, views and secrets").
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
   while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
   that hub. A hub shows in its colour too: frame and title, the number of its entries behind the
@@ -171,7 +172,7 @@ a reload. ControlPanel -> Plugins lists them in the tabs "Rulesets" and "Campaig
 `$:/plugins/tiddlyrpg-core` and the core version it needs (`"tiddlyrpg-core-version": ">=2.1.0"`).
 Its terms go into rules domains - JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` -
 and language keys `$:/tiddlyrpg/language/<code>/...`. The domain types (`unit`, `label`, `tokens`,
-`damage`, `calendar`, `currency`) and their data formats are described in the header of
+`damage`, `section`, `table`, `calendar`, `currency`) and their data formats are described in the header of
 `modules/rules.js`; its fields go into JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesFields`
 (one tiddler of definitions, one schema per type: header of `modules/fields.js`). The fixture
 plugins in `test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose
@@ -267,8 +268,9 @@ or "1W10 Wucht + 1W8 Kälte"; `<<damage>>` in the text keeps the full phrase.
 **What the rules derive is not written:** the modifier beside an ability ("16 (+3)"), the average
 beside dice ("7 (2d6)"), a total ("19 (18 + 1)" with a bonus), and values from other values -
 in D&D the proficiency bonus and XP from the challenge rating, saving throws and skills from the
-abilities, passive Perception. A value written in the field wins. Nothing derived is stored, and
-a derived value reads only fields of its own tiddler.
+abilities, passive Perception, the level of a player character from its XP. A value written in
+the field wins. Nothing derived is stored, and a derived value reads only fields of its own
+tiddler. A value the rules only derive (the level) is no field of the form at all.
 
 **Fields that need another value:** the damage of a weapon is offered and shown only while the
 category says weapon; a value written without it gets a hint below the title.
@@ -325,7 +327,10 @@ for who may not write, nothing of this shows.
 **Player characters.** A tiddler tagged `Player` is an active player character; its field
 `player` names the real player (`player: Tom`). A figure someone played before stays a `Person`
 (or any other type) and keeps the field `player` - a former character. The hub `Player` shows
-both as cards.
+both as cards. With a ruleset that names them (D&D: the XP in `xp`, the level derived from it),
+a card shows its lines below the name ("Level 13"), a former character keeps its last; the
+player character itself shows XP, level and the XP of the next level in its block of values.
+What `secret-fields` locks (the XP) shows on no card either, nor what derives from it.
 
 **Taking part.** The tag of a player character on an event means: that character was there.
 An event with at least one player character, active or former, belongs to the campaign: the

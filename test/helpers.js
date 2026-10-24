@@ -57,8 +57,7 @@ function fixtures(wiki) {
 		{title: "Der dunkle Turm", tags: "Event Frigg", date: "1351-07-01, 1351-07-11", text: "At [[Baile]].\n\n<<date 2 label:\"Traum von Shinfel\">>\n\nAt [[Insel Avalon]]."},
 		{title: "Hafenfest", tags: "Event", date: "1351-07-05", text: "At [[Insel Avalon]]."},
 		{title: "Sage", tags: "Event", text: "Undated."},
-		{title: "Friggs Traum", tags: "Event Frigg Secret", date: "1351-07-03", text: "At [[Insel Avalon]]."},
-		{title: "PlayerLevel", tags: "Information", text: "100000 EXP"}
+		{title: "Friggs Traum", tags: "Event Frigg Secret", date: "1351-07-03", text: "At [[Insel Avalon]]."}
 	].forEach(function(fields) {
 		fields.created = T;
 		fields.modified = T;

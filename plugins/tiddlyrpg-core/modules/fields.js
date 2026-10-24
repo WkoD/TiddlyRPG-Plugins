@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261023181956562
+modified: 20261024170203713
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -18,11 +18,20 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                            {"kind": "lookup", "from": "cr", "column": "xp"}
                                  the value when empty: a column of the entry its field "from" names
                            {"kind": "sum", "parts": [part, ...]}       the value when empty
+                           {"kind": "band", "from": "xp", "domain": "Level", "column": "xp"}
+                                 the value when empty: the id (a number) of the last entry of the
+                                 domain whose column the number of the field "from" reaches - the
+                                 level of a character by its XP; "next": true gives the column of
+                                 the entry after it instead (the XP of the next level), nothing at
+                                 the last
                  "computed" {"<entry>": derive}  entries of a labels field shown with their value
                            even when not written (senses: passive-perception)
                  "signed"  a number shown with its sign ("+6")
                  "view": false  only in the editor, not in the block (expertise: it shows in
                            the values of the skills already)
+                 "edit": false  only derived, never written: the form neither shows nor offers it
+                           and it cannot be locked on its own - its source is (the level of a
+                           player character, from its XP)
                  "filter": true  a number the hub Content filters by (the level of a spell);
                            a label or a list of a domain always filters
                A part of a sum: {"number": 10}, {"field": "proficiency"} (its value, written or
@@ -33,9 +42,11 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                entry stands in that list.
   schema       {"types": ["Item", ...], "fields": ["<field>", ...], "labels": {"<field>": "<key>"},
                 "summary": {"key", "byValue": {"<field>": {"<value>": "<key>"}}, "ifSet": {"<field>":
-                "<key>"}, "flags": {"<field>": "<key>"}}, "groups": [group, ...]}
+                "<key>"}, "flags": {"<field>": "<key>"}}, "groups": [group, ...], "card": [...]}
                - per type which fields, in which order; several schemas of a type are merged,
-               the ruleset's first, then the wiki's (a campaign adds fields).
+               the ruleset's first, then the wiki's (a campaign adds fields). "card" (of the type
+               Player): the fields the card of a player character shows in the hub Player, below
+               its name ("Level 13") - for a former one too (filters/fields.js trpgfieldcard).
   group        {"id", "layout": "list"|"row"|"inline", "fields": [...], "combine": [{"fields":
                [...], "key", "flags"}], "relations": [...], "when": {...}} - a section of the
                block in the order of the groups, after the fields of no group (and the price,
@@ -63,7 +74,7 @@ into a draft once - nothing stays linked.
 
   registry(wiki)              {definitions, schemas, problems}
   spec(wiki,field)            the definition of a field
-  forTypes(wiki,types)        {fields, groups, labels, summary} of the merged schemas
+  forTypes(wiki,types)        {fields, groups, labels, summary, card} of the merged schemas
   forTiddler(wiki,title)      the same for the types of a tiddler
   label(wiki,field,labels)    the label of a field
   read(wiki,fields,field)     {text, problem, values, written, derived, items} of a field of a
@@ -135,12 +146,13 @@ var registry = exports.registry = function(wiki) {
 					fields: $tw.utils.isArray(data.fields) ? data.fields : [],
 					labels: data.labels || {},
 					groups: $tw.utils.isArray(data.groups) ? data.groups : [],
-					summary: data.summary || null
+					summary: data.summary || null,
+					card: $tw.utils.isArray(data.card) ? data.card : null
 				});
 			}
 		});
 		schemas.forEach(function(schema) {
-			schema.fields.forEach(function(field) {
+			schema.fields.concat(schema.card || []).forEach(function(field) {
 				if(!definitions[field]) {
 					problems.push({title: schema.title, key: "Check/Fields/Undefined", params: {field: field}});
 				}
@@ -201,6 +213,7 @@ var forTypes = exports.forTypes = function(wiki,list) {
 			result.labels[field] = result.labels[field] || key;
 		});
 		result.summary = result.summary || schema.summary;
+		result.card = result.card || schema.card;
 	});
 	return result;
 };
@@ -272,10 +285,33 @@ function entriesOf(wiki,fields,field) {
 	return out;
 }
 
-// The value of a derive that computes (lookup, sum), or null
+// The value of a derive that computes (lookup, band, sum), or null
 function compute(wiki,fields,derive,entry,depth) {
 	if(!derive || depth > 8) {
 		return null;
+	}
+	if(derive.kind === "band") {
+		var amount = numberOf(wiki,fields,derive.from,depth + 1),
+			band = language.domains(wiki)[derive.domain],
+			rows = amount === null || !band ? [] : (band.entries || []).filter(function(e) {
+				return e[derive.column] !== undefined && !isNaN(Number(e[derive.column]));
+			}).sort(function(a,b) {
+				return Number(a[derive.column]) - Number(b[derive.column]);
+			}),
+			at = -1;
+		rows.forEach(function(e,i) {
+			if(Number(e[derive.column]) <= amount) {
+				at = i;
+			}
+		});
+		if(at === -1) {
+			return null;
+		}
+		if(derive.next) {
+			return at + 1 < rows.length ? Number(rows[at + 1][derive.column]) : null;
+		}
+		var level = Number(rows[at].id);
+		return isNaN(level) ? null : level;
 	}
 	if(derive.kind === "lookup") {
 		var from = spec(wiki,derive.from),

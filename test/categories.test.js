@@ -144,14 +144,14 @@ test.describe("categories/base", function() {
 test.describe("hubs", function() {
 	test("Information: the entries without a category first, then one heading per category", function() {
 		var hub = h.body(wiki, "Information");
-		assert.ok(inOrder(hub, ["Spielerstufe", "Völker", "Nichny", "Yuan-Ti"]), hub);
+		assert.ok(inOrder(hub, ["Kalender", "Völker", "Nichny", "Yuan-Ti"]), hub);
 		assert.equal(hub.indexOf("Nichny"), hub.lastIndexOf("Nichny"), "once");
 	});
 
 	test("the hub of a category lists only its own entries, without heading", function() {
 		var hub = h.body(wiki, "Folk");
 		assert.ok(inOrder(hub, ["Nichny", "Yuan-Ti"]), hub);
-		assert.ok(["Spielerstufe", "Völker", "Kalender"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
+		assert.ok(["Völker", "Kalender"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
 		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">Volk<span class="trpg-hub-count">2<\/span><\/h2>/);
 	});
 

@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261024161412996
+modified: 20261024170203713
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/view
 type: text/vnd.tiddlywiki
@@ -52,7 +52,8 @@ type: text/vnd.tiddlywiki
 }
 /* A card: a broad band in the colour of the Player hub on top, on the background of the tiddler,
    the name in a dark shade of that colour (like the labels of the block of values); 12.6em, so
-   two fit beside the list of the hubs on the hub Campaign. The level below them likewise. */
+   two fit beside the list of the hubs on the hub Campaign. The lines of the ruleset below the name
+   ("Level 13") smaller, in the same shade. */
 a.trpg-player-card {
 	display: flex;
 	flex-direction: column;
@@ -70,8 +71,12 @@ a.trpg-player-card {
 	text-align: center;
 }
 a.trpg-player-card .trpg-player-name,
-.trpg-player-level b {
+a.trpg-player-card .trpg-player-line {
 	color: color-mix(in srgb, {{Player!!color}} 70%, <<colour foreground>>);
+}
+.trpg-player-line {
+	font-size: 0.85em;
+	margin-top: 0.1em;
 }
 a.trpg-player-card:hover {
 	background: <<colour tiddler-editor-background>>;
