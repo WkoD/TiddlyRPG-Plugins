@@ -83,6 +83,13 @@ test.describe("unit", function() {
 		assert.equal(r.problem, "Rules/Check/UnitDomain");
 		assert.equal(r.values.domain, "Länge", "the name of the domain in the wiki language");
 	});
+
+	test("coins are no value of a unit domain", function() {
+		var r = v({format: "unit", domain: "Weight"}, "3 gp");
+		assert.equal(r.problem, "Rules/Check/UnitDomain");
+		assert.equal(r.values.domain, "Gewicht");
+		assert.equal(rules.unit(wiki, "3 gp").text, "3 GM", "<<unit>> still reads coins");
+	});
 });
 
 test.describe("label", function() {
@@ -94,6 +101,20 @@ test.describe("label", function() {
 
 	test("only", function() {
 		assert.equal(v({format: "label", domain: "Rarity", only: ["common"]}, "rare").problem, "Rules/Check/Only");
+	});
+});
+
+test.describe("label: the grammar of a term is no word of it", function() {
+	// Rules/Term/<id>/Agree holds the gender a German header line agrees with ("f"): no variant
+	test("an Agree key is not read as the term", function() {
+		var key = "$:/tiddlyrpg/language/de-DE/Rules/Term/rare/Agree";
+		h.add(wiki, {title: key, text: "f"});
+		try {
+			assert.equal(v({format: "label", domain: "Rarity"}, "f").problem, "Rules/Check/Label");
+			assert.equal(v({format: "label", domain: "Rarity"}, "rare").text, "selten");
+		} finally {
+			wiki.deleteTiddler(key);
+		}
 	});
 });
 

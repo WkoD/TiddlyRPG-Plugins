@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261025200520082
+modified: 20261025201320896
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -24,7 +24,8 @@ Domain types and their data:
                 distance, size ...) chooses the domain and optionally a display of its own; the
                 value still carries its unit (<<unit "60 ft" kind:"range">>) - a number without
                 unit is not read. Where the display of the kind would show a value that is not 0
-                as 0 (30 ft as distance: "0 km"), the display of the domain applies. "pair": the
+                as 0 (30 ft as distance: "0 km"), the display of the domain applies, and that one
+                shows more decimals where it would (1/16 lb: "0,03 kg"). "pair": the
                 kind reads "a/b <unit>" as two values ("20/60 ft" -> "6/18 m"); without it "a/b"
                 is a fraction ("1/4 lb") when b is 2, 3, 4, 8 or 16 and a < b, else a pair with the
                 problem Rules/Check/Pair (naming the kinds that read pairs; Rules/Check/PairNoKind
@@ -249,9 +250,11 @@ function displaySystem(wiki,domain) {
 }
 
 // The label of a unit; for an amount other than 1 the plural (Rules/Unit/<id>/Plural) if the
-// data has one: "1 round", "2 rounds"
-function unitLabel(wiki,domain,id,amount) {
-	var plural = amount !== undefined && amount !== 1 && language.lookupRules(wiki,domain.domain,"Rules/Unit/" + id + "/Plural");
+// data has one: "1 round", "2 rounds" - a fraction up to 1 (<fraction>: written as one) takes the
+// singular: "1/2 hour", but "0.5 hours"
+function unitLabel(wiki,domain,id,amount,fraction) {
+	var plural = amount !== undefined && amount !== 1 && !(fraction && amount < 1) &&
+		language.lookupRules(wiki,domain.domain,"Rules/Unit/" + id + "/Plural");
 	return plural || language.lookupRules(wiki,domain.domain,"Rules/Unit/" + id) || id;
 }
 
@@ -328,7 +331,8 @@ function convert(domain,value,unit,target) {
 }
 
 // A value in base units of a system as text, by the display rule of the kind or of the domain. A
-// value that is not 0 never shows as 0: then the rule of the domain applies.
+// value that is not 0 never shows as 0: then the rule of the domain applies, and the domain shows
+// more decimals (1/16 lb: "0,03 kg").
 function show(wiki,domain,system,value,kind) {
 	var ofKind = kind && domain.kinds && domain.kinds[kind] && domain.kinds[kind].display,
 		byKind = !!(ofKind && ofKind[system]),
@@ -358,9 +362,14 @@ function show(wiki,domain,system,value,kind) {
 		}
 		return parts.join(" ");
 	}
-	var amount = formatNumber(wiki,value / units[step.unit].factor,step.decimals);
+	var decimals = step.decimals || 0,
+		amount = formatNumber(wiki,value / units[step.unit].factor,decimals);
 	if(value && byKind && parseFloat(amount.replace(",",".")) === 0) {
 		return show(wiki,domain,system,value,null);
+	}
+	while(value && parseFloat(amount.replace(",",".")) === 0 && decimals < 6) {
+		decimals++;
+		amount = formatNumber(wiki,value / units[step.unit].factor,decimals);
 	}
 	return amount + " " + unitLabel(wiki,domain,step.unit,parseFloat(amount.replace(",",".")));
 }
@@ -404,12 +413,13 @@ exports.unit = function(wiki,text,kind) {
 		return result(text,"Rules/Check/NoUnit",{text: text});
 	}
 	var unitInfo = unitWords(wiki);
-	// Coins, when no length or weight is written (the German KM is also km): the currency
+	// Coins, when no length or weight is written (the German KM is also km): the currency - of its
+	// own domain, so a field of a unit domain reports them (UnitDomain)
 	var asPrice = function() {
 		var currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js"),
 			cur = !kind && currency.active(wiki),
 			parsed = cur && currency.parse(wiki,cur,text);
-		return parsed && parsed.amounts.length && !parsed.invalid && !parsed.unknown ? result(currency.format(wiki,cur,text)) : null;
+		return parsed && parsed.amounts.length && !parsed.invalid && !parsed.unknown ? result(currency.format(wiki,cur,text),null,{},{domains: ["currency"]}) : null;
 	};
 	if(!unitInfo.pattern) {
 		return asPrice() || result(text,"Rules/Check/NoRules",{type: "unit"});
@@ -497,7 +507,7 @@ exports.unit = function(wiki,text,kind) {
 		if(shown === null) {
 			shown = group.items.map(function(q) {
 				var written = q.parts.map(function(p) { return asWritten(wiki,p.trim()); }).join(q.form === "pair" ? "/" : " × ");
-				return written + " " + unitLabel(wiki,domain,q.unit,Math.max.apply(null,q.values));
+				return written + " " + unitLabel(wiki,domain,q.unit,Math.max.apply(null,q.values),q.form === "single" && /[\/½¼¾]/.test(q.parts[0]));
 			}).join(" ");
 		}
 		output += text.slice(pos,group.start) + shown;
@@ -1037,6 +1047,11 @@ exports.example = function(wiki,name) {
 			output = exports.damage(wiki,input).text;
 			break;
 		case "label":
+			// Main entries with their properties: every word an entry ("armor medium"), as <<term>> reads them
+			if(labels().structured(domain)) {
+				output = exports.term(wiki,input.replace(/\s*,\s*/g," ")).text;
+				break;
+			}
 			var parts = input.split(/\s+/),
 				last = parts.length > 1 && /^-?\d+$/.test(parts[parts.length - 1]) ? parts.pop() : "";
 			output = exports.term(wiki,parts[0],parts.slice(1).join(" "),last).text;

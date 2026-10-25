@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261025200401965
+modified: 20261025201024058
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
@@ -42,7 +42,9 @@ Every function returns {text, problem, values} like modules/rules.js, plus what 
 
 var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
-var PREFIX = "$:/tiddlyrpg/language/";
+var PREFIX = "$:/tiddlyrpg/language/",
+	// Keys below a term that are no variant of it, no word that names it
+	NOT_VARIANTS = ["Parse","Plural","Agree"];
 
 function result(text,problem,values,extra) {
 	var r = {text: text, problem: problem || null, values: values || {}};
@@ -119,7 +121,8 @@ function index(wiki,domain) {
 			});
 		});
 		// Variants name the entry too ("Strength" of str), not those named after another entry
-		// (the variant "medium/armor" stands for two entries)
+		// (the variant "medium/armor" stands for two entries), nor the words read in one language
+		// (Parse), the plural and the gender a header line agrees with (Agree: "f")
 		var variants = function(tiddler,title) {
 			codes.some(function(code) {
 				var start = PREFIX + code + "/" + (domain.keys || "Rules/Term/");
@@ -129,7 +132,7 @@ function index(wiki,domain) {
 				var rest = title.substr(start.length).split("/"),
 					text = tiddler.fields.text || "";
 				if(rest.length === 2 && ids.indexOf(rest[0]) !== -1 && ids.indexOf(rest[1]) === -1 &&
-					rest[1] !== "Parse" && rest[1] !== "Plural" && text.indexOf("$value") === -1) {
+					NOT_VARIANTS.indexOf(rest[1]) === -1 && text.indexOf("$value") === -1) {
 					add(text,rest[0]);
 				}
 				return true;

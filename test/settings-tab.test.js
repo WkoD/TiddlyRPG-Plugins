@@ -152,6 +152,7 @@ test.describe("ruleset options", function() {
 		assert.match(html, /<td>Länge<\/td><td>Deutsch[^<]*<span class="trpg-rules-system"> \(metrisch\)<\/span><\/td><td>228 cm → 228 cm<\/td>/);
 		assert.match(html, /<td>Würfel<\/td><td>Deutsch[^<]*<\/td><td>4d6 → 4W6<\/td>/);
 		assert.match(html, /<td>Begriffe<\/td><td>[^<]*<\/td><td>ac → RK<\/td>/);
+		assert.match(html, /<td>armor medium → mittelschwere Rüstung<\/td>/, "a main entry with its property");
 		assert.doesNotMatch(html, /<td>Kalender<\/td>|<td>Währung<\/td>/);
 	});
 

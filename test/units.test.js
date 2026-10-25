@@ -222,7 +222,21 @@ test.describe("pairs, fractions, measures, ³, 0, domains without conversion", f
 		withRules({"mode": "all", "language": "en-GB"}, function() {
 			assert.equal(u("1 Stunde"), "1 hour");
 			assert.equal(u("8 Stunden"), "8 hours");
+			assert.equal(u("1/2 hour"), "1/2 hour", "a fraction up to 1 in the singular");
 		});
+	});
+
+	test("a value that is not 0 never shows as 0, also by the display of the domain", function() {
+		assert.equal(u("1/16 lb"), "0,03 kg");
+		assert.equal(u("1/4 lb"), "0,1 kg", "the decimals of the domain where they show it");
+		assert.equal(u("0 lb"), "0 kg");
+	});
+
+	test("a fraction up to 1 in the singular, a decimal number and more than 1 in the plural", function() {
+		assert.equal(u("1/2 hour"), "1/2 Stunde");
+		assert.equal(u("½ hour"), "½ Stunde");
+		assert.equal(u("1½ hours"), "1½ Stunden");
+		assert.equal(u("0.5 hours"), "0,5 Stunden");
 	});
 });
 
