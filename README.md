@@ -58,9 +58,9 @@ A tour for the DM and the players. The sections after it hold the details.
 **Getting around.**
 
 - The start page `Campaign` always stands at the end of the page. It shows the player
-  characters, beside them the hub `Index` - every hub, `Quest` and `Player` in alphabetical
-  order, each a bar in its colour with the number of its entries -, the quests and rumours, and
-  the events as timeline and table.
+  characters, beside them the hub `Index` - the hubs of the types but `Event`, with `Quest` and
+  `Player`, in alphabetical order, each a bar in its colour with the number of its entries -, the
+  quests and rumours, and the events as timeline and table.
 - A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
   `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
@@ -71,9 +71,11 @@ A tour for the DM and the players. The sections after it hold the details.
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
   while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
   that hub. A hub shows in its colour too: frame and title, the number of its entries behind the
-  title, its list in columns, sorted by the names as they read in the wiki language (an umlaut
-  with its letter); `Person`, `Location` and `Organisation` with a heading per first letter. The
-  numbers count only what the view sees.
+  title, its list in columns with a heading per first letter, sorted by the names as they read
+  in the wiki language (an umlaut with its letter). Above the list stand the hubs below it, each
+  with the number of its entries: `Artifact`, `Material` and the categories on `Item`, the
+  categories on `Information` and on any other hub. Such a hub lists only its own entries, the
+  same way. The numbers count only what the view sees.
 - A **tiddler** shows the path of the locations where it is below its title, and its years or
   its span right-aligned below the tags. Below the text of a person, player character,
   organisation, deity, location or item come its relations (graph or list, see "Relations") and
@@ -714,14 +716,16 @@ Every item has **one base type** and any number of **categories**:
 
 Plenty of items need no category (`tags: Item`). A category never stands alone - a hint below
 the title asks for the base type, as it does for two base types (not in the published copy).
-The hub `Item` lists the base types, each first with the items without a category, then one
-heading per category; a category hub lists only its own items. How many of an item exist is
+The hub `Item` lists every item from A to Z; above the list `Artifact`, `Material` and the
+categories lead to their hubs, which list only their own items. How many of an item exist is
 told by the text - a list field carries every name once.
 
 **An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/Category`,
-used as a tag next to the base type. Its heading in the hub is its display name. Its field
+used as a tag next to the base type, its text `{{ || Item }}` (the same as `<<trpg.hub.page>>`):
+it lists its own items and stands with its display name above the list of `Item`. Its field
 `tiddlyrpg-bases` names the base types it stands next to - without it the three of the items;
-`tiddlyrpg-bases: Information` makes a category of information like `Folk` or `Class`. The tag of the
+`tiddlyrpg-bases: Information` makes a category of information like `Folk` or `Class`, and so on for
+every hub (`tiddlyrpg-bases: Person` and `{{ || Person }}`: nobles, the clergy). The tag of the
 releases before 2.2.0, `$:/tags/tiddlyrpg/ItemKind`, still makes a category of the items.
 
 **Price:** `price: 50 cr` or `price: 3 cr 5 sh` - numbers with coins of the currency (see

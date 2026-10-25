@@ -1,9 +1,9 @@
 caption: <<trpg.title Deity>>
 color: #99ff99
 created: 20200210140958635
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 title: Deity
 type: text/vnd.tiddlywiki
 
-<$transclude $variable="trpg.hub.list" filter="[[Deity]trpghubentries[]]"/>
+<<trpg.hub.page>>

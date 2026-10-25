@@ -1,9 +1,9 @@
 caption: <<trpg.title Artifact>>
 color: #ff80ff
 created: 20200814090152724
-modified: 20261001095424000
+modified: 20261025190711947
 tags: Index
 title: Artifact
 type: text/vnd.tiddlywiki
 
-{{ || Item }}
+<<trpg.hub.page>>

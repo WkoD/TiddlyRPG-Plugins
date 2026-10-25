@@ -145,33 +145,67 @@ test.describe("categories/base", function() {
 });
 
 test.describe("hubs", function() {
-	test("Information: the entries without a category first, then one heading per category", function() {
+	// The bar of the hubs below a hub as "name number|..." and the list of a hub as text
+	function bar(hub) {
+		return (body(hub).match(/<span class="trpg-hub-sub-name">[^<]*<\/span><span class="trpg-hub-sub-n">\d+<\/span>/g) || []).map(function(sub) {
+			return sub.replace(/<\/span><span class="trpg-hub-sub-n">/, " ").replace(/<[^>]+>/g, "");
+		}).join("|");
+	}
+
+	function body(hub) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"" + hub + "\" mode=\"block\"/>", {currentTiddler: hub});
+	}
+
+	test("Information: every entry from A to Z, above it its categories with their numbers", function() {
 		var hub = h.body(wiki, "Information");
-		assert.ok(inOrder(hub, ["Kalender", "Völker", "Nichny", "Yuan-Ti"]), hub);
+		assert.ok(inOrder(hub, ["Kalender", "Nichny", "Yuan-Ti"]), hub);
 		assert.equal(hub.indexOf("Nichny"), hub.lastIndexOf("Nichny"), "once");
+		assert.equal(bar("Information"), "Völker 2");
 	});
 
-	test("the hub of a category lists only its own entries, without heading", function() {
+	test("the hub of a category lists only its own entries, without the bar", function() {
 		var hub = h.body(wiki, "Folk");
 		assert.ok(inOrder(hub, ["Nichny", "Yuan-Ti"]), hub);
 		assert.ok(["Völker", "Kalender"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
+		assert.equal(bar("Folk"), "");
 		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">Volk<span class="trpg-hub-count">2<\/span><\/h2>/);
 	});
 
-	test("a heading only with an entry the view sees", function() {
-		withTiddlers([{title: "Nichny", tags: "Information Folk Frigg Secret"}, {title: "Yuan-Ti", tags: "Information Folk Frigg Secret"}], function() {
-			var pub = h.inView(wiki, "public", function() { return h.body(wiki, "Information"); }),
-				frigg = h.inView(wiki, "player:Anna", function() { return h.body(wiki, "Information"); });
-			assert.equal(pub.indexOf("Völker"), -1, pub);
-			assert.equal(pub.indexOf("Nichny"), -1, pub);
-			assert.ok(inOrder(frigg, ["Völker", "Nichny"]), frigg);
-		});
-		FIXTURES.slice(0, 2).forEach(function(fields) { h.add(wiki, fields); });
+	test("the bar: a category only with an entry the view sees, the number of what it sees", function() {
+		var add = function(list) { list.forEach(function(fields) { h.add(wiki, fields); }); };
+		add([{title: "Nichny", tags: "Information Folk Frigg Secret"}, {title: "Yuan-Ti", tags: "Information Folk Frigg Secret"}]);
+		try {
+			var pub = h.inView(wiki, "public", function() { return {bar: bar("Information"), list: h.body(wiki, "Information")}; }),
+				frigg = h.inView(wiki, "player:Anna", function() { return bar("Information"); });
+			assert.equal(pub.bar, "");
+			assert.equal(pub.list.indexOf("Nichny"), -1, pub.list);
+			assert.equal(frigg, "Völker 2");
+		} finally {
+			add(FIXTURES.slice(0, 2));
+		}
 	});
 
-	["Information", "Folk"].forEach(function(title) {
-		test("no pragma text in " + title, function() {
-			assert.doesNotMatch(h.body(wiki, title), /(^|\n)\s*(define|procedure|function|whitespace|import) /);
+	test("a locked category: not in the bar of a view that does not see it, its open entry in the list", function() {
+		withTiddlers([{title: "Geheimbund", tags: "Index $:/tags/tiddlyrpg/Category Secret", "tiddlyrpg-bases": "Information", text: "{{ || Information }}"},
+			{title: "Notiz", tags: "Information Geheimbund", text: "A note."}], function() {
+			assert.equal(bar("Information"), "Geheimbund 1|Völker 2");
+			h.inView(wiki, "public", function() {
+				assert.equal(bar("Information"), "Völker 2");
+				var hub = body("Information");
+				assert.equal(hub.indexOf("Geheimbund"), -1, hub);
+				assert.ok(hub.indexOf(">Notiz<") !== -1, hub);
+			});
+		});
+	});
+
+	test("a category of another base type: in the bar of its hub, its hub ({{ || Person }}) lists its own", function() {
+		withTiddlers([{title: "Adel", tags: "Index $:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "Person", text: "{{ || Person }}"},
+			{title: "Graf", tags: "Person Adel", text: "A count."}], function() {
+			assert.equal(bar("Person"), "Adel 1");
+			var adel = h.body(wiki, "Adel");
+			assert.ok(adel.indexOf("Graf") !== -1, adel);
+			assert.equal(adel.indexOf("Ki-Ra"), -1, adel);
+			assert.equal(bar("Adel"), "");
 		});
 	});
 });

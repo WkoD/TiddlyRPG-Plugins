@@ -1,9 +1,9 @@
 caption: <<trpg.title Organisation>>
 color: #ff8000
 created: 20200209100141327
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 title: Organisation
 type: text/vnd.tiddlywiki
 
-<$transclude $variable="trpg.hub.list" filter="[[Organisation]trpghubentries[]]" letters="yes"/>
+<<trpg.hub.page>>

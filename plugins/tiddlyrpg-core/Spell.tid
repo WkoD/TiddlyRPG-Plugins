@@ -1,9 +1,9 @@
 caption: <<trpg.title Spell>>
 color: #9b59d0
 created: 20261022151240943
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 title: Spell
 type: text/vnd.tiddlywiki
 
-<$transclude $variable="trpg.hub.list" filter="[[Spell]trpghubentries[]]"/>
+<<trpg.hub.page>>

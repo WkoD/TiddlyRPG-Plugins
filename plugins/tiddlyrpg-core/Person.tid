@@ -1,9 +1,9 @@
 caption: <<trpg.title Person>>
 color: #00a600
 created: 20200209095738040
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 title: Person
 type: text/vnd.tiddlywiki
 
-<$transclude $variable="trpg.hub.list" filter="[[Person]trpghubentries[]]" letters="yes"/>
+<<trpg.hub.page>>

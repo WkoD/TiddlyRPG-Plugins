@@ -1,34 +1,14 @@
 caption: <<trpg.title Information>>
 color: #7c7c7c
 created: 20200804121707247
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 tiddlyrpg-entries: [all[shadows+tiddlers]tag[Information]] -[{$:/config/tiddlyrpg/calendar}is[blank]then[Calendar]] -[{$:/config/tiddlyrpg/currency}is[blank]then[Currency]] -[trpgplugin[ruleset]count[]match[0]then[Ruleset]] -[trpgplugin[setting]count[]match[0]then[CampaignSetting]] -[trpg.content[]count[]match[0]then[Content]]
 title: Information
 type: text/vnd.tiddlywiki
 
-\define trpg.kind.name() [addprefix[Plural/]trpgtranslate[]] :filter[!prefix[Plural/]] ~[trpgtitle[]]
-
-\function trpg.uncategorised() [all[current]tags[]] :intersection[enlist<trpg-kinds>] +[count[]match[0]]
-
-<!-- The tiddlers tagged Information; the hubs Calendar, Currency, Ruleset and CampaignSetting only
-     when there is a calendar, a currency, an active ruleset or an active campaign setting (field
-     tiddlyrpg-entries, also the number in the title, templates/title-hub). First
-     those without a category, then one heading per category of Information (modules/categories.js:
-     Folk, or one of the campaign; sorted by its displayed name), only with an entry the view sees.
-     A category hub transcludes it ({{ || Information }}) and lists only its own entries. -->
-<$let trpg-kinds={{{ [trpgcategories[Information]trpgsortname[plural]format:titlelist[]join[ ]] }}}
-	trpg-kind={{{ [enlist<trpg-kinds>match<currentTiddler>] }}}>
-<%if [<trpg-kind>!is[blank]] %>
-<$transclude $variable="trpg.hub.list" filter="[all[shadows+tiddlers]tag[Information]tag<trpg-kind>sort[title]]"/>
-<%else%>
-<$transclude $variable="trpg.hub.list" filter="[[Information]trpghubentries[]] :filter[trpg.uncategorised[]]"/>
-<$list filter="[enlist<trpg-kinds>]" variable="kind">
-<%if [all[shadows+tiddlers]tag[Information]tag<kind>] :filter[trpg.visible[]] %>
-
-!!! <$text text={{{ [<kind>subfilter<trpg.kind.name>] }}}/>
-<$transclude $variable="trpg.hub.list" filter="[all[shadows+tiddlers]tag[Information]tag<kind>sort[title]]"/>
-<%endif%>
-</$list>
-<%endif%>
-</$let>
+<!-- The tiddlers tagged Information; the hubs Calendar, Currency, Ruleset, CampaignSetting and
+     Content only when there is a calendar, a currency, an active ruleset, an active campaign
+     setting or a content package (field tiddlyrpg-entries, also the number in the title,
+     templates/title-hub); above them the categories of Information (trpg.hub.page). -->
+<<trpg.hub.page>>

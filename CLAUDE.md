@@ -148,14 +148,16 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     tab states are per tiddler, `h.openTabs`): the list of the relations block and of the events,
     since the graph widget needs a browser; the sweep renders both tabs of each
   - `items` - the base type and its message (`checks/items.js`), the price with the currency
-    of the fixture setting, the hub lists of `Item` and of a category, a category of the
+    of the fixture setting, the hub `Item` (A to Z, the bar of `Artifact`, `Material` and the
+    categories with their numbers, what the view sees of it) and the hubs below it, a category of the
     campaign (also under the tag before 2.2.0), the file of a book (field `data`), colour and
     image folder through the base type
   - `categories` - the categories of the base types (`modules/categories.js`): the item
     categories and `Folk` under `Information`, one of the campaign with and without
     `tiddlyrpg-bases` and under the tag before 2.2.0, the rule `categories/base` with its
-    fix, the hub `Information` with a heading per category (only with an entry the view
-    sees) and the hub of a category, the pills of the form, "+" on `Folk`, the relation
+    fix, the hub `Information` with its categories in the bar (only with an entry the view
+    sees, a locked category not at all) and the hub of a category, a category of `Person`
+    (`{{ || Person }}`), the pills of the form, "+" on `Folk`, the relation
     `folk` (targets, way back by kind, several, list, ego graph), a folk at a location
     (`location` in the form, the group "Völker" of the place in the public view and the view of
     the DM); the trees `classes` and `folk` (`tiddlyrpg-tree`): `relationtree`, `relationlines`
@@ -189,7 +191,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the band of the tiddler itself (one per phase, apart), the section lines as links, captions
     with macros, refresh
     on the rules and plugin configs
-  - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`; `trpg.link`
+  - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.` in any hub;
+    every type hub lists exactly its `trpghubentries` (a template of several hubs); `trpg.link`
     and `trpg.pill` (type colour, rumour gold with class `trpg-pill-rumour`, dead striped, spot dashed, a text behind); the
     hubs in their colour (`styles/hubs`, class `trpg-hub`, the rule, not `Index`; `Campaign`
     and `Index` grey), the list sorted by the display name with a letter per group, the number
@@ -378,7 +381,7 @@ the tiddler title:
 
 - **Functions and procedures** (`functions`, tag `$:/tags/Global`): `trpg.visible`, `trpg.dead`,
   `trpg.link`, `trpg.pill` (see "Functions & cascades"), `trpg.hub`, `trpg.hub.entries`,
-  `trpg.hub.list`, `trpg.hub.entry` (the type hubs, see "Index/hub tiddlers"), `trpg.t`, `trpg.title`, `trpg.plural` (language
+  `trpg.hub.page`, `trpg.hub.list`, `trpg.hub.entry` (the type hubs, see "Index/hub tiddlers"), `trpg.t`, `trpg.title`, `trpg.plural` (language
   system), the procedures `dateformat`, `dateadd`, `datediff` (calendar), `unit`, `dice`, `damage`, `term`
   (rules engine), `date` (dated section in a body,
   with `widgets/date.js`), `trpg.places` (location pills of a section, with the pills of
@@ -472,7 +475,7 @@ the tiddler title:
   `sectionbacklinks`, `visiblelinks`, `trpgsearch`),
   `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`),
   `categories.js` (`trpgcategories`, `trpgcategorybases`, see "Items and categories"),
-  `hubs.js` (`trpghubentries`, `trpgsortname`, `trpginitial`, see "Index/hub tiddlers"),
+  `hubs.js` (`trpghubentries`, `trpghubsubs`, `trpgsortname`, `trpginitial`, see "Index/hub tiddlers"),
   `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
@@ -620,13 +623,18 @@ the tiddler title:
     `Calendar` ... only while they have something to show; `Quest`: the open quests and
     rumours), for a category its tiddlers with one of its base types, else the tiddlers tagged
     with the hub. A new hub with a list of another kind gets the field.
-  - **The list** `trpg.hub.list(filter,letters)` (`functions`): what the view sees of the
-    filter, sorted by the display name in the collation of the wiki language (`trpgsortname`;
-    `sort` of the core compares code units, an umlaut would follow "Z"), in columns; with
-    `letters="yes"` (`Person`, `Location`, `Organisation`) a heading per first letter
-    (`trpginitial`: without accent, `#` for the rest), taken from the entries the view sees.
-    `Item` and `Information` call it once per group, their headings sorted by the plural
-    (`trpgsortname[plural]`).
+  - **The page** of every hub with a list is `<<trpg.hub.page>>` (`functions`; decided
+    2026-10-25: one form for all, no headings per category): the hubs below it (`trpghubsubs`,
+    rule `categories.subsOf()`: `Artifact`, `Material` and the categories of the items on
+    `Item`, the categories of another hub, none on a category) that the view sees and that hold
+    an entry it sees, as bars with their numbers, then its list. It reads `currentTiddler`, so a
+    category hub of a campaign may be `{{ || Item }}` as well - a template for several hubs
+    never names one (`test/hubs.test.js` checks every hub against its `trpghubentries`).
+  - **The list** `trpg.hub.list(filter)` (`functions`): what the view sees of the filter, sorted
+    by the display name in the collation of the wiki language (`trpgsortname`; `sort` of the
+    core compares code units, an umlaut would follow "Z"), in columns, a heading per first
+    letter (`trpginitial`: without accent, `#` for the rest), taken from the entries the view
+    sees.
   - **`Index`** lists the hubs, `Quest` and `Player` by their plural with their numbers; `Campaign`
     sets the heading of the player characters itself and floats `Index` beside the cards below
     it, `Player` leaves that heading out while `trpg-player-heading` is `no`.
@@ -1189,11 +1197,11 @@ location of an artifact). Meaning and examples: `README.md` ("Items", "Categorie
   `tiddlyrpg-bases` (`Book`, `Consumable`, `Equipment` from here: `Artifact Item Material`;
   without the field the same; more from a campaign). The rule of them lives **once** in
   `modules/categories.js`; the tag before 2.2.0, `$:/tags/tiddlyrpg/ItemKind`, is read there as
-  a category of the items. They need no code: the hub `Item` reads them through
-  `trpgcategories`, and a category hub is `{{ || Item }}`, which then lists only its own items.
+  a category of the items. They need no code: a category hub is `<<trpg.hub.page>>` (or
+  `{{ || Item }}`), which lists only its own items, and stands above the list of `Item`.
   Behaviour of one category hangs on its tag (`viewtemplates/book`, `styles/item`).
-- The same for every base type: `Folk` is a category of `Information` (`{{ || Information }}`,
-  the colour of `Information`); the form offers the categories of the base types of a draft
+- The same for every base type: `Folk` is a category of `Information` (the colour of
+  `Information`), one with `tiddlyrpg-bases: Person` a category of `Person`; the form offers the categories of the base types of a draft
   (`trpg.formkinds`), "+" on a category of one base type sets both tags at once
   (`ui/new-procedures`), `categories/base` (`checks/categories.js`) asks for the base type. A
   folk is named by the relation `folk` (axis family; several allowed, not in `form.SINGLE`) and

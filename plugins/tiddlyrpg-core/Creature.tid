@@ -1,9 +1,9 @@
 caption: <<trpg.title Creature>>
 color: #2aa198
 created: 20261022151240943
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 title: Creature
 type: text/vnd.tiddlywiki
 
-<$transclude $variable="trpg.hub.list" filter="[[Creature]trpghubentries[]]"/>
+<<trpg.hub.page>>

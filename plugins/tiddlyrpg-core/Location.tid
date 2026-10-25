@@ -1,9 +1,9 @@
 caption: <<trpg.title Location>>
 color: #ff2b2b
 created: 20200209100117688
-modified: 20261024161412996
+modified: 20261025190711947
 tags: Index
 title: Location
 type: text/vnd.tiddlywiki
 
-<$transclude $variable="trpg.hub.list" filter="[[Location]trpghubentries[]]" letters="yes"/>
+<<trpg.hub.page>>

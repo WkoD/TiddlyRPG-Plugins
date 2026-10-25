@@ -1,9 +1,9 @@
 caption: <<trpg.title Material>>
 color: #ff80ff
 created: 20200805065447907
-modified: 20261001095424000
+modified: 20261025190711947
 tags: Index
 title: Material
 type: text/vnd.tiddlywiki
 
-{{ || Item }}
+<<trpg.hub.page>>

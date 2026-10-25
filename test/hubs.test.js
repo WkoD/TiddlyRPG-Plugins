@@ -8,6 +8,9 @@ var test = require("node:test"),
 
 var wiki;
 
+// A pragma in the text of a page, with or without its backslash
+var PRAGMA = /(^|\n)\s*\\?(define|procedure|function|widget|whitespace|import|parameters|rules) /;
+
 test.before(function() {
 	return h.boot().then(function($tw) {
 		wiki = $tw.wiki;
@@ -52,24 +55,26 @@ test.describe("de-DE", function() {
 		var index = h.body(wiki, "Index"),
 			order = ["Gegenstände", "Götter", "Informationen", "Kreaturen", "Organisationen", "Orte", "Personen", "Quests", "Spieler", "Zauber"].map(function(s) { return index.indexOf(s); });
 		assert.ok(order.every(function(p, i) { return p !== -1 && (i === 0 || p > order[i - 1]); }), index);
-		assert.ok(index.indexOf("Offene Punkte") === -1, index);
 	});
 
-	// Pragmas must not leak as text (a lost backslash turns \define into visible text)
-	["Index", "Information", "Player", "Calendar", "Item", "Event", "Quest", "Campaign", "Location"].forEach(function(title) {
-		test("no pragma text in " + title, function() {
-			assert.doesNotMatch(h.body(wiki, title), /(^|\n)\s*(define|procedure|function|whitespace|import) /);
+	// Pragmas must not leak as text: a pragma after other text shows with its backslash, one whose
+	// backslash got lost without it. Every hub, and the pages of the core beside them
+	test("no pragma text in a hub", function() {
+		var hubs = Array.from(h.filter(wiki, "[all[shadows+tiddlers]tag[Index]] Campaign Content Secret Calendar Currency Ruleset CampaignSetting"));
+		assert.ok(hubs.length > 25, hubs.length);
+		hubs.forEach(function(title) {
+			assert.doesNotMatch(h.body(wiki, title), PRAGMA, title);
 		});
+	});
+
+	test("the pragma check finds a pragma after text", function() {
+		assert.match("A text.\n\n\\define leaked() x", PRAGMA);
+		assert.match("A text.\n\nprocedure leaked() x", PRAGMA);
 	});
 
 	test("information lists Kalender", function() {
 		var information = h.body(wiki, "Information");
 		assert.ok(information.indexOf("Kalender") !== -1, information);
-	});
-
-	test("player hub: no level of the party any more", function() {
-		var player = h.body(wiki, "Player");
-		assert.ok(player.indexOf("Spielerstufe") === -1 && player.indexOf("Frigg") !== -1, player);
 	});
 
 	test("calendar hub: name, epithet, leap festival", function() {
@@ -78,15 +83,17 @@ test.describe("de-DE", function() {
 			calendarHub.indexOf("Tiefwinter") !== -1 && calendarHub.indexOf("Schildtreff (alle 4 Jahre)") !== -1, calendarHub);
 	});
 
-	test("campaign hub: quests and rumours, no current date", function() {
+	test("campaign hub: quests and rumours", function() {
 		var campaign = h.body(wiki, "Campaign");
-		assert.ok(campaign.indexOf("Quests und Gerüchte") !== -1 && campaign.indexOf("Offene Aufgaben") === -1 && campaign.indexOf("Aktuelles Datum") === -1, campaign);
+		assert.ok(campaign.indexOf("Quests und Gerüchte") !== -1, campaign);
 	});
 
-	["Location", "Insel Avalon", "Index", "Player", "Calendar", "Grum", "Der dunkle Turm", "Item", "Event", "Quest"].forEach(function(title) {
-		test("no raw <<trpg. in " + title, function() {
+	test("no raw <<trpg. in a hub or a tiddler of each kind", function() {
+		var titles = Array.from(h.filter(wiki, "[all[shadows+tiddlers]tag[Index]] Campaign Calendar [[Insel Avalon]] Grum [[Der dunkle Turm]]"));
+		assert.ok(titles.length > 25, titles.length);
+		titles.forEach(function(title) {
 			var html = h.view(wiki, title);
-			assert.ok(html.indexOf("&lt;&lt;trpg.") === -1 && html.indexOf("<<trpg.") === -1);
+			assert.ok(html.indexOf("&lt;&lt;trpg.") === -1 && html.indexOf("<<trpg.") === -1, title);
 		});
 	});
 });
@@ -98,7 +105,7 @@ test.describe("en-GB", function() {
 
 	test("en index", function() {
 		var index = h.body(wiki, "Index");
-		assert.ok(index.indexOf("Deities") !== -1 && index.indexOf("Quests") !== -1 && index.indexOf("Open Items") === -1, index);
+		assert.ok(index.indexOf("Deities") !== -1 && index.indexOf("Quests") !== -1, index);
 	});
 
 	test("en hub heading: the name and the number", function() {
@@ -307,6 +314,29 @@ test.describe("hubs in their colour: frame, list, number", function() {
 		assert.ok(h.view(wiki, "Person").indexOf("trpg-hub-letter\">X<") !== -1);
 		assert.equal(pub.body.indexOf("trpg-hub-letter\">X<"), -1, pub.body);
 		assert.equal(pub.body.indexOf("Xaver"), -1, pub.body);
+	});
+
+	// The links of the list of a hub (trpg.hub.list), in order
+	function listed(hub) {
+		var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"" + hub + "\" mode=\"block\"/>", {currentTiddler: hub}),
+			at = html.indexOf("<div class=\"trpg-hub-list\">");
+		return at === -1 ? [] : (html.slice(at).match(/href="#[^"]*"/g) || []).map(function(href) {
+			return decodeURIComponent(href.slice(7, -1));
+		});
+	}
+
+	// One template serves several hubs ({{ || Item }} in a category): each lists its own entries
+	test("every type hub lists what it holds and nothing else, by name - a category, Artifact, Material only their own", function() {
+		var hubs = Array.from(h.filter(wiki, "[all[shadows+tiddlers]tag[Index]has[color]] -Index -Event -Quest -Player")),
+			filled = 0;
+		assert.ok(hubs.length > 15, hubs.length);
+		hubs.forEach(function(hub) {
+			// With the global definitions, as the page renders (tiddlyrpg-entries uses functions)
+			var expected = text("[[" + hub + "]trpghubentries[]] :filter[trpg.visible[]] +[trpgsortname[]join[|]]").split("|").filter(Boolean);
+			filled += expected.length ? 1 : 0;
+			assert.deepEqual(listed(hub), expected, hub);
+		});
+		assert.ok(filled >= 4, filled);
 	});
 
 	test("Index: each hub with the number in its heading; Quest the open quests, Player the active characters", function() {

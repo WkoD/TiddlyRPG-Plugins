@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/categories.js
 type: application/javascript
 module-type: library
 created: 20261024152302984
-modified: 20261024152302984
+modified: 20261025190606226
 
 The categories of a base type - the one place of them. A category is a hub tagged
 $:/tags/tiddlyrpg/Category; its field tiddlyrpg-bases lists the base types it stands next to,
@@ -21,6 +21,10 @@ form config count beside those of the base type.
   isCategory(wiki,t)    whether <t> is a category
   basesOf(wiki,t)       the base types of the category <t>
   of(wiki,base)         the categories of the base type <base>, sorted
+  subsOf(wiki,hub)      the hubs below the type hub <hub>, whose entries it lists as well: for
+                        Item the other base types of the items (Artifact, Material), then the
+                        categories of the three; for another hub its categories; none for a
+                        category or for Artifact and Material (the hub Item lists theirs)
 
 \*/
 
@@ -53,4 +57,18 @@ exports.of = function(wiki,base) {
 	return list(wiki).filter(function(category) {
 		return basesOf(wiki,category).indexOf(base) !== -1;
 	});
+};
+
+exports.subsOf = function(wiki,hub) {
+	if(isCategory(wiki,hub) || (ITEMS.indexOf(hub) !== -1 && hub !== "Item")) {
+		return [];
+	}
+	var group = hub === "Item" ? ITEMS : [hub],
+		bases = group.filter(function(base) {
+			return base !== hub && (wiki.tiddlerExists(base) || wiki.isShadowTiddler(base));
+		}),
+		categories = list(wiki).filter(function(category) {
+			return category !== hub && basesOf(wiki,category).some(function(base) { return group.indexOf(base) !== -1; });
+		});
+	return bases.concat(categories);
 };

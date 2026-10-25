@@ -318,6 +318,9 @@ test.describe("sweep", function() {
 			{title: "Qx7 Volk", tags: "Information Folk Secret", text: "Qx7 folk."},
 			{title: "Sweep Nu", tags: "Person", folk: "[[Qx7 Volk]]", text: "A hunter."},
 			{title: "Sweep Volk", tags: "Information Folk", text: "A folk."},
+			// A locked category with an open entry (the bar of the hub Information)
+			{title: "Qx7 Bund", tags: "Index $:/tags/tiddlyrpg/Category Secret", "tiddlyrpg-bases": "Information", text: "{{ || Information }}"},
+			{title: "Sweep Notiz", tags: "Information [[Qx7 Bund]]", text: "A note."},
 			{title: "Qx7 Kater", tags: "Person Secret", folk: "[[Sweep Volk]]", text: "Qx7 cat."},
 			// The trees (tiddlyrpg-tree): a locked subclass of an open class with an open choice
 			// below it, a player character naming all three (its card leaves out the branch), a

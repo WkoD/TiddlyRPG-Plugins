@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025152828901
+modified: 20261025190651361
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -22,7 +22,7 @@ type: text/vnd.tiddlywiki
 \function trpg.dead() [!is[system]!tag[Event]] :filter[get[date]dateended[]]
 
 <!-- Link to a tiddler, struck through when it is deceased/destroyed (trpg.dead; class
-     trpg-dead-link, stylesheet styles/dead). Used by the hub Secret; the type hubs: trpg.hub.list. -->
+     trpg-dead-link, stylesheet styles/dead). Used by the hub Secret; the type hubs: trpg.hub.entry. -->
 \procedure trpg.link(title)
 \whitespace trim
 <$link to=<<title>> class={{{ [<title>trpg.dead[]then[trpg-dead-link]] }}}/>
@@ -37,32 +37,47 @@ type: text/vnd.tiddlywiki
      (templates/title-hub) and in the list of the hub Index. -->
 \function trpg.hub.entries(hub) [<hub>trpghubentries[]] :filter[trpg.visible[]]
 
-<!-- The list of a type hub (Person, Location, ..., the groups of Item and Information): the
-     titles of <filter> the active view sees, sorted by their display name in the collation of
-     the wiki language (trpgsortname), in columns (styles/hubs), each a link with its display
-     name, struck through when dead (trpg.dead, class trpg-dead-link). <letters> "yes": a
+<!-- The page of a type hub with a list (Person, Item, Information, a category, Artifact, ...;
+     currentTiddler is the hub, so a category hub of a campaign may also be {{ || Item }}): above,
+     the hubs below it (trpghubsubs: Artifact, Material and the categories of the items on Item,
+     the categories of another hub, none on a category) that the view sees and that hold an entry
+     it sees, each a link in its colour with that number (styles/hubs); then every entry of the
+     hub (trpghubentries) in its list. -->
+\procedure trpg.hub.page()
+\whitespace trim
+<$let trpg-subs={{{ [<currentTiddler>trpghubsubs[]] :filter[trpg.visible[]] :filter[trpg.hub.entries<currentTiddler>count[]compare:number:gt[0]] +[format:titlelist[]join[ ]] }}}>
+<%if [<trpg-subs>!is[blank]] %>
+<div class="trpg-hub-subs">
+<$list filter="[enlist<trpg-subs>]">
+<span class="trpg-hub-sub" style={{{ [<currentTiddler>get[color]] ~[<currentTiddler>trpgcategorybases[]first[]get[color]] +[addprefix[--trpg-hub:]] }}}><$link to=<<currentTiddler>>><span class="trpg-hub-sub-name"><$text text={{{ [<currentTiddler>addprefix[Plural/]trpgtranslate[]] :filter[!prefix[Plural/]] ~[<currentTiddler>trpgtitle[]] }}}/></span><span class="trpg-hub-sub-n"><$text text={{{ [trpg.hub.entries<currentTiddler>count[]] }}}/></span></$link></span>
+</$list>
+</div>
+<%endif%>
+</$let>
+<$transclude $variable="trpg.hub.list" filter="[<currentTiddler>trpghubentries[]]"/>
+\end
+
+<!-- The list of a type hub: the titles of <filter> the active view sees, sorted by their display
+     name in the collation of the wiki language (trpgsortname), in columns (styles/hubs), a
      heading per first letter (trpginitial) - from the titles the view sees, so a letter shows
-     only above an entry. -->
+     only above an entry -, each a link with its display name, struck through when dead
+     (trpg.dead, class trpg-dead-link). -->
 \procedure trpg.hub.entry()
 \whitespace trim
 <div class="tc-menu-list-subitem"><$link to=<<currentTiddler>> class={{{ [<currentTiddler>trpg.dead[]then[trpg-dead-link]] }}}><$text text={{{ [<currentTiddler>trpgtitle[]] }}}/></$link></div>
 \end
 
-\procedure trpg.hub.list(filter,letters)
+\procedure trpg.hub.list(filter)
 \whitespace trim
 <$let trpg-entries={{{ [subfilter<filter>!is[draft]] :filter[trpg.visible[]] +[trpgsortname[]format:titlelist[]join[ ]] }}}>
 <%if [<trpg-entries>!is[blank]] %>
 <div class="trpg-hub-list">
-<%if [<letters>match[yes]] %>
 <$list filter="[enlist<trpg-entries>trpginitial[]unique[]]" variable="trpg-letter">
 <div class="trpg-hub-group">
 <div class="trpg-hub-letter"><$text text=<<trpg-letter>>/></div>
 <$list filter="[enlist<trpg-entries>] :filter[trpginitial[]match<trpg-letter>]"><<trpg.hub.entry>></$list>
 </div>
 </$list>
-<%else%>
-<$list filter="[enlist<trpg-entries>]"><<trpg.hub.entry>></$list>
-<%endif%>
 </div>
 <%endif%>
 </$let>

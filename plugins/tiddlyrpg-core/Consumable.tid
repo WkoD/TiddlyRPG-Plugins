@@ -1,10 +1,10 @@
 caption: <<trpg.title Consumable>>
 color: #ff80ff
 created: 20261006154328000
-modified: 20261024152302984
+modified: 20261025190711947
 tags: Index $:/tags/tiddlyrpg/Category
 tiddlyrpg-bases: Artifact Item Material
 title: Consumable
 type: text/vnd.tiddlywiki
 
-{{ || Item }}
+<<trpg.hub.page>>

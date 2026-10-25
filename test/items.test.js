@@ -101,46 +101,78 @@ test.describe("price", function() {
 });
 
 test.describe("hubs", function() {
-	test("Item: the base types in order, items without category first, then one heading per category", function() {
-		var hub = h.body(wiki, "Item");
-		assert.ok(inOrder(hub, ["Artefakte", "Ausrüstung", "Sword", "Bücher", "Chronicle",
-			"Gegenstände", "Snail", "Bücher", "Newspaper", "Verbrauchsgüter", "Potion", "Materialien", "Moss"]), hub);
-		assert.ok(hub.indexOf("Artefakte") < hub.indexOf("Sword") && hub.indexOf("Sword") < hub.indexOf("Gegenstände"), hub);
+	// The bar of the hubs below a hub as "name number|...", and the list as "letter: entries|..."
+	function bar(hub) {
+		return (hubHtml(hub).match(/<span class="trpg-hub-sub-name">[^<]*<\/span><span class="trpg-hub-sub-n">\d+<\/span>/g) || []).map(function(sub) {
+			return sub.replace(/<\/span><span class="trpg-hub-sub-n">/, " ").replace(/<[^>]+>/g, "");
+		}).join("|");
+	}
+
+	function list(hub) {
+		return (hubHtml(hub).match(/<div class="trpg-hub-group">.*?<\/div><\/div>/g) || []).map(function(group) {
+			var letter = group.match(/<div class="trpg-hub-letter">([^<]*)<\/div>/)[1];
+			return letter + ": " + (group.match(/>[^<>]+<\/a>/g) || []).map(function(a) { return a.slice(1, -4); }).join(", ");
+		}).join("|");
+	}
+
+	function hubHtml(hub) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"" + hub + "\" mode=\"block\"/>", {currentTiddler: hub});
+	}
+
+	test("Item: every item from A to Z with a heading per letter; above it Artifact, Material, then the categories, each with its number", function() {
+		assert.equal(bar("Item"), "Artefakte 2|Materialien 1|Ausrüstung 1|Bücher 2|Verbrauchsgüter 1");
+		assert.match(hubHtml("Item"), /<span class="trpg-hub-sub" style="--trpg-hub:#ff80ff;"><a [^>]*href="#Artifact">/);
+		assert.equal(list("Item"), "C: Chronicle|M: Moss|N: Newspaper|P: Potion|S: Snail, Sword");
 	});
 
-	test("a category hub lists only its own items, per base type", function() {
-		var hub = h.body(wiki, "Book");
-		assert.ok(inOrder(hub, ["Artefakte", "Chronicle", "Gegenstände", "Newspaper"]), hub);
-		assert.ok(["Sword", "Potion", "Snail", "Moss", "Materialien", "Bücher"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
+	test("a category hub, Artifact and Material list only their own items, A to Z, without the bar", function() {
+		assert.equal(list("Book"), "C: Chronicle|N: Newspaper");
+		assert.equal(list("Artifact"), "C: Chronicle|S: Sword");
+		assert.equal(list("Material"), "M: Moss");
+		["Book", "Artifact", "Material"].forEach(function(hub) {
+			assert.equal(bar(hub), "", hub);
+		});
 	});
 
-	test("a category of the campaign: heading with its display name", function() {
-		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/Category"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
-			assert.ok(inOrder(h.body(wiki, "Item"), ["Gegenstände", "Rune", "Hagalaz", "Materialien"]));
+	test("a category of the campaign: in the bar with its name, its hub ({{ || Item }}) lists its own", function() {
+		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/Category", text: "{{ || Item }}"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
+			assert.equal(bar("Item"), "Artefakte 2|Materialien 1|Ausrüstung 1|Bücher 2|Rune 1|Verbrauchsgüter 1");
+			assert.equal(list("Rune"), "H: Hagalaz");
 		});
 	});
 
 	test("a category of the campaign under the tag before 2.2.0 (ItemKind) counts too", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
-			assert.ok(inOrder(h.body(wiki, "Item"), ["Gegenstände", "Rune", "Hagalaz", "Materialien"]));
+			assert.ok(bar("Item").indexOf("Rune 1") !== -1, bar("Item"));
 		});
 	});
 
-	test("a category of other base types is no heading here", function() {
+	test("a category of other base types is not in the bar; its item is in the list", function() {
 		withTiddlers([{title: "Mythos", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "Information"}, {title: "Odin", tags: "Information Mythos Item"}], function() {
-			assert.equal(h.body(wiki, "Item").indexOf("Mythos"), -1);
+			assert.equal(bar("Item").indexOf("Mythos"), -1, bar("Item"));
+			assert.ok(list("Item").indexOf("O: Odin") !== -1, list("Item"));
+		});
+	});
+
+	test("the bar: only what the view sees, a hub without an entry it sees left out, the number of what it sees", function() {
+		withTiddlers([{title: "Hidden Book", tags: "Item Book Secret"}, {title: "Hidden Moss", tags: "Material Secret"}], function() {
+			assert.equal(bar("Item"), "Artefakte 2|Materialien 2|Ausrüstung 1|Bücher 3|Verbrauchsgüter 1");
+			h.inView(wiki, "public", function() {
+				assert.equal(bar("Item"), "Artefakte 2|Materialien 1|Ausrüstung 1|Bücher 2|Verbrauchsgüter 1");
+			});
+		});
+		withTiddlers([{title: "Kult", tags: "$:/tags/tiddlyrpg/Category Secret"}, {title: "Kultdolch", tags: "Item Kult"}], function() {
+			assert.ok(bar("Item").indexOf("Kult 1") !== -1, bar("Item"));
+			h.inView(wiki, "public", function() {
+				assert.equal(bar("Item").indexOf("Kult"), -1, bar("Item"));
+				assert.ok(list("Item").indexOf("K: Kultdolch") !== -1, list("Item"));
+			});
 		});
 	});
 
 	test("category hubs translated", function() {
 		assert.match(h.view(wiki, "Consumable"), /<h2 class="tc-title">Verbrauchsgut<span class="trpg-hub-count">\d+<\/span><\/h2>/);
 		assert.match(h.view(wiki, "Equipment"), /<h2 class="tc-title">Ausrüstung<span class="trpg-hub-count">\d+<\/span><\/h2>/);
-	});
-
-	["Item", "Book", "Consumable", "Equipment"].forEach(function(title) {
-		test("no pragma text in " + title, function() {
-			assert.doesNotMatch(h.body(wiki, title), /(^|\n)\s*(define|procedure|function|whitespace|import) /);
-		});
 	});
 });
 
