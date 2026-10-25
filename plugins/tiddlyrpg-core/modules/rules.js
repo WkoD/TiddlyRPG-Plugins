@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261025124110539
+modified: 20261025195050258
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -203,7 +203,8 @@ var formatNumber = exports.formatNumber = function(wiki,value,decimals) {
 // "120.000" / "120,000"; below 1000 as it is
 var formatInteger = exports.formatInteger = function(wiki,value) {
 	var n = Math.round(Number(value)),
-		digits = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,language.t(wiki,"Number/Group"));
+		// all its digits, also from 1e21 on (toString would give an exponent)
+		digits = (Math.abs(n) >= 1e21 ? BigInt(Math.abs(n)).toString() : Math.abs(n).toString()).replace(/\B(?=(\d{3})+(?!\d))/g,language.t(wiki,"Number/Group"));
 	return (n < 0 ? "-" : "") + digits;
 };
 
@@ -727,12 +728,12 @@ exports.damage = function(wiki,text,short) {
 // decimal mark of the wiki language and the sign it carries. spec.integer: a whole number - a
 // point, comma, space or apostrophe before every group of three digits separates thousands, as
 // people write them ("120.000", "120,000", "120 000" are 120000, shown with the separator of
-// the wiki language, formatInteger); anything else that is no whole number ("1,5", "12.00") is a
-// problem, never read as a fraction.
+// the wiki language, formatInteger) - after a first group that is no 0; anything else that is no
+// whole number ("1,5", "12.00", "0,500") is a problem, never read as a fraction.
 var number = exports.number = function(wiki,spec,text) {
 	text = (text || "").toString().trim();
 	if(spec.integer) {
-		var grouped = /^[+\-−]?\d{1,3}([.,   '’])\d{3}(?:\1\d{3})*$/.exec(text),
+		var grouped = /^[+\-−]?[1-9]\d{0,2}([.,   '’])\d{3}(?:\1\d{3})*$/.exec(text),
 			digits = grouped ? text.split(grouped[1]).join("") : text;
 		if(!/^[+\-−]?\d+$/.test(digits)) {
 			return result(text,"Rules/Check/Integer",{text: text});

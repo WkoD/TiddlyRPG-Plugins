@@ -753,13 +753,16 @@ test.describe("XP: a whole number, also for a person", function() {
 			assert.equal(fields.read(wiki, {xp: xp}, "xp").text, "6.500", xp + " shown with the separator of the wiki language");
 			assert.equal(fields.read(wiki, {xp: xp}, "xp").problem, null, xp);
 		});
-		["1,5", "12.00", "6.5000", "6,500.5", "6.500,000"].forEach(function(xp) {
+		// a group needs a number before it: "0,500" is a fraction written with a comma
+		["1,5", "12.00", "6.5000", "6,500.5", "6.500,000", "0,500", "012.000", "0.000"].forEach(function(xp) {
 			var r = fields.read(wiki, {xp: xp}, "xp");
 			assert.equal(r.problem, "Rules/Check/Integer", xp);
 			assert.equal(fields.problem(wiki, {xp: xp}, "xp").key, "Check/Fields/Value", xp + ": the message below the title");
 			assert.equal(fields.read(wiki, {xp: xp}, "character-level").text, "", xp + " gives no level");
 		});
 		assert.equal(rules.number(wiki, {format: "number"}, "1,5").value, 1.5, "a number without integer keeps its fraction");
+		assert.equal(rules.formatInteger(wiki, 1234567890123456789012), "1.234.567.890.123.456.774.144", "no exponent in a very large number");
+		assert.equal(rules.formatInteger(wiki, -1500), "-1.500");
 	});
 
 	test("a person may have XP: the form offers it, the block shows the level", function() {
