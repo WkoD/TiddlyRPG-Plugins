@@ -92,6 +92,40 @@ existing one goes through this list. A point that does not apply is left out wit
   (2.1.0 counts as not released: what changed up to 2.2.0 needs neither).
   None exists yet; where they live and how they run is decided with the first.
 
+## Mistakes that came back - check with every change
+
+A review of everything since 2.0.0 found most problems in a few patterns. Where a test catches
+one mechanically, it is named.
+
+- **What stands around an entry:** a heading from a category name, the label of a group, a
+  count, the relations of a group of the block, the order of sections come from what the view
+  sees, not only the entry itself (question 3 of "Visibility"). A group or heading without a
+  visible entry goes with its label.
+- **Values through `fields.seen()` / `valuesOf()`:** a check, a derived value or a header line
+  that reads `tiddler.fields` reads past `secret-fields`.
+- **The sweep sees only its fixtures:** a new hub, relation field, kind of section or output
+  channel gets a `Qx7` fixture; output only the browser renders runs through `h.inBrowser`
+  (`views` names a hub or relation field without a secret).
+- **A template for several hubs reads `currentTiddler`** and never names one (`hubs` checks
+  every hub against its `trpghubentries`).
+- **Assertions that cannot fail:** a negative check on markup that no longer exists; an order as
+  two `indexOf` (`hygiene`, use `h.inOrder`); a pattern in the wrong language or number form
+  (`2700` where de-DE writes `2.700`, an unescaped `.` in a regexp); a count where the texts can
+  be compared; a message names a name once, so "known inside, unknown outside" needs another
+  name outside.
+- **Fixtures that cannot tell the alternatives apart:** a precedence is tested with values that
+  differ (axis and type of different colours, a first type that lacks a field of the draft, a
+  spot and a field `location` at once). Break the code once: the new test must fail.
+- **State between tests:** a block that relies on a language sets it in its `before`; clean up
+  in `finally` or `afterEach`; arrays from the wiki are of another realm, `Array.from()` before
+  `deepEqual`.
+- **What is removed goes everywhere:** a name, class or behaviour taken out is searched in
+  comments, this file, the README and the tests (`inventory` finds new names missing here, not
+  old ones left over).
+- **A comma has three meanings:** decimal comma, list separator, thousands separator (`1,5 m`
+  in a list, `1,320 lb`, `0,500`). A reader of numbers or lists says which it takes and is
+  tested with the other two.
+
 ## Editing the format layer
 
 `tiddlyrpg-core` and `staticfiles` are **folder plugins** under `plugins/` (no build step - the
