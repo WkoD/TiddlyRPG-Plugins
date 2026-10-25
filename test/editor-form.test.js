@@ -114,12 +114,15 @@ test.describe("fields of the form", function() {
 		h.add(wiki, {title: "Draft of 'Weg'", "draft.of": "Weg", tags: "Person", text: ""});
 		h.add(wiki, {title: "$:/state/tiddlyrpg-core/form-extra/Draft of 'Weg'", list: "enmity"});
 		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/editor/input/Draft of 'Weg'", date: "1351-01-01"});
+		// The numbers typed into the levels of the classes: a cancelled draft must not leave them
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/levels/Draft of 'Weg'", type: "application/x-tiddler-dictionary", text: "Kämpfer: 7"});
 		return new Promise(function(resolve) { setTimeout(resolve, 20); }).then(function() {
 			wiki.deleteTiddler("Draft of 'Weg'");
 			return new Promise(function(resolve) { setTimeout(resolve, 20); });
 		}).then(function() {
 			assert.equal(wiki.tiddlerExists("$:/state/tiddlyrpg-core/form-extra/Draft of 'Weg'"), false);
 			assert.equal(wiki.tiddlerExists("$:/temp/tiddlyrpg-core/editor/input/Draft of 'Weg'"), false);
+			assert.equal(wiki.tiddlerExists("$:/temp/tiddlyrpg-core/levels/Draft of 'Weg'"), false);
 		});
 	});
 	test("a tiddler the toolbar created goes again when its draft is cancelled, unless changed since; saving keeps it", function() {

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025192428037
+modified: 20261025193043305
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -514,15 +514,22 @@ function levelsField(wiki,name) {
 	return found;
 }
 
-// The items of a field of the format titles: {title: number text}
+// The items of a field of the format titles: {title: number text} - every item that names a
+// title, as written, also one whose number is a problem (the form shows what the field holds)
 function levelsOf(wiki,values,field) {
-	var s = fields.spec(wiki,field),
-		r = s && values[field] ? rules.value(wiki,s,String(values[field])) : null,
-		out = {};
-	(r && !r.problem ? r.items || [] : []).forEach(function(item) {
-		out[item.title] = item.value || "";
+	var out = {};
+	levelItems(wiki,values,field).forEach(function(item) {
+		if(item.title) {
+			out[item.title] = item.value || "";
+		}
 	});
 	return out;
+}
+
+function levelItems(wiki,values,field) {
+	var s = fields.spec(wiki,field),
+		r = s && values[field] ? rules.value(wiki,s,String(values[field])) : null;
+	return r && r.items || [];
 }
 
 // The rows of the tree <name> of a tiddler as the view sees it: [{entries, level, levels}] - per
@@ -623,6 +630,8 @@ exports.trpglevelset = function(source,operator,options) {
 	return each(source,function(title) {
 		var tiddler = wiki.getTiddler(title),
 			levels = tiddler ? levelsOf(wiki,tiddler.fields,field) : {},
+			// An entry that names no title (a class the wiki lacks) stays as written, at the end
+			unread = tiddler ? levelItems(wiki,tiddler.fields,field).filter(function(item) { return !item.title; }).map(function(item) { return item.text; }) : [],
 			order = s && s.tree ? relations.lines(wiki,s.tree,title,null).map(function(line) { return line[0]; }) : [];
 		levels[entry] = n;
 		Object.keys(levels).forEach(function(t) {
@@ -630,6 +639,6 @@ exports.trpglevelset = function(source,operator,options) {
 				order.push(t);
 			}
 		});
-		return [order.filter(function(t) { return levels[t]; }).map(function(t) { return t + " " + levels[t]; }).join(", ")];
+		return [order.filter(function(t) { return levels[t]; }).map(function(t) { return t + " " + levels[t]; }).concat(unread).join(", ")];
 	});
 };

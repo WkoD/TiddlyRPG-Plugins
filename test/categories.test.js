@@ -694,6 +694,17 @@ test.describe("the levels of the classes (format titles)", function() {
 		assert.deepEqual(f("[[Einzeln]trpglevelset[class-levels],[Kämpfer],[6]]"), ["Kämpfer 6"]);
 	});
 
+	test("the form: a number set keeps every other entry as written, also one the field cannot read", function() {
+		h.add(wiki, {title: "Wirr", tags: "Player", player: "Pi", classes: "Kämpfer Schurke", "class-levels": "Kämpfer 5, Schurke 21, Barde 3", text: "Odd levels."});
+		try {
+			assert.deepEqual(f("[[Wirr]trpglevel[class-levels],[Kämpfer]]"), ["5"], "the input shows what is written");
+			assert.deepEqual(f("[[Wirr]trpglevel[class-levels],[Schurke]]"), ["21"], "a number out of range too");
+			assert.deepEqual(f("[[Wirr]trpglevelset[class-levels],[Kämpfer],[6]]"), ["Kämpfer 6, Schurke 21, Barde 3"]);
+		} finally {
+			wiki.deleteTiddler("Wirr");
+		}
+	});
+
 	test("relink: renaming a class renames it in the levels", function() {
 		var type = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/relink-titles.js"),
 			reported = [];

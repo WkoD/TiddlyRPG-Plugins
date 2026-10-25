@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261025121331430
+modified: 20261025193043346
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -89,7 +89,7 @@ var GENERAL = exports.GENERAL = ["date","player","price","image","map"],
 	EXTRA = "$:/state/tiddlyrpg-core/form-extra/",
 	CREATED = "$:/temp/tiddlyrpg-core/editor/created/",
 	STATES = ["$:/state/tiddlyrpg-core/form-extra/","$:/temp/tiddlyrpg-core/editor/probe/","$:/temp/tiddlyrpg-core/editor/input/",
-		"$:/temp/tiddlyrpg-core/pick/",CREATED],
+		"$:/temp/tiddlyrpg-core/pick/","$:/temp/tiddlyrpg-core/levels/",CREATED],
 	SINGLE = exports.SINGLE = {
 		location: ["Location","Person","Player","Artifact"],
 		owner: ["Artifact"],
