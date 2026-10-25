@@ -1,5 +1,5 @@
 created: 20261024161412996
-modified: 20261025204906781
+modified: 20261025205716209
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/hubs
 type: text/vnd.tiddlywiki
@@ -13,9 +13,10 @@ type: text/vnd.tiddlywiki
      (viewtemplates/hub-rule). The lists (trpg.hub.list) in columns, a group or a letter never
      split; the headings of the groups and letters in small capitals over a line that fades out.
      The hubs below a hub (trpg.hub.page) above its list as bars in the same columns, each in its
-     colour with its number right-aligned, like the list of the hubs (Index), which stands as bars
-     below each other; on Campaign beside the player characters, below the rule of
-     their heading. -->
+     colour with its number right-aligned, a line in the colour of the hub below them across the
+     tiddler that fades out to the right (like the rule of a heading); like the list of the hubs
+     (Index), which stands as bars below each other; on Campaign beside the player characters,
+     below the rule of their heading. -->
 <$list filter="[all[shadows+tiddlers]tag[Index]has[color]] -[[Index]] [[Campaign]] +[sort[]]">
 .tc-tiddler-frame[data-tiddler-title=<$text text={{{ [<currentTiddler>escapecss[]] }}}/>] {
 --trpg-hub: <$text text={{!!color}}/>;
@@ -49,6 +50,9 @@ margin: 0.6em 0 0.8em;
 columns: 3 11em;
 column-gap: 2em;
 margin: 0 0 0.9em;
+padding-bottom: 0.5em;
+border-bottom: 2px solid transparent;
+border-image: linear-gradient(to right, var(--trpg-hub), transparent) 1;
 }
 .trpg-hub-sub {
 display: block;
