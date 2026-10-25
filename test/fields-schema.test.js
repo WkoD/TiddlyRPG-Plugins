@@ -463,6 +463,16 @@ test.describe("fields/value, fields/when, fields/tag", function() {
 		assert.ok(out.some(function(m) { return /^hint Rules\/Check\/PropertyTwice Feld Art prüfen/.test(m); }));
 	});
 
+	// The problems of the formats that tell why get their own message at a field, not "cannot be
+	// read": two values a/b, a whole number, an entry twice
+	test("a pair, a fraction in a whole number, an entry twice: a message of their own at the field", function() {
+		var at = function(f) { return keys(Object.assign({title: "Krug", tags: "Item"}, f)); };
+		assert.deepEqual(at({weight: "3/2 lb"}), ["error Check/Fields/Pair Feld Gewicht prüfen: „3/2 lb“ enthält zwei Werte a/b – das Feld nimmt einen"]);
+		assert.deepEqual(at({category: "weapon, weapon"}), ["error Rules/Check/LabelTwice Feld Art prüfen: „weapon“ steht zweimal"]);
+		assert.deepEqual(keys({title: "Held", tags: "Player", player: "Pi", xp: "1,5"}).filter(function(m) { return /xp|EP/.test(m); }),
+			["error Rules/Check/Integer Feld EP prüfen: „1,5“ ist keine ganze Zahl"]);
+	});
+
 	test("a value whose condition does not hold; derived values are no problem", function() {
 		var out = keys({title: "Krug", tags: "Item Consumable", category: "potion", damage: "1d6 fire"});
 		assert.deepEqual(out, ["hint Check/Fields/When Feld Schaden prüfen: es gilt nur bei Art: Waffe"]);
@@ -767,7 +777,7 @@ test.describe("XP: a whole number, also for a person", function() {
 		["1,5", "12.00", "6.5000", "6,500.5", "6.500,000", "0,500", "012.000", "0.000"].forEach(function(xp) {
 			var r = fields.read(wiki, {xp: xp}, "xp");
 			assert.equal(r.problem, "Rules/Check/Integer", xp);
-			assert.equal(fields.problem(wiki, {xp: xp}, "xp").key, "Check/Fields/Value", xp + ": the message below the title");
+			assert.equal(fields.problem(wiki, {xp: xp}, "xp").key, "Rules/Check/Integer", xp + ": the message below the title");
 			assert.equal(fields.read(wiki, {xp: xp}, "character-level").text, "", xp + " gives no level");
 		});
 		assert.equal(rules.number(wiki, {format: "number"}, "1,5").value, 1.5, "a number without integer keeps its fraction");

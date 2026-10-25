@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261023195802630
+modified: 20261025200401965
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
@@ -267,11 +267,24 @@ function tagOf(domain,items) {
 }
 
 /*
-A list: items split at commas, each an entry of spec.domain (a name or a list of names) with an
-optional value after it (spec.value: the format of the value, modules/rules.js value(); spec.values:
+A list: items split at commas - not at one between two digits, a decimal comma ("13,5 m") -, each
+an entry of spec.domain (a name or a list of names), at most once, with an optional value after it (spec.value: the format of the value, modules/rules.js value(); spec.values:
 {"<id>": format} for single entries), limited to spec.only. Returns {text, problem, values, items,
 tag}.
 */
+// The parts of a list: at each comma, but not at one between two digits (a decimal comma)
+function listParts(text) {
+	var out = [];
+	text.split(",").forEach(function(part,i,all) {
+		if(i && /\d$/.test(all[i - 1]) && /^\d/.test(part)) {
+			out[out.length - 1] += "," + part;
+		} else {
+			out.push(part);
+		}
+	});
+	return out;
+}
+
 exports.labels = function(wiki,spec,text) {
 	text = (text || "").toString().trim();
 	var domains = labelDomains(wiki,spec.domain);
@@ -281,12 +294,18 @@ exports.labels = function(wiki,spec,text) {
 	if(!text) {
 		return result("",null,{},{items: []});
 	}
-	var items = text.split(",").map(function(part) { return part.trim(); }).filter(Boolean).map(function(part) {
+	var items = listParts(text).map(function(part) { return part.trim(); }).filter(Boolean).map(function(part) {
 		return readItem(wiki,spec,domains,part);
 	});
 	var bad = items.filter(function(item) { return item.problem; })[0];
 	if(bad) {
 		return result(text,bad.problem.key,bad.problem.values,{items: items});
+	}
+	var twice = items.filter(function(item,i) {
+		return items.some(function(other,j) { return j < i && other.domain === item.domain && other.id === item.id; });
+	})[0];
+	if(twice) {
+		return result(text,"Rules/Check/LabelTwice",{text: twice.text},{items: items});
 	}
 	var domain = items[0].domain;
 	if(structured(domain) && items.every(function(item) { return item.domain === domain; })) {

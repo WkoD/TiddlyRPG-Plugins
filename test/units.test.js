@@ -175,7 +175,7 @@ test.describe("pairs, fractions, measures, ³, 0, domains without conversion", f
 		assert.equal(rules.unit(wiki, "20/60 ft", "range").problem, null);
 	});
 
-	test("a/b without such a kind: a fraction for 2, 3, 4, 8, 16 below, else a pair with a hint", function() {
+	test("a/b without such a kind: a fraction for 2, 3, 4, 8, 16 below, else a pair with a problem", function() {
 		assert.equal(u("1/4 lb"), "0,1 kg");
 		assert.equal(u("½ lb"), "0,3 kg");
 		assert.equal(u("1½ lb"), "0,8 kg");
@@ -183,6 +183,21 @@ test.describe("pairs, fractions, measures, ³, 0, domains without conversion", f
 		assert.equal(r.text, "6/18 m");
 		assert.equal(r.problem, "Rules/Check/Pair");
 		assert.equal(r.values.kinds, "range");
+	});
+
+	test("a pair where no kind reads pairs: a message without the kinds", function() {
+		var title = "$:/tiddlyrpg/rules/domain/Length",
+			data = JSON.parse(wiki.getTiddlerText(title));
+		Object.keys(data.kinds || {}).forEach(function(kind) { delete data.kinds[kind].pair; });
+		h.add(wiki, Object.assign({}, wiki.getTiddler(title).fields, {text: JSON.stringify(data)}));
+		try {
+			var r = rules.unit(wiki, "20/60 ft");
+			assert.equal(r.problem, "Rules/Check/PairNoKind");
+			assert.match(h.render(wiki, "text/plain", "<$text text={{{ [[Rules/Check/PairNoKind]trpgtranslate[]] }}}/>"), /hier gilt einer$/);
+		} finally {
+			wiki.deleteTiddler(title);
+		}
+		assert.equal(rules.unit(wiki, "20/60 ft").problem, "Rules/Check/Pair", "the shadow again");
 	});
 
 	test("measures convert every number, in the step of the largest", function() {

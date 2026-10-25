@@ -1027,7 +1027,7 @@ out every message of its level. An id that is no rule is a hint.
 | `expected/player` | hint | a player character without the field `player` |
 | `expected/text` | hint | a tiddler without text (not a quest, a tiddler with a file in `data`, a hub) |
 | `fields/schema` | error | a field of the rules with a name the core or a relation uses, a field defined twice, a schema that lists a field without definition, a field the field list of the editor still shows (only `check-wiki.js`) |
-| `fields/value` | error, hint | a value of a field of the rules its format does not read (error); a property that fits two main entries (hint) |
+| `fields/value` | error, hint | a value of a field of the rules its format does not read, with the reason where there is one - a term unknown or twice, no whole number, two values a/b where the field takes one (error); a property that fits two main entries (hint) |
 | `fields/when` | hint | a value of a field that counts only with another value, by itself or by its group (damage on a potion) |
 | `fields/tag` | hint | a value names the category of the wiki it belongs to (a potion: Consumable) and the tiddler lacks the tag; fix: set the tag |
 | `fields/levels` | error, hint | the levels of the classes (`class-levels`): error when they name a class the figure does not have or one twice, or add up to more than the level by the XP; hint when a class has no number (not named, or named without one) or they add up to less (level up due) |

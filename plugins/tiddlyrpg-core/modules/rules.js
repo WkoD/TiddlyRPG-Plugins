@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261025195050258
+modified: 20261025200520082
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -27,7 +27,8 @@ Domain types and their data:
                 as 0 (30 ft as distance: "0 km"), the display of the domain applies. "pair": the
                 kind reads "a/b <unit>" as two values ("20/60 ft" -> "6/18 m"); without it "a/b"
                 is a fraction ("1/4 lb") when b is 2, 3, 4, 8 or 16 and a < b, else a pair with the
-                hint Rules/Check/Pair
+                problem Rules/Check/Pair (naming the kinds that read pairs; Rules/Check/PairNoKind
+                when none does)
     "display":  {"<system>": rule} - how a value is shown in a system, without kind or for a
                 kind without display of its own: {"steps": [step, ...]}, the first step whose
                 "below" (in base units of the system) the value is under, else the last; a step
@@ -390,7 +391,7 @@ function showMany(wiki,domain,system,values,kind,separator) {
 // An amount is a number ("1,5"), a fraction ("1/4", "½", "1½"), two values of a kind that reads
 // pairs ("20/60 ft" with kind range, "pair": true) or measures ("10 x 10 x 1 ft"); every number
 // of a pair or of measures is converted. "a/b" without such a kind is a fraction when b is 2, 3,
-// 4, 8 or 16 and a < b ("1/4 lb"), else read as a pair with a hint (Rules/Check/Pair). A unit followed by ² or ³ is no length:
+// 4, 8 or 16 and a < b ("1/4 lb"), else read as a pair with a problem (Rules/Check/Pair). A unit followed by ² or ³ is no length:
 // such a value needs a unit of its own (ft³ of a volume domain).
 exports.unit = function(wiki,text,kind) {
 	text = (text || "").toString().trim();
@@ -432,7 +433,8 @@ exports.unit = function(wiki,text,kind) {
 				q.form = "pair";
 				q.parts = halves;
 				if(!pairKind) {
-					problem = problem || {key: "Rules/Check/Pair",values: {text: text,kinds: pairKinds(wiki).join(", ")}};
+					var kinds = pairKinds(wiki);
+					problem = problem || {key: kinds.length ? "Rules/Check/Pair" : "Rules/Check/PairNoKind",values: {text: text,kinds: kinds.join(", ")}};
 				}
 			} else {
 				q.form = "single";

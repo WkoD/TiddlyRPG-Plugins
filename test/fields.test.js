@@ -122,6 +122,23 @@ test.describe("labels", function() {
 		assert.equal(v(spec, "weapon, ammunition").tag, "Equipment", "ammunition is a property of the weapon here");
 	});
 
+	test("a comma between two digits is a decimal comma, no comma of the list", function() {
+		var spec = {format: "labels", domain: "Sense", value: {format: "unit", domain: "Length"}, values: {"passive-perception": {format: "number"}}},
+			r = v(spec, "darkvision 13,5 m, passive-perception 12");
+		assert.equal(r.problem, null);
+		assert.equal(r.items.length, 2);
+		assert.equal(r.text, "Dunkelsicht 13,5 m, passive Wahrnehmung 12");
+		assert.equal(v(spec, "darkvision 1,5 m").problem, null);
+		assert.equal(v({format: "labels", domain: "Ability", value: {format: "number"}}, "wis +6,str +2").items.length, 2, "a comma before a letter parts");
+	});
+
+	test("an entry twice is a problem", function() {
+		var r = v({format: "labels", domain: "ItemCategory"}, "weapon, weapon");
+		assert.equal(r.problem, "Rules/Check/LabelTwice");
+		assert.equal(v({format: "labels", domain: "Damage"}, "fire, Feuer").problem, "Rules/Check/LabelTwice", "the same entry in two languages");
+		assert.equal(v({format: "labels", domain: "Damage"}, "fire, cold").problem, null);
+	});
+
 	test("a property without parent; a property that fits twice", function() {
 		var spec = {format: "labels", domain: "ItemCategory"};
 		assert.equal(v(spec, "crystal").problem, "Rules/Check/PropertyParent");

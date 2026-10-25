@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025194011709
+modified: 20261025200520196
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -241,6 +241,7 @@ Rules/Check/Kind: Check the text: <<unit>> knows no kind "$kind$"
 Rules/Check/NoRules: Check the text: <<$type$>> needs a ruleset that knows it
 Rules/Check/NoUnit: Check the text: <<unit $text$>> needs a unit
 Rules/Check/Pair: Check the text: "$text$" in <<unit>> holds two values a/b; only a kind that reads pairs takes them ($kinds$)
+Rules/Check/PairNoKind: Check the text: "$text$" in <<unit>> holds two values a/b; one counts here
 Rules/Check/Term: Check the text: <<term>> knows no "$id$"
 Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
 Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
@@ -249,6 +250,7 @@ Rules/Check/Only: Check the field $field$: "$text$" is not allowed here (only $o
 Rules/Check/Title: Check the field $field$: "$text$" names no entry known here
 Rules/Check/PropertyParent: Check the field $field$: "$id$" belongs to $parents$, which is missing
 Rules/Check/PropertyTwice: Check the field $field$: "$id$" fits $parents$ alike
+Rules/Check/LabelTwice: Check the field $field$: "$text$" stands twice
 Rules/Check/Number: Check the field $field$: "$text$" is no number
 Rules/Check/NumberRange: Check the field $field$: $text$ lies outside $min$ to $max$
 Rules/Check/Integer: Check the field $field$: "$text$" is no whole number

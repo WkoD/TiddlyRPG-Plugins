@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261025194116405
+modified: 20261025200520269
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
@@ -30,6 +30,7 @@ Fields/LevelsHigh: Check the field $field$: together $total$, more than $other$ 
 Fields/LevelsLow: Level up due: $field$ together $total$, $other$ is $target$
 Fields/LevelsMissing: Check the field $field$: no number for $target$
 Fields/LevelsNotTree: Check the field $field$: $target$ is none of $tree$
+Fields/Pair: Check the field $field$: "$text$" holds two values a/b - the field takes one
 Fields/LevelsTwice: Check the field $field$: $target$ stands twice - join the numbers
 Fields/Reserved: Check the definition: $field$ is a field of the core or of a relation - name it otherwise
 Fields/Tag: Check the field $field$: $value$ belongs to the category $tag$ - set the tag
