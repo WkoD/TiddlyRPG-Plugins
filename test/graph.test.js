@@ -153,6 +153,14 @@ test("map: places lying in the location and its spots as pins, no edges", functi
 	assert.equal(graph.graph.trpgMapFit, "image");
 });
 
+test("the graph templates close every tag in its place: none left over as text (ego graph, map)", function() {
+	ego("Town"); // h.graph puts its stand-in for <$graph> in place (it needs a window)
+	[["ego graph", EGO, "Town"], ["map", MAP, "Town"]].forEach(function(view) {
+		var html = h.render(wiki, "text/html", view[1], {currentNode: view[2]});
+		assert.doesNotMatch(html, /&lt;\/\$/, view[0]);
+	});
+});
+
 test("map: places lying in it at every depth, the parts of a place only on its own map", function() {
 	var graph = map("Kingdom");
 	assert.deepEqual(nodes(graph), ["Neighbour", "Town", "Twice"]);
@@ -307,6 +315,28 @@ test("map fit: the frame takes the box of a wide node (a quest with a long name)
 	assert.equal(moved[0].scale, 800 / 740);
 	assert.equal(moved[0].position.x, -30);
 	assert.deepEqual(JSON.parse(JSON.stringify(mapFit.frameOf(600, 450, {a: {x: 0, y: 0}}))), {left: -300, right: 300, top: -225, bottom: 225}, "without boxes as before");
+});
+
+test("map image: loaded, it redraws the graph; a graph destroyed before it arrives is left alone", function() {
+	var mapFit = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-fit.js"),
+		images = [],
+		make = function() {
+			var adapter = {redraws: 0};
+			adapter.window = function() { return {Image: function() { images.push(this); }}; };
+			adapter.vis = {redraw: function() { adapter.redraws++; }};
+			return adapter;
+		},
+		kept = make(),
+		gone = make();
+	mapFit.process.call(kept, {}, {graph: {trpgMapImage: "images/map/Town.png"}});
+	mapFit.process.call(gone, {}, {graph: {trpgMapImage: "images/map/Town.png"}});
+	mapFit.destroy.call(gone);
+	images[0].onload();
+	images[1].onload();
+	assert.equal(kept.redraws, 1);
+	assert.equal(kept.trpgImage, images[0]);
+	assert.equal(gone.redraws, 0, "no redraw of a destroyed network");
+	assert.equal(gone.trpgImage, undefined);
 });
 
 test("map: nodes without a position get a grid slot, kept per id", function() {

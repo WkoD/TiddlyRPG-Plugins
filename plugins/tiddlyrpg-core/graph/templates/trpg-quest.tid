@@ -1,6 +1,6 @@
 caption: TiddlyRPG quest graph (events and what they mention)
 created: 20261015170750000
-modified: 20261025152828901
+modified: 20261025153427996
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 
 \whitespace trim
@@ -59,9 +59,6 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 <$tiddler tiddler=<<trpg-event>>>
 <%if [<trpg-event>match<trpg-newest>] %>
 <$properties borderWidth="3"><<trpg.node>></$properties>
-</$properties>
-</$properties>
-</$properties>
 <%else%>
 <<trpg.node>>
 <%endif%>
@@ -87,6 +84,9 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 
 </$let>
 
+</$properties>
+</$properties>
+</$properties>
 </$properties>
 </$properties>
 </$properties>

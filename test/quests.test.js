@@ -319,6 +319,7 @@ test.describe("relations: open quests around what they mention, switches by kind
 		assert.deepEqual(Object.keys(graph.nodes).sort(), ["Baile", "Questfahrt", "Spur", "Turm"]);
 		assert.deepEqual(all, ["Questfahrt -> Baile", "Questfahrt -> Spur (verbunden)", "Turm -> Questfahrt (1. Ches 1351)"]);
 		assert.equal(graph.nodes.Questfahrt.borderWidth, "3", "the newest event");
+		assert.doesNotMatch(h.render(wiki, "text/html", "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/quest\"/>", {currentNode: "Turm"}), /&lt;\/\$/, "every tag closed in its place");
 		var list = h.render(wiki, "text/plain", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list\"/>", {currentTiddler: "Turm", self: "Turm"}).replace(/\s+/g, " ");
 		assert.match(list, /Questfahrt ?\(1\. Ches 1351\) ?Baile ?Verbunden ?Spur ?\(Questfahrt\)/);
 		var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list\"/>", {currentTiddler: "Turm", self: "Turm"});

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/map-fit.js
 type: application/javascript
 module-type: vis-property
 created: 20261006064449000
-modified: 20261015182958000
+modified: 20261025153427996
 
 Graph properties for the map of a location (graph/templates/trpg-map), in the manner of the
 properties of tw5-vis-network (properties/background.js):
@@ -252,4 +252,8 @@ exports.destroy = function() {
 		this.trpgMapObserver.disconnect();
 		this.trpgMapObserver = null;
 	}
+	// A map image still loading is dropped: its onload (loadImage) would redraw the destroyed
+	// network - the graph is rebuilt while the page loads, the image arrives after that
+	this.trpgImageUrl = undefined;
+	this.trpgImage = undefined;
 };
