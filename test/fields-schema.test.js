@@ -611,15 +611,15 @@ test.describe("the level of a player character", function() {
 	}
 
 	test("band: the level by the XP, the XP of the next level; the entries in the order of the column", function() {
-		assert.equal(read({xp: "0"}, "player-level").text, "1");
-		assert.equal(read({xp: "400"}, "player-level").text, "2", "the entries need not stand in order");
-		assert.equal(read({xp: "900"}, "player-level").text, "3", "reached at the threshold");
+		assert.equal(read({xp: "0"}, "character-level").text, "1");
+		assert.equal(read({xp: "400"}, "character-level").text, "2", "the entries need not stand in order");
+		assert.equal(read({xp: "900"}, "character-level").text, "3", "reached at the threshold");
 		assert.equal(read({xp: "1000"}, "xp-next").text, "2.700");
-		assert.equal(read({xp: "99999"}, "player-level").text, "5");
+		assert.equal(read({xp: "99999"}, "character-level").text, "5");
 		assert.equal(read({xp: "99999"}, "xp-next").text, "", "nothing after the last level");
-		assert.equal(read({}, "player-level").text, "", "nothing without XP");
-		assert.equal(read({xp: "-5"}, "player-level").text, "", "nothing below the first entry");
-		assert.equal(read({xp: "1000"}, "player-level").derived, true);
+		assert.equal(read({}, "character-level").text, "", "nothing without XP");
+		assert.equal(read({xp: "-5"}, "character-level").text, "", "nothing below the first entry");
+		assert.equal(read({xp: "1000"}, "character-level").derived, true);
 	});
 
 	test("edit false: the form neither shows nor offers the level, it offers the XP; no lock of it alone", function() {
@@ -627,7 +627,7 @@ test.describe("the level of a player character", function() {
 			var shown = form.fields(wiki, "Draft of 'Held'"),
 				offered = form.offered(wiki, "Draft of 'Held'");
 			assert.ok(shown.indexOf("xp") !== -1, shown.join());
-			["player-level", "xp-next"].forEach(function(field) {
+			["character-level", "xp-next"].forEach(function(field) {
 				assert.equal(shown.indexOf(field), -1, field + " shown");
 				assert.equal(offered.indexOf(field), -1, field + " offered");
 			});
@@ -686,7 +686,7 @@ test.describe("XP: a whole number, also for a person", function() {
 
 	test("thousands separated as people write them; a fraction is a problem, never read as one", function() {
 		["6500", "6.500", "6,500", "6 500", "6 500", "6'500"].forEach(function(xp) {
-			assert.equal(fields.read(wiki, {xp: xp}, "player-level").text, "5", xp);
+			assert.equal(fields.read(wiki, {xp: xp}, "character-level").text, "5", xp);
 			assert.equal(fields.read(wiki, {xp: xp}, "xp").text, "6.500", xp + " shown with the separator of the wiki language");
 			assert.equal(fields.read(wiki, {xp: xp}, "xp").problem, null, xp);
 		});
@@ -694,7 +694,7 @@ test.describe("XP: a whole number, also for a person", function() {
 			var r = fields.read(wiki, {xp: xp}, "xp");
 			assert.equal(r.problem, "Rules/Check/Integer", xp);
 			assert.equal(fields.problem(wiki, {xp: xp}, "xp").key, "Check/Fields/Value", xp + ": the message below the title");
-			assert.equal(fields.read(wiki, {xp: xp}, "player-level").text, "", xp + " gives no level");
+			assert.equal(fields.read(wiki, {xp: xp}, "character-level").text, "", xp + " gives no level");
 		});
 		assert.equal(rules.number(wiki, {format: "number"}, "1,5").value, 1.5, "a number without integer keeps its fraction");
 	});

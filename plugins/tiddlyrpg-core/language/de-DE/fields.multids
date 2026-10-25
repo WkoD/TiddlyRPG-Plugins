@@ -1,11 +1,16 @@
 created: 20261001095424000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/tiddlyrpg/language/de-DE/Field/
 
 alliance: Allianz
 ancestor: Vorfahren
 base: Grundgegenstand
 bond: Bund
+classes: Klassen
+classes/Artifact: Einstimmung durch
+classes/Class: Gehört zu
+classes/Item: Einstimmung durch
+classes/Spell: Klassen
 component: Bestandteile
 creator: Erschaffer
 creature: Kreatur

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194805000
-modified: 20261023175042957
+modified: 20261025121331430
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type
@@ -29,6 +29,10 @@ tw5-graph draws as well: they are no relations.
                         ancestor, spouse, sibling in either direction)
   relations/ancestor    hint: an ancestor the line of parents already reaches over a generation
                         of its own - the line or the ancestor may go
+  relations/parent      error: a holder of a tree (tiddlyrpg-tree: classes, folk) names an entry
+                        that belongs to others, but none of them - a subclass without its class,
+                        a subfolk without its folk (the parents of an entry of a content package
+                        from the entry); fix: add the parent when there is one
   relations/leaders     hint: an organisation led by several living tiddlers - a council is
                         fine (switch it off with trpg-noinfo), else one too many
   relations/deadleader  hint: a dead tiddler (date ends) that leads something (field leader)
@@ -226,6 +230,31 @@ exports.rules = [
 			}).map(function(ancestor) {
 				return {level: "hint", key: "Check/Relations/Ancestor", params: {other: ancestor}};
 			});
+		}
+	},
+	{
+		id: "relations/parent",
+		run: function(wiki,title,view) {
+			var messages = [];
+			$tw.utils.each(fieldTypes(wiki),function(type) {
+				if(!type.tree || !relations.holder(wiki,type.name,title)) {
+					return;
+				}
+				var named = list(wiki,title,type.name);
+				$tw.utils.each(named,function(entry) {
+					var parents = relations.parents(wiki,type.name,entry).filter(function(p) { return p !== entry; });
+					if(!parents.length || parents.some(function(p) { return named.indexOf(p) !== -1; }) ||
+						![entry].concat(parents).every(function(t) { return visibility.visible(wiki,t,view); })) {
+						return;
+					}
+					var message = {level: "error", key: "Check/Relations/Parent", params: {field: type.name, target: entry, parents: parents.join(", ")}};
+					if(parents.length === 1) {
+						message.fix = {kind: "add", field: type.name, value: parents[0]};
+					}
+					messages.push(message);
+				});
+			});
+			return messages;
 		}
 	},
 	{

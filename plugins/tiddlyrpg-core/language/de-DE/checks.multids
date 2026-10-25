@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Categories/NoBase: Tags prüfen: $category$ braucht dazu einen Grundtyp: $bases$
@@ -68,6 +68,7 @@ Relations/Included: Felder prüfen: $field$ nennt $target$, das $other$ schon ei
 Relations/Leaders: Organisation prüfen: Mehrere führen sie ($leaders$) – ein Rat oder einer zu viel?
 Relations/Missing: Feld $field$ prüfen: $target$ gibt es nicht
 Relations/MissingSpot: Feld $field$ prüfen: $target$ ist kein Tiddler, nur ein Spot von $place$ – ein Tiddler namens $target$ verbindet den Spot
+Relations/Parent: Feld $field$ prüfen: $target$ gehört zu $parents$ – einen davon auch nennen
 Relations/Siblings: Familie prüfen: $other$ ist auch ein Kind von $parent$, aber kein Geschwister – echte Geschwister, Halbgeschwister oder bewusst?
 Relations/Symmetric: Feld $field$ prüfen: $other$ nennt diesen Tiddler, hier fehlt $other$
 Secrets/Transclusion: Text prüfen: Er transkludiert den geheimen Tiddler $target$ – jede Sicht, die diesen Tiddler sieht, sieht ihn

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/form.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261024170203713
+modified: 20261025121331430
 
 The form in the editor (editor/form): which fields a draft shows there and how they are filled.
 
@@ -181,7 +181,7 @@ exports.offered = function(wiki,title) {
 exports.label = function(wiki,title,field) {
 	var rules = rulesFields();
 	return rules.spec(wiki,field) ? rules.label(wiki,field,rules.forTiddler(wiki,title).labels) :
-		require("$:/plugins/tiddlyrpg-core/modules/language.js").t(wiki,"Field/" + field);
+		relations.fieldLabel(wiki,field,title);
 };
 
 exports.copyFrom = function(wiki,draft,field) {

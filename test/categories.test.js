@@ -2,8 +2,11 @@
  * The categories of the base types (modules/categories.js, filters/categories.js) and their
  * message (checks/categories.js): the item categories and Folk under Information, a category of
  * the campaign (also under the tag before 2.2.0), the hub Information with its categories and the
- * hub of a category, the pills of the form, "+" on a category hub, and the relation folk (a
- * person, player character or creature names its folk). The hub Item: items.test.js.
+ * hub of a category, the pills of the form, "+" on a category hub, the relation folk (a
+ * person, player character or creature names its folk) and the trees (tiddlyrpg-tree): classes
+ * and folk - what an entry belongs to, the check relations/parent, the way back by kind, the
+ * label per type, the lines of the player card, the parents of a package entry. The hub Item:
+ * items.test.js.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -80,8 +83,8 @@ test.describe("categories", function() {
 	test("the item categories and Folk; their base types; a category is a type", function() {
 		var categories = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/categories.js"),
 			types = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/types.js");
-		assert.deepEqual(f("[trpgcategories[]]"), ["Book", "Consumable", "Equipment", "Folk"]);
-		assert.deepEqual(f("[trpgcategories[Information]]"), ["Folk"]);
+		assert.deepEqual(f("[trpgcategories[]]"), ["Book", "Class", "Consumable", "Equipment", "Folk"]);
+		assert.deepEqual(f("[trpgcategories[Information]]"), ["Class", "Folk"]);
 		assert.deepEqual(f("[trpgcategories[Material]]"), ["Book", "Consumable", "Equipment"]);
 		assert.deepEqual(f("[[Book]] [[Folk]] [[Item]] +[trpgcategorybases[]]"), ["Artifact", "Item", "Material", "Information"]);
 		assert.ok(categories.isCategory(wiki, "Folk") && !categories.isCategory(wiki, "Information"));
@@ -93,7 +96,7 @@ test.describe("categories", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/Category"}, {title: "Glyphe", tags: "$:/tags/tiddlyrpg/ItemKind"},
 			{title: "Mythos", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "Information"}], function() {
 			assert.deepEqual(f("[[Rune]] [[Glyphe]] +[trpgcategorybases[]]"), ["Artifact", "Item", "Material"]);
-			assert.deepEqual(f("[trpgcategories[Information]]"), ["Folk", "Mythos"]);
+			assert.deepEqual(f("[trpgcategories[Information]]"), ["Class", "Folk", "Mythos"]);
 			assert.ok(f("[trpgtypelist[]]").indexOf("Glyphe") !== -1);
 		});
 	});
@@ -225,13 +228,17 @@ test.describe("relation folk", function() {
 		});
 	});
 
-	test("the relation list: Volk forward, Angehörige back; the relations block on a folk", function() {
+	test("the relation list: Volk forward, back by kind (a tree); the relations block on a folk", function() {
 		var list = function(self) {
 			return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
 		};
+		var nichny = list("Nichny");
 		assert.match(list("Ki-Ra"), /Volk<span class="trpg-relations-count">/);
-		assert.match(list("Nichny"), /Angehörige<span class="trpg-relations-count">/);
-		assert.match(h.view(wiki, "Nichny"), /Angehörige/);
+		assert.match(nichny, /Personen<span class="trpg-relations-count"> · 2<\/span>/);
+		assert.match(nichny, /Kreaturen<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.ok(inOrder(nichny, ["Personen<span", ">Halbblut<", ">Ki-Ra<", "Kreaturen<span", ">Pantherkrieger<"]), nichny);
+		assert.equal(nichny.indexOf("Angehörige"), -1, "every source has a kind of its own");
+		assert.match(h.view(wiki, "Nichny"), /Personen/);
 	});
 
 	test("the ego graph: the edge and the colour of Folk", function() {
@@ -281,5 +288,139 @@ test.describe("a folk at a location", function() {
 		assert.match(list("Bergvolk"), />Baile</);
 		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Bergvolk"});
 		assert.ok(graph.edges.some(function(edge) { return edge.from === "Bergvolk" && edge.to === "Baile"; }), JSON.stringify(graph.edges));
+	});
+});
+
+test.describe("trees: classes and folk", function() {
+	var added = [
+		{title: "Sorcerer", tags: "Information Class", text: "Casts by birth."},
+		{title: "Fighter", tags: "Information Class", text: "Fights."},
+		{title: "Paladin", tags: "Information Class", text: "Swears."},
+		{title: "Draconic Bloodline", tags: "Information Class", classes: "Sorcerer", text: "Dragon blood."},
+		{title: "Dragon Ancestor: Red", tags: "Information Class", classes: "[[Draconic Bloodline]]", text: "Fire."},
+		{title: "Fighting Style: Defense", tags: "Information Class", classes: "Fighter Paladin", text: "+1 AC."},
+		{title: "Geheimpfad", tags: "Information Class Secret", classes: "Fighter", text: "Hidden path."},
+		{title: "Pfadwahl", tags: "Information Class", classes: "Geheimpfad", text: "A choice of it."},
+		{title: "Funke", tags: "Player", player: "Lea", classes: "Sorcerer [[Draconic Bloodline]] [[Dragon Ancestor: Red]]", text: "Sorceress."},
+		{title: "Doppel", tags: "Player", player: "Tom", classes: "Fighter [[Fighting Style: Defense]] Sorcerer", text: "Two classes."},
+		{title: "Halbe", tags: "Person", classes: "[[Draconic Bloodline]]", text: "Without her class."},
+		{title: "Stilist", tags: "Person", classes: "[[Fighting Style: Defense]]", text: "Without a class."},
+		{title: "Kämpe", tags: "Player", player: "Ole", classes: "Fighter Geheimpfad Pfadwahl", text: "Hides his path."},
+		{title: "Lehrling", tags: "Person", classes: "Pfadwahl", text: "Only the choice."},
+		{title: "Feuerball", tags: "Spell", classes: "Sorcerer [[Draconic Bloodline]]", text: "Boom."},
+		{title: "Drachenring", tags: "Item", classes: "Sorcerer", text: "Attuned by sorcerers."},
+		{title: "Waldvolk", tags: "Information Folk", text: "Forest folk."},
+		{title: "Hochwald", tags: "Information Folk", folk: "Waldvolk", text: "Of the high forest."},
+		{title: "Nadel", tags: "Person", folk: "Hochwald", text: "Without her folk."}
+	];
+
+	test.before(function() {
+		added.forEach(function(fields) { h.add(wiki, fields); });
+	});
+
+	test.after(function() {
+		added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+	});
+
+	function list(self) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
+	}
+
+	function parent(title) {
+		return h.checks(wiki, title, "relations").filter(function(message) { return message.id === "relations/parent"; });
+	}
+
+	test("the relation classes: what it names, candidates, form, axis, kind; classes and folk are trees", function() {
+		var form = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/form.js");
+		assert.deepEqual(f("[[Funke]relationtargets[classes]]"), ["Sorcerer", "Draconic Bloodline", "Dragon Ancestor: Red"]);
+		assert.ok(f("[[classes]relationcandidates[]]").indexOf("Fighting Style: Defense") !== -1);
+		assert.ok(!form.single(wiki, "Doppel", "classes"), "several classes");
+		assert.deepEqual(f("[[classes]relationlabel[]]"), ["gehört zu"]);
+		assert.deepEqual(f("[[classes]relationaxis[]]"), ["$:/config/tiddlyrpg/graph/axes/family"]);
+		assert.deepEqual(f("[[Sorcerer]] :map[relationkind[]]"), ["class"]);
+		assert.deepEqual(f("[[classes]] [[folk]] [[spells]] [[location]] +[relationtree[]]"), ["classes", "folk"]);
+		["Person", "Player", "Creature", "Spell", "Item", "Artifact", "Class"].forEach(function(type) {
+			assert.ok(f("[[$:/config/tiddlyrpg/form/" + type + "]get[more]enlist-input[]]").indexOf("classes") !== -1, type);
+		});
+		assert.ok(f("[[$:/config/tiddlyrpg/form/Class]get[more]enlist-input[]]").indexOf("spells") !== -1);
+	});
+
+	test("the lines of a tree: one per entry without parent, its branch after it; a locked entry takes its branch along", function() {
+		var lines = function(title) {
+			return f("[[" + title + "]relationlines[classes]]").map(function(line) { return Array.from($tw.utils.parseStringArray(line)); });
+		};
+		assert.deepEqual(lines("Funke"), [["Sorcerer", "Draconic Bloodline", "Dragon Ancestor: Red"]]);
+		assert.deepEqual(lines("Doppel"), [["Fighter", "Fighting Style: Defense"], ["Sorcerer"]]);
+		assert.deepEqual(lines("Kämpe"), [["Fighter", "Geheimpfad", "Pfadwahl"]]);
+		assert.deepEqual(h.inView(wiki, "public", function() { return lines("Kämpe"); }), [["Fighter"]]);
+		assert.deepEqual(lines("Halbe"), [["Draconic Bloodline"]], "an entry whose parent is missing stands alone");
+	});
+
+	test("the check: a holder names a parent of each entry; a fix for one parent; not for a spell or an item", function() {
+		assert.deepEqual(parent("Funke"), []);
+		assert.deepEqual(parent("Doppel"), []);
+		var halbe = parent("Halbe");
+		assert.equal(halbe.length, 1);
+		assert.equal(halbe[0].level, "error");
+		assert.deepEqual(Object.assign({}, halbe[0].fix), {kind: "add", field: "classes", value: "Sorcerer"});
+		assert.match(halbe[0].text, /Draconic Bloodline gehört zu Sorcerer/);
+		var stilist = parent("Stilist");
+		assert.equal(stilist.length, 1);
+		assert.equal(stilist[0].fix, undefined, "two parents: no fix");
+		assert.match(stilist[0].text, /Fighter, Paladin/);
+		assert.deepEqual(parent("Nadel").map(function(m) { return m.params.parents; }), ["Waldvolk"]);
+		assert.deepEqual(parent("Feuerball"), []);
+		assert.deepEqual(parent("Drachenring"), []);
+		assert.deepEqual(parent("Draconic Bloodline"), [], "an entry of the tree is no holder");
+	});
+
+	test("the check names no parent the view does not see", function() {
+		assert.equal(parent("Lehrling").length, 1);
+		assert.deepEqual(h.inView(wiki, "public", function() { return parent("Lehrling"); }), []);
+	});
+
+	test("the way back of a class by kind, the forward group labelled for the type", function() {
+		var sorcerer = list("Sorcerer");
+		assert.ok(inOrder(sorcerer, ["Spieler<span", ">Doppel<", ">Funke<", "Gegenstände<span", ">Drachenring<", "Klassen<span", ">Draconic Bloodline<", "Zauber<span", ">Feuerball<"]), sorcerer);
+		assert.match(sorcerer, /Gegenstände<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.match(list("Draconic Bloodline"), /Gehört zu<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.match(list("Drachenring"), /Einstimmung durch<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.match(list("Feuerball"), /Klassen<span class="trpg-relations-count"> · 2<\/span>/);
+		assert.match(list("Funke"), /Klassen<span class="trpg-relations-count"> · 3<\/span>/);
+		var fighter = h.inView(wiki, "public", function() { return list("Fighter"); });
+		assert.equal(fighter.indexOf("Geheimpfad"), -1, fighter);
+		assert.deepEqual(f("[[classes]relationfield[Drachenring]] [[classes]relationfield[Funke]] [[folk]relationfield[Funke]]"), ["Einstimmung durch", "Klassen", "Volk"]);
+	});
+
+	test("the player card: a line per tree", function() {
+		var hub = h.render(wiki, "text/html", "{{Player}}");
+		assert.match(hub, /trpg-player-line">Sorcerer · Draconic Bloodline · Dragon Ancestor: Red</);
+		assert.match(hub, /trpg-player-line">Fighter · Fighting Style: Defense<\/span><span class="trpg-player-line">Sorcerer</);
+		var pub = h.inView(wiki, "public", function() { return h.render(wiki, "text/html", "{{Player}}"); });
+		assert.match(pub, /trpg-player-line">Fighter</);
+		assert.equal(pub.indexOf("Pfadwahl"), -1, "a locked entry takes its branch along");
+	});
+
+	test("the ego graph: the colour of Class", function() {
+		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Funke"});
+		assert.equal(graph.nodes.Sorcerer.color, wiki.getTiddler("Class").fields.color);
+		assert.ok(graph.edges.some(function(edge) { return edge.from === "Funke" && edge.to === "Sorcerer" && edge.props.label === "gehört zu"; }));
+	});
+
+	test("an entry of a content package: its parents for the check, offered along when taken", function() {
+		var content = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content.js"),
+			INDEX = "$:/temp/tiddlyrpg-core/content/index";
+		h.add(wiki, {title: INDEX, type: "application/json", text: JSON.stringify({ruleset: "$:/plugins/fixture-ruleset-5e-mini", packages: [{name: "SRD mini", language: "en-GB", entries: [
+			{id: "class:wizard", title: "Wizard", type: "Class", tags: ["Information"], fields: {}},
+			{id: "class:evocation", title: "School of Evocation", type: "Class", tags: ["Information"], fields: {classes: "Wizard"}}
+		]}]})});
+		h.add(wiki, {title: "Magus", tags: "Person", classes: "[[School of Evocation]]"});
+		try {
+			assert.deepEqual(h.checkKeys(wiki, "Magus", "relations"), ["Check/Relations/Parent"]);
+			assert.deepEqual(Object.assign({}, parent("Magus")[0].fix), {kind: "add", field: "classes", value: "Wizard"});
+			assert.deepEqual(Array.from(content.wanting(wiki, {classes: "Wizard"}), function(w) { return w.id; }), ["class:wizard"]);
+		} finally {
+			[INDEX, "Magus"].forEach(function(t) { wiki.deleteTiddler(t); });
+		}
 	});
 });

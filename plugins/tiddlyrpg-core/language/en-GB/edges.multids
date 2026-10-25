@@ -1,11 +1,12 @@
 created: 20261008062202000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/tiddlyrpg/language/en-GB/Edge/
 
 alliance: Alliance
 ancestor: descendant of
 base: based on
 bond: Bond
+classes: belongs to
 component: contains
 creator: made by
 creature: is a

@@ -1,6 +1,6 @@
 created: 20261022142450275
 list-before: $:/core/ui/ViewTemplate/body
-modified: 20261022160742118
+modified: 20261025121331430
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
 type: text/vnd.tiddlywiki
@@ -47,7 +47,7 @@ type: text/vnd.tiddlywiki
 </$list>
 <%endif%>
 <$list filter="[<currentTiddler>trpgfieldsection:relations<trpg-section>]" variable="trpg-relation">
-<div class="trpg-fields-lines"><span class="trpg-fields-label"><$text text={{{ [<trpg-relation>addprefix[Field/]trpgtranslate[]] }}}/></span><$text text=" "/><$list filter="[<currentTiddler>get<trpg-relation>enlist-input[]] :filter[trpg.visible[]]" variable="trpg-target"><$transclude $variable="trpg.pill" title=<<trpg-target>>/></$list></div>
+<div class="trpg-fields-lines"><span class="trpg-fields-label"><$text text={{{ [<trpg-relation>relationfield<currentTiddler>] }}}/></span><$text text=" "/><$list filter="[<currentTiddler>get<trpg-relation>enlist-input[]] :filter[trpg.visible[]]" variable="trpg-target"><$transclude $variable="trpg.pill" title=<<trpg-target>>/></$list></div>
 </$list>
 </div>
 </$let>

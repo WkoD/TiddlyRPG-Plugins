@@ -64,7 +64,7 @@ A tour for the DM and the players. The sections after it hold the details.
 - A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
   `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
-  `Information` (with the category `Folk`, see "Folks"), `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
+  `Information` (with the categories `Folk` and `Class`, see "Categories with a tree"), `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
   shows the player characters as cards, with their level where the ruleset derives one (see
   "Player characters, views and secrets").
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
@@ -333,7 +333,10 @@ for who may not write, nothing of this shows.
 both as cards. With a ruleset that names them (D&D: the XP in `xp`, the level derived from it),
 a card shows its lines below the name ("Level 13"), a former character keeps its last; the
 player character itself shows XP, level and the XP of the next level in its block of values.
-What `secret-fields` locks (the XP) shows on no card either, nor what derives from it.
+What `secret-fields` locks (the XP) shows on no card either, nor what derives from it. Below
+them a line per tree the character names (see "Categories with a tree"): its folk ("Dragonborn ·
+Draconic Ancestry: Black") and each class with what belongs to it ("Fighter · Battle Master ·
+Fighting Style: Two-Weapon Fighting"); an entry the view does not see leaves out its branch.
 
 **Taking part.** The tag of a player character on an event means: that character was there.
 An event with at least one player character, active or former, belongs to the campaign: the
@@ -535,7 +538,8 @@ relation list show the way back by themselves.
 | | `sibling` | `sibling: Bjorn` (both ends) | Sibling | Siblings |
 | | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
 | | `creature` | `creature: Fukuro` (a person, player character or form of a creature: its kind) | is a | Creature / Individuals |
-| | `folk` | `folk: Nichny` (a person, player character or creature; a half-elf names two) | belongs to | Folk / Members |
+| | `folk` | `folk: Nichny` (a person, player character or creature; a half-elf names two; a subfolk its folk) | belongs to | Folk / by kind (Persons, Folks, ...) |
+| | `classes` | `classes: Sorcerer [[Draconic Bloodline]]` (a person, player character or creature: its classes and what belongs to them; a spell: the classes that cast it; an item: attunement by; a class entry: what it belongs to) | belongs to | Classes (an item: Attunement by; a class: Belongs to) / by kind (Player characters, Classes, Spells, ...) |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
 | | `patron` | `patron: Sola` | worships | Patron / Followers |
@@ -703,7 +707,7 @@ told by the text - a list field carries every name once.
 **An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/Category`,
 used as a tag next to the base type. Its heading in the hub is its display name. Its field
 `tiddlyrpg-bases` names the base types it stands next to - without it the three of the items;
-`tiddlyrpg-bases: Information` makes a category of information like `Folk`. The tag of the
+`tiddlyrpg-bases: Information` makes a category of information like `Folk` or `Class`. The tag of the
 releases before 2.2.0, `$:/tags/tiddlyrpg/ItemKind`, still makes a category of the items.
 
 **Price:** `price: 50 cr` or `price: 3 cr 5 sh` - numbers with coins of the currency (see
@@ -717,22 +721,49 @@ the hub Currency takes ranges too.
 **The file of a book:** `data: Runen I - IV.pdf` - a file from `data/book/`, embedded below the
 body (PDF), not for a secret the active view does not see.
 
-## Folks
+## Categories with a tree
 
-A folk - humans, elves, a people of the campaign - is an information with the category `Folk`
-(`tags: Information Folk`). It is no creature: it has no stat block, its values are those of a
-folk (size, speed, languages, senses - what the ruleset defines for `Folk`). A being of the folk
+What a figure has and the DM may add to - its folk, its classes - is an information with a
+category of its own, not a term of the ruleset: a tiddler with its own text, at once usable
+everywhere. A ruleset with a content package brings its entries (D&D: the classes, subclasses and
+folks of the SRD), a campaign adds its own as tiddlers.
+
+**Folks.** A folk - humans, elves, a people of the campaign - is an information with the category
+`Folk` (`tags: Information Folk`). It is no creature: it has no stat block, its values are those of
+a folk (size, speed, languages, senses - what the ruleset defines for `Folk`). A being of the folk
 with values of its own (a warrior, a priestess) is a `Creature` that names the folk.
 
-- The hub `Information` lists the folks under a heading of their own, the hub `Folk` only
-  them. `Folk` alone, without `Information`, gets a message below the title with the fix.
 - A person, player character or creature names its folk in `folk` - only where it tells
-  something; a half-elf may name two. The folk lists them as "Members"; the ego graph draws
-  the edge, its colour is the grey of `Information`.
+  something; a half-elf may name two.
 - A folk names where it lives in `location`, several places alike; the place lists it under
   "Folks", apart from those present.
-- A lock hides the folk or the person (`Secret`), not the membership alone: a secret folk of an
-  open person is a folk tagged `Secret`.
+
+**Classes.** A class, a subclass and a lasting choice of them (a dragon ancestor, a pact, a
+fighting style) is an information with the category `Class` (`tags: Information Class`). A
+person, player character or creature names them in `classes`; a spell names the classes that
+cast it, an item those that may attune to it ("Attunement by"), and an entry that gives spells
+of its own (a domain, a land) names them in `spells`.
+
+**The tree.** The same relation on an entry of the category says what it belongs to: a subclass
+names its class (`classes: Sorcerer` on `Draconic Bloodline`), a choice its subclass or class
+(`classes: [[Draconic Bloodline]]` on `Dragon Ancestor: Red`), a subfolk its folk (`folk: Dwarf`
+on `Hill Dwarf`); several parents alike (a fighting style of the fighter and of the ranger).
+
+- A figure names every level it has: `classes: Sorcerer [[Draconic Bloodline]] [[Dragon
+  Ancestor: Red]]`. One that names an entry without any of its parents gets a message with the
+  fix (`relations/parent`); an entry of a content package not taken counts with the parents of
+  the entry.
+- The card of a player character shows a line per entry without parent, what belongs to it
+  after it (see "Player characters, views and secrets").
+- The relation list splits the way back by kind: on a class "Player characters", "Persons",
+  "Classes" (what belongs to it), "Spells", "Items"; on a folk "Persons", "Folks" and so on.
+- Taking an entry of a package offers what it belongs to along.
+- The hub `Information` lists each category under a heading of its own, the hub of the category
+  only its entries. The category alone, without `Information`, gets a message below the title
+  with the fix. The ego graph draws the entries in the grey of `Information`.
+- A lock hides the entry or the figure (`Secret`), not the membership alone: a secret subclass of
+  an open figure is a subclass tagged `Secret`. A locked entry takes what belongs to it along on
+  the card; a message that would name it is left out.
 
 ## Images and sources
 
@@ -981,6 +1012,7 @@ out every message of its level. An id that is no rule is a hint.
 | `relations/siblings` | hint | two children of a parent without `sibling` between them |
 | `relations/family` | hint | `family` next to another family relation of the same two |
 | `relations/ancestor` | hint | an `ancestor` the line of parents already reaches |
+| `relations/parent` | error | a person, player character or creature names an entry of a tree (`classes`, `folk`) without any of its parents - a subclass without its class; fix for one parent: add it |
 | `relations/leaders` | hint | an organisation led by several living tiddlers |
 | `relations/deadleader` | hint | a dead tiddler leads something a living one leads as well: there is a successor, the dead one is a member now (of a location: no entry). A dead leader without successor stays leader - death ends no membership |
 | `secrets/view` | error | a tiddler asks the view itself (`$:/state/tiddlyrpg/view`, `trpgview`) instead of locking; a list filtered with `trpg.visible` is fine |
@@ -1027,7 +1059,7 @@ event) also while empty, every other field of the type under "More fields". A re
 picks from what it may name, as pills with ×, a location with its path; a person, a location
 and an artifact have one `location`, an artifact one `owner`. The date shows the reading of
 each section, an event also how many `<<date>>` its text has; a price its output and the coin;
-images and maps a preview. An item gets one category, an information as well (`Folk`). The values of the rules follow the fields
+images and maps a preview. An item gets one category, an information as well (`Folk`, `Class`). The values of the rules follow the fields
 of the type (see "Values of the rules"); the lock of values and "Take the values" of a base item
 stand with them. A draft without type gets the types to
 choose; a change of type takes out the fields the new type does not have. Below the fields the
@@ -1042,7 +1074,7 @@ both ends.
 
 **New tiddlers:** "+" beside edit and close on the hub of a type opens a draft of that type; an
 event asks for its date first, an item or a category of the items for the base type; `Folk`
-makes an information at once. A name that another
+and `Class` make an information at once. A name that another
 tiddler has, in any case, is refused with a red line where it is typed (sub-location, rumour).
 
 **Search:** switches of the kinds above the hits choose what to show - none chosen is all; the

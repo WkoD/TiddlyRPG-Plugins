@@ -1,6 +1,7 @@
 created: 20261024152302984
-modified: 20261024152302984
+modified: 20261025121331430
 tiddlyrpg-targets: [tag[Folk]]
+tiddlyrpg-tree: [tag[Person]] [tag[Player]] [tag[Creature]]
 title: $:/config/flibbles/graph/edges/fields/folk
 type: application/json
 

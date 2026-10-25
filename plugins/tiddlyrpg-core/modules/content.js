@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261023175042957
+modified: 20261025121331430
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -31,8 +31,9 @@ a tiddler the view does not see counts the same - nothing tells it.
                              the tag of its package),
                              its fields (a price of the ruleset in the coins of the setting,
                              currency.fromRules()), source, text
-  wanting(wiki,fields)       the titles a taken entry names in base and spells that do not exist,
-                             with an offer of the same title: [{title, id}]
+  wanting(wiki,fields)       the titles a taken entry names in base, spells and the trees
+                             (tiddlyrpg-tree: classes, folk - what it belongs to) that do not
+                             exist, with an offer of the same title: [{title, id}]
 
 \*/
 
@@ -143,8 +144,10 @@ exports.toFields = function(wiki,pkg,entry,title) {
 };
 
 exports.wanting = function(wiki,fields) {
-	var out = [];
-	["base","spells"].forEach(function(name) {
+	var all = require("$:/plugins/tiddlyrpg-core/modules/relations.js").types(wiki),
+		names = ["base","spells"].concat(Object.keys(all).filter(function(name) { return all[name].tree; }).sort()),
+		out = [];
+	names.forEach(function(name) {
 		($tw.utils.parseStringArray(fields[name] || "") || []).forEach(function(title) {
 			var hit = !exists(wiki,title) && find(wiki,title)[0];
 			if(hit && !out.some(function(w) { return w.id === hit.id; })) {

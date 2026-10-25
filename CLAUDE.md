@@ -87,8 +87,9 @@ existing one goes through this list. A point that does not apply is left out wit
   layer") name the new files and tests; the header comment of a file says what it does.
 - **Version, release notes, migration:** a feature raises minor, a fix patch; what
   breaks an existing wiki (a field, tag, macro or format renamed or gone) is a major change, a
-  line of its own in the release notes (see "Publishing a new version") and, from 2.0.0 on, a
-  migration script that brings a wiki to the new form - planned with the feature, not after it.
+  line of its own in the release notes (see "Publishing a new version") and, from 2.2.0 on, a
+  migration script that brings a wiki to the new form - planned with the feature, not after it
+  (2.1.0 counts as not released: what changed up to 2.2.0 needs neither).
   None exists yet; where they live and how they run is decided with the first.
 
 ## Editing the format layer
@@ -152,8 +153,12 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     `tiddlyrpg-bases` and under the tag before 2.2.0, the rule `categories/base` with its
     fix, the hub `Information` with a heading per category (only with an entry the view
     sees) and the hub of a category, the pills of the form, "+" on `Folk`, the relation
-    `folk` (targets, way back, several, list, ego graph), a folk at a location (`location` in
-    the form, the group "Völker" of the place in the public view and the view of the DM)
+    `folk` (targets, way back by kind, several, list, ego graph), a folk at a location
+    (`location` in the form, the group "Völker" of the place in the public view and the view of
+    the DM); the trees `classes` and `folk` (`tiddlyrpg-tree`): `relationtree`, `relationlines`
+    with a locked entry taking its branch along, the rule `relations/parent` with its fix (also
+    for a package entry not taken), the way back by kind, the label per type (`relationfield`),
+    the lines of the player card, `content.wanting()` offering the parent
   - `currency` - the currency engine against the fixture settings (Faerûn-like, Krynn with
     steel): parse, format, convert, check, base and reference, without currency, without
     ruleset, `<<unit>>` with coins (km stays a length), unusable data
@@ -571,7 +576,8 @@ the tiddler title:
   `$:/state/tiddlyrpg-core/search-kinds`): none chosen is all. The link dropdown of the editor
   uses the same list.
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
-  (`Plural/<hub>`), `fields` (`Field/<type>`, a relation in the relation list, forward),
+  (`Plural/<hub>`), `fields` (`Field/<type>`, a relation in the relation list, forward;
+  `Field/<type>/<hub>` its label on a tiddler of that hub, `relations.fieldLabel()`),
   `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
   `texts` (template texts).
 - **Editor** (`editor/*`): the toolbar buttons `editor/toolbar/<name>` with their dropdowns
@@ -579,7 +585,7 @@ the tiddler title:
   `editor/operation.js`, the form `editor/form` with the field editors `editor/fields/*`, the
   config of the picker `editor/picker` - see "Editor".
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Information, Folk, Index, Quest, Spell,
+  Material, Book, Consumable, Equipment, Event, Information, Folk, Class, Index, Quest, Spell,
   Creature: titles without prefix,
   tag `Index`; the categories also tagged `$:/tags/tiddlyrpg/Category`, see "Items and
   categories"; plus
@@ -1164,7 +1170,7 @@ only call their operators.
 
 The rules of items live **once** in `checks/items.js` (base type), `modules/categories.js` with
 `checks/categories.js` (the categories of every base type) and `filters/location.js` (owner and
-location of an artifact). Meaning and examples: `README.md` ("Items", "Folks").
+location of an artifact). Meaning and examples: `README.md` ("Items", "Categories with a tree").
 
 - Base types `Artifact` (unique), `Item` (several), `Material`; one per item. Everything that
   tells the item types apart (colour in the graph templates, `multitag` lists of `activity` and
@@ -1184,7 +1190,15 @@ location of an artifact). Meaning and examples: `README.md` ("Items", "Folks").
   folk is named by the relation `folk` (axis family; several allowed, not in `form.SINGLE`) and
   shows the relations block (`viewtemplates/relations`) for its way back. Where it lives is its
   field `location` (`config/form/Folk`, several places; an occupant in `filters/location.js`, the
-  group "Folks" of the place).
+  group "Folks" of the place). `Class` is the same kind of category: classes, subclasses and
+  lasting choices, named by the relation `classes` (axis family, several) from a figure, a spell,
+  an item and from an entry of its own (`config/form/Class`: `classes spells`).
+- **Trees** (`tiddlyrpg-tree` on the config of `classes` and `folk`, a filter of the holders):
+  the same field says on a holder what it has and on an entry of the category what that belongs
+  to. One place of the rules: `modules/relations.js` (`parents()` - also of a package entry not
+  taken -, `holder()`, `lines()`); `relations/parent` in `checks/relations.js`; the way back by
+  kind in `viewtemplates/relations/list` (order `trpg.kindhubs`); the lines of the player card in
+  `Player.tid` (filter `relationlines`); `content.wanting()` offers the parents.
 - Their messages stand below the title (`items/base`, `items/price`: the price against the
   currency), see "Checks".
 - The price (field `price`) shows as the first line of the block of values
@@ -1234,8 +1248,10 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   variables. The way back of a function type needs the field its candidates come from
   (`tiddlyrpg-via`, `rules`: `leader`).
 - Relation list (`viewtemplates/relations/list`): per type in order a group forward
-  (`Field/<type>`) and back (`FieldInverse/<type>`, falls back to `Field/<type>`), one group
-  for a symmetric type; last the group "Quests". A group: a small heading with the number of
+  (`Field/<type>`, or `Field/<type>/<hub>` for the type of the tiddler: `relationfield`) and
+  back (`FieldInverse/<type>`, falls back to `Field/<type>`), one group for a symmetric type, a
+  tree its way back split by kind (`Plural/<hub>` in the order of `trpg.kindhubs`, the rest
+  under `FieldInverse/<type>`); last the group "Quests". A group: a small heading with the number of
   its entries, the entries as pills (`trpg.pill`) side by side. On a location the way back of
   `location` gives the groups of the place (procedure `trpg.place`), in this order and only
   with entries, everyone in one of them: "Control" (`FieldInverse/rules`: who leads it),

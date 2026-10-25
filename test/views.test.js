@@ -315,6 +315,17 @@ test.describe("sweep", function() {
 			{title: "Sweep Nu", tags: "Person", folk: "[[Qx7 Volk]]", text: "A hunter."},
 			{title: "Sweep Volk", tags: "Information Folk", text: "A folk."},
 			{title: "Qx7 Kater", tags: "Person Secret", folk: "[[Sweep Volk]]", text: "Qx7 cat."},
+			// The trees (tiddlyrpg-tree): a locked subclass of an open class with an open choice
+			// below it, a player character naming all three (its card leaves out the branch), a
+			// person naming only the choice (the check would name the locked parent); a locked
+			// subfolk of an open folk (the way back of the folk by kind)
+			{title: "Sweep Klasse", tags: "Information Class", text: "A class."},
+			{title: "Qx7 Pfad", tags: "Information Class Secret", classes: "[[Sweep Klasse]]", text: "Qx7 path."},
+			{title: "Sweep Wahl", tags: "Information Class", classes: "[[Qx7 Pfad]]", text: "A choice."},
+			{title: "Sweep Kämpe", tags: "Player", player: "Erik", classes: "[[Sweep Klasse]] [[Qx7 Pfad]] [[Sweep Wahl]]", text: "A fighter."},
+			{title: "Sweep Lehrling", tags: "Person", classes: "[[Sweep Wahl]]", text: "An apprentice."},
+			{title: "Qx7 Sippe", tags: "Information Folk Secret", folk: "[[Sweep Volk]]", text: "Qx7 kin."},
+			{title: "Sweep Sohn", tags: "Person", folk: "[[Sweep Volk]] [[Qx7 Sippe]]", text: "A son."},
 			// Locked values of a tiddler everyone sees (secret-fields): one field, and all with the price
 			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
 			// A section of the ruleset locked by a field (a curse with cursed, modules/sections.js)
@@ -438,6 +449,7 @@ test.describe("sweep", function() {
 			assert.match(wache, new RegExp(id + " .*Qx7"), id);
 		});
 		assert.match(texts("Sweep Kind"), /relations\/siblings .*Qx7 Bruder/);
+		assert.match(texts("Sweep Lehrling"), /relations\/parent .*Qx7 Pfad/);
 		assert.match(texts("Sweep Gilde"), /relations\/leaders .*Qx7 Meister/);
 		assert.match(texts("Sweep Regeln"), /links\/missing .*Qx7 Lücke/);
 		assert.match(texts("Sweep Regeln"), /spots\/similar .*Qx7 Akt/);
@@ -447,7 +459,7 @@ test.describe("sweep", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
 			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
-			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", YEAR].forEach(function(word) {
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", "Qx7 Pfad", "Qx7 Sippe", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

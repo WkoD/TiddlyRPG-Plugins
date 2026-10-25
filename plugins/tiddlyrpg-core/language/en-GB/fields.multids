@@ -1,11 +1,16 @@
 created: 20261001095424000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/tiddlyrpg/language/en-GB/Field/
 
 alliance: Alliance
 ancestor: Ancestors
 base: Base item
 bond: Bond
+classes: Classes
+classes/Artifact: Attunement by
+classes/Class: Belongs to
+classes/Item: Attunement by
+classes/Spell: Classes
 component: Components
 creator: Creator
 creature: Creature

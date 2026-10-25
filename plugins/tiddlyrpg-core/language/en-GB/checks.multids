@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
@@ -68,6 +68,7 @@ Relations/Included: Check the fields: $field$ names $target$, whom $other$ alrea
 Relations/Leaders: Check the organisation: several lead it ($leaders$) - a council, or one too many?
 Relations/Missing: Check the field $field$: $target$ does not exist
 Relations/MissingSpot: Check the field $field$: $target$ is no tiddler, only a spot of $place$ - a tiddler named $target$ joins the spot
+Relations/Parent: Check the field $field$: $target$ belongs to $parents$ - name one of them too
 Relations/Siblings: Check the family: $other$ is a child of $parent$ too, but no sibling - true siblings, half siblings or on purpose?
 Relations/Symmetric: Check the field $field$: $other$ names this tiddler, here $other$ is missing
 Secrets/Transclusion: Check the text: it transcludes the secret tiddler $target$ - every view that sees this tiddler sees it

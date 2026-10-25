@@ -1,11 +1,12 @@
 created: 20261016184211000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/config/EditTemplateFields/Visibility/
 
 alliance: hide
 ancestor: hide
 base: hide
 bond: hide
+classes: hide
 component: hide
 creator: hide
 creature: hide

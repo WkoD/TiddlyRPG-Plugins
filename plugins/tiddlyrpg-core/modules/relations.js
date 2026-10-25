@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261024152302984
+modified: 20261025121331430
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -30,6 +30,12 @@ Our fields on the config of a type:
   tiddlyrpg-copy        yes: setting it in the form copies the values of the rules of the target
                       into the draft once, where it has none (base: the base item; modules/form.js
                       copyFrom())
+  tiddlyrpg-tree        a filter of the holders (classes, folk: persons, player characters,
+                      creatures): the type is a tree of its targets as well. On a holder it says
+                      what it has, on a target what that belongs to (a subclass its class, a
+                      subfolk its folk; several parents alike); a holder that names an entry
+                      names one of its parents too (checks/relations.js relations/parent). The
+                      way back of the relation list is split by the kind of its sources.
 
 Axes: $:/config/tiddlyrpg/graph/axes lists them in order (field list); each axis
 $:/config/tiddlyrpg/graph/axes/<axis> is an edge style (JSON, like an edge type config) and lists
@@ -83,6 +89,7 @@ var types = exports.types = function(wiki) {
 					via: fields["tiddlyrpg-via"] || "",
 					candidates: fields["tiddlyrpg-targets"] || "",
 					copy: fields["tiddlyrpg-copy"] === "yes",
+					tree: fields["tiddlyrpg-tree"] || "",
 					axis: "",
 					order: Infinity
 				};
@@ -216,11 +223,11 @@ exports.sources = function(wiki,name,to,selected) {
 // The kinds of the switches (relations block, map, search), by tag; the first that fits counts
 var KINDS = [["Player","player"],["Person","person"],["Organisation","organisation"],["Deity","person"],
 	["Location","location"],["Artifact","item"],["Item","item"],["Material","item"],["Quest","quest"],
-	["Creature","creature"],["Folk","folk"],["Spell","spell"]];
+	["Creature","creature"],["Folk","folk"],["Class","class"],["Spell","spell"]];
 
 /*
 The kind of a title: player, person (deities too), organisation, location, item (artifacts and
-materials too), quest (a quest or a rumour, a name with markers), creature, folk, spell, with
+materials too), quest (a quest or a rumour, a name with markers), creature, folk, class, spell, with
 <events> also event; else other.
 */
 exports.kindOf = function(wiki,title,events) {
@@ -241,7 +248,75 @@ exports.kindOf = function(wiki,title,events) {
 	return kind;
 };
 
+// The label of the field <name> on <title> (relation list, block of values, form):
+// Field/<name>/<type> for a type of <title> that has one ("Attunement by" on an item), else
+// Field/<name>
+exports.fieldLabel = function(wiki,name,title) {
+	var found = null;
+	$tw.utils.each(require("$:/plugins/tiddlyrpg-core/modules/types.js").of(wiki,title),function(type) {
+		found = found || language.lookup(wiki,"Field/" + name + "/" + type);
+	});
+	return found || language.t(wiki,"Field/" + name);
+};
+
 // The edge label of a type (Edge/<type>), or "" if the language has none
 exports.label = function(wiki,name) {
 	return language.lookup(wiki,"Edge/" + name) || "";
+};
+
+/*
+Trees (tiddlyrpg-tree): the targets of a type are entries that belong to others of the same type
+through the same field.
+
+  parents(wiki,name,title)   what <title> belongs to: its field <name>, or for an entry of a
+                             content package not taken the field of the entry
+  holder(wiki,name,title)    whether <title> is a holder of the tree of <name> (its filter)
+  lines(wiki,name,title,visible)  the entries <title> names in tree order: one line per entry
+                             without a parent among them, each [top, ...descendants] depth
+                             first in the order of the field; an entry <visible> refuses takes
+                             its branch with it
+*/
+var parents = exports.parents = function(wiki,name,title) {
+	var tiddler = wiki.getTiddler(title);
+	if(tiddler) {
+		return list(tiddler.fields[name]);
+	}
+	var content = require("$:/plugins/tiddlyrpg-core/modules/content.js"),
+		hit = content.forRelation(wiki,name,title),
+		value = hit && hit.entry.fields ? hit.entry.fields[name] : "";
+	return $tw.utils.isArray(value) ? value.slice() : list(value);
+};
+
+exports.holder = function(wiki,name,title) {
+	var type = types(wiki)[name];
+	return !!type && !!type.tree && wiki.filterTiddlers(type.tree,widgetFor(wiki,title),wiki.makeTiddlerIterator([title])).indexOf(title) !== -1;
+};
+
+exports.lines = function(wiki,name,title,visible) {
+	var named = targets(wiki,name,title),
+		used = Object.create(null),
+		out = [];
+	var below = function(entry,line) {
+		$tw.utils.each(named,function(other) {
+			if(!used[other] && parents(wiki,name,other).indexOf(entry) !== -1) {
+				used[other] = true;
+				if(!visible || visible(other)) {
+					line.push(other);
+					below(other,line);
+				}
+			}
+		});
+	};
+	$tw.utils.each(named,function(entry) {
+		var top = !parents(wiki,name,entry).some(function(p) { return named.indexOf(p) !== -1 && p !== entry; });
+		if(top && !used[entry]) {
+			used[entry] = true;
+			if(!visible || visible(entry)) {
+				var line = [entry];
+				below(entry,line);
+				out.push(line);
+			}
+		}
+	});
+	return out;
 };

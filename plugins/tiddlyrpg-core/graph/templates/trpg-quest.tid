@@ -1,6 +1,6 @@
 caption: TiddlyRPG quest graph (events and what they mention)
 created: 20261015170750000
-modified: 20261024152302984
+modified: 20261025121331430
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 
 \whitespace trim
@@ -35,6 +35,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 <$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
 <$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
 <$properties $filter="[tag[Folk]]"   color={{Folk!!color}}>
+<$properties $filter="[tag[Class]]"   color={{Class!!color}}>
 <$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
@@ -82,6 +83,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 
 </$let>
 
+</$properties>
 </$properties>
 </$properties>
 </$properties>
