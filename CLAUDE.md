@@ -1333,7 +1333,8 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
 - Kinds of the ruleset (`rulesKinds()`): the entries of a domain of type `section` (D&D: effect,
   curse, trait, spellcasting, action ...) - short forms that run to the next marker like a date
   (so `<<secret>>` before one locks it), any tiddler, a name (`params.name`). On rendering
-  `arrange()` collects the sections of these kinds of a level at the place of the first one, in
+  `arrange()` collects the sections of these kinds of a level at the place of the first one the
+  view sees (at a locked first one the others would stand before the text after it), in
   the order of the domain (`order`), a kind in the order of the text with its intro first; a kind
   with `heading` gets the widget `trpg-section-heading` before its first section, with the keys
   of its sections - it shows while one of them is visible. `intro`: one section without a name

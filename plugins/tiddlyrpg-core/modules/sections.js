@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261024144154808
+modified: 20261025192721614
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -1129,13 +1129,16 @@ function findNest(nodes,key) {
 
 /*
 The groups of a level in the order to render, each {group} or {heading: kind, keys}: the sections
-of the kinds of the ruleset collected at the place of the first one, in the order of their domain,
-within a kind its intro first, then the order of the text; before the first section of a kind with
-a heading its heading, with the keys of the sections it stands for (shown while one is visible).
+of the kinds of the ruleset collected at the place of the first one the view sees (<seen>: whether
+it sees a record; at a locked first one the others would stand before the text after it and tell
+it is there), in the order of their domain, within a kind its intro first, then the order of the
+text; before the first section of a kind with a heading its heading, with the keys of the sections
+it stands for (shown while one is visible).
 */
-function arrange(groups,model) {
+function arrange(groups,model,seen) {
 	var rules = [],
-		first = -1;
+		first = -1,
+		firstSeen = -1;
 	$tw.utils.each(groups,function(g,index) {
 		var def = g.kind ? kindDef(g.kind) : null;
 		if(def && def.domain) {
@@ -1143,8 +1146,12 @@ function arrange(groups,model) {
 				record = model.byKey[key];
 			rules.push({group: g, index: index, key: key, order: def.order, opening: def.intro && record && !record.params.name ? 0 : 1});
 			first = first === -1 ? index : first;
+			if(firstSeen === -1 && record && seen(record)) {
+				firstSeen = index;
+			}
 		}
 	});
+	first = firstSeen !== -1 ? firstSeen : first;
 	if(!rules.length) {
 		return groups.map(function(g) { return {group: g}; });
 	}
@@ -1202,7 +1209,7 @@ var transform = exports.transform = function(wiki,title,nodes,options) {
 		return !(options.only && g.kind !== options.only) && !(options.omit && g.kind === options.omit) &&
 			!(options.match && !(record && options.match(record)));
 	});
-	$tw.utils.each(arrange(kept,model),function(item) {
+	$tw.utils.each(arrange(kept,model,function(record) { return visible(wiki,title,record.id); }),function(item) {
 		if(item.heading) {
 			out.push({type: "trpg-section-heading", attributes: {kind: {type: "string", value: item.heading},
 				keys: {type: "string", value: item.keys.join(" ")}}, isBlock: true});

@@ -371,7 +371,8 @@ Outside the public view a coloured bar at the top of the window shows that the v
 public one. The view is not saved: after a reload the editable wiki (`npm start`) opens in the
 view of the DM, the published read-only copy in the public view. The published copy offers the
 view of the DM only if the wiki ships `$:/config/tiddlyrpg/view/dm-published` with the text
-`yes`.
+`yes`. Every player of an active character is a choice, with the characters as the button names
+them - a player character tagged `Secret` too: its player and title show in every view.
 
 What a view does not see does not show anywhere: not in hubs, lists, search results, tag pills
 and their dropdowns, the sidebar (outside the view of the DM only "Open" and "Recent"), relation

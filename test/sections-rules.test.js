@@ -132,6 +132,21 @@ test("in a dated section or a spot a section of the ruleset belongs to it and is
 	}
 });
 
+// What the rest tells: the sections of the ruleset gather at the first one the view sees - at a
+// locked first one, the open ones would stand before the prose after it and tell it is there
+test("the sections of the ruleset gather at the first one the view sees", function() {
+	h.add(wiki, {title: "Ordnung", tags: "Creature", text: "Anfang.\n\n<<secret>>\n\n<$action name=\"Geheim\">\n\nVersteckt.\n\n</$action>\n\nProsa.\n\n<<trait \"Offen\">> Sichtbar."});
+	try {
+		var pub = h.inView(wiki, "public", function() { return body("Ordnung"); }),
+			dm = body("Ordnung");
+		assert.doesNotMatch(pub, /Geheim|Versteckt/);
+		assert.ok(ascending(positions(pub, ["Anfang.", "Prosa.", "Sichtbar."])), pub);
+		assert.ok(ascending(positions(dm, ["Anfang.", "Sichtbar.", "Versteckt.", "Prosa."])), "the DM: gathered at the first, in the order of the domain");
+	} finally {
+		wiki.deleteTiddler("Ordnung");
+	}
+});
+
 test("two domains of type section: one order over both, one heading per kind", function() {
 	h.add(wiki, {title: "Eigene Abschnitte", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json",
 		text: JSON.stringify({domain: "SectionCampaign", type: "section", keys: "Rules/Section/", entries: [{id: "ritual"}, {id: "lair", heading: true}]})});

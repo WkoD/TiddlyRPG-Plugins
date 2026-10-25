@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025191609346
+modified: 20261025192428037
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -139,7 +139,9 @@ function state(wiki,title) {
 	var rest = (grouped.indexOf(PRICE) === -1 ? [PRICE] : []).concat(schema.fields.filter(function(field) {
 		return grouped.indexOf(field) === -1;
 	}));
-	var view = visibility.current(wiki);
+	var view = visibility.current(wiki),
+		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+		relationTypes = relations.types(wiki);
 	var sections = [{id: REST, layout: "list", lines: rest.filter(shows), relations: []}].concat(schema.groups.filter(function(group) {
 		return fields.fits(wiki,values,group.when,schema.fields);
 	}).map(function(group) {
@@ -147,10 +149,13 @@ function state(wiki,title) {
 			id: group.id,
 			layout: group.layout || "list",
 			lines: (group.fields || []).filter(shows),
+			// A relation with an entry the view sees; a tree with a row it sees (an entry below a
+			// locked parent has none - its label alone would tell there is one)
 			relations: (group.relations || []).filter(function(name) {
-				return ($tw.utils.parseStringArray(values[name] || "") || []).some(function(target) {
-					return visibility.visible(wiki,target,view);
-				});
+				var seen = function(target) { return visibility.visible(wiki,target,view); },
+					targets = $tw.utils.parseStringArray(values[name] || "") || [],
+					type = relationTypes[name];
+				return type && type.tree ? targets.length > 0 && relations.lines(wiki,name,title,seen).length > 0 : targets.some(seen);
 			})
 		};
 	})).filter(function(section) {

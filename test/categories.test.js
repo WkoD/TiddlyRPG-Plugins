@@ -475,6 +475,23 @@ test.describe("trees: classes and folk", function() {
 			[INDEX, "Magus"].forEach(function(t) { wiki.deleteTiddler(t); });
 		}
 	});
+
+	// What the rest tells: a label with nothing behind it would tell there is a class the view does
+	// not see (Eingeweihter names the locked Geheimpfad and its choice, which goes with it)
+	test("the block: no label of a tree without a row the view sees", function() {
+		var block = function(view) {
+			return h.inView(wiki, view, function() {
+				return h.render(wiki, "text/plain", "{{Eingeweihter||$:/plugins/tiddlyrpg-core/viewtemplates/fields}}");
+			});
+		};
+		h.add(wiki, {title: "Eingeweihter", tags: "Person", classes: "Geheimpfad Pfadwahl", text: "Knows the path."});
+		try {
+			assert.match(block("dm"), /Klassen Geheimpfad · Pfadwahl/);
+			assert.doesNotMatch(block("public"), /Klassen/);
+		} finally {
+			wiki.deleteTiddler("Eingeweihter");
+		}
+	});
 });
 
 test.describe("traits, feats, languages and the glossary", function() {
