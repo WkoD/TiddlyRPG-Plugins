@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025195355536
+modified: 20261025195736220
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -129,7 +129,9 @@ function state(wiki,title) {
 			return false;
 		}
 		if(combine) {
-			return combine.fields[0] === field && !!fields.line(wiki,values,combine);
+			var line = fields.line(wiki,values,combine);
+			// A later field of a combine whose line needs the first one that is empty: on its own
+			return combine.fields[0] === field ? !!line : !line && !!fields.read(wiki,values,field).text;
 		}
 		return !!fields.read(wiki,values,field).text;
 	};
@@ -204,8 +206,9 @@ function lineText(wiki,title,field,values) {
 	if(field === PRICE) {
 		return values.price ? currency.format(wiki,currency.active(wiki),values.price) : "";
 	}
-	var combine = state(wiki,title).combineOf(field);
-	return combine ? fields.line(wiki,values,combine) : fields.read(wiki,values,field).text;
+	var combine = state(wiki,title).combineOf(field),
+		line = combine ? fields.line(wiki,values,combine) : "";
+	return combine && (combine.fields[0] === field || line) ? line : fields.read(wiki,values,field).text;
 }
 
 // The fields of a tiddler without every value secret-fields locks - what a view sees that may not

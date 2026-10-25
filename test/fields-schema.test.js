@@ -408,6 +408,12 @@ test.describe("the block of values", function() {
 			assert.match(html, /Fertigkeiten<\/span> Wahrnehmung \+5/);
 			assert.match(html, /passive Wahrnehmung 15/);
 		});
+		// A combined line needs its first field; a later one with a value shows on its own then
+		withTiddler({title: "Wolf", tags: "Creature", size: "medium", xp: "450"}, function() {
+			var html = block("Wolf");
+			assert.match(html, /<span class="trpg-fields-label">EP<\/span> 450<\/span>/);
+			assert.doesNotMatch(html, /Herausforderungsgrad/);
+		});
 	});
 
 	test("after the image, before the body; the price on any tiddler", function() {

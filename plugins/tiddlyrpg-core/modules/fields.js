@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025194848590
+modified: 20261025195748747
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -62,7 +62,8 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                block in the order of the groups, after the fields of no group (and the price,
                unless a group names "price"): "list" a line per field, "row" a table (the
                abilities), "inline" the lines in one line. A combine shows its fields in one
-               line under the label of the first (fill(): "1/4 (50 XP)").
+               line under the label of the first (fill(): "1/4 (50 XP)"); while the first is
+               empty a later one with a value shows on its own, under its label (XP without CR).
   patterns     (summary, combine) keys of the ruleset with $field$, $field.ordinal$
                (Rules/Ordinal/<value>), $field.flag$ (the key of flags when the field is yes),
                $field.<variant>$ (the label of a label field in a variant: $creature-type.plural$)
