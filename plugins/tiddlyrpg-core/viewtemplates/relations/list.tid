@@ -1,6 +1,6 @@
 caption: <<trpg.t Relations/List>>
 created: 20260713135021000
-modified: 20261025121331430
+modified: 20261025135015562
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/list
 type: text/vnd.tiddlywiki
 
@@ -58,7 +58,8 @@ type: text/vnd.tiddlywiki
      (Field/<type>: "Member of") from the own field, and the way back (FieldInverse/<type>:
      "Members") from who points here, via the indexed operator `listed`. A symmetric type shows
      one group, both ways together. A tree (tiddlyrpg-tree: classes, folk) splits its way back by
-     the kind of the sources, in the order of the switches (trpg.kindhubs): "Classes" for what
+     the group of the sources (relationgroup: the kinds of the switches, trpg.kindhubs, the
+     categories of Information each a group of its own before it): "Classes" for what
      belongs to a class, "Player characters", "Spells" ... - the rest under FieldInverse/<type>.
      The forward group of a type is labelled for the type of `self` (relationfield:
      Field/classes/Item "Attunement by"). The hits are held once in the multi-valued variable `hits`
@@ -89,10 +90,10 @@ type: text/vnd.tiddlywiki
 <$let hits={{{ [trpg.both<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-label>>/></$let>
 <%elseif [<type>relationtree[]] %>
 <$let hits={{{ [trpg.forward<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-label>>/></$let>
-<$list filter="[trpg.kindhubs[]]" variable="trpg-hub">
-<$let trpg-kind={{{ [<trpg-hub>lowercase[]] }}} hits={{{ [trpg.backward<type>] :filter[relationkind[]match<trpg-kind>] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural<trpg-hub>] }}}/></$let>
+<$list filter="[trpg.kindhubs[]] +[relationgroups[]]" variable="trpg-hub">
+<$let hits={{{ [trpg.backward<type>] :filter[relationgroup[]match<trpg-hub>] }}}><$transclude $variable="trpg.group" label={{{ [trpg.plural<trpg-hub>] }}}/></$let>
 </$list>
-<$let hits={{{ [trpg.backward<type>] :filter[relationkind[]match[other]] }}}><$transclude $variable="trpg.group" label=<<trpg-inverse>>/></$let>
+<$let hits={{{ [trpg.backward<type>] :filter[relationgroup[]is[blank]] }}}><$transclude $variable="trpg.group" label=<<trpg-inverse>>/></$let>
 <%else%>
 <$let hits={{{ [trpg.forward<type>] }}}><$transclude $variable="trpg.group" label=<<trpg-label>>/></$let>
 <%if [<type>!match[rules]] %>

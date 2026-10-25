@@ -1,6 +1,6 @@
 created: 20261022142450275
 list-before: $:/core/ui/ViewTemplate/body
-modified: 20261025133420086
+modified: 20261025135015562
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
 type: text/vnd.tiddlywiki
@@ -12,7 +12,7 @@ type: text/vnd.tiddlywiki
      the groups: "list" a line "Label value" each, "row" a small table (label above the value),
      "inline" the lines in one line, parted by a dot. The relations a group names follow as
      pills, a tree (folk, classes: trpgtreerows) a row per entry without parent - the entry, its level
-     and what belongs to it. Every value as text; the label of an entry the glossary explains links to it
+     ("Sorcerer Level 13 · Draconic Bloodline") and what belongs to it. Every value as text; the label of an entry the glossary explains links to it
      (trpgfieldparts, modules/glossary.js). A price or value that cannot be read is a message below the
      title (checks/items.js, checks/fields.js). Nothing without a value to show; not for a
      tiddler the view does not see. Values secret-fields locks are left out for a view that may

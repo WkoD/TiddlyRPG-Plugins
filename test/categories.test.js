@@ -222,7 +222,8 @@ test.describe("relation folk", function() {
 		assert.ok(!form.single(wiki, "Ki-Ra", "folk"), "a person may belong to two folks");
 		assert.deepEqual(f("[[folk]relationlabel[]]"), ["gehört zu"]);
 		assert.deepEqual(f("[[folk]relationaxis[]]"), ["$:/config/tiddlyrpg/graph/axes/family"]);
-		assert.deepEqual(f("[[Nichny]] [[Ki-Ra]] :map[relationkind[]]"), ["folk", "person"]);
+		assert.deepEqual(f("[[Nichny]] [[Ki-Ra]] :map[relationkind[]]"), ["information", "person"], "every category of Information is one kind of the switches");
+		assert.deepEqual(f("[[Nichny]] [[Ki-Ra]] :map[relationgroup[]]"), ["Folk", "Person"], "the relation list keeps the category");
 		["Person", "Player", "Creature"].forEach(function(type) {
 			assert.ok(f("[[$:/config/tiddlyrpg/form/" + type + "]get[more]enlist-input[]]").indexOf("folk") !== -1, type);
 		});
@@ -337,7 +338,8 @@ test.describe("trees: classes and folk", function() {
 		assert.ok(!form.single(wiki, "Doppel", "classes"), "several classes");
 		assert.deepEqual(f("[[classes]relationlabel[]]"), ["gehört zu"]);
 		assert.deepEqual(f("[[classes]relationaxis[]]"), ["$:/config/tiddlyrpg/graph/axes/family"]);
-		assert.deepEqual(f("[[Sorcerer]] :map[relationkind[]]"), ["class"]);
+		assert.deepEqual(f("[[Sorcerer]] :map[relationkind[]]"), ["information"]);
+		assert.deepEqual(f("[[Player]] [[Information]] +[relationgroups[]]"), ["Player", "Class", "Feat", "Folk", "Glossary", "Language", "Trait", "Information"]);
 		assert.deepEqual(f("[[classes]] [[folk]] [[spells]] [[location]] +[relationtree[]]"), ["classes", "folk"]);
 		["Person", "Player", "Creature", "Spell", "Item", "Artifact", "Class"].forEach(function(type) {
 			assert.ok(f("[[$:/config/tiddlyrpg/form/" + type + "]get[more]enlist-input[]]").indexOf("classes") !== -1, type);
@@ -397,6 +399,7 @@ test.describe("trees: classes and folk", function() {
 		assert.match(hub, /trpg-player-line">Sorcerer</);
 		assert.doesNotMatch(hub, /Draconic Bloodline/);
 		assert.match(hub, /trpg-player-line">Fighter<\/span><span class="trpg-player-line">Sorcerer</);
+		assert.deepEqual(f("[[Funke]trpgcardlines[]]"), ["Sorcerer"], "no XP: no level");
 		h.add(wiki, {title: "Wanderer", tags: "Player", player: "Uli", folk: "Waldvolk Hochwald", text: "Of the forest."});
 		try {
 			assert.match(h.render(wiki, "text/html", "{{Player}}"), /trpg-player-line">Hochwald</, "the subfolk alone");
@@ -479,7 +482,7 @@ test.describe("traits, feats, languages and the glossary", function() {
 		});
 		assert.ok(f("[[$:/config/tiddlyrpg/form/Folk]get[more]enlist-input[]]").indexOf("languages") !== -1);
 		assert.deepEqual(f("[[$:/config/tiddlyrpg/form/Trait]get[more]enlist-input[]]"), ["folk"]);
-		assert.deepEqual(f("[[Steingespür]] [[Ringer]] [[Zwergisch (Language)]] :map[relationkind[]]"), ["trait", "feat", "language"]);
+		assert.deepEqual(f("[[Steingespür]] [[Ringer]] [[Zwergisch (Language)]] :map[relationkind[]]"), ["information", "information", "information"]);
 		var folk = list("Steinvolk");
 		assert.ok(inOrder(folk, ["Personen<span", ">Brocken<", "Merkmale<span", ">Steingespür<"]), folk);
 		assert.match(list("Steingespür"), /Gehört zu<span class="trpg-relations-count"> · 1<\/span>/);
@@ -587,14 +590,24 @@ test.describe("the levels of the classes (format titles)", function() {
 		assert.match(h.checks(wiki, "Zuviel", "fields")[0].text, /zusammen 4, mehr als Stufe 2/);
 	});
 
-	test("the card: the level beside each class; one class takes the level of the character; none when a class is locked", function() {
+	test("the card: the level beside each class in place of the line of the level; none when a class is locked", function() {
 		var lines = function(title, view) {
-			return h.inView(wiki, view || "dm", function() { return f("[[" + title + "]trpgcardtrees[]]"); });
+			return h.inView(wiki, view || "dm", function() { return f("[[" + title + "]trpgcardlines[]]"); });
 		};
-		assert.deepEqual(lines("Zwilling"), ["Kämpfer 5", "Schurke 8"]);
-		assert.deepEqual(lines("Einzeln"), ["Kämpfer 5"]);
-		assert.deepEqual(lines("Heimlich"), ["Kämpfer 3", "Verborgen 2"]);
+		assert.deepEqual(lines("Zwilling"), ["Kämpfer Stufe 5", "Schurke Stufe 8"]);
+		assert.deepEqual(lines("Einzeln"), ["Kämpfer Stufe 5"]);
+		assert.deepEqual(lines("Heimlich"), ["Kämpfer Stufe 3", "Verborgen Stufe 2"]);
 		assert.deepEqual(lines("Heimlich", "public"), ["Kämpfer"], "the difference to the level would tell the locked class");
+		h.add(wiki, {title: "Waldvolk", tags: "Information Folk", text: "Forest folk."});
+		h.add(wiki, {title: "Hochwald", tags: "Information Folk", folk: "Waldvolk", text: "Of the high forest."});
+		h.add(wiki, {title: "Volkstreu", tags: "Player", player: "Vi", xp: "900", folk: "Waldvolk Hochwald", classes: "Kämpfer", text: "One class, a folk."});
+		h.add(wiki, {title: "Klassenlos", tags: "Player", player: "Wu", xp: "900", folk: "Waldvolk", text: "No class."});
+		try {
+			assert.deepEqual(lines("Volkstreu"), ["Kämpfer Stufe 3", "Hochwald"]);
+			assert.deepEqual(lines("Klassenlos"), ["Stufe 3", "Waldvolk"]);
+		} finally {
+			["Volkstreu", "Klassenlos", "Waldvolk", "Hochwald"].forEach(function(t) { wiki.deleteTiddler(t); });
+		}
 	});
 
 	test("the block of values: a row per class with its level and what belongs to it; the folk too", function() {
@@ -603,13 +616,13 @@ test.describe("the levels of the classes (format titles)", function() {
 				return h.render(wiki, "text/plain", "{{" + title + "||$:/plugins/tiddlyrpg-core/viewtemplates/fields}}");
 			});
 		};
-		assert.match(block("Zwilling"), /Klassen Kämpfer 5 · MeisterSchurke 8/);
+		assert.match(block("Zwilling"), /Klassen Kämpfer Stufe 5 · MeisterSchurke Stufe 8/);
 		assert.doesNotMatch(block("Zwilling"), /Klassenstufen/, "the levels stand in the tree");
-		assert.match(block("Heimlich"), /Klassen Kämpfer 3Verborgen 2/);
-		assert.match(block("Heimlich", "public"), /Klassen Kämpfer(?! 3)/);
+		assert.match(block("Heimlich"), /Klassen Kämpfer Stufe 3Verborgen Stufe 2/);
+		assert.match(block("Heimlich", "public"), /Klassen Kämpfer(?! Stufe)/);
 		assert.doesNotMatch(block("Heimlich", "public"), /Verborgen/);
 		assert.deepEqual(f("[[Zwilling]trpgtreerows[classes]]").map(function(r) { return JSON.parse(r); }),
-			[{entries: "Kämpfer Meister", level: "5"}, {entries: "Schurke", level: "8"}]);
+			[{entries: "Kämpfer Meister", level: "Stufe 5"}, {entries: "Schurke", level: "Stufe 8"}]);
 	});
 
 	test("the form: a number per class, written into the field in the order of the tree", function() {

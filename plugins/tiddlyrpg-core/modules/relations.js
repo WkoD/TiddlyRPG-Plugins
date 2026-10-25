@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261025133420086
+modified: 20261025135015562
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -228,12 +228,12 @@ exports.sources = function(wiki,name,to,selected) {
 // The kinds of the switches (relations block, map, search), by tag; the first that fits counts
 var KINDS = [["Player","player"],["Person","person"],["Organisation","organisation"],["Deity","person"],
 	["Location","location"],["Artifact","item"],["Item","item"],["Material","item"],["Quest","quest"],
-	["Creature","creature"],["Folk","folk"],["Class","class"],["Trait","trait"],["Feat","feat"],["Language","language"],["Spell","spell"]];
+	["Creature","creature"],["Spell","spell"],["Information","information"]];
 
 /*
 The kind of a title: player, person (deities too), organisation, location, item (artifacts and
-materials too), quest (a quest or a rumour, a name with markers), creature, folk, class, trait, feat,
-language, spell, with
+materials too), quest (a quest or a rumour, a name with markers), creature, spell, information (its
+categories too: folks, classes, traits, feats, languages, the glossary), with
 <events> also event; else other.
 */
 exports.kindOf = function(wiki,title,events) {
@@ -333,4 +333,30 @@ exports.lines = function(wiki,name,title,visible) {
 		}
 	});
 	return out;
+};
+
+/*
+The groups of the way back of a tree in the relation list, in order: the hubs of the switches
+(kindHubs, from trpg.kindhubs), Information split into its categories (a class, a trait ... each
+under its plural) before Information itself. group() the group of a title, "" for none.
+*/
+var KIND_HUB = {player: "Player", person: "Person", organisation: "Organisation", location: "Location", item: "Item",
+	creature: "Creature", spell: "Spell", quest: "Quest", information: "Information"};
+
+exports.groups = function(wiki,kindHubs) {
+	var categories = require("$:/plugins/tiddlyrpg-core/modules/categories.js").of(wiki,"Information").slice().sort(),
+		out = [];
+	$tw.utils.each(kindHubs,function(hub) {
+		if(hub === "Information") {
+			out = out.concat(categories);
+		}
+		out.push(hub);
+	});
+	return out;
+};
+
+exports.group = function(wiki,title) {
+	var categories = require("$:/plugins/tiddlyrpg-core/modules/categories.js").of(wiki,"Information"),
+		own = require("$:/plugins/tiddlyrpg-core/modules/types.js").of(wiki,title).filter(function(t) { return categories.indexOf(t) !== -1; })[0];
+	return own || KIND_HUB[exports.kindOf(wiki,title)] || "";
 };

@@ -1202,7 +1202,8 @@ location of an artifact). Meaning and examples: `README.md` ("Items", "Categorie
   to. One place of the rules: `modules/relations.js` (`parents()` - also of a package entry not
   taken -, `holder()`, `lines()`); `relations/parent` in `checks/relations.js`; the way back by
   kind in `viewtemplates/relations/list` (order `trpg.kindhubs`); the lines of the player card in
-  `Player.tid` (filter `trpgcardtrees`, the levels of `class-levels`; `tiddlyrpg-card: top` on
+  `Player.tid` (filter `trpgcardlines`: the class with its level in place of the line of the level,
+  then the subfolk; the levels of `class-levels`; `tiddlyrpg-card: top` on
   `classes`: only the class, not its subclass and choices; `tiddlyrpg-card: leaf` on `folk`: the
   subfolk alone); the block of values shows the whole trees (a group of the schema names them in
   `relations`, filter `trpgtreerows`); `content.wanting()` offers the parents.

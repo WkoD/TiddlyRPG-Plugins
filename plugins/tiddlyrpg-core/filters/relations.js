@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/relations.js
 type: application/javascript
 module-type: filteroperator
 created: 20261008062202000
-modified: 20261025121932754
+modified: 20261025135015562
 
 Filters over the relation rules (modules/relations.js). <selected> is a title list of the
 relation types in play (a graph view may draw only some); empty or missing: all.
@@ -20,6 +20,11 @@ relation types in play (a graph view may draw only some); empty or missing: all.
 [<type>relationtree[]]                          <type> if it is a tree (tiddlyrpg-tree)
 [<type>relationfield<title>]                    the label of the field <type> on <title>
                                                 (Field/<type>/<its type>, else Field/<type>)
+[<hubs>relationgroups[]]                        the groups of the way back of a tree: the input hubs
+                                                (trpg.kindhubs), Information split into its
+                                                categories before it
+[<titles>relationgroup[]]                       the group of each title (a category of
+                                                Information, else the hub of its kind)
 [<title>relationlines<type>]                    the entries <title> names through the tree
                                                 <type> that the view sees, one line per entry
                                                 without parent among them, each as a title
@@ -177,6 +182,22 @@ exports.relationlines = function(source,operator,options) {
 		}),function(line) {
 			results.push($tw.utils.stringifyList(line));
 		});
+	});
+	return results;
+};
+
+exports.relationgroups = function(source,operator,options) {
+	var hubs = [];
+	source(function(tiddler,title) {
+		hubs.push(title);
+	});
+	return relations.groups(options.wiki,hubs);
+};
+
+exports.relationgroup = function(source,operator,options) {
+	var results = [];
+	source(function(tiddler,title) {
+		results.push(relations.group(options.wiki,title));
 	});
 	return results;
 };

@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025124110539
+modified: 20261025135015562
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -130,7 +130,7 @@ type: text/vnd.tiddlywiki
 </$let>
 \end
 
-\function trpg.kindhubs() [enlist[Player Person Organisation Location Item Creature Folk Class Trait Feat Language Spell Quest]]
+\function trpg.kindhubs() [enlist[Player Person Organisation Location Item Creature Information Spell Quest]]
 
 \procedure trpg.kindswitches(kinds,state,mode,hubs)
 \whitespace trim

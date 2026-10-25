@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025133420086
+modified: 20261025135015562
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -27,14 +27,14 @@ header line does not name it already.
                                        "<label> <value>" of each field in "card" of the schema of
                                        Player that has a text - written or derived, read as the block
                                        reads (without what the view may not see); for a former one too
-[<title>trpgcardtrees[]]               the lines of the trees (tiddlyrpg-tree: folk, classes) on
-                                       the card of a player character: per entry without parent
-                                       "<entry> <level> · <what belongs to it>" (tiddlyrpg-card: top
-                                       the entry alone: the class without subclass; leaf the last
-                                       of the row: the subfolk) - the level from a
-                                       field of the format titles with that "tree" (class-levels),
-                                       for one entry alone from its field "sum" (the level by the
-                                       XP); no levels when an entry is locked from the view
+[<title>trpgcardlines[]]               the lines of the card of a player character below its
+                                       name: the trees (tiddlyrpg-tree) per entry without parent -
+                                       tiddlyrpg-card: top the class with its level ("Fighter Level
+                                       13", from a field of the format titles with that "tree", for
+                                       one class alone from its field "sum"), leaf the subfolk -,
+                                       the class first; the lines of "card" of the schema of Player
+                                       ("Level 13") only when no class shows the level; no levels
+                                       when a class is locked from the view
 [<title>trpgtreerows[<relation>]]      the rows of a tree (folk, classes) in the block of values,
                                        each {"entries": title list, "level"}: per entry without
                                        parent the entry and what belongs to it, the level of a class
@@ -554,10 +554,10 @@ function levelsOf(wiki,values,field) {
 	return out;
 }
 
-// The rows of the tree <name> of a tiddler as the view sees it: [{entries, level}] - per entry
-// without parent the entry and what belongs to it, the level of a class from the field of the
-// format titles with that tree (one class alone: from its field "sum"); no levels when an entry
-// is locked from the view
+// The rows of the tree <name> of a tiddler as the view sees it: [{entries, level, levels}] - per
+// entry without parent the entry and what belongs to it, the level of a class from the field of
+// the format titles with that tree (one class alone: from its field "sum") as "<label of sum>
+// <n>" ("Level 13"); no levels when an entry is locked from the view
 function treeRows(wiki,title,name,values,view) {
 	var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
 		lines = relations.lines(wiki,name,title,function(t) { return visibility.visible(wiki,t,view); }),
@@ -565,32 +565,50 @@ function treeRows(wiki,title,name,values,view) {
 		field = levelsField(wiki,name),
 		levels = field && !hidden ? levelsOf(wiki,values,field) : {},
 		sum = field && fields.spec(wiki,field).sum;
+	var label = sum ? fields.label(wiki,sum,fields.forTiddler(wiki,title).labels) : "";
 	return lines.map(function(line) {
 		var level = levels[line[0]] || "";
 		if(!level && !hidden && sum && lines.length === 1 && !Object.keys(levels).length) {
 			level = fields.read(wiki,values,sum).text;
 		}
-		return {entries: line, level: level};
+		return {entries: line, level: level ? label + " " + level : "", levels: !!field, sum: sum};
 	});
 }
 
-exports.trpgcardtrees = function(source,operator,options) {
+// The lines of the card of a player character below its name: the classes with their level
+// ("Fighter Level 13" - the line of the level of the schema falls away then), else the lines of
+// "card" of the schema of Player ("Level 13"); then the other trees (the subfolk)
+exports.trpgcardlines = function(source,operator,options) {
 	var wiki = options.wiki,
 		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
 		all = relations.types(wiki),
-		view = visibility.current(wiki);
+		view = visibility.current(wiki),
+		schema = fields.forTypes(wiki,["Player"]);
 	return each(source,function(title) {
 		var values = valuesOf(wiki,title),
-			out = [];
+			leveled = [],
+			others = [],
+			sums = [];
 		relations.ordered(wiki).filter(function(name) { return all[name].tree; }).forEach(function(name) {
 			treeRows(wiki,title,name,values,view).forEach(function(row) {
-				var shown = all[name].card === "top" ? row.entries.slice(0,1) : all[name].card === "leaf" ? row.entries.slice(-1) : row.entries;
-				out.push(shown.map(function(t,i) {
-					return language.title(wiki,t) + (i === 0 && row.level ? " " + row.level : "");
-				}).join(" · "));
+				var shown = all[name].card === "top" ? row.entries.slice(0,1) : all[name].card === "leaf" ? row.entries.slice(-1) : row.entries,
+					text = shown.map(function(t,i) {
+						return language.title(wiki,t) + (i === 0 && row.level ? " " + row.level : "");
+					}).join(" · ");
+				(row.levels ? leveled : others).push(text);
+				if(row.level && row.sum && sums.indexOf(row.sum) === -1) {
+					sums.push(row.sum);
+				}
 			});
 		});
-		return out;
+		var cards = [];
+		(schema.card || []).forEach(function(field) {
+			var text = sums.indexOf(field) === -1 && fields.spec(wiki,field) ? fields.read(wiki,values,field).text : "";
+			if(text) {
+				cards.push(fields.label(wiki,field,schema.labels) + " " + text);
+			}
+		});
+		return sums.length ? leveled.concat(cards,others) : cards.concat(leveled,others);
 	});
 };
 

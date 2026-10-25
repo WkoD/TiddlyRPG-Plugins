@@ -1,5 +1,5 @@
 created: 20261024170203713
-modified: 20261025133420086
+modified: 20261025135015562
 tags: $:/tags/tiddlyrpg/RulesFields
 title: $:/tiddlyrpg/rules/fields/characters
 type: application/json
@@ -8,8 +8,9 @@ type: application/json
     "types": ["Player", "Person"],
     "fields": ["character-level", "xp", "xp-next", "class-levels"],
     "groups": [
-        {"id": "trees", "relations": ["folk", "classes"]},
-        {"id": "advancement", "layout": "inline", "fields": ["character-level", "xp", "xp-next"]}
+        {"id": "advancement", "layout": "inline", "fields": ["character-level", "xp", "xp-next"]},
+        {"id": "classes", "relations": ["classes"]},
+        {"id": "folk", "relations": ["folk"]}
     ],
     "card": ["character-level"]
 }
