@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025072238772
+modified: 20261025075210577
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -29,7 +29,8 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                  "signed"  a number shown with its sign ("+6")
                  "integer": true  a whole number; thousands may be separated as people write
                            them ("120.000", "120,000"), a fraction is a problem - never read
-                           as one (the XP; modules/rules.js number())
+                           as one; shown with the thousands separator of the wiki language,
+                           written or derived (the XP; modules/rules.js number(), formatInteger)
                  "view": false  only in the editor, not in the block (expertise: it shows in
                            the values of the skills already)
                  "edit": false  only derived, never written: the form neither shows nor offers it
@@ -378,8 +379,11 @@ function entryValue(wiki,fields,field,id,depth) {
 	return derive && entry ? compute(wiki,fields,derive,{id: id, entry: entry},depth || 0) : null;
 }
 
-// The text of a number in a field: signed or as it is
+// The text of a number in a field: a whole number with thousands separated, signed, or as it is
 function numberText(wiki,s,n) {
+	if(s && s.integer && !s.signed) {
+		return rules().formatInteger(wiki,n);
+	}
 	return s && s.signed ? signed(wiki,n) : rules().formatNumber(wiki,n,2);
 }
 

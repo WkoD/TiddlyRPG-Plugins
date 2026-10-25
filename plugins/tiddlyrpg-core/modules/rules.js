@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261025072238772
+modified: 20261025075210577
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -92,7 +92,8 @@ Every domain may have "example": an input shown in the settings tab next to its 
 "1d8 cold", "wis save", a date for a calendar).
 
 Numbers take "." or "," as decimal mark and are shown with the one of the wiki language
-(Number/Decimal); no thousands separator.
+(Number/Decimal); no thousands separator - except a whole number of a field with "integer"
+(the XP), shown with the separator of the wiki language (Number/Group: "120.000", "120,000").
 
 Every function returns {text, problem}: what to show and, if something was not understood, a
 problem key (Rules/Check/...) with its values; unknown parts show unchanged. check() lists the
@@ -196,6 +197,14 @@ var formatNumber = exports.formatNumber = function(wiki,value,decimals) {
 		text = rounded.toFixed(decimals);
 	}
 	return text.replace(".",language.t(wiki,"Number/Decimal") === "," ? "," : ".");
+};
+
+// A whole number with the thousands separator of the wiki language (Number/Group): 120000 ->
+// "120.000" / "120,000"; below 1000 as it is
+var formatInteger = exports.formatInteger = function(wiki,value) {
+	var n = Math.round(Number(value)),
+		digits = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,language.t(wiki,"Number/Group"));
+	return (n < 0 ? "-" : "") + digits;
 };
 
 // A number as written, with the decimal mark of the wiki language
@@ -717,8 +726,9 @@ exports.damage = function(wiki,text,short) {
 // A number: "19", "+2", "-1", "1,5"; spec.min/spec.max limit it. Shown as written, with the
 // decimal mark of the wiki language and the sign it carries. spec.integer: a whole number - a
 // point, comma, space or apostrophe before every group of three digits separates thousands, as
-// people write them ("120.000", "120,000", "120 000" are 120000, shown without separator);
-// anything else that is no whole number ("1,5", "12.00") is a problem, never read as a fraction.
+// people write them ("120.000", "120,000", "120 000" are 120000, shown with the separator of
+// the wiki language, formatInteger); anything else that is no whole number ("1,5", "12.00") is a
+// problem, never read as a fraction.
 var number = exports.number = function(wiki,spec,text) {
 	text = (text || "").toString().trim();
 	if(spec.integer) {
@@ -736,7 +746,7 @@ var number = exports.number = function(wiki,spec,text) {
 	if((spec.min !== undefined && value < spec.min) || (spec.max !== undefined && value > spec.max)) {
 		return result(text,"Rules/Check/NumberRange",{text: text, min: spec.min === undefined ? "" : spec.min, max: spec.max === undefined ? "" : spec.max});
 	}
-	var r = result(asWritten(wiki,text.replace("−","-")));
+	var r = result(spec.integer ? formatInteger(wiki,value) : asWritten(wiki,text.replace("−","-")));
 	r.value = value;
 	return r;
 };

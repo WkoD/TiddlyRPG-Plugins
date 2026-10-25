@@ -139,7 +139,7 @@ test.describe("values", function() {
 		var wolf = {cr: "5"};
 		assert.equal(read(wolf, "proficiency").text, "+3");
 		assert.equal(read(wolf, "proficiency").derived, true);
-		assert.equal(read(wolf, "xp").text, "1800");
+		assert.equal(read(wolf, "xp").text, "1.800", "a whole number with the thousands separator of the wiki language");
 		assert.equal(read({cr: "1/4"}, "xp").text, "50");
 		assert.equal(read({cr: "0", xp: "0"}, "xp").text, "0");
 		assert.equal(read({cr: "0", xp: "0"}, "xp").written, true);
@@ -614,7 +614,7 @@ test.describe("the level of a player character", function() {
 		assert.equal(read({xp: "0"}, "player-level").text, "1");
 		assert.equal(read({xp: "400"}, "player-level").text, "2", "the entries need not stand in order");
 		assert.equal(read({xp: "900"}, "player-level").text, "3", "reached at the threshold");
-		assert.equal(read({xp: "1000"}, "xp-next").text, "2700");
+		assert.equal(read({xp: "1000"}, "xp-next").text, "2.700");
 		assert.equal(read({xp: "99999"}, "player-level").text, "5");
 		assert.equal(read({xp: "99999"}, "xp-next").text, "", "nothing after the last level");
 		assert.equal(read({}, "player-level").text, "", "nothing without XP");
@@ -638,7 +638,7 @@ test.describe("the level of a player character", function() {
 	test("the block of a player character: level, XP and the next level in one line", function() {
 		withTiddlers([{title: "Held", tags: "Player", player: "Anna", xp: "1000"}], function() {
 			var html = block("Held");
-			assert.match(html, /Stufe<\/span> 3<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">EP<\/span> 1000<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Nächste Stufe<\/span> 2700/, html);
+			assert.match(html, /Stufe<\/span> 3<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">EP<\/span> 1.000<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Nächste Stufe<\/span> 2.700/, html);
 		});
 	});
 
@@ -687,7 +687,7 @@ test.describe("XP: a whole number, also for a person", function() {
 	test("thousands separated as people write them; a fraction is a problem, never read as one", function() {
 		["6500", "6.500", "6,500", "6 500", "6 500", "6'500"].forEach(function(xp) {
 			assert.equal(fields.read(wiki, {xp: xp}, "player-level").text, "5", xp);
-			assert.equal(fields.read(wiki, {xp: xp}, "xp").text, "6500", xp + " shown without separator");
+			assert.equal(fields.read(wiki, {xp: xp}, "xp").text, "6.500", xp + " shown with the separator of the wiki language");
 			assert.equal(fields.read(wiki, {xp: xp}, "xp").problem, null, xp);
 		});
 		["1,5", "12.00", "6.5000", "6,500.5", "6.500,000"].forEach(function(xp) {
@@ -721,4 +721,16 @@ test.describe("XP: a whole number, also for a person", function() {
 			wiki.deleteTiddler("Draft of 'Held'");
 		}
 	});
+});
+
+test("a whole number shows the thousands separator of the wiki language, a small one none", function() {
+	assert.equal(fields.read(wiki, {xp: "120000"}, "xp").text, "120.000");
+	assert.equal(fields.read(wiki, {xp: "999"}, "xp").text, "999");
+	h.setLanguage(wiki, "en-GB");
+	try {
+		assert.equal(fields.read(wiki, {xp: "120.000"}, "xp").text, "120,000");
+		assert.equal(fields.read(wiki, {xp: "1000"}, "xp-next").text, "2,700");
+	} finally {
+		h.setLanguage(wiki, "de-DE");
+	}
 });

@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025072238772
+modified: 20261025075210577
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -204,6 +204,7 @@ New/Button/Hint: Create a new tiddler of the type of this hub (only on the hub o
 New/Create: Create
 New/Hub: New:
 Number/Decimal: .
+Number/Group: ,
 Player/Active: Player characters
 Player/Former: Former characters
 Player/Player: Player:

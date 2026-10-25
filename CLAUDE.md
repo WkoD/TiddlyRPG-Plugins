@@ -260,7 +260,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     with those of the wiki, labels, derived values (modifier, average, total, lookup, band - the
     level of a player character by its XP from a table domain -, sum over the entries of a list,
     computed entries), a field only derived (`"edit": false`: not in the form, no lock of its
-    own), a whole number (`"integer"`: thousands separated, a fraction a problem), the XP of a
+    own), a whole number (`"integer"`: thousands separated when read and shown - `Number/Group` -, a
+    fraction a problem), the XP of a
     person, kept when a player character becomes one, the card of a player character (`card`,
     `trpgfieldcard`, a former one and a locked XP), the header line, `when`, `copyFrom()` with the
     lock; patterns with parts in braces (`fill()`), a label in a variant and in the variant

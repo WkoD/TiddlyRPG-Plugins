@@ -271,8 +271,9 @@ in D&D the proficiency bonus and XP from the challenge rating, saving throws and
 abilities, passive Perception, the level of a player character from its XP. A value written in
 the field wins. Nothing derived is stored, and a derived value reads only fields of its own
 tiddler. A value the rules only derive (the level) is no field of the form at all. A whole number
-such as the XP may separate thousands as people write them ("120.000", "120,000"); a fraction there
-gets a message below the title instead of being read as one.
+such as the XP may separate thousands as people write them ("120.000", "120,000") and shows with
+the thousands separator of the wiki language; a fraction there gets a message below the title
+instead of being read as one.
 
 **Fields that need another value:** the damage of a weapon is offered and shown only while the
 category says weapon; a value written without it gets a hint below the title.
