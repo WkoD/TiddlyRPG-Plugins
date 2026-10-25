@@ -94,6 +94,29 @@ test.describe("schemas", function() {
 		assert.equal(fields.forTypes(wiki, ["Item"]).groups[0].fields.join(), "damage,range,ac,bonus,healing", "the ruleset's group unchanged");
 	});
 
+	test("a group of the wiki with the id of one of the ruleset adds its relations and combines; layout and when only where the ruleset has none", function() {
+		withSchema("Groups of the campaign", {
+			types: ["Item"],
+			fields: ["rarity"],
+			groups: [
+				{id: "properties", relations: ["owner"], layout: "row", combine: [{fields: ["damage", "range"], key: "Line/Charm"}]},
+				{id: "trade", layout: "list", when: {category: ["weapon"]}}
+			]
+		}, function() {
+			var groups = fields.forTypes(wiki, ["Item"]).groups,
+				properties = groups[0],
+				trade = groups[1];
+			assert.deepEqual(Array.from(properties.relations), ["base", "owner"]);
+			assert.equal(properties.combine.length, 1);
+			assert.equal(properties.layout, "row", "the ruleset has none");
+			assert.equal(trade.layout, "inline", "the ruleset's");
+			assert.deepEqual(trade.when, {category: ["weapon"]});
+		});
+		var again = fields.forTypes(wiki, ["Item"]).groups;
+		assert.deepEqual(Array.from(again[0].relations), ["base"], "the ruleset's group unchanged");
+		assert.equal(again[0].combine, undefined);
+	});
+
 	test("fields/schema: reserved names, defined twice, without definition, not hidden", function() {
 		withSchema("Bad fields", {
 			definitions: {title: {format: "text"}, price: {format: "text"}, owner: {format: "text"}, damage: {format: "text"}},

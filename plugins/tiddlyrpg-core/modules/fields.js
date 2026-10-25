@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025194430859
+modified: 20261025194848590
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -52,7 +52,9 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                 "summary": {"key", "byValue": {"<field>": {"<value>": "<key>"}}, "ifSet": {"<field>":
                 "<key>"}, "flags": {"<field>": "<key>"}}, "groups": [group, ...], "card": [...]}
                - per type which fields, in which order; several schemas of a type are merged,
-               the ruleset's first, then the wiki's (a campaign adds fields). "card" (of the type
+               the ruleset's first, then the wiki's (a campaign adds fields; a group of the
+               same id gets the fields, relations and combines it lacks, a layout and when only
+               where it has none). "card" (of the type
                Player): the fields the card of a player character shows in the hub Player, below
                its name ("Level 13") - for a former one too (filters/fields.js trpgfieldcard).
   group        {"id", "layout": "list"|"row"|"inline", "fields": [...], "combine": [{"fields":
@@ -210,18 +212,34 @@ var forTypes = exports.forTypes = function(wiki,list) {
 				result.fields.push(field);
 			}
 		});
-		// A group of the same id gets the fields it lacks
+		// A group of the same id gets the fields, relations and combines it lacks, and the layout
+		// and when it has none of - like the labels, the first schema wins (copies: the data of
+		// the registry stays as it is)
 		schema.groups.forEach(function(group) {
 			var same = result.groups.filter(function(g) { return g.id === group.id; })[0];
 			if(!same) {
-				result.groups.push($tw.utils.extend({},group,{fields: (group.fields || []).slice(), relations: (group.relations || []).slice()}));
-			} else {
-				(group.fields || []).forEach(function(field) {
-					if(same.fields.indexOf(field) === -1) {
-						same.fields.push(field);
+				var copy = $tw.utils.extend({},group,{fields: (group.fields || []).slice(), relations: (group.relations || []).slice()});
+				if(group.combine) {
+					copy.combine = group.combine.slice();
+				}
+				result.groups.push(copy);
+				return;
+			}
+			["fields","relations"].forEach(function(name) {
+				(group[name] || []).forEach(function(item) {
+					if(same[name].indexOf(item) === -1) {
+						same[name].push(item);
 					}
 				});
+			});
+			if(group.combine) {
+				same.combine = (same.combine || []).concat(group.combine);
 			}
+			["layout","when"].forEach(function(name) {
+				if(same[name] === undefined && group[name] !== undefined) {
+					same[name] = group[name];
+				}
+			});
 		});
 		$tw.utils.each(schema.labels,function(key,field) {
 			result.labels[field] = result.labels[field] || key;

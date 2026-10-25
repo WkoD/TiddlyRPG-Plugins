@@ -300,7 +300,9 @@ an entry the wiki does not have yet, no error - the link to it offers to take it
 **Locked values:** `secret-fields` (see "Player characters, views and secrets").
 
 **Of the campaign:** a schema of the wiki for a type adds fields to those of the ruleset - its
-own definitions, never one of the ruleset changed; terms of the campaign extend a domain (see
+own definitions, never one of the ruleset changed; a group with the id of one of the ruleset adds
+its fields, relations and joined lines to it, its layout and condition count where the ruleset
+sets none; terms of the campaign extend a domain (see
 "Rulesets and campaign settings"). Values the format does not read, fields defined twice and the
 rest are reported (see "Checks", `fields/...`).
 
