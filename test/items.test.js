@@ -200,7 +200,7 @@ test.describe("file of a book", function() {
 	});
 });
 
-test.describe("base type", function() {
+test.describe("colour and image folder of the item types", function() {
 	test("colour of the item types", function() {
 		["Sword", "Newspaper", "Potion", "Moss"].forEach(function(title) {
 			assert.equal(wiki.filterTiddlers("[[" + title + "]] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]]").join(), "#ff80ff");

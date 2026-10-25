@@ -1,5 +1,5 @@
 /*
- * Translation mechanics: display names (trpgtitle, tag pill), the tag hook that stores translated
+ * Translation mechanics: display names (trpgtitle; the tag pill: tag-pill.test.js), the tag hook that stores translated
  * tag names under the internal name, the search for translated hub names, translated edge labels
  * and the refresh of date output after a language change or a change of the calendar texts.
  * Plain expected output in one language belongs to the file of its topic.
@@ -58,10 +58,6 @@ test.describe("de-DE", function() {
 		} finally {
 			wiki.deleteTiddler("Notes");
 		}
-	});
-
-	test("tag pill translated", function() {
-		assert.ok(h.view(wiki, "Insel Avalon").indexOf(">Ort</span>") !== -1);
 	});
 
 	test("tag hook: Ort -> Location", function() {

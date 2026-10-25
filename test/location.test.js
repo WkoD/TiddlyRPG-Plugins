@@ -331,11 +331,8 @@ test.describe("de-DE", function() {
 		}
 	});
 
-	test("no path for events", function() {
+	test("no path for events, not even with a field location", function() {
 		assert.ok(h.view(wiki, "Hafenfest").indexOf("trpg-location-path") === -1);
-	});
-
-	test("... not even with a field location", function() {
 		h.add(wiki, {title: "Placed Event", tags: "Event", location: "Town", text: ""});
 		try {
 			assert.ok(h.view(wiki, "Placed Event").indexOf("trpg-location-path") === -1);
@@ -441,11 +438,6 @@ test.describe("de-DE", function() {
 		} finally {
 			wiki.deleteTiddler("$:/status/IsReadOnly");
 		}
-	});
-
-	test("map for a location with places within only (no image, no spots)", function() {
-		var html = h.view(wiki, "Continent");
-		assert.ok(html.indexOf('class="trpg-map"') !== -1 && html.indexOf('data-tab-title="map"') !== -1, html);
 	});
 
 	test("several maps: Map with the graph, a tab per further map named after its file, then Quests and rumours", function() {
@@ -563,13 +555,11 @@ test.describe("de-DE", function() {
 		assert.ok(avalon.indexOf("Friggs Traum") !== -1);
 	});
 
-	test("location with a map only: the map in the tab Map", function() {
-		var baile = h.view(wiki, "Baile");
-		assert.ok(baile.indexOf('class="trpg-map"') !== -1 && baile.indexOf('data-tab-title="map"') !== -1);
-	});
-
-	test("location without map, spots and places within: a map all the same (quests may lead there)", function() {
-		assert.ok(h.view(wiki, "Nowhere").indexOf('class="trpg-map"') !== -1);
+	test("every location has the map in the tab Map: with places within only, with a map image only, with nothing (quests may lead there)", function() {
+		["Continent", "Baile", "Nowhere"].forEach(function(title) {
+			var html = h.view(wiki, title);
+			assert.ok(html.indexOf('class="trpg-map"') !== -1 && html.indexOf('data-tab-title="map"') !== -1, title);
+		});
 	});
 
 	test("relation list heading", function() {
