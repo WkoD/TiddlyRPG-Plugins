@@ -71,8 +71,12 @@ test.describe("reading", function() {
 	});
 
 	test("a spot in a note of the DM is not read", function() {
-		h.add(wiki, {title: "Noted", tags: "Location", text: "Intro.\n\n@@.tc-tiddler-frame\n<<spot \"Hidden\">>\n@@"});
+		// the block form: read inside any other class, so only the class of the note decides
+		var text = function(cls) { return "Intro.\n\n@@." + cls + "\n<$spot name=\"Hidden\">\n\nIn it.\n\n</$spot>\n@@"; };
+		h.add(wiki, {title: "Noted", tags: "Location", text: text("other")});
 		try {
+			assert.deepEqual(f("[[Noted]spots[]]"), ["Hidden"]);
+			h.add(wiki, {title: "Noted", tags: "Location", text: text("tc-tiddler-frame")});
 			assert.deepEqual(f("[[Noted]spots[]]"), []);
 		} finally {
 			wiki.deleteTiddler("Noted");
@@ -160,6 +164,7 @@ test.describe("spotlink", function() {
 
 	test("missing spot: link to the location and an error below the title", function() {
 		assert.ok(body.indexOf("nicht gefunden") === -1, "not in the text");
+		assert.match(body, /href="#Town">Lost Spot<\/a>/);
 		assert.ok(h.view(wiki, "Well Night").indexOf("Spot „Lost Spot“ in Town nicht gefunden") !== -1);
 		assert.ok(h.checkKeys(wiki, "Well Night", "spots").indexOf("Spot/Missing") !== -1);
 	});

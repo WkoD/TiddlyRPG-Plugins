@@ -11,7 +11,7 @@ var test = require("node:test"),
 var wiki;
 
 // source: the tiddler holding the input; variables: set around it; type: the fields typed into
-// the target tiddler (title); shows: the output that follows the input.
+// the target tiddler (title); shows: the output that follows the input, where the input shows any.
 var CASES = [
 	{source: "Calendar", type: {title: "$:/temp/tiddlyrpg/calendar", calc_date: "1351-07-30", calc_day: "1"}, shows: /Mittsommer \(07\/08\)/},
 	{source: "Calendar", type: {title: "$:/temp/tiddlyrpg/calendar", calc_from: "1351-01-01", calc_to: "1351-01-11"}, shows: /Tage:10(?!\d)/},
@@ -20,28 +20,28 @@ var CASES = [
 		type: {title: "$:/state/tiddlyrpg-core/quest-rename/Spur", text: "Turm"}, shows: /Umbenennen/},
 	// The dropdowns of the editor toolbar (editor/toolbar) and the fields of the form (editor/fields)
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/date-dropdown", variables: {targetTiddler: "Spurensuche"},
-		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", date: "1351-07-30", label: "Rast"}, shows: /Einsetzen/},
+		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", date: "1351-07-30", label: "Rast"}, shows: /Ausgabe: 30. Flamerule 1351/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/spot-dropdown", variables: {targetTiddler: "Baile"},
-		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Markt"}, shows: /Einsetzen/},
+		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Markt"}},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown", variables: {targetTiddler: "Spurensuche"},
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", term: "str", unit: "60 ft"}, shows: /60 ft/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/content-dropdown", variables: {targetTiddler: "Spurensuche"},
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", content: "Sw"}, shows: /Sword/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/sublocation-dropdown", variables: {targetTiddler: "Baile"},
-		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Mühle"}, shows: /Anlegen/},
+		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Mühle"}},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/date", variables: {currentTiddler: "Draft of 'Neu'", currentField: "date"},
 		type: {title: "Draft of 'Neu'", date: "1351-07-30"}, shows: /1:/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/images", variables: {currentTiddler: "Draft of 'Neu'", currentField: "map"},
-		type: {title: "Draft of 'Neu'", map: "Neu.png"}, shows: /^$/},
+		type: {title: "Draft of 'Neu'", map: "Neu.png"}},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/price", variables: {currentTiddler: "Draft of 'Neu'", currentField: "price"},
 		type: {title: "Draft of 'Neu'", price: "5 gp"}, shows: /5/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/rules", variables: {currentTiddler: "Draft of 'Neu'", currentField: "weight"},
 		type: {title: "Draft of 'Neu'", weight: "3 lb"}, shows: /Ausgabe: 1,5 kg/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/rules", variables: {currentTiddler: "Draft of 'Heldin'", currentField: "class-levels"},
-		type: {title: "$:/temp/tiddlyrpg-core/levels/Draft of 'Heldin'", text: "{\"Kämpfer\": \"5\"}"}, shows: /Kämpfer.*Schurke/},
+		type: {title: "$:/temp/tiddlyrpg-core/levels/Draft of 'Heldin'", text: "{\"Kämpfer\": \"5\"}"}},
 	{source: "Content", type: {title: "$:/state/tiddlyrpg-core/content/search", text: "sw"}, shows: /Einträge: 1(?!\d)/},
 	{source: "$:/plugins/tiddlyrpg-core/ui/new-event", variables: {"trpg-input": "$:/temp/tiddlyrpg-core/new-event"},
-		type: {title: "$:/temp/tiddlyrpg-core/new-event", text: "1351-07-30"}, shows: /Anlegen/}
+		type: {title: "$:/temp/tiddlyrpg-core/new-event", text: "1351-07-30"}, shows: /Ausgabe: 30. Flamerule 1351/}
 ];
 
 var EVENT = {title: "Spurensuche", tags: "Event", date: "1351-01-01", text: "<<date>>\n\n<<quest \"Spur\">>Eine Spur.\n"};
@@ -66,7 +66,10 @@ CASES.forEach(function(c) {
 	test(c.source + ": typing into " + fields.join(", ") + " keeps the inputs", function() {
 		var result = h.typeInto(wiki, c.source, c.type, c.variables);
 		assert.ok(result.kept, "the same input fields after a change");
-		assert.match(result.text, c.shows, "the output follows");
+		if(c.shows) {
+			assert.doesNotMatch(result.before, c.shows, "not there before the input");
+			assert.match(result.text, c.shows, "the output follows");
+		}
 	});
 });
 

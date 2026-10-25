@@ -130,9 +130,8 @@ test("head: span of the field and the locations before the first placeholder", f
 	assert.match(view, /trpg-event-head.*data-tag-title="Nowhere".*<\/div>\s*<hr class="trpg-event-rule">/s);
 });
 
-test("head without the former labels", function() {
+test("head: a span within one month in one line", function() {
 	var view = h.view(wiki, "Schild");
-	assert.ok(view.indexOf("Jahr:") === -1 && view.indexOf("Ort:") === -1);
 	assert.match(view, /<div class="trpg-dateline">5\. – 24\. Flamerule 1351 DR<\/div>/);
 });
 

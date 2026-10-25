@@ -66,8 +66,8 @@ test.describe("forms and numbers", function() {
 
 	test("a block draws the same heading, with its caption and jump mark", function() {
 		var html = body("Mischung");
-		assert.match(html, /data-trpg-anchor="date-2">1\. Hammer 1351 DR|data-trpg-anchor="date-2">[^<]*1351 DR<span class="trpg-date-label"> – Block/);
-		assert.ok(html.indexOf("Erster.") < html.indexOf("Zweiter.") && html.indexOf("Zweiter.") < html.indexOf("Dritter."), html);
+		assert.match(html, /<hr class="trpg-date-rule"><div class="trpg-date-heading" data-trpg-anchor="date-2">1\. Alturiak 1351 DR<span class="trpg-date-label"> – Block<\/span><\/div><p><\/p><p>Zweiter\.<\/p>/);
+		assert.match(html, /Erster\.(.|\n)*Zweiter\.(.|\n)*Dritter\./, html);
 		assert.equal((html.match(/class="trpg-section trpg-section-date/g) || []).length, 3);
 	});
 

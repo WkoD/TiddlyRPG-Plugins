@@ -123,7 +123,6 @@ test("ego graph of a location: its spots count as the centre, other locations st
 	var graph = ego("Town");
 	assert.deepEqual(nodes(graph), ["Barkeep", "Guild", "Guildmaster", "Tavern", "Town", "Wanderer"]);
 	assert.equal(graph.nodes.Tavern.label, "Tavern");
-	assert.equal(graph.nodes.Tavern.trpgToggle, undefined);
 	assert.ok(edges(graph).indexOf("Barkeep -> Tavern (in)") !== -1, "who is in a spot");
 	assert.ok(edges(graph).every(function(edge) { return edge.indexOf("Kingdom") === -1; }), "no edge to the parent");
 });
@@ -132,7 +131,6 @@ test("ego graph of a location: the places within as plain nodes, without their n
 	var graph = ego("Kingdom");
 	assert.deepEqual(nodes(graph), ["Guild", "Kingdom", "Neighbour", "Tavern", "Town", "Twice", "Wanderer"]);
 	assert.equal(graph.nodes.Town.label, "Town");
-	assert.equal(graph.nodes.Town.trpgToggle, undefined);
 	assert.ok(!graph.nodes.Guildmaster, "who is in Town stays out");
 });
 

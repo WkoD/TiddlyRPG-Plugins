@@ -71,7 +71,8 @@ test("not looked at: code, the body of a definition", function() {
 });
 
 test("no check for data tiddlers and editor snippets", function() {
-	assert.equal(unknown("{\"a\": \"<<nope>>\"}", {type: "application/json"}), "");
+	// a type without a parser of its own is parsed as wikitext: only the exclusion keeps it out
+	assert.equal(unknown("<<nope>>", {type: "text/x-foo"}), "");
 	assert.equal(unknown("<<nope>>", {tags: "$:/tags/TextEditor/Snippet"}), "");
 });
 

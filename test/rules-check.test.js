@@ -57,8 +57,10 @@ test("one hint per problem, in the wiki language", function() {
 test("named parameters and the widget form are checked, computed ones not", function() {
 	// id:{{...}} is plain text in a macro call (TiddlyWiki 5.3+), id={{...}} is computed
 	withTiddler({title: "Formen", text: "<<unit value:\"3 cubits\">> <$transclude $variable=\"term\" id=\"abc\"/> <<term id={{Irgendwo}}>> <$transclude $variable=\"term\" id={{Irgendwo}}/>"}, function() {
-		var hints = check("Formen");
-		assert.equal(hints.length, 2, hints.join("\n"));
+		assert.deepEqual(check("Formen"), [
+			"Text prüfen: keine bekannte Einheit in <<unit \"3 cubits\">>",
+			"Text prüfen: <<term>> kennt kein „abc“"
+		]);
 	});
 });
 

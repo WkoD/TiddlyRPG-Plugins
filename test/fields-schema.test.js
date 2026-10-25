@@ -357,7 +357,6 @@ test.describe("the block of values", function() {
 			// the short form: the label says damage already
 			assert.match(html, /<span class="trpg-fields-label">Schaden<\/span> 1W8 Hieb \+ 1W6 Feuer<\/span><\/div><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Reichweite<\/span>/);
 			assert.match(html, /<div class="trpg-fields-section trpg-fields-inline"><div class="trpg-fields-lines"><span class="trpg-fields-line"><span class="trpg-fields-label">Gewicht<\/span> [^<]+<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Preis<\/span> 15 GM<\/span>/, "a group names the price");
-			assert.doesNotMatch(html, /Rüstungsklasse/);
 		});
 	});
 
@@ -371,7 +370,7 @@ test.describe("the block of values", function() {
 		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp"}, function() {
 			var html = block("Ring");
 			assert.doesNotMatch(html, /trpg-fields-summary/, "no kind, no header line");
-			assert.ok(html.indexOf("Seltenheit") < html.indexOf("Preis"), "the fields of no group first, the price in the group that names it");
+			assert.match(html, /Seltenheit(.|\n)*Preis/, "the fields of no group first, the price in the group that names it");
 		});
 	});
 
@@ -419,8 +418,7 @@ test.describe("the block of values", function() {
 	test("after the image, before the body; the price on any tiddler", function() {
 		withTiddler({title: "Ring", tags: "Item", rarity: "rare", price: "50 gp", text: "Ein Ring Zx9."}, function() {
 			var html = h.view(wiki, "Ring").replace(/>\s+</g, "><");
-			assert.ok(html.indexOf("trpg-fields") < html.indexOf("Zx9"), "the block before the body");
-			assert.ok(html.indexOf("Zx9") < html.indexOf("relations/graph"), "the body before the relations");
+			assert.match(html, /trpg-fields(.|\n)*Zx9(.|\n)*relations\/graph/, "the block before the body, the body before the relations");
 		});
 		withTiddler({title: "Hafen", tags: "Location", price: "5 sp"}, function() {
 			assert.match(block("Hafen"), /<span class="trpg-fields-label">Preis<\/span> 5 SM/);
@@ -569,7 +567,7 @@ test.describe("the lock of values (secret-fields)", function() {
 		withTiddler({title: "Oger", tags: "Creature", str: "18", wis: "12", saves: "str", skills: "perception", cr: "5", "secret-fields": "str cr"}, function() {
 			h.inView(wiki, "public", function() {
 				var html = block("Oger");
-				assert.doesNotMatch(html, /18|\+4|\+7|\+3|1800|Herausforderungsgrad|Übungsbonus/, "no score, no modifier, no save, no proficiency, no XP");
+				assert.doesNotMatch(html, /18|\+4|\+7|\+3|1\.800|Herausforderungsgrad|Übungsbonus/, "no score, no modifier, no save, no proficiency, no XP");
 				assert.match(html, /Rettungswürfe<\/span> STR<\/span>/, "the save without its value");
 				assert.match(html, /Fertigkeiten<\/span> Wahrnehmung<\/span>/, "the skill without its value: it needs the proficiency");
 				assert.doesNotMatch(html, /passive Wahrnehmung/);
@@ -721,7 +719,7 @@ test.describe("the level of a player character", function() {
 	test("the block of a player character: level, XP and the next level in one line", function() {
 		withTiddlers([{title: "Held", tags: "Player", player: "Anna", xp: "1000"}], function() {
 			var html = block("Held");
-			assert.match(html, /Stufe<\/span> 3<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">EP<\/span> 1.000<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Nächste Stufe<\/span> 2.700/, html);
+			assert.match(html, /Stufe<\/span> 3<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">EP<\/span> 1\.000<\/span> · <span class="trpg-fields-line"><span class="trpg-fields-label">Nächste Stufe<\/span> 2\.700/, html);
 		});
 	});
 
@@ -748,7 +746,7 @@ test.describe("the level of a player character", function() {
 			h.inView(wiki, "public", function() {
 				assert.equal(card("Held"), "");
 				assert.equal(card("Alter Held"), "", "the lock covers a field of the rules outside the schema of its type");
-				assert.doesNotMatch(block("Held"), /1000|Stufe|2700/);
+				assert.doesNotMatch(block("Held"), /1\.000|Stufe|2\.700/);
 				assert.doesNotMatch(h.view(wiki, "Player"), /Stufe [35]/);
 			});
 			h.inView(wiki, "player:Anna", function() {

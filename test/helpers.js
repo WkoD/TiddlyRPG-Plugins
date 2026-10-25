@@ -256,6 +256,7 @@ exports.typeInto = function(wiki, title, fields, variables) {
 	};
 	widget.render(container, null);
 	var before = inputs(widget, []),
+		shown = container.textContent,
 		changes = {};
 	exports.add(wiki, fields);
 	try {
@@ -264,6 +265,7 @@ exports.typeInto = function(wiki, title, fields, variables) {
 		var after = inputs(widget, []);
 		return {
 			kept: before.length > 0 && after.length === before.length && after.every(function(w, i) { return w === before[i]; }),
+			before: shown,
 			text: container.textContent
 		};
 	} finally {

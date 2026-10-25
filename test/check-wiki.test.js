@@ -87,7 +87,7 @@ test("dated sections: text before the first <<date>> is a hint, clean once every
 		"<<date>>\n\nA.\n\n<<date label:\"Zweiter\">>\n\nB.\n\n<<date>>\n\nC.\n");
 	try {
 		var result = check(["dates"]);
-		assert.match(result.out, /Intro\n(.*\n)*\s+hint  Check the event: no <<date>> for section 1/);
+		assert.match(result.out, /Intro\n( {2}.*\n)* {2}hint {2}Check the event: no <<date>> for section 1/, result.out);
 		assert.doesNotMatch(result.out, /cannot read/);
 		assert.doesNotMatch(result.out, /^Zwei$/m);
 		write("tiddlers/Intro.tid", "title: Intro\ntags: Event\ndate: 1351-08-15, 1351-11-12\n\n<<date>>\n\nZuerst.\n\n<<date>>\n\nDann.\n");

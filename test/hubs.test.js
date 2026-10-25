@@ -187,8 +187,7 @@ test.describe("trpg.link", function() {
 	});
 
 	test("trpg.pill: a missing title in the colour of untyped tags, a spot dashed with a tooltip, a text behind (a rumour: quests.test.js)", function() {
-		assert.ok(pill("Link Missing").indexOf("--trpg-rumour") === -1, "the gold of the rumours only for a rumour");
-		assert.ok(pill("Link Missing").indexOf("trpg-pill-rumour") === -1);
+		assert.equal(pill("Link Missing"), "<span class=\"trpg-pill-item\"><a class=\"tc-tiddlylink tc-tiddlylink-missing trpg-pill-link\" href=\"#Link%20Missing\"><span class=\"tc-tag-label trpg-pill\" title=\"\" style=\"--trpg-pill:#eecc66;\">Link Missing</span></a></span>", "the colour of untyped tags, not the gold of the rumours");
 		assert.match(pill("Insel Avalon", "trpg-pill-spot"), /class="tc-tag-label trpg-pill trpg-pill-spot" title="Spot" style="--trpg-pill:#ff2b2b;"/);
 		assert.match(pill("Insel Avalon", "", "(1351)"), /<\/a><span class="trpg-via">\(1351\)<\/span><\/span>$/);
 	});
