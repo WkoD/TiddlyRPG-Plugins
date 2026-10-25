@@ -609,6 +609,12 @@ test("relations: colour of the axis, the colour of a type wins", function() {
 		assert.equal(place.props.color, wiki.getTiddlerData("$:/config/tiddlyrpg/graph/axes/place").color);
 		assert.equal(alliance.props.color, "#06e502");
 	});
+	// alliance lies on an axis without a colour; former on power, which has one
+	withTiddlers([{title: "Axe", tags: "Artifact", former: "Grum", text: "An axe."}], function() {
+		var former = ego("Axe").edges.filter(function(edge) { return edge.props.label === "formerly with"; })[0];
+		assert.equal(wiki.getTiddlerData("$:/config/tiddlyrpg/graph/axes/power").color, "#ff8000");
+		assert.equal(former.props.color, "#dddddd", "the colour of the type, not of its axis");
+	});
 });
 
 test("relations: every type is on an axis, except links, spots and transcludes", function() {

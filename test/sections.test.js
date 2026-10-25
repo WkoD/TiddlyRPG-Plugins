@@ -348,3 +348,24 @@ test("trpg-jump: draws nothing of its own and passes the navigation on", functio
 	link.dispatchEvent({type: "tm-navigate", navigateTo: "Baile"});
 	assert.equal(seen.join(), "Baile");
 });
+
+test("the rules of the date: head, no placeholder, beyond the field, twice, a rule before it, empty parts", function() {
+	var cases = [
+		["Kopf", "Event", "1351-01-01, 1351-02-01", "Vorweg.\n\n<<date>>\n\nA.\n\n<<date>>\n\nB.", ["dates/event | Ereignis prüfen: Text vor dem ersten <<date>>"]],
+		["Ohne", "Event", "1351", "Nur Text.", ["dates/event | Ereignis prüfen: Jedes Ereignis beginnt mit <<date>>"]],
+		["Jenseits", "Event", "1351", "<<date>>\n\nA.\n\n<<date 3>>\n\nC.", ["dates/placeholders | Text prüfen: <<date 3>> – das Feld date hat 1 Abschnitte"]],
+		["Zweimal", "Event", "1351, 1352", "<<date>>\n\nA.\n\n<<date 1>>\n\nB.", ["dates/event | Ereignis prüfen: kein <<date>> für Abschnitt 2", "dates/placeholders | Text prüfen: zweimal <<date>> für Abschnitt 1"]],
+		["Linie", "Event", "1351, 1352", "<<date>>\n\nA.\n\n---\n\n<<date>>\n\nB.", ["dates/placeholders | Text prüfen: „---“ direkt vor <<date>> von Abschnitt 2 – die Überschrift zieht ihre eigene Linie"]],
+		["Lücke", "Person", "1351,,1352/1353", "x", ["dates/field | Datum prüfen: ein leerer Abschnitt (zwei Kommas hintereinander)"]],
+		["Seite", "Person", "1351/ , 1352/1353", "x", ["dates/field | Datum prüfen: eine leere Seite in „1351/“"]]
+	];
+	cases.forEach(function(c) {
+		h.add(wiki, {title: c[0], tags: c[1], date: c[2], text: c[3]});
+		try {
+			var texts = h.checks(wiki, c[0], "dates").filter(function(m) { return m.id !== "dates/phases"; }).map(function(m) { return m.id + " | " + m.text; });
+			assert.deepEqual(texts, c[4], c[0]);
+		} finally {
+			wiki.deleteTiddler(c[0]);
+		}
+	});
+});

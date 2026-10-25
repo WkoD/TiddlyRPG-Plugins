@@ -171,6 +171,18 @@ test.describe("sections", function() {
 			assert.equal(root.refresh(changed), true, title);
 		});
 	});
+
+	test("redrawn when the view, a player character or the tiddler itself changes", function() {
+		var visibility = tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
+			root = wiki.makeWidget(wiki.parseText("text/vnd.tiddlywiki", "<$trpg-timeline filter=\"[[Points]]\" self=\"Selbst\"/>"));
+		root.render(tw.fakeDocument.createElement("div"), null);
+		assert.equal(root.refresh({"Unrelated": {modified: true}}), false);
+		visibility.watched.concat(["Frigg", "Selbst"]).forEach(function(title) {
+			var changed = {};
+			changed[title] = {modified: true};
+			assert.equal(root.refresh(changed), true, title);
+		});
+	});
 });
 
 test.describe("band of the tiddler itself", function() {

@@ -164,7 +164,25 @@ test.describe("fields of the form", function() {
 			["Keller", "Stall", "Tor", "Draft of 'Stall'", "$:/StoryList"].forEach(function(title) { wiki.deleteTiddler(title); });
 		});
 	});
-	test("a change of type takes out the fields the new type does not have and names them; the first type changes nothing", function() {
+	test("the first type of a draft takes out nothing, not even fields the type does not have", function() {
+		var draft = "Draft of 'Becher'",
+			wait = function() { return new Promise(function(resolve) { setTimeout(resolve, 20); }); };
+		h.add(wiki, {title: draft, "draft.of": "Becher", text: "", price: "5 gp", location: "Baile"});
+		return wait().then(function() {
+			wiki.addTiddler(new $tw.Tiddler(wiki.getTiddler(draft), {tags: ["Ereignis"]}));
+			return wait();
+		}).then(function() {
+			var fields = wiki.getTiddler(draft).fields;
+			try {
+				assert.equal(fields.price, "5 gp");
+				assert.equal(fields.location, "Baile");
+			} finally {
+				wiki.deleteTiddler(draft);
+				wiki.deleteTiddler("$:/temp/tiddlyrpg-core/editor/notice");
+			}
+		});
+	});
+	test("a change of type takes out the fields the new type does not have and names them", function() {
 		var draft = "Draft of 'Kelch'",
 			extra = "$:/state/tiddlyrpg-core/form-extra/" + draft,
 			notice = "$:/temp/tiddlyrpg-core/editor/notice",
@@ -304,14 +322,23 @@ test.describe("symmetric relations on both ends", function() {
 	});
 	test("the hook on saving, compared with the tiddler the draft was of; off with the switch", function() {
 		var draft = new $tw.Tiddler({title: "Draft of 'Ann'", "draft.of": "Ann", tags: "Person", enmity: "Bea"}),
-			saved = new $tw.Tiddler({title: "Ann", tags: "Person", enmity: "Bea"});
-		$tw.hooks.invokeHook("th-saving-tiddler", saved, draft);
-		assert.deepEqual(Array.from(list("Bea", "enmity")), ["Ann"]);
-		symmetric.sync(wiki, "Ann", {enmity: "Bea"}, {});
-		h.add(wiki, {title: "$:/config/tiddlyrpg/editor/symmetric", text: "no"});
-		$tw.hooks.invokeHook("th-saving-tiddler", saved, draft);
-		assert.equal(wiki.getTiddler("Bea").fields.enmity, undefined);
-		wiki.deleteTiddler("$:/config/tiddlyrpg/editor/symmetric");
+			saved = new $tw.Tiddler({title: "Ann", tags: "Person", enmity: "Bea"}),
+			notice = "$:/temp/tiddlyrpg-core/editor/notice";
+		try {
+			$tw.hooks.invokeHook("th-saving-tiddler", saved, draft);
+			assert.deepEqual(Array.from(list("Bea", "enmity")), ["Ann"]);
+			assert.equal(wiki.getTiddlerText(notice), "Auch am anderen Ende eingetragen bzw. entfernt: Bea");
+			symmetric.sync(wiki, "Ann", {enmity: "Bea"}, {});
+			wiki.deleteTiddler(notice);
+			h.add(wiki, {title: "$:/config/tiddlyrpg/editor/symmetric", text: "no"});
+			$tw.hooks.invokeHook("th-saving-tiddler", saved, draft);
+			assert.equal(wiki.getTiddler("Bea").fields.enmity, undefined);
+			assert.equal(wiki.tiddlerExists(notice), false, "nothing changed, no notice");
+		} finally {
+			symmetric.sync(wiki, "Ann", {enmity: "Bea"}, {});
+			wiki.deleteTiddler("$:/config/tiddlyrpg/editor/symmetric");
+			wiki.deleteTiddler(notice);
+		}
 	});
 	test("a rename renames the other ends, also where the relation stays or goes", function() {
 		h.add(wiki, {title: "Dora", tags: "Person", bond: "Eli", enmity: "Fay", text: "D."});
@@ -346,9 +373,17 @@ test.describe("messages of a draft and their fixes", function() {
 		h.add(wiki, {title: "Draft of 'X'", "draft.of": "X", tags: "Person Baile", family: "Ann", parent: "Ann", text: "x"});
 		assert.ok(fixes.apply(wiki, "Draft of 'X'", {kind: "remove", field: "family", value: "Ann"}));
 		assert.equal(wiki.getTiddler("Draft of 'X'").fields.family, undefined);
-		assert.ok(fixes.apply(wiki, "Draft of 'X'", {kind: "tagToLocation", tag: "Baile"}));
+		var tag = checks.forDraft(wiki, "Draft of 'X'").filter(function(m) { return m.id === "locations/tag"; })[0];
+		assert.deepEqual(plain(tag.fix), {kind: "tagToLocation", tag: "Baile"});
+		assert.ok(fixes.apply(wiki, "Draft of 'X'", tag.fix));
 		assert.deepEqual(Array.from(wiki.getTiddler("Draft of 'X'").fields.tags), ["Person"]);
 		assert.equal(wiki.getTiddler("Draft of 'X'").fields.location, "Baile");
+		// with a location already: the message stays, without a fix, and the fix changes nothing
+		h.add(wiki, {title: "Draft of 'X'", "draft.of": "X", tags: "Person Baile", location: "Nowhere", text: "x"});
+		tag = checks.forDraft(wiki, "Draft of 'X'").filter(function(m) { return m.id === "locations/tag"; })[0];
+		assert.equal(tag.fix, undefined);
+		assert.equal(fixes.apply(wiki, "Draft of 'X'", {kind: "tagToLocation", tag: "Baile"}), false);
+		assert.equal(wiki.getTiddler("Draft of 'X'").fields.location, "Nowhere");
 		h.add(wiki, {title: "Draft of 'X'", "draft.of": "X", tags: "Event", date: "1351-07-01", text: "<<date \"Rast\">>\n\n<<quest \"T\" \"failed\">>Y."});
 		var keys = checks.forDraft(wiki, "Draft of 'X'").filter(function(m) { return m.fix; }).map(function(m) { return m.fix.kind; });
 		assert.deepEqual(plain(keys.sort()), ["dateLabel", "questStatus"]);
