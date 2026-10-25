@@ -270,7 +270,7 @@ test.describe("the hub Content", function() {
 		assert.match(html, /Vorschau.*Übernehmen/);
 		h.add(wiki, {title: STATE, type: "Item"});
 		html = hub();
-		assert.match(html, /62 Einträge/);
+		assert.match(html, /Einträge: 62</);
 		assert.match(html, /<td>Coin 01<\/td>/, "by title: the coins before the dagger");
 		h.add(wiki, {title: STATE + "/search", text: "dag"});
 		try {
@@ -323,6 +323,22 @@ test.describe("the hub Content", function() {
 		h.add(wiki, {title: STATE, type: "Spell", "filter-category": "weapon"});
 		assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), spells,
 			"a filter set for items does not empty the spells, which have no category");
+	});
+
+	test("a filter of another type with a value this type does not offer does not count", function() {
+		var index = wiki.getTiddler("$:/temp/tiddlyrpg-core/content/index"),
+			data = JSON.parse(index.fields.text);
+		data.packages[0].entries.push({id: "shield", title: "Shield", type: "Artifact", fields: {category: "armor"}});
+		h.add(wiki, {title: index.fields.title, type: "application/json", text: JSON.stringify(data)});
+		try {
+			h.add(wiki, {title: STATE, type: "Artifact", "filter-category": "weapon"});
+			assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "shield", "weapon was set for the items");
+			h.add(wiki, {title: STATE, type: "Artifact", "filter-category": "armor"});
+			assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).join(), "shield");
+		} finally {
+			wiki.addTiddler(index);
+			wiki.deleteTiddler(STATE);
+		}
 	});
 
 	test("a number filters only when its definition says so: its values by size, with the sign of the field", function() {

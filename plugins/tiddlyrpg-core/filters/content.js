@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261023175042957
+modified: 20261025193917072
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -25,9 +25,11 @@ The hub Content (a state tiddler with the fields type, page and filter-<field>; 
 text of <state>/search):
 [trpgcontenttypes[]]               the types the entries have, in their order
 [trpgcontentlist[<state>]]         the ids of the page of the list: of the type, the title
-                                   containing the search (any case), every filter-<field> of a
-                                   field of the type an id its value holds (one set for another
-                                   type does not count); by title, PAGE entries a page. :count the number of
+                                   containing the search (any case), every filter-<field> the
+                                   type offers (trpgcontentfilters, a value of trpgcontentvalues)
+                                   an id its value holds - one set for another type whose value
+                                   this type does not offer does not count, as the select shows
+                                   none; by title, PAGE entries a page. :count the number of
                                    them, :pages the number of pages, :page the page shown
 [<type>trpgcontentfilters[]]       the fields of the schema of the type that filter: one or a list
                                    of entries of a domain, or a number whose definition says
@@ -144,8 +146,9 @@ exports.trpgcontentlist = function(source,operator,options) {
 	var wiki = options.wiki,
 		state = (wiki.getTiddler(operator.operand) || {fields: {}}).fields,
 		search = (wiki.getTiddlerText(operator.operand + "/search") || "").trim().toLowerCase(),
-		// a filter of a field the type does not have (one set for another type) does not count
-		known = state.type ? fields.forTypes(wiki,[state.type]).fields : [],
+		// a filter the type does not offer, or a value it does not offer (set for another type),
+		// does not count - the select shows none of it
+		offered = state.type ? filtersOf(wiki,state.type) : [],
 		hits = content.entries(wiki).filter(function(e) {
 			if(state.type && e.type !== state.type) {
 				return false;
@@ -154,7 +157,8 @@ exports.trpgcontentlist = function(source,operator,options) {
 				return false;
 			}
 			return Object.keys(state).every(function(name) {
-				if(name.indexOf("filter-") !== 0 || !state[name] || known.indexOf(name.substr(7)) === -1) {
+				if(name.indexOf("filter-") !== 0 || !state[name] || offered.indexOf(name.substr(7)) === -1 ||
+					valuesOf(wiki,name.substr(7),state.type).indexOf(state[name]) === -1) {
 					return true;
 				}
 				return idsOf(wiki,name.substr(7),(e.entry.fields || {})[name.substr(7)]).indexOf(state[name]) !== -1;
@@ -178,15 +182,19 @@ exports.trpgcontentlist = function(source,operator,options) {
 	return hits.slice((page - 1) * PAGE,page * PAGE).map(function(e) { return e.id; });
 };
 
+// The fields of the schema of <type> that filter (trpgcontentfilters)
+function filtersOf(wiki,type) {
+	var list = content.entries(wiki).filter(function(e) { return e.type === type; });
+	return fields.forTypes(wiki,[type]).fields.filter(function(field) {
+		var spec = fields.spec(wiki,field);
+		return spec && (spec.format === "label" || spec.format === "labels" || (spec.format === "number" && spec.filter)) && spec.view !== false &&
+			list.some(function(e) { return idsOf(wiki,field,(e.entry.fields || {})[field]).length; });
+	});
+}
+
 exports.trpgcontentfilters = function(source,operator,options) {
-	var wiki = options.wiki;
 	return each(source,function(type) {
-		var list = content.entries(wiki).filter(function(e) { return e.type === type; });
-		return fields.forTypes(wiki,[type]).fields.filter(function(field) {
-			var spec = fields.spec(wiki,field);
-			return spec && (spec.format === "label" || spec.format === "labels" || (spec.format === "number" && spec.filter)) && spec.view !== false &&
-				list.some(function(e) { return idsOf(wiki,field,(e.entry.fields || {})[field]).length; });
-		});
+		return filtersOf(options.wiki,type);
 	});
 };
 
@@ -194,25 +202,30 @@ exports.trpgcontentvalues = function(source,operator,options) {
 	var wiki = options.wiki,
 		type = operator.operand;
 	return each(source,function(field) {
-		var found = [];
-		content.entries(wiki).forEach(function(e) {
-			if(e.type === type) {
-				idsOf(wiki,field,(e.entry.fields || {})[field]).forEach(function(id) {
-					if(found.indexOf(id) === -1) {
-						found.push(id);
-					}
-				});
-			}
-		});
-		var spec = fields.spec(wiki,field),
-			order = [];
-		if(spec && spec.format === "number") {
-			return found.sort(function(a,b) { return Number(a) - Number(b); });
-		}
-		[].concat(spec && spec.domain || []).forEach(function(name) {
-			var domain = language.domains(wiki)[name];
-			order = order.concat((domain && domain.entries || []).map(function(entry) { return entry.id; }));
-		});
-		return found.sort(function(a,b) { return order.indexOf(a) - order.indexOf(b); });
+		return valuesOf(wiki,field,type);
 	});
 };
+
+// The ids the values of <field> hold in the entries of <type> (trpgcontentvalues)
+function valuesOf(wiki,field,type) {
+	var found = [];
+	content.entries(wiki).forEach(function(e) {
+		if(e.type === type) {
+			idsOf(wiki,field,(e.entry.fields || {})[field]).forEach(function(id) {
+				if(found.indexOf(id) === -1) {
+					found.push(id);
+				}
+			});
+		}
+	});
+	var spec = fields.spec(wiki,field),
+		order = [];
+	if(spec && spec.format === "number") {
+		return found.sort(function(a,b) { return Number(a) - Number(b); });
+	}
+	[].concat(spec && spec.domain || []).forEach(function(name) {
+		var domain = language.domains(wiki)[name];
+		order = order.concat((domain && domain.entries || []).map(function(entry) { return entry.id; }));
+	});
+	return found.sort(function(a,b) { return order.indexOf(a) - order.indexOf(b); });
+}

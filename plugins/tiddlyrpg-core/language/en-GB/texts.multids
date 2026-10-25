@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025124110539
+modified: 20261025194011709
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -363,7 +363,7 @@ Content/Preview: Preview from $1$ - not in the wiki yet
 Content/ShowPreview: Preview
 Content/Hub/Intro: What the content packages of the ruleset hold, to look up and take into the wiki one by one.
 Content/Hub/Search: Search the titles
-Content/Hub/Count: $1$ entries
+Content/Hub/Count: Entries: $1$
 Content/Hub/Page: Page $1$ of $2$
 Content/Hub/Taken: in the wiki
 Content/Search: In the content packages:
