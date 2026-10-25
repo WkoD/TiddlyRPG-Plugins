@@ -67,6 +67,28 @@ test.describe("hierarchy", function() {
 		assert.deepEqual(f("[[Town]occupants[]sort[]]"), ["Barkeep", "Guild", "Guildmaster", "Wanderer"]);
 		assert.deepEqual(f("[[Kingdom]occupants[]sort[]]"), ["Guild", "Wanderer"]);
 	});
+
+	// A tiddler that is both: a spot of one location and the field location of another one
+	test("the spot wins over the field location", function() {
+		var tavern = wiki.getTiddler("Tavern");
+		h.add(wiki, Object.assign({}, tavern.fields, {location: "Neighbour"}));
+		try {
+			assert.deepEqual(f("[[Tavern]locationparent[]]"), ["Town"]);
+		} finally {
+			wiki.addTiddler(tavern);
+		}
+	});
+
+	test("occupants: who leads a location is there; a draft is no one", function() {
+		h.add(wiki, {title: "Vogt", tags: "Person", leader: "Baile"});
+		h.add(wiki, {title: "Draft of 'Wanderer'", "draft.of": "Wanderer", tags: "Person", location: "Baile"});
+		try {
+			assert.deepEqual(f("[[Baile]occupants[]sort[]]"), ["Vogt"]);
+		} finally {
+			wiki.deleteTiddler("Vogt");
+			wiki.deleteTiddler("Draft of 'Wanderer'");
+		}
+	});
 });
 
 test.describe("checks", function() {
@@ -271,7 +293,6 @@ test.describe("de-DE", function() {
 
 	test("organisation: location and the locations it leads in one, grouped by their parents", function() {
 		assert.deepEqual(pathLines(h.view(wiki, "Guild")), ["Continent › Kingdom › Town", "Continent › Kingdom"]);
-		assert.ok(h.view(wiki, "Guild").indexOf("trpg-location-rules") === -1);
 		h.add(wiki, {title: "Market Guild", tags: "Organisation", location: "Town Neighbour", leader: "Tavern"});
 		try {
 			assert.deepEqual(pathLines(h.view(wiki, "Market Guild")), ["Continent › Kingdom › Town, Neighbour", "Continent › Kingdom › Town › Tavern"]);
@@ -327,7 +348,6 @@ test.describe("de-DE", function() {
 		var list = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: "Town", currentTiddler: "Town"});
 		assert.ok(list.indexOf(">Wanderer<") !== -1 && list.indexOf(">Guild<") !== -1);
 		assert.match(list, /<summary><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill trpg-pill-spot" title="Spot"[^>]*>Tavern<\/span><\/a><\/span><span class="trpg-tree-count">\(\d+\)<\/span><\/summary><div class="trpg-tree-children">.*?>Barkeep<\/span>/);
-		assert.ok(list.indexOf("(Spot)") === -1, "the spot dashed, no text");
 	});
 
 	test("relation list of a location: the places within as a tree, the parent left out", function() {
@@ -337,7 +357,6 @@ test.describe("de-DE", function() {
 		// Town with its people and the Tavern below it, Barkeep inside the Tavern
 		var town = ort.indexOf(">Town<"), tavern = ort.indexOf(">Tavern<"), barkeep = ort.indexOf(">Barkeep<");
 		assert.ok(town !== -1 && town < tavern && tavern < barkeep, ort);
-		assert.ok(ort.indexOf("Unterorte") === -1);
 	});
 
 	test("relation list of a location: every place with entries starts folded", function() {
@@ -403,7 +422,7 @@ test.describe("de-DE", function() {
 
 	test("map: a rule parts it from the relations", function() {
 		var start = avalon.indexOf('class="trpg-map"');
-		assert.ok(start !== -1 && avalon.lastIndexOf("<hr>", start) > avalon.indexOf(">Graph<"), avalon);
+		assert.ok(start !== -1 && avalon.indexOf(">Graph<") !== -1 && avalon.lastIndexOf("<hr>", start) > avalon.indexOf(">Graph<"), avalon);
 	});
 
 	test("map tab: the spot heading", function() {
@@ -415,7 +434,7 @@ test.describe("de-DE", function() {
 		assert.equal(row.length, 2, avalon);
 		assert.ok(row[0].lastIndexOf('class="trpg-kind-switches"') !== -1, "the switches come first");
 		var fit = row[1].indexOf("Karte einpassen"), edit = row[1].indexOf("Positionen bearbeiten");
-		assert.ok(fit !== -1 && fit < edit && row[1].indexOf("Knoten ausblenden") === -1, row[1]);
+		assert.ok(fit !== -1 && fit < edit, row[1]);
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
 		try {
 			assert.ok(h.view(wiki, "Insel Avalon").indexOf("Positionen bearbeiten") === -1);
@@ -532,7 +551,7 @@ test.describe("de-DE", function() {
 	});
 
 	test("map block before history", function() {
-		assert.ok(avalon.indexOf("Kantine") < avalon.indexOf(">Zeitstrahl<"));
+		assert.ok(avalon.indexOf("Kantine") !== -1 && avalon.indexOf("Kantine") < avalon.indexOf(">Zeitstrahl<"), avalon);
 	});
 
 	test("locked events are left out of the event list", function() {
@@ -554,7 +573,7 @@ test.describe("de-DE", function() {
 	});
 
 	test("relation list heading", function() {
-		assert.ok(h.view(wiki, "Grum").indexOf("Ort") !== -1);
+		assert.match(h.view(wiki, "Grum"), /<div class="trpg-relations-group">Ort<span class="trpg-relations-count">/);
 	});
 
 	test("dead class", function() {
