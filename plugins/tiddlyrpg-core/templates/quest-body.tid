@@ -1,5 +1,5 @@
 created: 20261015143331000
-modified: 20261024144154808
+modified: 20261025152828901
 title: $:/plugins/tiddlyrpg-core/templates/quest-body
 type: text/vnd.tiddlywiki
 
@@ -59,7 +59,7 @@ type: text/vnd.tiddlywiki
 <%if [<trpg-new>!is[blank]] %>
 <div class="trpg-pills trpg-quest-rename-hits">
 <$list filter="[questnames[]] -[<trpg-quest>] :filter[trpgtitlesearch<trpg-new>] -[<trpg-new>] +[limit[6]]" variable="trpg-hit">
-<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-off" style={{{ [<trpg-hit>questreal[]then[--trpg-kind:#e6b400]else[--trpg-kind:var(--trpg-rumour, #9aa1aa)]] }}} set=<<trpg-rename>> setTo=<<trpg-hit>>><$text text=<<trpg-hit>>/></$button>
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-off" style={{{ [trpg.pillstyle<trpg-hit>] }}} set=<<trpg-rename>> setTo=<<trpg-hit>>><$text text=<<trpg-hit>>/></$button>
 </$list>
 <$list filter="[questnames[]] -[<trpg-quest>] -[<trpg-new>] +[trpgsimilar<trpg-new>] +[limit[3]]" variable="trpg-like">
 <$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-warn" tooltip={{{ [[Editor/Picker/Similar]trpgtranslate[]] }}} set=<<trpg-rename>> setTo=<<trpg-like>>><$text text=<<trpg-like>>/></$button>

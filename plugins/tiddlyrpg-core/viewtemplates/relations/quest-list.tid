@@ -1,13 +1,13 @@
 caption: <<trpg.t Relations/List>>
 created: 20261015170750000
-modified: 20261016210033000
+modified: 20261025152828901
 title: $:/plugins/tiddlyrpg-core/viewtemplates/relations/quest-list
 type: text/vnd.tiddlywiki
 
 <!-- The list of a quest or rumour `self` (viewtemplates/relations), what its graph shows
      (graph/templates/trpg-quest): per event of its markers the view sees, newest first, the event
      as a pill with the date of its section and below it what the markers there link, as pills;
-     then the quests linked with it ("Connected"), each as a pill - gold or silver - with the
+     then the quests linked with it ("Connected"), each as a pill - gold, a rumour dashed and striped - with the
      event where their markers are stacked. Only the kinds switched on above the block
      (trpg.egoshown). Pills: trpg.pill in functions.tid, styles/location. -->
 \whitespace trim

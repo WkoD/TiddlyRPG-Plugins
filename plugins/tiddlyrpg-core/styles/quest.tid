@@ -1,5 +1,5 @@
 created: 20261015143331000
-modified: 20261016210033000
+modified: 20261025152828901
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/quest
 type: text/vnd.tiddlywiki
@@ -8,11 +8,14 @@ type: text/vnd.tiddlywiki
 /* Quests (modules/quests.js): what a marker holds in the text of an event (trpg-nest and the
    block <$quest>, widgets/sections.js), the label of the marker (procedure quest), the cards of
    the hub Quest (templates/quest-list, quest-card) and the history (templates/quest-body).
-   A quest (tiddler tagged Quest) gold, a rumour silver, whatever its status; complete and failed
-   cards grey like the dead (styles/dead). Palette colours via --tpc-*. The silver is lighter
-   with a dark palette (field color-scheme of the palette, as the core palettes have it). */
+   A quest (tiddler tagged Quest) gold, a rumour gold too, but dashed where a quest has a line
+   and striped at 45° where a quest is tinted (gold and the background, as the dead are striped
+   grey and their colour, styles/border), whatever its status; complete and failed cards grey
+   like the dead (styles/dead). Palette colours via --tpc-*. --trpg-rumour-pill: the stripes of
+   a pill of the editor (styles/editor, --trpg-kind-fill from trpg.pillstyle). */
 :root {
-	--trpg-rumour: {{{ [{$:/palette}get[color-scheme]match[dark]then[#b9c0c8]else[#9aa1aa]] }}};
+	--trpg-rumour: #e6b400;
+	--trpg-rumour-pill: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-rumour) 22%, var(--tpc-tiddler-background, #fff)) 0 12px, var(--tpc-tiddler-background, #fff) 12px 24px);
 }
 
 /* The paragraphs the wikitext parser puts around inline-parsed content of the containers below
@@ -28,9 +31,9 @@ type: text/vnd.tiddlywiki
 }
 
 /* What a marker holds - a paragraph or a list item: a frame with the colour on the left, around
-   the bullet of a list item too. Markers stacked at its start are one frame; a quest and a
-   rumour together: wide stripes of both at 45°. The rest of a paragraph after a marker mid-text
-   tinted. */
+   the bullet of a list item too - a rumour dashed, striped at 45°. Markers stacked at its start
+   are one frame; a quest and a rumour together: gold like a quest. The rest of a paragraph after
+   a marker mid-text tinted, a rumour striped. */
 div.trpg-section-quest {
 	position: relative;
 	border-left: 4px solid #e6b400;
@@ -40,8 +43,8 @@ div.trpg-section-quest {
 	margin: 0.6em 0;
 }
 div.trpg-section-quest.trpg-quest-rumour {
-	border-left-color: var(--trpg-rumour);
-	background: color-mix(in srgb, var(--trpg-rumour) 10%, transparent);
+	border-left: 4px dashed var(--trpg-rumour);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-rumour) 14%, transparent) 0 48px, transparent 48px 96px);
 }
 div.trpg-section-quest > div.trpg-section-quest {
 	border-left: none;
@@ -51,35 +54,18 @@ div.trpg-section-quest > div.trpg-section-quest {
 }
 div.trpg-section-quest.trpg-quest-real:has(> div.trpg-quest-rumour, > div > div.trpg-quest-rumour),
 div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.trpg-quest-real) {
-	border-left-color: transparent;
-	background: repeating-linear-gradient(45deg,
-		color-mix(in srgb, #e6b400 8%, transparent) 0 96px,
-		color-mix(in srgb, var(--trpg-rumour) 12%, transparent) 96px 192px);
-}
-div.trpg-section-quest.trpg-quest-real:has(> div.trpg-quest-rumour, > div > div.trpg-quest-rumour)::before,
-div.trpg-section-quest.trpg-quest-rumour:has(> div.trpg-quest-real, > div > div.trpg-quest-real)::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: -4px;
-	width: 4px;
-	background: repeating-linear-gradient(45deg, #e6b400 0 64px, var(--trpg-rumour) 64px 128px);
+	border-left: 4px solid #e6b400;
+	background: color-mix(in srgb, #e6b400 7%, transparent);
 }
 /* Where a marked paragraph shows without its frame - on a card (trpg-quest-card-text) and in the
    history (trpg-quest-mark-body), below - a quest and a rumour together lose it too: the two
-   rules above are more specific than those of card and history and draw the line as ::before,
-   which kept stripes and a line close to the words. As specific as they, and no line. */
+   rules above are more specific than those of card and history. As specific as they. */
 .trpg-quest-card-text div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest),
 .trpg-quest-mark-body div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest) {
 	border-left: none;
 	background: transparent;
 	padding: 0;
 	margin: 0;
-}
-.trpg-quest-card-text div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest)::before,
-.trpg-quest-mark-body div.trpg-section-quest:is(.trpg-quest-real, .trpg-quest-rumour):has(> div.trpg-section-quest, > div > div.trpg-section-quest)::before {
-	content: none;
 }
 /* A list item: the line at the edge of the text like the other frames, back over the indent of
    its lists (40px each), the text where it was */
@@ -107,7 +93,7 @@ span.trpg-section-quest {
 	box-decoration-break: clone;
 }
 span.trpg-section-quest.trpg-quest-rumour {
-	background: color-mix(in srgb, var(--trpg-rumour) 22%, transparent);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-rumour) 26%, transparent) 0 8px, transparent 8px 16px);
 }
 
 /* The label of a marker */
@@ -125,7 +111,7 @@ span.trpg-section-quest.trpg-quest-rumour {
 	vertical-align: 1px;
 }
 .trpg-quest-label.trpg-quest-rumour {
-	border-color: var(--trpg-rumour);
+	border: 1px dashed var(--trpg-rumour);
 }
 .trpg-quest-kind {
 	color: var(--tpc-muted-foreground);
@@ -201,7 +187,8 @@ span.trpg-section-quest.trpg-quest-rumour {
 	background: var(--tpc-tiddler-background);
 }
 .trpg-quest-card.trpg-quest-rumour {
-	border-left-color: var(--trpg-rumour);
+	border-left: 4px dashed var(--trpg-rumour);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-rumour) 12%, var(--tpc-tiddler-background, #fff)) 0 48px, var(--tpc-tiddler-background, #fff) 48px 96px);
 }
 .trpg-quest-card.trpg-quest-done {
 	background: color-mix(in srgb, var(--tpc-muted-foreground) 50%, var(--tpc-tiddler-background));
@@ -274,11 +261,12 @@ span.trpg-section-quest.trpg-quest-rumour {
 	white-space: nowrap;
 }
 
-/* The page of a rumour (no tiddler, config/class-rumour) framed and tinted in silver like a
-   tiddler of a type (styles/border: 2px, 9 % inside); a quest tiddler gets gold from its tag */
+/* The page of a rumour (no tiddler, config/class-rumour) framed like a tiddler of a type
+   (styles/border: 2px), dashed, and striped at 45° in gold and the background, 96px wide, as a
+   dead tiddler is striped (9 %); a quest tiddler gets gold from its tag */
 .tc-tiddler-frame.trpg-rumour-tiddler {
-	border: 2px solid var(--trpg-rumour);
-	background-color: color-mix(in srgb, var(--trpg-rumour) 9%, var(--tpc-tiddler-background, #fff));
+	border: 2px dashed var(--trpg-rumour);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-rumour) 9%, var(--tpc-tiddler-background, #fff)) 0 96px, var(--tpc-tiddler-background, #fff) 96px 192px);
 }
 
 /* The page of a quest: planning, rumour tools, links, history */
@@ -324,6 +312,9 @@ span.trpg-section-quest.trpg-quest-rumour {
 }
 .trpg-quest-history.trpg-quest-rumour {
 	--trpg-quest-colour: var(--trpg-rumour);
+}
+.trpg-quest-history.trpg-quest-rumour::before {
+	background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--trpg-quest-colour) 60%, var(--tpc-tiddler-background, #fff)) 0 6px, transparent 6px 10px);
 }
 .trpg-quest-history::before {
 	content: "";

@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261025152828901
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/quest-dropdown
 type: text/vnd.tiddlywiki
 
@@ -39,7 +39,7 @@ type: text/vnd.tiddlywiki
 <$list filter="[<trpg-probe>jsonindexes[markers]]" variable="trpg-i">
 <$let trpg-marker-name={{{ [<trpg-probe>jsonget[markers],<trpg-i>,[name]] }}}
 	trpg-marker-start={{{ [<trpg-probe>jsonget[markers],<trpg-i>,[start]] }}}>
-<span class="trpg-pick-pill" style={{{ [<trpg-marker-name>questreal[]then[--trpg-kind:#e6b400]else[--trpg-kind:var(--trpg-rumour, #9aa1aa)]] }}}>
+<span class="trpg-pick-pill" style={{{ [trpg.pillstyle<trpg-marker-name>] }}}>
 <$text text=<<trpg-marker-name>>/>
 <$button class="tc-btn-invisible trpg-pill-x" tooltip={{{ [[Editor/Form/Remove]trpgtranslate[]] }}}>
 <$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="quest" op="remove" start=<<trpg-marker-start>>/>

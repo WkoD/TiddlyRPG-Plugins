@@ -322,12 +322,13 @@ test("map: nodes without a position get a grid slot, kept per id", function() {
 	assert.equal(again.nodes.a.trpgUnplaced, undefined);
 });
 
-test("pill: the colour of a node as its border, light inside, the label in the font colour; the dead striped", function() {
+test("pill: the colour of a node as its border, light inside, the label in the font colour; the dead striped, a rumour dashed and striped", function() {
 	var pill = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/pill.js"),
 		adapter = {},
 		changes = {
 			graph: {trpgPillBase: "#ffffff", trpgPillText: "#333333"},
 			nodes: {a: {trpgPill: "yes", color: "#00a600", shape: "box"}, dead: {trpgPill: "yes", trpgDead: "yes", color: "#00a600", shape: "box"},
+				rumour: {trpgPill: "yes", trpgRumour: "yes", color: "#e6b400", shape: "box", borderWidth: "3"},
 				own: {trpgPill: "yes", color: "#ffffff", borderColor: "#00a600"}, plain: {label: "x"}}
 		};
 	pill.process.call(adapter, {}, changes);
@@ -340,15 +341,23 @@ test("pill: the colour of a node as its border, light inside, the label in the f
 	assert.equal(changes.nodes.plain.color, undefined);
 	// The dead: a box of its own, striped grey (the font colour) and its colour, both at 18 %
 	assert.equal(changes.nodes.dead.shape, "custom");
-	var fills = [], texts = [],
+	var fills = [], texts = [], strokes = [], dash = [],
 		ctx = {font: "14px arial", measureText: function() { return {width: 40}; }, beginPath: function() {}, moveTo: function() {}, lineTo: function() {}, arcTo: function() {},
-			closePath: function() {}, save: function() {}, restore: function() {}, clip: function() {}, stroke: function() {},
+			closePath: function() {}, save: function() {}, restore: function() {}, clip: function() {}, setLineDash: function(d) { dash = d; },
+			stroke: function() { strokes.push({width: this.lineWidth, dash: dash, colour: this.strokeStyle}); },
 			fill: function() { fills.push(this.fillStyle); }, fillRect: function() { fills.push(this.fillStyle); }, fillText: function(t) { texts.push(t); }},
 		drawn = changes.nodes.dead.ctxRenderer({ctx: ctx, x: 0, y: 0, label: "Grum", state: {}});
 	drawn.drawNode();
 	assert.deepEqual(Array.from(new Set(fills)), [pill.mix("#333333", "#ffffff"), "#d1efd1"]);
 	assert.deepEqual(texts, ["Grum"]);
 	assert.equal(drawn.nodeDimensions.width, 50);
+	assert.equal(JSON.stringify(strokes), JSON.stringify([{width: 1, dash: [], colour: "#00a600"}]), "the dead: a solid border");
+	// A rumour: striped in the background and its gold, the border dashed, its width kept
+	assert.equal(changes.nodes.rumour.shape, "custom");
+	fills = []; strokes = [];
+	changes.nodes.rumour.ctxRenderer({ctx: ctx, x: 0, y: 0, label: "Spur", state: {}}).drawNode();
+	assert.deepEqual(Array.from(new Set(fills)), ["#ffffff", pill.mix("#e6b400", "#ffffff")], "the background and its gold");
+	assert.equal(JSON.stringify(strokes), JSON.stringify([{width: 3, dash: [5, 3], colour: "#e6b400"}]));
 });
 
 test("map pin: a custom shape, the same size on screen at any zoom", function() {

@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261022161612307
+modified: 20261025152828901
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -46,7 +46,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
      own. A double click on such a spot scrolls to its text below the map, on any other node it
      opens the tiddler; hovering shows the text. No edges: where a place lies, the map shows.
      Quests: the open quests and rumours whose newest marker leads to this map
-     (trpg.mapquests, questpins) as pills in gold or silver, with an edge to each node they lead
+     (trpg.mapquests, questpins) as pills in gold (a rumour dashed and striped, trpgRumour), with an edge to each node they lead
      to; one that leads only to the location as a whole stands below the map (a grid slot, or
      its saved position). Hovering shows what the newest marker holds, a double click opens the
      quest or rumour.
@@ -121,13 +121,14 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
      the location as a whole -->
 <%if [[quest]] -[<trpg-state>get[list]enlist-input[]] %>
 <$list filter="[trpg.mapquests<trpg-loc>]" variable="trpg-quest">
-<$let trpg-colour={{{ [<trpg-quest>questreal[]then{Quest!!color}else[#9aa1aa]] }}}
+<$let trpg-colour={{Quest!!color}}
+	trpg-rumour={{{ [<trpg-quest>questreal[]then[no]else[yes]] }}}
 	trpg-pins={{{ [<trpg-quest>questpins<trpg-loc>] -[<trpg-loc>] +[format:titlelist[]join[ ]] }}}>
 <%if [enlist<trpg-pins>] %>
-<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> />
+<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> trpgRumour=<<trpg-rumour>> />
 <$list filter="[enlist<trpg-pins>]" variable="toTiddler"><$edge $from=<<trpg-quest>> $to=<<toTiddler>> color=<<trpg-colour>> /></$list>
 <%else%>
-<$transclude $variable="trpg.fixed" id=<<trpg-quest>>><$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> /></$transclude>
+<$transclude $variable="trpg.fixed" id=<<trpg-quest>>><$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> trpgRumour=<<trpg-rumour>> /></$transclude>
 <%endif%>
 </$let>
 </$list>

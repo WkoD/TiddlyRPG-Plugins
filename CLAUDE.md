@@ -187,7 +187,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     with macros, refresh
     on the rules and plugin configs
   - `hubs` - hub and index tiddlers, type colours, no leaked pragmas or `<<trpg.`; `trpg.link`
-    and `trpg.pill` (type colour, rumour silver, dead striped, spot dashed, a text behind); the
+    and `trpg.pill` (type colour, rumour gold with class `trpg-pill-rumour`, dead striped, spot dashed, a text behind); the
     hubs in their colour (`styles/hubs`, class `trpg-hub`, the rule, not `Index`; `Campaign`
     and `Index` grey), the list sorted by the display name with a letter per group, the number
     in the heading and in `Index` in the public view and the view of the DM, `Campaign` with
@@ -548,8 +548,9 @@ the tiddler title:
   heading of a dated section, location pills), `location` (the pill of `trpg.pill`, the path,
   spot pills, spots, map buttons, the tab "Quests and rumours", the relation list: group
   headings, the tree with its arrow and line; static CSS, `type: text/css`), `path` (the font
-  size of the path below the title from the theme; wikitext), `quest` (the frame of a marker in gold or silver, stripes for a
-  quest and a rumour together, none on a card and in the history; wikitext for the silver of the palette),
+  size of the path below the title from the theme; wikitext), `quest` (the frame of a marker in gold, a rumour dashed and striped
+  at 45°, a quest and a rumour together gold, none on a card and in the history; `--trpg-rumour`,
+  `--trpg-rumour-pill` for the pills of the editor; wikitext),
   `checks` (the messages below the title: a bar on the left, an error in the alert colour, a
   hint muted; static CSS), `sections` (the frames of the sections - a line on the left in the
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
@@ -565,7 +566,7 @@ the tiddler title:
   "Views").
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-secret` (class
   `trpg-secret-tiddler` for a locked tiddler the view sees), `class-rumour` (class
-  `trpg-rumour-tiddler` for the page of a rumour the view sees: silver, styles/quest),
+  `trpg-rumour-tiddler` for the page of a rumour the view sees: dashed and striped in gold, styles/quest),
   `class-pinned`, `class-readonly`, `class-rules-highlight` with `rules-highlight`,
   `class-view`, `class-hub`, `title-translated`, `title-hub`, `subtitle`, `view-tags` - see
   below; `dm-published`
@@ -1306,7 +1307,7 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
   (`questmentions<event>`), the quests linked with it at their event (`questlinkat`); the same
   switches, the events always shown (`graph/templates/trpg-quest`). In the list all of them
   pills: the event with its date, below it what its markers link, then "Connected"
-  (`Relations/Quest/LinkedWith`) with the linked quests in gold or silver.
+  (`Relations/Quest/LinkedWith`) with the linked quests in gold, a rumour dashed and striped.
 
 ## Sections
 
@@ -1455,7 +1456,7 @@ ClassFilters e.g. the filter tiddler; the story tiddler is `storyTiddler` there)
   `trpg-dead-link`, stylesheet `styles/dead`). The hub `Secret` lists its titles with it, the
   type hubs with `trpg.hub.list` (the same class, the display name).
 - **`trpg.pill`** - a tiddler as a pill in the colour of its type, a link to it: the colour of
-  the cascade `$:/tags/TiddlerColourFilter`, a rumour in the silver of the rumours, else
+  the cascade `$:/tags/TiddlerColourFilter`, a rumour in gold, dashed and striped (class `trpg-pill-rumour`), else
   `tag-background`; striped when `trpg.dead` holds (class `trpg-pill-dead`, like its tag pill);
   extra classes (`trpg-pill-small`, `trpg-pill-spot`: dashed, tooltip "Spot") and a muted text
   behind it. The relation list, the list of a quest, the tab "Quests and rumours" and the path

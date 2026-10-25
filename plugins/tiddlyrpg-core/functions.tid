@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025135504460
+modified: 20261025152828901
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -69,8 +69,9 @@ type: text/vnd.tiddlywiki
 \end
 
 <!-- A tiddler as a pill in the colour of its type, a link to it (styles/location): the colour of
-     the cascade $:/tags/TiddlerColourFilter (the type hub), the silver of the rumours for a
-     rumour (no tiddler, a name with markers), else tag-background of the palette; striped when
+     the cascade $:/tags/TiddlerColourFilter (the type hub), the gold of the rumours for a
+     rumour (no tiddler, a name with markers; class trpg-pill-rumour: dashed and striped), else
+     tag-background of the palette; striped when
      deceased/destroyed (trpg.dead, class trpg-pill-dead, like its tag pill); the translated
      name. <class>: more classes of the pill - trpg-pill-small (the path below the title),
      trpg-pill-spot (a place that is a spot of the location above: dashed, tooltip "Spot");
@@ -79,8 +80,9 @@ type: text/vnd.tiddlywiki
 \procedure trpg.pill(title,class,after)
 \whitespace trim
 <$let trpg-colour={{{ [<title>] :cascade[all[shadows+tiddlers]tag[$:/tags/TiddlerColourFilter]!is[draft]get[text]] }}}
-	trpg-pill-colour={{{ [<trpg-colour>!is[blank]] ~[<title>!is[tiddler]questmarked[]then[var(--trpg-rumour, #9aa1aa)]] ~[{$:/palette}getindex[tag-background]] }}}>
-<span class="trpg-pill-item"><$link to=<<title>> class="trpg-pill-link"><span class={{{ [[tc-tag-label trpg-pill]] [<title>trpg.dead[]then[trpg-pill-dead]] [enlist<class>] +[join[ ]] }}} style={{{ [<trpg-pill-colour>addprefix[--trpg-pill:]] }}} title={{{ [enlist<class>match[trpg-pill-spot]then[Relations/Spot]trpgtranslate[]] }}}><$text text={{{ [<title>trpgtitle[]] }}}/></span></$link><%if [<after>!is[blank]] %><span class="trpg-via"><$text text=<<after>>/></span><%endif%></span>
+	trpg-pill-colour={{{ [<trpg-colour>!is[blank]] ~[<title>!is[tiddler]questmarked[]then[var(--trpg-rumour)]] ~[{$:/palette}getindex[tag-background]] }}}
+	trpg-pill-rumour={{{ [<trpg-colour>is[blank]then<title>!is[tiddler]questmarked[]then[trpg-pill-rumour]] }}}>
+<span class="trpg-pill-item"><$link to=<<title>> class="trpg-pill-link"><span class={{{ [[tc-tag-label trpg-pill]] [<title>trpg.dead[]then[trpg-pill-dead]] [<trpg-pill-rumour>!is[blank]] [enlist<class>] +[join[ ]] }}} style={{{ [<trpg-pill-colour>addprefix[--trpg-pill:]] }}} title={{{ [enlist<class>match[trpg-pill-spot]then[Relations/Spot]trpgtranslate[]] }}}><$text text={{{ [<title>trpgtitle[]] }}}/></span></$link><%if [<after>!is[blank]] %><span class="trpg-via"><$text text=<<after>>/></span><%endif%></span>
 </$let>
 \end
 
@@ -138,7 +140,7 @@ type: text/vnd.tiddlywiki
 <div class="trpg-kind-switches">
 <$list filter="[enlist<hubs>] ~[trpg.kindhubs[]]" variable="trpg-hub">
 <$transclude $variable="trpg.kindswitch" hub=<<trpg-hub>> kinds=<<kinds>> state=<<state>> mode=<<mode>>
-	second={{{ [<trpg-hub>match[Person]then{Deity!!color}] [<trpg-hub>match[Quest]then[var(--trpg-rumour, #9aa1aa)]] }}}/>
+	second={{{ [<trpg-hub>match[Person]then{Deity!!color}] [<trpg-hub>match[Quest]then[var(--trpg-rumour)]] }}}/>
 </$list>
 </div>
 <%endif%>

@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261024161412996
+modified: 20261025152828901
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/editor/procedures
 type: text/vnd.tiddlywiki
@@ -21,8 +21,9 @@ type: text/vnd.tiddlywiki
 \function trpg.editor-form() [trpg.editor-probe[]jsonget[form]]
 
 <!-- The style of a pill in the colour of the type of <title> (the hub of a type tag); a rumour (a
-     name with markers, no tiddler) in the silver of the rumours -->
-\function trpg.pillstyle(title) [<title>tags[]is[shadow]tag[Index]has[color]!match[Index]first[]get[color]addprefix[--trpg-kind:]] ~[<title>!is[tiddler]questmarked[]then[--trpg-kind:var(--trpg-rumour, #9aa1aa)]]
+     name with markers, no tiddler) in the gold of the rumours, dashed and striped
+     (--trpg-kind-border, --trpg-kind-fill: styles/editor, styles/quest) -->
+\function trpg.pillstyle(title) [<title>tags[]is[shadow]tag[Index]has[color]!match[Index]first[]get[color]addprefix[--trpg-kind:]] ~[<title>!is[tiddler]questmarked[]then[--trpg-kind:var(--trpg-rumour);--trpg-kind-border:dashed;--trpg-kind-fill:var(--trpg-rumour-pill)]]
 
 <!-- The picker: an input, and while it has the focus the candidates (filter <candidates>) the
      view sees, all of them for an empty input, else those whose name contains what is typed

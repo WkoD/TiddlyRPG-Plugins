@@ -1,6 +1,6 @@
 caption: TiddlyRPG quest graph (events and what they mention)
 created: 20261015170750000
-modified: 20261025124110539
+modified: 20261025152828901
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 
 \whitespace trim
@@ -12,12 +12,12 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 \end trpg.node
 
 <!-- Graph of a quest or rumour around <<currentNode>> (modules/quests.js), in the relations block
-     of its page (viewtemplates/relations): the quest - gold, a rumour silver -, the events of its
+     of its page (viewtemplates/relations): the quest - gold, a rumour gold, dashed and striped (trpgRumour) -, the events of its
      markers the view sees with an edge from the quest labelled with the date of the section (the
      newest event with a thick border), from each event an edge to what its markers there link
      (questmentions<event>), and the quests linked with it at the event where their markers are
      stacked (questlinkat). Nodes drawn like pills (trpgPill), the dead striped (trpgDead,
-     graph/pill.js). Only the kinds switched on above the block (trpg.egoshown); the events are the
+     graph/pill.js), a rumour too. Only the kinds switched on above the block (trpg.egoshown); the events are the
      frame and always show. Nothing that the view does not see: markers in a locked section, what
      a locked part of a marker links, tiddlers it does not see. -->
 
@@ -48,12 +48,12 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
 
 <$let trpg-quest=<<currentNode>>
-	trpg-colour={{{ [<currentNode>questreal[]then{Quest!!color}else[#9aa1aa]] }}}
+	trpg-rumour={{{ [<currentNode>questreal[]then[no]else[yes]] }}}
 	trpg-newest={{{ [<currentNode>questlast[]questmark:event[]] }}}
 	trpg-events={{{ [<currentNode>questevents[]format:titlelist[]join[ ]] }}}
 	trpg-linked={{{ [<currentNode>questlinks[]] :filter[trpg.egoshown<currentNode>] +[format:titlelist[]join[ ]] }}}>
 
-<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> borderWidth="3" />
+<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color={{Quest!!color}} trpgRumour=<<trpg-rumour>> borderWidth="3" />
 
 <$list filter="[enlist<trpg-events>]" variable="trpg-event">
 <$tiddler tiddler=<<trpg-event>>>
@@ -67,7 +67,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 <%endif%>
 </$tiddler>
 <$let trpg-number={{{ [<trpg-quest>questmarks[]] :filter[questmark:event[]match<trpg-event>] +[first[]questmark:number[]] }}}>
-<$edge $from=<<trpg-quest>> $to=<<trpg-event>> label={{{ [<trpg-event>get[date]dateformat<trpg-number>] }}} color=<<trpg-colour>> />
+<$edge $from=<<trpg-quest>> $to=<<trpg-event>> label={{{ [<trpg-event>get[date]dateformat<trpg-number>] }}} color={{Quest!!color}} />
 </$let>
 <$list filter="[<trpg-quest>questmentions<trpg-event>]" variable="toTiddler">
 <$edge $from=<<trpg-event>> $to=<<toTiddler>> color="#999999" />
@@ -79,7 +79,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-quest
 </$list>
 
 <$list filter="[enlist<trpg-linked>]" variable="trpg-other">
-<$node $tiddler=<<trpg-other>> label=<<trpg-other>> color={{{ [<trpg-other>questreal[]then{Quest!!color}else[#9aa1aa]] }}} />
+<$node $tiddler=<<trpg-other>> label=<<trpg-other>> color={{Quest!!color}} trpgRumour={{{ [<trpg-other>questreal[]then[no]else[yes]] }}} />
 <$list filter="[<trpg-quest>questlinkat<trpg-other>]" variable="trpg-at">
 <$edge $from=<<trpg-at>> $to=<<trpg-other>> label={{{ [[Relations/Quest/Linked]trpgtranslate[]] }}} color={{Quest!!color}} />
 </$list>

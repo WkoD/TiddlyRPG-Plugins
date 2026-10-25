@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261025124110539
+modified: 20261025152828901
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/editor
 type: text/vnd.tiddlywiki
@@ -9,7 +9,8 @@ type: text/vnd.tiddlywiki
    dropdowns (editor/toolbar), the picker and its pills, the form (editor/form, editor/fields), "+"
    on the hubs (ui/hub-new), renaming a rumour (templates/quest-body).
    One system of controls:
-     choose    .trpg-pick-pill - the colour of its type (--trpg-kind); .trpg-off only the outline;
+     choose    .trpg-pick-pill - the colour of its type (--trpg-kind; a rumour dashed and striped:
+               --trpg-kind-border, --trpg-kind-fill from trpg.pillstyle); .trpg-off only the outline;
                .trpg-warn yellow (a new name, a name written almost alike); .trpg-neutral grey
      do        .trpg-do - filled in the accent colour (primary of the palette); .trpg-do-2 outlined
      take out  .trpg-pill-x - × at a pill; .trpg-remove - red text in a red outline
@@ -173,9 +174,9 @@ button.trpg-remove:hover,
 	align-items: center;
 	gap: 2px;
 	padding: 0 8px;
-	border: 1px solid var(--trpg-kind, var(--tpc-tag-background, #999));
+	border: 1px var(--trpg-kind-border, solid) var(--trpg-kind, var(--tpc-tag-background, #999));
 	border-radius: 999px;
-	background: color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 22%, var(--tpc-tiddler-background, #fff));
+	background: var(--trpg-kind-fill, color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 22%, var(--tpc-tiddler-background, #fff)));
 	color: var(--trpg-ink);
 	font-size: 0.9em;
 	line-height: 1.6;

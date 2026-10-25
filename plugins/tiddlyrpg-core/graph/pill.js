@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/graph/pill.js
 type: application/javascript
 module-type: vis-property
 created: 20261015160225000
-modified: 20261015184949000
+modified: 20261025152828901
 
 Node property trpgPill (tw5-vis-network, like its own properties/color.js): a node drawn like a
 tag pill (tag-pill-styles in functions) - its colour as the border, inside that colour at 18 %
@@ -16,6 +16,11 @@ Node property trpgDead="yes" (the templates set it for trpg.dead): the node is s
 inside instead, grey and its colour, both at 18 % (as its tag pill, tag-pill-stripes in
 functions) - a box drawn by a ctxRenderer of its own, since a box of vis-network fills with one
 colour only; the pin of a map stripes its pill the same way (graph/map-pin.js, stripes()).
+
+Node property trpgRumour="yes" (the graph templates set it for a rumour, a quest name without a
+tiddler): a pill dashed, striped at 45° inside in the background and its colour (gold) - as its
+marker, pill and page (styles/quest, styles/location) - in a box of its own like the dead; its
+border width (borderWidth) kept.
 
 The graph properties trpgPillBase and trpgPillText fetch the background and the font colour from
 the palette (graph-background, graph-font-color).
@@ -33,7 +38,8 @@ exports.properties = {
 	},
 	nodes: {
 		trpgPill: {type: "string"},
-		trpgDead: {type: "string"}
+		trpgDead: {type: "string"},
+		trpgRumour: {type: "string"}
 	}
 };
 
@@ -74,8 +80,9 @@ exports.deadColours = function(adapter,colour) {
 	return [mix(adapter.trpgPillText || "#333333",adapter.trpgPillBase),mix(colour,adapter.trpgPillBase)];
 };
 
-// The ctxRenderer of a dead node: a box like those of vis-network, striped inside
-function deadBox(adapter,border) {
+// The ctxRenderer of a striped node: a box like those of vis-network, striped inside in <colours>;
+// <dashed> its border dashed, <width> its border width (1 without)
+function stripedBox(adapter,border,colours,dashed,width) {
 	return function(args) {
 		var ctx = args.ctx,
 			lines = (args.label || "").split("\n"),
@@ -85,16 +92,17 @@ function deadBox(adapter,border) {
 			w = textWidth + 2 * MARGIN,
 			h = lines.length * lineHeight + 2 * MARGIN,
 			left = args.x - w / 2,
-			top = args.y - h / 2,
-			colours = exports.deadColours(adapter,border);
+			top = args.y - h / 2;
 		return {
 			drawNode: function() {
 				roundRect(ctx,left,top,w,h,RADIUS);
 				stripes(ctx,left,top,w,h,colours[0],colours[1],STRIPE);
 				roundRect(ctx,left,top,w,h,RADIUS);
-				ctx.lineWidth = args.state && (args.state.selected || args.state.hover) ? 2 : 1;
+				ctx.lineWidth = (Number(width) || 1) + (args.state && (args.state.selected || args.state.hover) ? 1 : 0);
 				ctx.strokeStyle = border;
+				ctx.setLineDash(dashed ? [5,3] : []);
 				ctx.stroke();
+				ctx.setLineDash([]);
 				ctx.fillStyle = adapter.trpgPillText || "#333333";
 				ctx.font = FONT + "px " + FAMILY;
 				ctx.textAlign = "center";
@@ -161,9 +169,12 @@ exports.process = function(objects,changes) {
 						highlight: {background: inside, border: border},
 						hover: {background: inside, border: border}
 					};
-					if(node.trpgDead === "yes" && !pin) {
+					if(node.trpgRumour === "yes" && !pin) {
 						node.shape = "custom";
-						node.ctxRenderer = deadBox(this,border);
+						node.ctxRenderer = stripedBox(this,border,[this.trpgPillBase || "#ffffff",inside],true,node.borderWidth);
+					} else if(node.trpgDead === "yes" && !pin) {
+						node.shape = "custom";
+						node.ctxRenderer = stripedBox(this,border,exports.deadColours(this,border),false);
 					} else if(this.trpgPillText && !pin) {
 						node.font = node.font || {};
 						node.font.color = this.trpgPillText;

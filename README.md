@@ -508,9 +508,10 @@ Several paragraphs ...
 - **Linked quests:** a marker directly inside a marker of another quest links the two, both ways
   (`<<quest "A">><<quest "B">>Text`: the paragraph belongs to both). There is no parent and no
   child; with three layers only the neighbours are linked.
-- **In the event** a marker stands framed: a line in gold (a quest) or silver (a rumour), a
-  light tint and a head with its name and, where it sets one, the status. A paragraph of a quest
-  and a rumour together is striped in both colours.
+- **In the event** a marker stands framed: a line in gold, a light tint and a head with its
+  name and, where it sets one, the status. A rumour is gold too, but dashed and striped at 45°
+  (its pill, its card, its node in a graph and its page alike) - what is only heard of. A
+  paragraph of a quest and a rumour together is gold like a quest.
 - **The hub `Quest`** (in the hub `Campaign` as well) lists quests and rumours apart, as
   cards, newest marker first: the date and who takes part, the start of the newest marker, its
   event. Switches
@@ -589,7 +590,7 @@ relation list show the way back by themselves.
 - A spot that is a location points to the location it is part of (dashed), like a field
   `location`.
 - **Quests** in the graph and the list of a tiddler: the open quests and rumours whose markers
-  link it (`[[…]]`, `<<spotlink>>` for a location) - in gold or silver, with an edge to what
+  link it (`[[…]]`, `<<spotlink>>` for a location) - in gold, a rumour dashed and striped, with an edge to what
   else of the graph they mention and to the quests linked with them. No field: they come from
   the markers in the text. A quest (or rumour) itself shows its events instead: each with the
   date of its section (the newest one stressed), what its markers there mention, and the quests
@@ -683,7 +684,7 @@ location gives a hint for the editor.
   (filled for a tiddler, white and dashed for a spot without a tiddler of its own); they keep
   their size on screen when zooming. Hovering shows the text of a spot, a double click scrolls
   to it. The open quests and rumours whose newest marker leads to a place of the map stand on
-  it as pills in gold or silver, with an edge to those places (a person or organisation it
+  it as pills in gold (a rumour dashed and striped), with an edge to those places (a person or organisation it
   mentions leads to where it is); those about the location as a whole stand below the map.
   Above the map the same switches by kind as on the relations block (locations,
   organisations, quests, ... - whatever the map shows), all on at first; below them the

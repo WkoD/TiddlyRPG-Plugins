@@ -1,5 +1,5 @@
 created: 20261015145856000
-modified: 20261023192045262
+modified: 20261025152828901
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/sections
 type: text/vnd.tiddlywiki
@@ -7,7 +7,7 @@ type: text/vnd.tiddlywiki
 \rules only filteredtranscludeinline transcludeinline macrodef macrocallinline macrocallblock
 /* The sections of a body (modules/sections.js, widgets/sections.js) in one pattern: the heading,
    the text below, a line on the left in the colour of the kind - a dated section in that of the
-   hub Event, a spot in that of Location, a quest marker gold or silver (styles/quest).
+   hub Event, a spot in that of Location, a quest marker gold, a rumour dashed (styles/quest).
    A lock in the alert colour of the palette (as the bar of the view of the DM): a frame all
    round, wider on the left, its marker as a bar on top saying for whom; a locked section of
    another kind keeps its own line inside the frame. A locked tiddler (tag Secret,

@@ -1,5 +1,5 @@
 created: 20261006064449000
-modified: 20261017155101453
+modified: 20261025152828901
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/location
 type: text/css
@@ -45,6 +45,18 @@ a.trpg-pill-link:hover .trpg-pill {
 	background-image: repeating-linear-gradient(45deg,
 		color-mix(in srgb, var(--tpc-foreground, #333) 18%, var(--tpc-background, #fff)) 0 24px,
 		color-mix(in srgb, var(--trpg-pill) 18%, var(--tpc-background, #fff)) 24px 48px);
+}
+/* A rumour (a name with markers, no tiddler; trpg.pill): dashed and striped at 45° in gold and
+   the background, as its marker and its page (styles/quest) */
+.trpg-pill.trpg-pill-rumour,
+a.trpg-pill-link:hover .trpg-pill.trpg-pill-rumour {
+	box-shadow: none;
+	outline: 1px dashed var(--trpg-pill);
+	outline-offset: -1px;
+	background-image: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-pill) 22%, var(--tpc-background, #fff)) 0 12px, var(--tpc-background, #fff) 12px 24px);
+}
+a.trpg-pill-link:hover .trpg-pill.trpg-pill-rumour {
+	outline-width: 2px;
 }
 /* A place that is a spot of the location above it: dashed, like the edge of a spot */
 .trpg-pill.trpg-pill-spot,
@@ -164,6 +176,25 @@ a.trpg-pill-link:hover .trpg-pill.trpg-pill-spot {
 	background:
 		radial-gradient(circle, var(--tpc-tiddler-background, #fff) 0 0.15em, transparent 0.16em),
 		linear-gradient(45deg, var(--trpg-kind) 50%, var(--trpg-kind2) 50%);
+}
+/* Quests and rumours, both gold: the half of the rumours striped at 45°, as a rumour is
+   (styles/quest) */
+.trpg-kind-switch.trpg-kind-quest.trpg-kind-split:not(.trpg-off) {
+	border-color: var(--trpg-kind);
+	background:
+		linear-gradient(45deg, color-mix(in srgb, var(--trpg-kind) 18%, var(--tpc-tiddler-background, #fff)) 50%, transparent 50%),
+		repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-kind) 26%, var(--tpc-tiddler-background, #fff)) 0 5px, var(--tpc-tiddler-background, #fff) 5px 10px);
+}
+.trpg-kind-switch.trpg-kind-quest.trpg-kind-split::before {
+	background:
+		linear-gradient(45deg, var(--trpg-kind) 50%, transparent 50%),
+		repeating-linear-gradient(45deg, var(--trpg-kind) 0 1.5px, transparent 1.5px 3px);
+}
+.trpg-kind-switch.trpg-kind-quest.trpg-kind-split.trpg-off::before {
+	background:
+		radial-gradient(circle, var(--tpc-tiddler-background, #fff) 0 0.15em, transparent 0.16em),
+		linear-gradient(45deg, var(--trpg-kind) 50%, transparent 50%),
+		repeating-linear-gradient(45deg, var(--trpg-kind) 0 1.5px, transparent 1.5px 3px);
 }
 
 /* Group heading of the relation list: small, in --trpg-ink (styles/editor: black with a light

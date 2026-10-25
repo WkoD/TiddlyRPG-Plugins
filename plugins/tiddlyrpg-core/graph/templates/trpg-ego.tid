@@ -1,6 +1,6 @@
 caption: TiddlyRPG ego graph (1 hop, type colours)
 created: 20260708125907000
-modified: 20261025124110539
+modified: 20261025152828901
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 
 \whitespace trim
@@ -20,8 +20,8 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
      are nodes too, with their edges among each other, without their own neighbours (who is
      there: the tree of the list). Other locations are left out; the parent is in the path below
      the title.
-     The open quests that mention the centre (questsabout): a node each, gold for a quest, silver
-     for a rumour, with an edge to what it mentions among the nodes (questmentions) and to the
+     The open quests that mention the centre (questsabout): a node each, gold, a rumour dashed and
+     striped (trpgRumour, graph/pill.js), with an edge to what it mentions among the nodes (questmentions) and to the
      quests linked with it (questlinks). Only the kinds switched on above the block
      (trpg.egoshown, viewtemplates/relations); the centre always. -->
 
@@ -80,7 +80,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-ego
 <%endif%>
 
 <$list filter="[enlist<trpg-centre>questsabout[]] :filter[trpg.egoshown<currentNode>]">
-<$node label=<<currentTiddler>> color={{{ [<currentTiddler>questreal[]then{Quest!!color}else[#9aa1aa]] }}} />
+<$node label=<<currentTiddler>> color={{Quest!!color}} trpgRumour={{{ [<currentTiddler>questreal[]then[no]else[yes]] }}} />
 <$list filter="[<currentTiddler>questmentions[]]" variable="toTiddler"><$edge $to=<<toTiddler>> color={{Quest!!color}} /></$list>
 <$list filter="[<currentTiddler>questlinks[]] :filter[compare:string:gt<..currentTiddler>]" variable="toTiddler"><$edge $to=<<toTiddler>> color={{Quest!!color}} /></$list>
 </$list>
