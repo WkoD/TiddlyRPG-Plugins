@@ -1,5 +1,5 @@
 created: 20261007162511000
-modified: 20261024170203713
+modified: 20261025133420086
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/view
 type: text/vnd.tiddlywiki
@@ -102,4 +102,14 @@ a.trpg-player-card.trpg-dead {
 	border-top-style: solid;
 	background: color-mix(in srgb, <<colour foreground>> 4%, <<colour tiddler-background>>);
 	opacity: 0.7;
+}
+
+/* A tree in the block of values (viewtemplates/fields): a row per class or folk, each on its line */
+.trpg-fields-tree {
+	display: block;
+	margin-left: 0.5em;
+}
+.trpg-fields-tree:first-of-type {
+	display: inline;
+	margin-left: 0.3em;
 }

@@ -1,6 +1,6 @@
 created: 20261022142450275
 list-before: $:/core/ui/ViewTemplate/body
-modified: 20261025124110539
+modified: 20261025133420086
 tags: $:/tags/ViewTemplate
 title: $:/plugins/tiddlyrpg-core/viewtemplates/fields
 type: text/vnd.tiddlywiki
@@ -11,7 +11,8 @@ type: text/vnd.tiddlywiki
      italics, then the sections parted by a line - the fields of no group with the price, then
      the groups: "list" a line "Label value" each, "row" a small table (label above the value),
      "inline" the lines in one line, parted by a dot. The relations a group names follow as
-     pills. Every value as text; the label of an entry the glossary explains links to it
+     pills, a tree (folk, classes: trpgtreerows) a row per entry without parent - the entry, its level
+     and what belongs to it. Every value as text; the label of an entry the glossary explains links to it
      (trpgfieldparts, modules/glossary.js). A price or value that cannot be read is a message below the
      title (checks/items.js, checks/fields.js). Nothing without a value to show; not for a
      tiddler the view does not see. Values secret-fields locks are left out for a view that may
@@ -52,7 +53,11 @@ type: text/vnd.tiddlywiki
 </$list>
 <%endif%>
 <$list filter="[<currentTiddler>trpgfieldsection:relations<trpg-section>]" variable="trpg-relation">
+<%if [<trpg-relation>relationtree[]] %>
+<div class="trpg-fields-lines"><span class="trpg-fields-label"><$text text={{{ [<trpg-relation>relationfield<currentTiddler>] }}}/></span><$text text=" "/><$list filter="[<currentTiddler>trpgtreerows<trpg-relation>]" variable="trpg-row"><span class="trpg-fields-tree"><$list filter="[<trpg-row>jsonget[entries]enlist-input[]]" variable="trpg-target" counter="trpg-n"><%if [<trpg-n>!match[1]] %><$text text=" · "/><%endif%><$transclude $variable="trpg.pill" title=<<trpg-target>>/><%if [<trpg-n>match[1]] %><$text text={{{ [<trpg-row>jsonget[level]!is[blank]addprefix[ ]] }}}/><%endif%></$list></span></$list></div>
+<%else%>
 <div class="trpg-fields-lines"><span class="trpg-fields-label"><$text text={{{ [<trpg-relation>relationfield<currentTiddler>] }}}/></span><$text text=" "/><$list filter="[<currentTiddler>get<trpg-relation>enlist-input[]] :filter[trpg.visible[]]" variable="trpg-target"><$transclude $variable="trpg.pill" title=<<trpg-target>>/></$list></div>
+<%endif%>
 </$list>
 </div>
 </$let>

@@ -392,13 +392,20 @@ test.describe("trees: classes and folk", function() {
 		assert.deepEqual(f("[[classes]relationfield[Drachenring]] [[classes]relationfield[Funke]] [[folk]relationfield[Funke]]"), ["Einstimmung durch", "Klassen", "Volk"]);
 	});
 
-	test("the player card: a line per tree", function() {
+	test("the player card: a line per tree; of the classes only the class (tiddlyrpg-card: top)", function() {
 		var hub = h.render(wiki, "text/html", "{{Player}}");
-		assert.match(hub, /trpg-player-line">Sorcerer · Draconic Bloodline · Dragon Ancestor: Red</);
-		assert.match(hub, /trpg-player-line">Fighter · Fighting Style: Defense<\/span><span class="trpg-player-line">Sorcerer</);
+		assert.match(hub, /trpg-player-line">Sorcerer</);
+		assert.doesNotMatch(hub, /Draconic Bloodline/);
+		assert.match(hub, /trpg-player-line">Fighter<\/span><span class="trpg-player-line">Sorcerer</);
+		h.add(wiki, {title: "Wanderer", tags: "Player", player: "Uli", folk: "Waldvolk Hochwald", text: "Of the forest."});
+		try {
+			assert.match(h.render(wiki, "text/html", "{{Player}}"), /trpg-player-line">Hochwald</, "the subfolk alone");
+		} finally {
+			wiki.deleteTiddler("Wanderer");
+		}
 		var pub = h.inView(wiki, "public", function() { return h.render(wiki, "text/html", "{{Player}}"); });
 		assert.match(pub, /trpg-player-line">Fighter</);
-		assert.equal(pub.indexOf("Pfadwahl"), -1, "a locked entry takes its branch along");
+		assert.equal(pub.indexOf("Geheimpfad"), -1);
 	});
 
 	test("the ego graph: the colour of Class; the edge labelled for the type it starts at", function() {
@@ -584,10 +591,25 @@ test.describe("the levels of the classes (format titles)", function() {
 		var lines = function(title, view) {
 			return h.inView(wiki, view || "dm", function() { return f("[[" + title + "]trpgcardtrees[]]"); });
 		};
-		assert.deepEqual(lines("Zwilling"), ["Kämpfer 5 · Meister", "Schurke 8"]);
-		assert.deepEqual(lines("Einzeln"), ["Kämpfer 5 · Meister"]);
+		assert.deepEqual(lines("Zwilling"), ["Kämpfer 5", "Schurke 8"]);
+		assert.deepEqual(lines("Einzeln"), ["Kämpfer 5"]);
 		assert.deepEqual(lines("Heimlich"), ["Kämpfer 3", "Verborgen 2"]);
 		assert.deepEqual(lines("Heimlich", "public"), ["Kämpfer"], "the difference to the level would tell the locked class");
+	});
+
+	test("the block of values: a row per class with its level and what belongs to it; the folk too", function() {
+		var block = function(title, view) {
+			return h.inView(wiki, view || "dm", function() {
+				return h.render(wiki, "text/plain", "{{" + title + "||$:/plugins/tiddlyrpg-core/viewtemplates/fields}}");
+			});
+		};
+		assert.match(block("Zwilling"), /Klassen Kämpfer 5 · MeisterSchurke 8/);
+		assert.doesNotMatch(block("Zwilling"), /Klassenstufen/, "the levels stand in the tree");
+		assert.match(block("Heimlich"), /Klassen Kämpfer 3Verborgen 2/);
+		assert.match(block("Heimlich", "public"), /Klassen Kämpfer(?! 3)/);
+		assert.doesNotMatch(block("Heimlich", "public"), /Verborgen/);
+		assert.deepEqual(f("[[Zwilling]trpgtreerows[classes]]").map(function(r) { return JSON.parse(r); }),
+			[{entries: "Kämpfer Meister", level: "5"}, {entries: "Schurke", level: "8"}]);
 	});
 
 	test("the form: a number per class, written into the field in the order of the tree", function() {

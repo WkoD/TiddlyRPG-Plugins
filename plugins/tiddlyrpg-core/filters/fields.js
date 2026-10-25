@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025124110539
+modified: 20261025133420086
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -29,10 +29,15 @@ header line does not name it already.
                                        reads (without what the view may not see); for a former one too
 [<title>trpgcardtrees[]]               the lines of the trees (tiddlyrpg-tree: folk, classes) on
                                        the card of a player character: per entry without parent
-                                       "<entry> <level> · <what belongs to it>" - the level from a
+                                       "<entry> <level> · <what belongs to it>" (tiddlyrpg-card: top
+                                       the entry alone: the class without subclass; leaf the last
+                                       of the row: the subfolk) - the level from a
                                        field of the format titles with that "tree" (class-levels),
                                        for one entry alone from its field "sum" (the level by the
                                        XP); no levels when an entry is locked from the view
+[<title>trpgtreerows[<relation>]]      the rows of a tree (folk, classes) in the block of values,
+                                       each {"entries": title list, "level"}: per entry without
+                                       parent the entry and what belongs to it, the level of a class
 [<draft>trpglevelentries[<field>]]     the entries without parent of the tree of a field of the
                                        format titles (the classes a figure has)
 [<draft>trpglevel[<field>],[<entry>]]  the number of an entry in that field
@@ -549,6 +554,26 @@ function levelsOf(wiki,values,field) {
 	return out;
 }
 
+// The rows of the tree <name> of a tiddler as the view sees it: [{entries, level}] - per entry
+// without parent the entry and what belongs to it, the level of a class from the field of the
+// format titles with that tree (one class alone: from its field "sum"); no levels when an entry
+// is locked from the view
+function treeRows(wiki,title,name,values,view) {
+	var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+		lines = relations.lines(wiki,name,title,function(t) { return visibility.visible(wiki,t,view); }),
+		hidden = relations.lines(wiki,name,title,null).length !== lines.length,
+		field = levelsField(wiki,name),
+		levels = field && !hidden ? levelsOf(wiki,values,field) : {},
+		sum = field && fields.spec(wiki,field).sum;
+	return lines.map(function(line) {
+		var level = levels[line[0]] || "";
+		if(!level && !hidden && sum && lines.length === 1 && !Object.keys(levels).length) {
+			level = fields.read(wiki,values,sum).text;
+		}
+		return {entries: line, level: level};
+	});
+}
+
 exports.trpgcardtrees = function(source,operator,options) {
 	var wiki = options.wiki,
 		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
@@ -558,22 +583,24 @@ exports.trpgcardtrees = function(source,operator,options) {
 		var values = valuesOf(wiki,title),
 			out = [];
 		relations.ordered(wiki).filter(function(name) { return all[name].tree; }).forEach(function(name) {
-			var lines = relations.lines(wiki,name,title,function(t) { return visibility.visible(wiki,t,view); }),
-				hidden = relations.lines(wiki,name,title,null).length !== lines.length,
-				field = levelsField(wiki,name),
-				levels = field && !hidden ? levelsOf(wiki,values,field) : {},
-				sum = field && fields.spec(wiki,field).sum;
-			lines.forEach(function(line) {
-				var level = levels[line[0]];
-				if(!level && !hidden && sum && lines.length === 1 && !Object.keys(levels).length) {
-					level = fields.read(wiki,values,sum).text;
-				}
-				out.push(line.map(function(t,i) {
-					return language.title(wiki,t) + (i === 0 && level ? " " + level : "");
+			treeRows(wiki,title,name,values,view).forEach(function(row) {
+				var shown = all[name].card === "top" ? row.entries.slice(0,1) : all[name].card === "leaf" ? row.entries.slice(-1) : row.entries;
+				out.push(shown.map(function(t,i) {
+					return language.title(wiki,t) + (i === 0 && row.level ? " " + row.level : "");
 				}).join(" · "));
 			});
 		});
 		return out;
+	});
+};
+
+exports.trpgtreerows = function(source,operator,options) {
+	var wiki = options.wiki,
+		view = visibility.current(wiki);
+	return each(source,function(title) {
+		return treeRows(wiki,title,operator.operand,valuesOf(wiki,title),view).map(function(row) {
+			return JSON.stringify({entries: $tw.utils.stringifyList(row.entries), level: row.level});
+		});
 	});
 };
 

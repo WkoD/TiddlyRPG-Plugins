@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261025124110539
+modified: 20261025133420086
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -36,6 +36,9 @@ Our fields on the config of a type:
                       subfolk its folk; several parents alike); a holder that names an entry
                       names one of its parents too (checks/relations.js relations/parent). The
                       way back of the relation list is split by the kind of its sources.
+  tiddlyrpg-card        top: the card of a player character shows only the entries of the tree
+                      without parent (the classes, not their subclasses and choices); leaf: only
+                      the last of each row (the subfolk, whose name says its folk)
 
 Axes: $:/config/tiddlyrpg/graph/axes lists them in order (field list); each axis
 $:/config/tiddlyrpg/graph/axes/<axis> is an edge style (JSON, like an edge type config) and lists
@@ -91,6 +94,7 @@ var types = exports.types = function(wiki) {
 					candidates: fields["tiddlyrpg-targets"] || "",
 					copy: fields["tiddlyrpg-copy"] === "yes",
 					tree: fields["tiddlyrpg-tree"] || "",
+					card: fields["tiddlyrpg-card"] || "",
 					axis: "",
 					order: Infinity
 				};
