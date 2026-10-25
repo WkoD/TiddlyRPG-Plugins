@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/content.js
 type: application/javascript
 module-type: startup
 created: 20261022165648795
-modified: 20261023180848471
+modified: 20261025195559231
 
 Content packages in the browser (modules/content.js): loads the index of the packages of the active
 ruleset from the server (server/content-route.js) into the temp tiddler of the index - at the
@@ -65,7 +65,7 @@ function load(wiki) {
 		return;
 	}
 	$tw.utils.httpRequest({
-		url: "tiddlyrpg/content/index.json?ruleset=" + encodeURIComponent(ruleset),
+		url: content.url("index.json",{ruleset: ruleset}),
 		type: "GET",
 		callback: function(error,data) {
 			var packages = [];
@@ -87,7 +87,7 @@ function notify(wiki,text) {
 function fetchEntry(wiki,id,callback) {
 	var ruleset = pluginTypes.active(wiki,"ruleset") || "";
 	$tw.utils.httpRequest({
-		url: "tiddlyrpg/content/entry.json?ruleset=" + encodeURIComponent(ruleset) + "&id=" + encodeURIComponent(id),
+		url: content.url("entry.json",{ruleset: ruleset, id: id}),
 		type: "GET",
 		callback: function(error,data) {
 			var found = null;

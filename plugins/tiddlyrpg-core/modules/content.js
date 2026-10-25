@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261025121331430
+modified: 20261025195559270
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -34,6 +34,10 @@ a tiddler the view does not see counts the same - nothing tells it.
   wanting(wiki,fields)       the titles a taken entry names in base, spells and the trees
                              (tiddlyrpg-tree: classes, folk - what it belongs to) that do not
                              exist, with an offer of the same title: [{title, id}]
+  url(path,params)           the address of the route (server/content-route.js) of <path> with
+                             the query <params>: on the host the sync adaptor talks to (TiddlyWeb:
+                             $:/config/tiddlyweb/host, which a wiki under a path-prefix sets),
+                             else relative to the page
 
 \*/
 
@@ -60,6 +64,14 @@ function exists(wiki,title) {
 function typeName(wiki,type,code) {
 	return wiki.getTiddlerText(LANGUAGE + code + "/Title/" + type) || wiki.getTiddlerText(LANGUAGE + "en-GB/Title/" + type) || type;
 }
+
+exports.url = function(path,params) {
+	var host = $tw.syncadaptor && typeof $tw.syncadaptor.host === "string" ? $tw.syncadaptor.host : "",
+		query = Object.keys(params || {}).map(function(name) {
+			return encodeURIComponent(name) + "=" + encodeURIComponent(params[name]);
+		}).join("&");
+	return host + "tiddlyrpg/content/" + path + (query ? "?" + query : "");
+};
 
 var titleOf = exports.titleOf = function(wiki,pkg,entry) {
 	var title = entry.title;

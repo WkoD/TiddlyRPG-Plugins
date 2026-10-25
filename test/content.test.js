@@ -145,6 +145,20 @@ test.describe("in the browser: the offers of the index", function() {
 		["Balor", "Geheimnis", "$:/temp/tiddlyrpg-core/content/index"].forEach(function(t) { wiki.deleteTiddler(t); });
 	});
 
+	// A wiki served under a path-prefix sets $:/config/tiddlyweb/host; relative to the page the
+	// route would miss it at "http://host/wiki" without a slash
+	test("the address of the route: on the host of the sync adaptor, else relative", function() {
+		var before = $tw.syncadaptor;
+		try {
+			$tw.syncadaptor = undefined;
+			assert.equal(offers.url("index.json", {ruleset: "$:/plugins/r"}), "tiddlyrpg/content/index.json?ruleset=%24%3A%2Fplugins%2Fr");
+			$tw.syncadaptor = {host: "http://h/wiki/"};
+			assert.equal(offers.url("entry.json", {ruleset: "r", id: "a b"}), "http://h/wiki/tiddlyrpg/content/entry.json?ruleset=r&id=a%20b");
+		} finally {
+			$tw.syncadaptor = before;
+		}
+	});
+
 	test("titles: free as it is; taken under the same type; another type with the type of the language of the package", function() {
 		var titles = offers.offers(wiki).map(function(o) { return o.title; });
 		assert.ok(titles.indexOf("Longsword") !== -1);
