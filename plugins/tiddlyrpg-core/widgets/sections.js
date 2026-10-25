@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261024144154808
+modified: 20261025193824745
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -24,7 +24,8 @@ Rendering of the sections of a body (modules/sections.js).
   ("Actions", sections.heading()) before its sections, the keys of the sections it stands for. It
   shows while the view sees one of them - a heading over sections all locked would tell they are
   there. In the colour of the type of the tiddler, mixed with the text like the labels of the
-  block of values (styles/sections).
+  block of values (styles/sections). Drawn anew when its text (the rules language), its colour or
+  whether it shows change.
 
 <$trpg-nest key="..." kind="quest">...</$trpg-nest>
   made by sections.transform(), not written by hand: what a marker of a kind with nest holds - a
@@ -228,7 +229,19 @@ var HeadingWidget = function(parseTreeNode,options) {
 };
 
 HeadingWidget.prototype = new Widget();
-HeadingWidget.prototype.refresh = refresh;
+
+// Anew when what it shows changes: the heading in the display language of the rules (their
+// settings, the wiki language), the colour of the type, whether a section of it is seen (the view)
+HeadingWidget.prototype.refresh = function(changedTiddlers) {
+	var before = [this.kind,this.text,this.colour,this.shown].join("\n");
+	this.computeAttributes();
+	this.execute();
+	if([this.kind,this.text,this.colour,this.shown].join("\n") !== before) {
+		this.refreshSelf();
+		return true;
+	}
+	return false;
+};
 
 HeadingWidget.prototype.execute = function() {
 	var wiki = this.wiki,

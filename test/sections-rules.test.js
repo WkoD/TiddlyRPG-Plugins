@@ -132,6 +132,36 @@ test("in a dated section or a spot a section of the ruleset belongs to it and is
 	}
 });
 
+test("the heading of a kind follows a change of the rules language and of the colour of the type", function() {
+	var mode = "$:/config/tiddlyrpg/rules/ruleset/mode",
+		lang = "$:/config/tiddlyrpg/rules/ruleset/language",
+		colour = wiki.getTiddler("Creature").fields.color;
+	h.add(wiki, {title: "Knurrer", tags: "Creature", text: "Ein Wolf.\n\n<<action \"Biss\">> Beißt."});
+	var parser = wiki.parseText("text/vnd.tiddlywiki", "<$importvariables filter=\"[[$:/core/ui/PageMacros]] [all[shadows+tiddlers]tag[$:/tags/Global]!is[draft]]\"><$trpg-body $tiddler=\"Knurrer\" $mode=\"block\"/></$importvariables>"),
+		widget = wiki.makeWidget(parser, {document: $tw.fakeDocument, variables: {currentTiddler: "Knurrer"}}),
+		container = $tw.fakeDocument.createElement("div");
+	widget.render(container, null);
+	try {
+		assert.match(container.textContent, /Aktionen/);
+		h.add(wiki, {title: mode, text: "all"});
+		h.add(wiki, {title: lang, text: "en-GB"});
+		var changes = {};
+		changes[mode] = {modified: true};
+		changes[lang] = {modified: true};
+		widget.refresh(changes);
+		assert.match(container.textContent, /Actions/);
+		assert.doesNotMatch(container.textContent, /Aktionen/);
+		h.add(wiki, Object.assign({}, wiki.getTiddler("Creature").fields, {color: "#123456"}));
+		widget.refresh({Creature: {modified: true}});
+		assert.match(container.innerHTML, /#123456/);
+	} finally {
+		wiki.deleteTiddler(mode);
+		wiki.deleteTiddler(lang);
+		h.add(wiki, Object.assign({}, wiki.getTiddler("Creature").fields, {color: colour}));
+		wiki.deleteTiddler("Knurrer");
+	}
+});
+
 // After text in a dated section or a spot, <<secret>> on its own locks the section of the ruleset
 // after it - not the dated section or the spot it stands in
 test("<<secret>> on its own after text of a dated section or a spot locks the section after it, not the one around it", function() {
