@@ -1,8 +1,9 @@
 created: 20261015193638000
-modified: 20261025193240501
+modified: 20261025194116405
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
+Categories/BadBase: Check the field tiddlyrpg-bases: $base$ is no type - a type hub like Person or Information, no category
 Checks/Unknown: Check the fields: $field$ names "$id$", which is no check
 Dates/Beyond: Check the text: <<date $n$>> - the field date has $count$ sections
 Dates/Day: Check the date: $point$ - day $day$ does not exist in month $month$ of $year$

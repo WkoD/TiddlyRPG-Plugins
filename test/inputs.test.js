@@ -39,7 +39,7 @@ var CASES = [
 		type: {title: "Draft of 'Neu'", weight: "3 lb"}, shows: /Ausgabe: 1,5 kg/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/rules", variables: {currentTiddler: "Draft of 'Heldin'", currentField: "class-levels"},
 		type: {title: "$:/temp/tiddlyrpg-core/levels/Draft of 'Heldin'", text: "{\"Kämpfer\": \"5\"}"}, shows: /Kämpfer.*Schurke/},
-	{source: "Content", type: {title: "$:/state/tiddlyrpg-core/content/search", text: "sw"}, shows: /1 Einträge/},
+	{source: "Content", type: {title: "$:/state/tiddlyrpg-core/content/search", text: "sw"}, shows: /Einträge: 1(?!\d)/},
 	{source: "$:/plugins/tiddlyrpg-core/ui/new-event", variables: {"trpg-input": "$:/temp/tiddlyrpg-core/new-event"},
 		type: {title: "$:/temp/tiddlyrpg-core/new-event", text: "1351-07-30"}, shows: /Anlegen/}
 ];

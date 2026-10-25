@@ -1013,6 +1013,7 @@ out every message of its level. An id that is no rule is a hint.
 | Id | Level | Message |
 |---|---|---|
 | `categories/base` | error | a category without one of its base types: a category of the items without `Artifact`, `Item` or `Material`, `Folk` without `Information`; fix for one base type: set its tag |
+| `categories/bases` | error | at a category: a name in `tiddlyrpg-bases` that is no type hub, or a category itself - a typo, a cycle |
 | `checks/switches` | hint | `trpg-noerror` or `trpg-noinfo` names an id that is no rule |
 | `dates/format` | error | a part of the date field that cannot be read, a day or month the calendar does not have, start after end, sections out of order |
 | `dates/field` | hint | an empty side or section in the date field |

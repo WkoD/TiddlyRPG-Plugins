@@ -125,6 +125,22 @@ test.describe("categories/base", function() {
 		});
 	});
 
+	test("categories/bases: a base that is no type - a typo, another category, a cycle - an error at the category, none at its entries", function() {
+		withTiddlers([{title: "Mythos", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "Informaton"},
+			{title: "Odin", tags: "Information Mythos", text: "A god."},
+			{title: "Kreis A", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "[[Kreis B]]"},
+			{title: "Kreis B", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "[[Kreis A]] Person"}], function() {
+			assert.deepEqual(keys("Mythos"), ["Check/Categories/BadBase"]);
+			assert.match(h.checks(wiki, "Mythos", "categories")[0].text, /Informaton/);
+			assert.deepEqual(keys("Odin"), [], "no fix that sets the tag of the typo");
+			assert.deepEqual(keys("Kreis A"), ["Check/Categories/BadBase"]);
+			assert.deepEqual(keys("Kreis B"), ["Check/Categories/BadBase"], "Person is fine, Kreis A is a category");
+			["Book", "Folk", "Equipment"].forEach(function(hub) {
+				assert.deepEqual(keys(hub), [], hub);
+			});
+		});
+	});
+
 	test("a category of the campaign under the tag before 2.2.0 counts", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/ItemKind"}, {title: "Loose Rune", tags: "Rune"}], function() {
 			assert.deepEqual(keys("Loose Rune"), ["Check/Categories/NoBase"]);
