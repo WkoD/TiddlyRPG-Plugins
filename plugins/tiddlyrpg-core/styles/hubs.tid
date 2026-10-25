@@ -1,5 +1,5 @@
 created: 20261024161412996
-modified: 20261025191301261
+modified: 20261025204906781
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/hubs
 type: text/vnd.tiddlywiki
@@ -12,9 +12,9 @@ type: text/vnd.tiddlywiki
      behind it as a pill (templates/title-hub), a strong rule below title and tags
      (viewtemplates/hub-rule). The lists (trpg.hub.list) in columns, a group or a letter never
      split; the headings of the groups and letters in small capitals over a line that fades out.
-     The hubs below a hub (trpg.hub.page) above its list as bars side by side, each in its colour
-     with its number, like the list of the hubs (Index), which stands as bars below each other
-     with right-aligned numbers; on Campaign beside the player characters, below the rule of
+     The hubs below a hub (trpg.hub.page) above its list as bars in the same columns, each in its
+     colour with its number right-aligned, like the list of the hubs (Index), which stands as bars
+     below each other; on Campaign beside the player characters, below the rule of
      their heading. -->
 <$list filter="[all[shadows+tiddlers]tag[Index]has[color]] -[[Index]] [[Campaign]] +[sort[]]">
 .tc-tiddler-frame[data-tiddler-title=<$text text={{{ [<currentTiddler>escapecss[]] }}}/>] {
@@ -46,13 +46,18 @@ border-top: 3px solid var(--trpg-hub);
 margin: 0.6em 0 0.8em;
 }
 .trpg-hub-subs {
-display: flex;
-flex-wrap: wrap;
-gap: 0.3em 0.5em;
+columns: 3 11em;
+column-gap: 2em;
 margin: 0 0 0.9em;
 }
+.trpg-hub-sub {
+display: block;
+break-inside: avoid;
+margin: 0 0 0.3em;
+}
 .trpg-hub-sub a {
-display: inline-flex;
+display: grid;
+grid-template-columns: 1fr auto;
 gap: 0.6em;
 padding: 0.2em 0.6em;
 border-left: 5px solid var(--trpg-hub);
@@ -69,6 +74,7 @@ text-decoration: none;
 font-weight: normal;
 font-variant-numeric: tabular-nums;
 opacity: 0.8;
+text-align: right;
 }
 .trpg-hub-list {
 columns: 3 11em;

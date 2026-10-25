@@ -72,8 +72,8 @@ A tour for the DM and the players. The sections after it hold the details.
   while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
   that hub. A hub shows in its colour too: frame and title, the number of its entries behind the
   title, its list in columns with a heading per first letter, sorted by the names as they read
-  in the wiki language (an umlaut with its letter). Above the list stand the hubs below it, each
-  with the number of its entries: `Artifact`, `Material` and the categories on `Item`, the
+  in the wiki language (an umlaut with its letter). Above the list stand the hubs below it in the same
+  columns, sorted by name, each with the number of its entries: `Artifact`, `Material` and the categories on `Item`, the
   categories on `Information` and on any other hub. Such a hub lists only its own entries, the
   same way. The numbers count only what the view sees.
 - A **tiddler** shows the path of the locations where it is below its title, and its years or

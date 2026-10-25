@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025190651361
+modified: 20261025204906697
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -41,11 +41,12 @@ type: text/vnd.tiddlywiki
      currentTiddler is the hub, so a category hub of a campaign may also be {{ || Item }}): above,
      the hubs below it (trpghubsubs: Artifact, Material and the categories of the items on Item,
      the categories of another hub, none on a category) that the view sees and that hold an entry
-     it sees, each a link in its colour with that number (styles/hubs); then every entry of the
+     it sees, each a link in its colour with that number, sorted by the name it shows
+     (trpgsortname[plural]) and in the columns of the list (styles/hubs); then every entry of the
      hub (trpghubentries) in its list. -->
 \procedure trpg.hub.page()
 \whitespace trim
-<$let trpg-subs={{{ [<currentTiddler>trpghubsubs[]] :filter[trpg.visible[]] :filter[trpg.hub.entries<currentTiddler>count[]compare:number:gt[0]] +[format:titlelist[]join[ ]] }}}>
+<$let trpg-subs={{{ [<currentTiddler>trpghubsubs[]] :filter[trpg.visible[]] :filter[trpg.hub.entries<currentTiddler>count[]compare:number:gt[0]] +[trpgsortname[plural]format:titlelist[]join[ ]] }}}>
 <%if [<trpg-subs>!is[blank]] %>
 <div class="trpg-hub-subs">
 <$list filter="[enlist<trpg-subs>]">

@@ -119,8 +119,8 @@ test.describe("hubs", function() {
 		return h.render(wiki, "text/html", "<$transclude $tiddler=\"" + hub + "\" mode=\"block\"/>", {currentTiddler: hub});
 	}
 
-	test("Item: every item from A to Z with a heading per letter; above it Artifact, Material, then the categories, each with its number", function() {
-		assert.equal(bar("Item"), "Artefakte 2|Materialien 1|Ausrüstung 1|Bücher 2|Verbrauchsgüter 1");
+	test("Item: every item from A to Z with a heading per letter; above it Artifact, Material and the categories by name, each with its number", function() {
+		assert.equal(bar("Item"), "Artefakte 2|Ausrüstung 1|Bücher 2|Materialien 1|Verbrauchsgüter 1");
 		assert.match(hubHtml("Item"), /<span class="trpg-hub-sub" style="--trpg-hub:#ff80ff;"><a [^>]*href="#Artifact">/);
 		assert.equal(list("Item"), "C: Chronicle|M: Moss|N: Newspaper|P: Potion|S: Snail, Sword");
 	});
@@ -136,7 +136,7 @@ test.describe("hubs", function() {
 
 	test("a category of the campaign: in the bar with its name, its hub ({{ || Item }}) lists its own", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/Category", text: "{{ || Item }}"}, {title: "Hagalaz", tags: "Item Rune"}], function() {
-			assert.equal(bar("Item"), "Artefakte 2|Materialien 1|Ausrüstung 1|Bücher 2|Rune 1|Verbrauchsgüter 1");
+			assert.equal(bar("Item"), "Artefakte 2|Ausrüstung 1|Bücher 2|Materialien 1|Rune 1|Verbrauchsgüter 1");
 			assert.equal(list("Rune"), "H: Hagalaz");
 		});
 	});
@@ -156,9 +156,9 @@ test.describe("hubs", function() {
 
 	test("the bar: only what the view sees, a hub without an entry it sees left out, the number of what it sees", function() {
 		withTiddlers([{title: "Hidden Book", tags: "Item Book Secret"}, {title: "Hidden Moss", tags: "Material Secret"}], function() {
-			assert.equal(bar("Item"), "Artefakte 2|Materialien 2|Ausrüstung 1|Bücher 3|Verbrauchsgüter 1");
+			assert.equal(bar("Item"), "Artefakte 2|Ausrüstung 1|Bücher 3|Materialien 2|Verbrauchsgüter 1");
 			h.inView(wiki, "public", function() {
-				assert.equal(bar("Item"), "Artefakte 2|Materialien 1|Ausrüstung 1|Bücher 2|Verbrauchsgüter 1");
+				assert.equal(bar("Item"), "Artefakte 2|Ausrüstung 1|Bücher 2|Materialien 1|Verbrauchsgüter 1");
 			});
 		});
 		withTiddlers([{title: "Kult", tags: "$:/tags/tiddlyrpg/Category Secret"}, {title: "Kultdolch", tags: "Item Kult"}], function() {

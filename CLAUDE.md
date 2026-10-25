@@ -632,7 +632,8 @@ the tiddler title:
     2026-10-25: one form for all, no headings per category): the hubs below it (`trpghubsubs`,
     rule `categories.subsOf()`: `Artifact`, `Material` and the categories of the items on
     `Item`, the categories of another hub, none on a category) that the view sees and that hold
-    an entry it sees, as bars with their numbers, then its list. It reads `currentTiddler`, so a
+    an entry it sees, as bars with their numbers, sorted by the name they show
+    (`trpgsortname[plural]`) in the columns of the list, then its list. It reads `currentTiddler`, so a
     category hub of a campaign may be `{{ || Item }}` as well - a template for several hubs
     never names one (`test/hubs.test.js` checks every hub against its `trpghubentries`).
   - **The list** `trpg.hub.list(filter)` (`functions`): what the view sees of the filter, sorted
