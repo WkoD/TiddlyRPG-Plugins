@@ -1,7 +1,7 @@
 caption: <<trpg.title Player>>
 color: #005500
 created: 20200209100237010
-modified: 20261025135015562
+modified: 20261025140232273
 tags: Index
 title: Player
 type: text/vnd.tiddlywiki
@@ -10,7 +10,7 @@ type: text/vnd.tiddlywiki
 <!-- The player characters as cards with portrait (the first image of the field image, without
      tabs), name, the lines of the ruleset ("card" of the schema of Player, filters/fields.js
      trpgfieldcard: "Level 13", derived from the XP), a line per entry without parent of each
-     tree (trpgcardlines: "Fighter Level 13" - the class with its level, tiddlyrpg-card: top, in
+     tree (trpgcardlines: "Level 13 Fighter" - the class after its level, tiddlyrpg-card: top, in
      place of the line of the level -, below it "Hill Dwarf" - the subfolk alone, tiddlyrpg-card:
      leaf; an entry the
      view does not see takes its branch along, and the levels) and player: the active ones (tag

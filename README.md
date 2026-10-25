@@ -341,9 +341,9 @@ both as cards. With a ruleset that names them (D&D: the XP in `xp`, the level de
 a card shows its lines below the name ("Level 13"), a former character keeps its last; the
 player character itself shows XP, level and the XP of the next level in its block of values.
 What `secret-fields` locks (the XP) shows on no card either, nor what derives from it. Below
-them each class with the level ("Fighter Level 13", in place of the line "Level 13"), then its
+them each class after its level ("Level 13 Fighter", in place of the line "Level 13"), then its
 folk, the subfolk alone where it has one ("Hill Dwarf" - its name says the folk); the block of
-values of the character shows the whole trees ("Sorcerer Level 13 · Draconic Bloodline · Dragon
+values of the character shows the whole trees ("Level 13 Sorcerer · Draconic Bloodline · Dragon
 Ancestor: Red"), the level and XP first, then the classes, the folk, the rest. An entry the view does not see leaves out its branch, a locked class
 every level.
 

@@ -29,8 +29,8 @@ header line does not name it already.
                                        reads (without what the view may not see); for a former one too
 [<title>trpgcardlines[]]               the lines of the card of a player character below its
                                        name: the trees (tiddlyrpg-tree) per entry without parent -
-                                       tiddlyrpg-card: top the class with its level ("Fighter Level
-                                       13", from a field of the format titles with that "tree", for
+                                       tiddlyrpg-card: top the class after its level ("Level 13
+                                       Fighter", from a field of the format titles with that "tree", for
                                        one class alone from its field "sum"), leaf the subfolk -,
                                        the class first; the lines of "card" of the schema of Player
                                        ("Level 13") only when no class shows the level; no levels
@@ -575,8 +575,8 @@ function treeRows(wiki,title,name,values,view) {
 	});
 }
 
-// The lines of the card of a player character below its name: the classes with their level
-// ("Fighter Level 13" - the line of the level of the schema falls away then), else the lines of
+// The lines of the card of a player character below its name: the classes after their level
+// ("Level 13 Fighter" - the line of the level of the schema falls away then), else the lines of
 // "card" of the schema of Player ("Level 13"); then the other trees (the subfolk)
 exports.trpgcardlines = function(source,operator,options) {
 	var wiki = options.wiki,
@@ -593,7 +593,7 @@ exports.trpgcardlines = function(source,operator,options) {
 			treeRows(wiki,title,name,values,view).forEach(function(row) {
 				var shown = all[name].card === "top" ? row.entries.slice(0,1) : all[name].card === "leaf" ? row.entries.slice(-1) : row.entries,
 					text = shown.map(function(t,i) {
-						return language.title(wiki,t) + (i === 0 && row.level ? " " + row.level : "");
+						return (i === 0 && row.level ? row.level + " " : "") + language.title(wiki,t);
 					}).join(" · ");
 				(row.levels ? leveled : others).push(text);
 				if(row.level && row.sum && sums.indexOf(row.sum) === -1) {

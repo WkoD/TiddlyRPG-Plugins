@@ -590,36 +590,36 @@ test.describe("the levels of the classes (format titles)", function() {
 		assert.match(h.checks(wiki, "Zuviel", "fields")[0].text, /zusammen 4, mehr als Stufe 2/);
 	});
 
-	test("the card: the level beside each class in place of the line of the level; none when a class is locked", function() {
+	test("the card: the level before each class in place of the line of the level; none when a class is locked", function() {
 		var lines = function(title, view) {
 			return h.inView(wiki, view || "dm", function() { return f("[[" + title + "]trpgcardlines[]]"); });
 		};
-		assert.deepEqual(lines("Zwilling"), ["Kämpfer Stufe 5", "Schurke Stufe 8"]);
-		assert.deepEqual(lines("Einzeln"), ["Kämpfer Stufe 5"]);
-		assert.deepEqual(lines("Heimlich"), ["Kämpfer Stufe 3", "Verborgen Stufe 2"]);
+		assert.deepEqual(lines("Zwilling"), ["Stufe 5 Kämpfer", "Stufe 8 Schurke"]);
+		assert.deepEqual(lines("Einzeln"), ["Stufe 5 Kämpfer"]);
+		assert.deepEqual(lines("Heimlich"), ["Stufe 3 Kämpfer", "Stufe 2 Verborgen"]);
 		assert.deepEqual(lines("Heimlich", "public"), ["Kämpfer"], "the difference to the level would tell the locked class");
 		h.add(wiki, {title: "Waldvolk", tags: "Information Folk", text: "Forest folk."});
 		h.add(wiki, {title: "Hochwald", tags: "Information Folk", folk: "Waldvolk", text: "Of the high forest."});
 		h.add(wiki, {title: "Volkstreu", tags: "Player", player: "Vi", xp: "900", folk: "Waldvolk Hochwald", classes: "Kämpfer", text: "One class, a folk."});
 		h.add(wiki, {title: "Klassenlos", tags: "Player", player: "Wu", xp: "900", folk: "Waldvolk", text: "No class."});
 		try {
-			assert.deepEqual(lines("Volkstreu"), ["Kämpfer Stufe 3", "Hochwald"]);
+			assert.deepEqual(lines("Volkstreu"), ["Stufe 3 Kämpfer", "Hochwald"]);
 			assert.deepEqual(lines("Klassenlos"), ["Stufe 3", "Waldvolk"]);
 		} finally {
 			["Volkstreu", "Klassenlos", "Waldvolk", "Hochwald"].forEach(function(t) { wiki.deleteTiddler(t); });
 		}
 	});
 
-	test("the block of values: a row per class with its level and what belongs to it; the folk too", function() {
+	test("the block of values: a row per class after its level and what belongs to it; the folk too", function() {
 		var block = function(title, view) {
 			return h.inView(wiki, view || "dm", function() {
 				return h.render(wiki, "text/plain", "{{" + title + "||$:/plugins/tiddlyrpg-core/viewtemplates/fields}}");
 			});
 		};
-		assert.match(block("Zwilling"), /Klassen Kämpfer Stufe 5 · MeisterSchurke Stufe 8/);
+		assert.match(block("Zwilling"), /Klassen Stufe 5 Kämpfer · MeisterStufe 8 Schurke/);
 		assert.doesNotMatch(block("Zwilling"), /Klassenstufen/, "the levels stand in the tree");
-		assert.match(block("Heimlich"), /Klassen Kämpfer Stufe 3Verborgen Stufe 2/);
-		assert.match(block("Heimlich", "public"), /Klassen Kämpfer(?! Stufe)/);
+		assert.match(block("Heimlich"), /Klassen Stufe 3 KämpferStufe 2 Verborgen/);
+		assert.match(block("Heimlich", "public"), /Klassen Kämpfer/);
 		assert.doesNotMatch(block("Heimlich", "public"), /Verborgen/);
 		assert.deepEqual(f("[[Zwilling]trpgtreerows[classes]]").map(function(r) { return JSON.parse(r); }),
 			[{entries: "Kämpfer Meister", level: "Stufe 5"}, {entries: "Schurke", level: "Stufe 8"}]);
