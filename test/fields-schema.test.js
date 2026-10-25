@@ -654,6 +654,14 @@ test.describe("the level of a player character", function() {
 		assert.equal(read({xp: "1000"}, "character-level").derived, true);
 	});
 
+	// The XP a challenge rating gives are a reward, not the XP of the figure
+	test("band written: only a written value of the field it reads counts, not a derived one", function() {
+		assert.equal(read({cr: "5"}, "xp").text, "1.800", "derived from the challenge rating");
+		assert.equal(read({cr: "5"}, "character-level").text, "", "no level from it");
+		assert.equal(read({cr: "5"}, "xp-next").text, "");
+		assert.equal(read({cr: "5", xp: "1000"}, "character-level").text, "3", "written XP count");
+	});
+
 	test("edit false: the form neither shows nor offers the level, it offers the XP; no lock of it alone", function() {
 		withTiddlers([{title: "Draft of 'Held'", "draft.of": "Held", "draft.title": "Held", tags: "Player", xp: "1000"}], function() {
 			var shown = form.fields(wiki, "Draft of 'Held'"),

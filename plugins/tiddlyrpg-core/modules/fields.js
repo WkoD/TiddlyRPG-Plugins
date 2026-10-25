@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025192020842
+modified: 20261025194430859
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -23,7 +23,8 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                                  domain whose column the number of the field "from" reaches - the
                                  level of a character by its XP; "next": true gives the column of
                                  the entry after it instead (the XP of the next level), nothing at
-                                 the last
+                                 the last; "written": true only a written value of "from"
+                                 counts (the XP a figure has, not those its challenge rating gives)
                  "computed" {"<entry>": derive}  entries of a labels field shown with their value
                            even when not written (senses: passive-perception)
                  "signed"  a number shown with its sign ("+6")
@@ -319,7 +320,7 @@ function computeOne(wiki,fields,derive,entry,depth) {
 		return null;
 	}
 	if(derive.kind === "band") {
-		var amount = numberOf(wiki,fields,derive.from,depth + 1),
+		var amount = derive.written && !raw(fields,derive.from) ? null : numberOf(wiki,fields,derive.from,depth + 1),
 			band = language.domains(wiki)[derive.domain],
 			rows = amount === null || !band ? [] : (band.entries || []).filter(function(e) {
 				return e[derive.column] !== undefined && !isNaN(Number(e[derive.column]));
