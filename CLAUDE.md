@@ -212,7 +212,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     `edges.typed` override (`tiddlyrpg-exclude`, symmetric edges, style from the edge type
     config and its axis, included types, every type its own edge, the types of a view), the function edges `rules`, `spots` and `links`, the ego graph (type colours, the dead, a location as centre,
     folding), the map (pins, spots, positions, editing, hidden nodes, image and fit), the view
-    template `trpg-graph`; the map view outside `$:/graph/`, the fit of the map image
+    template `trpg-graph` (its switches, no tag left over as text); the map view outside `$:/graph/`, the fit of the map image
     (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`)
   - `plugin-types` - the plugin types `ruleset` and `setting` against the fixture plugins: the
     active plugin unpacked, the other not, the default without config (none created), switching
@@ -633,7 +633,8 @@ the tiddler title:
   `$:/config/tiddlyrpg/graph/axes[/<axis>]` (see "Relations"); relink of the macro parameters
   of `spot` and `spotlink`; the graph templates
   `$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph` (type colours from the tag `color`,
-  `shape=box`, no saved positions), `.../trpg-ego`, `.../trpg-quest` (graph of a quest, see
+  `shape=box`, no saved positions, the switches by kind above it, state
+  `$:/state/tiddlyrpg-core/graph-filter/<view>`), `.../trpg-ego`, `.../trpg-quest` (graph of a quest, see
   "Relations") and `.../trpg-map` (map of a location, see "Locations"); the views
   `$:/plugins/tiddlyrpg-core/graph/ego`, `.../graph/quest` and `.../graph/map` (outside
   `$:/graph/`, so not in the dropdown of the graph sidebar); the vis-network extensions
@@ -1251,7 +1252,7 @@ The rules of the relation types live **once** in `modules/relations.js`; the ove
 - What a field type may name: `tiddlyrpg-targets` on its config, a filter of the candidates
   (measured against the campaigns, 2026-10-16), read by `relationcandidates` for the pickers of
   the editor. Without it every typed tiddler. `kindOf()` gives the kind of a title for the
-  switches (relations block, map, search; the search adds `event`).
+  switches (relations block, map, graph views, search; the search adds `event`).
 - Every type draws its own edges; two types between the same tiddlers are two edges (decided
   2026-10-08 against merging them into one labelled edge).
 - `tiddlyrpg-inverse: yes` on a config (`owner`, with `tiddlyrpg-sources`): the form of a

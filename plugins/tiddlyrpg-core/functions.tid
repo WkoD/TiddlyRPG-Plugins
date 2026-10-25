@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025135015562
+modified: 20261025135504460
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -96,7 +96,7 @@ type: text/vnd.tiddlywiki
 \function trpg.egoshown(centre) [relationkind[]] -[<centre>addprefix[$:/state/tiddlyrpg-core/relations-filter/]get[list]enlist-input[]]
 
 <!-- Switches by kind (the relations block, viewtemplates/relations; the map of a location,
-     viewtemplates/location/map): one per kind among <kinds> (a title list of relationkind values)
+     viewtemplates/location/map; the graph views, graph/templates/trpg-graph): one per kind among <kinds> (a title list of relationkind values)
      - players, persons (with deities), organisations, locations, items (with artifacts and
      materials), quests (with rumours) - in the colour of its hub, split at 45° with the colour of
      the second kind where a switch holds two kinds of a colour of their own, labelled

@@ -83,7 +83,8 @@ A tour for the DM and the players. The sections after it hold the details.
 - The sidebar tab **Graph** (from tw5-graph) shows the graph views of the wiki: tiddlers
   `$:/graph/<name>` with the template `$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph`.
   It colours nodes by type, names edges in the wiki language and leaves out what the view does
-  not see. `$:/graph/Default` shows the tiddlers that are open.
+  not see. Above the graph the same switches by kind as on the relations block, one per kind
+  the view shows. `$:/graph/Default` shows the tiddlers that are open.
 - A link in a tiddler opens its target above that tiddler, a link in the sidebar at the top.
   Only `[[...]]` links; a word in CamelCase stays a word.
 

@@ -232,6 +232,31 @@ test("view template trpg-graph: nodes from the filter, edge types of the view", 
 	});
 });
 
+test("view template trpg-graph: switches by kind above the graph; a kind switched off leaves the graph", function() {
+	var STATE = "$:/state/tiddlyrpg-core/graph-filter/$:/graph/Test";
+	withTiddlers([{
+		title: "$:/graph/Test", type: "application/json", text: "{}",
+		template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph",
+		filter: "[[Guild]] [[Guildmaster]] [[Town]]",
+		"edges.fields": "leader",
+		"edges.functions": "rules"
+	}], function() {
+		var html = h.render(wiki, "text/html", "<$graph.view $tiddler=\"$:/graph/Test\"/>");
+		assert.match(html, /trpg-kind-switches/);
+		assert.match(html, /trpg-kind-organisation/);
+		assert.match(html, /trpg-kind-location/);
+		// every tag of the template closed in its place: none left over as text
+		assert.doesNotMatch(html, /&lt;\/\$/);
+		h.add(wiki, {title: STATE, list: "organisation"});
+		try {
+			var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/graph/Test\"/>");
+			assert.deepEqual(nodes(graph), ["Guildmaster", "Town"]);
+		} finally {
+			wiki.deleteTiddler(STATE);
+		}
+	});
+});
+
 test("map view lies outside $:/graph/ (not in the dropdown)", function() {
 	assert.ok(wiki.tiddlerExists("$:/plugins/tiddlyrpg-core/graph/map") || wiki.isShadowTiddler("$:/plugins/tiddlyrpg-core/graph/map"));
 	assert.deepEqual(f("[all[shadows+tiddlers]prefix[$:/graph/]] +[match[$:/plugins/tiddlyrpg-core/graph/map]]"), []);

@@ -1,6 +1,6 @@
 caption: TiddlyRPG graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261025124110539
+modified: 20261025135504460
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 
 \whitespace trim
@@ -16,8 +16,15 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
      (trpgPill); the dead/dissolved (trpg.dead) striped grey and that colour (trpgDead,
      graph/pill.js) as the innermost, highest priority. No per-node !!color -> the tag
      colour rules uniformly, changing it recolours all nodes of the type.
-     Edge labels are translated (Field/<field>) by the override of $edges.typed in tiddlyrpg-core. -->
+     Edge labels are translated (Field/<field>) by the override of $edges.typed in tiddlyrpg-core.
+     Above the graph the switches by kind (trpg.kindswitches, functions.tid) of what it shows, like
+     the ego graph; the kinds switched off are in the field list of
+     $:/state/tiddlyrpg-core/graph-filter/<graph> (not saved), a node shows when its kind is on
+     (trpg.kindshown). -->
 
+<$let trpg-graph-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/graph-filter/]] }}}
+	trpg-graph-kinds={{{ [subfilter{!!filter}] :filter[trpg.visible[]] +[relationkind[]] +[unique[]] +[format:titlelist[]join[ ]] }}}>
+<$transclude $variable="trpg.kindswitches" kinds=<<trpg-graph-kinds>> state=<<trpg-graph-state>>/>
 <$set name="focusTiddler" filter="[subfilter{!!filter}]">
 <$graph>
 <$properties $for=graph $tiddler="$:/config/tiddlyrpg/graph/physics" />
@@ -48,7 +55,7 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 <$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
 
-<$list filter="[subfilter{!!filter}] :filter[trpg.visible[]]">
+<$list filter="[subfilter{!!filter}] :filter[trpg.visible[]] :filter[trpg.kindshown<trpg-graph-state>]">
 <<trpg.node>>
 <$edges.typed />
 </$list>
@@ -68,13 +75,14 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 </$properties>
 </$properties>
 </$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
 </$properties.settings>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
 </$properties>
 </$graph>
 </$set>
+</$let>
