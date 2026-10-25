@@ -398,9 +398,12 @@ test.describe("trees: classes and folk", function() {
 	});
 
 	test("the lines of a tree: one per entry without parent, its branch after it; a locked entry takes its branch along", function() {
-		var lines = function(title) {
-			return f("[[" + title + "]relationlines[classes]]").map(function(line) { return Array.from($tw.utils.parseStringArray(line)); });
-		};
+		var relations = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+			visibility = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
+			lines = function(title) {
+				// as plain arrays: the module runs in the sandbox of TiddlyWiki
+				return JSON.parse(JSON.stringify(relations.lines(wiki, "classes", title, function(t) { return visibility.visible(wiki, t, visibility.current(wiki)); })));
+			};
 		assert.deepEqual(lines("Funke"), [["Sorcerer", "Draconic Bloodline", "Dragon Ancestor: Red"]]);
 		assert.deepEqual(lines("Doppel"), [["Fighter", "Fighting Style: Defense"], ["Sorcerer"]]);
 		assert.deepEqual(lines("Kämpe"), [["Fighter", "Geheimpfad", "Pfadwahl"]]);

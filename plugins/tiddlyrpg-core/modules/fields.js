@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025195748747
+modified: 20261025200010788
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -56,7 +56,7 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                same id gets the fields, relations and combines it lacks, a layout and when only
                where it has none). "card" (of the type
                Player): the fields the card of a player character shows in the hub Player, below
-               its name ("Level 13") - for a former one too (filters/fields.js trpgfieldcard).
+               its name ("Level 13") - for a former one too (filters/fields.js trpgcardlines).
   group        {"id", "layout": "list"|"row"|"inline", "fields": [...], "combine": [{"fields":
                [...], "key", "flags"}], "relations": [...], "when": {...}} - a section of the
                block in the order of the groups, after the fields of no group (and the price,
@@ -759,7 +759,8 @@ exports.seen = function(wiki,title,view) {
 /*
 The values to copy from a source (the fields of a base item, of a tiddler or of an entry of a
 content package) into a draft: every field of the draft's schema that the draft has empty and the
-source has, never price; a field the source locks comes with its lock (secret-fields of the
+source has - never price, which is no field of a schema (reserved, form.js GENERAL); a field the
+source locks comes with its lock (secret-fields of the
 draft). Returns {field: value}.
 */
 exports.copyFrom = function(wiki,draft,source) {
@@ -770,7 +771,7 @@ exports.copyFrom = function(wiki,draft,source) {
 		locks = [];
 	schema.fields.forEach(function(field) {
 		var value = raw(source,field);
-		if(field !== "price" && value && !raw(draft,field)) {
+		if(value && !raw(draft,field)) {
 			out[field] = value;
 			if(lock === "all" || (lock && lock.indexOf(field) !== -1)) {
 				locks.push(field);

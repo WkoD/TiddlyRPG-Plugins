@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025195736220
+modified: 20261025195950139
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -23,10 +23,6 @@ header line does not name it already.
                                        label of an entry of a label or labels field that the
                                        glossary explains links to it (modules/glossary.js)
 [<title>trpgfieldlabel[<field>]]       the label of a field, by the schema of the tiddler
-[<title>trpgfieldcard[]]               the lines of the card of a player character in the hub Player:
-                                       "<label> <value>" of each field in "card" of the schema of
-                                       Player that has a text - written or derived, read as the block
-                                       reads (without what the view may not see); for a former one too
 [<title>trpgcardlines[]]               the lines of the card of a player character below its
                                        name: the trees (tiddlyrpg-tree) per entry without parent -
                                        tiddlyrpg-card: top the class after its level ("Level 13
@@ -282,24 +278,6 @@ exports.trpgfieldlabel = function(source,operator,options) {
 			return [language.t(options.wiki,"Item/Price")];
 		}
 		return [fields.label(options.wiki,operator.operand,fields.forTiddler(options.wiki,title).labels)];
-	});
-};
-
-// The card of the hub Player reads the fields of the schema of Player, also for a former player
-// character (another type)
-exports.trpgfieldcard = function(source,operator,options) {
-	var wiki = options.wiki,
-		schema = fields.forTypes(wiki,["Player"]);
-	return each(source,function(title) {
-		var values = valuesOf(wiki,title),
-			out = [];
-		(schema.card || []).forEach(function(field) {
-			var text = fields.spec(wiki,field) ? fields.read(wiki,values,field).text : "";
-			if(text) {
-				out.push(fields.label(wiki,field,schema.labels) + " " + text);
-			}
-		});
-		return out;
 	});
 };
 

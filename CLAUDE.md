@@ -160,8 +160,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     (`{{ || Person }}`), the pills of the form, "+" on `Folk`, the relation
     `folk` (targets, way back by kind, several, list, ego graph), a folk at a location
     (`location` in the form, the group "Völker" of the place in the public view and the view of
-    the DM); the trees `classes` and `folk` (`tiddlyrpg-tree`): `relationtree`, `relationlines`
-    with a locked entry taking its branch along, the rule `relations/parent` with its fix (also
+    the DM); the trees `classes` and `folk` (`tiddlyrpg-tree`): `relationtree`, the lines of a tree
+    (`relations.lines()`) with a locked entry taking its branch along, a cycle, the rule `relations/parent` with its fix (also
     for a package entry not taken), the way back by kind, the label per type (`relationfield`),
     the lines of the player card, `content.wanting()` offering the parent
   - `currency` - the currency engine against the fixture settings (Faerûn-like, Krynn with
@@ -274,7 +274,7 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     own), a whole number (`"integer"`: thousands separated when read and shown - `Number/Group` -, a
     fraction a problem), the XP of a
     person, kept when a player character becomes one, the card of a player character (`card`,
-    `trpgfieldcard`, a former one and a locked XP), the header line, `when`, `copyFrom()` with the
+    `trpgcardlines`, a former one and a locked XP), the header line, `when`, `copyFrom()` with the
     lock; patterns with parts in braces (`fill()`), a label in a variant and in the variant
     another field names (`$size.@creature-type$`, a locked field names none), combined lines; the rule `fields/schema` (a
     reserved name, a field defined twice, without definition); the block of values
@@ -474,17 +474,20 @@ the tiddler title:
   `currencyunit`, `currencycoin`, see "Currency engine"), `sections.js` (`hassections`,
   `sectionbacklinks`, `visiblelinks`, `trpgsearch`),
   `location.js` (`locationparent`, `locationpath`, `locationgroups`, `sublocations`, `occupants`),
-  `categories.js` (`trpgcategories`, `trpgcategorybases`, see "Items and categories"),
+  `categories.js` (`trpgcategories`, `trpgcategorybases`, `trpgglossary`, `trpgnamed`, see "Items
+  and categories"),
   `hubs.js` (`trpghubentries`, `trpghubsubs`, `trpgsortname`, `trpginitial`, see "Index/hub tiddlers"),
   `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
   `fields.js` (`trpgfieldsummary`, `trpgfieldsections`, `trpgfieldlines`, `trpgfieldsection`,
-  `trpgfieldshow`, `trpgfieldlabel`, `trpgfieldcolor`, `trpgfieldcard`: the block of values and the
-  card of a player character, see "Rules
-  engine"),
+  `trpgfieldshow`, `trpgfieldparts`, `trpgfieldlabel`, `trpgfieldcolor`, `trpgfieldlocked`,
+  `trpgtreerows`: the block of values; `trpgcardlines`: the card of a player character;
+  `trpgfieldreading`, `trpglockfields`, `trpglevelentries`, `trpglevel`, `trpglevelset` and the
+  rest of the form: its header; see "Rules engine"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
-  `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, see "Relations"),
+  `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, `relationtree`,
+  `relationfield`, `relationgroups`, `relationgroup`, see "Relations"),
   `quests.js` (`questnames`, `questreal`, `queststatus`, `questmarks`, `questlast`,
   `questplayers`, `questlinks`, `questmarked`, `questmentions`, `questevents`, `questlinkat`,
   `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),

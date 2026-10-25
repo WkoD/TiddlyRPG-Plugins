@@ -663,7 +663,7 @@ test.describe("the level of a player character", function() {
 	}
 
 	function card(title) {
-		return h.render(wiki, "text/plain", "<$list filter=\"[[" + title + "]trpgfieldcard[]]\" variable=\"l\"><<l>>|</$list>");
+		return h.render(wiki, "text/plain", "<$list filter=\"[[" + title + "]trpgcardlines[]]\" variable=\"l\"><<l>>|</$list>");
 	}
 
 	function withTiddlers(list, fn) {

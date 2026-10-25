@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/relations.js
 type: application/javascript
 module-type: filteroperator
 created: 20261008062202000
-modified: 20261025135015562
+modified: 20261025195950178
 
 Filters over the relation rules (modules/relations.js). <selected> is a title list of the
 relation types in play (a graph view may draw only some); empty or missing: all.
@@ -25,11 +25,6 @@ relation types in play (a graph view may draw only some); empty or missing: all.
                                                 categories before it
 [<titles>relationgroup[]]                       the group of each title (a category of
                                                 Information, else the hub of its kind)
-[<title>relationlines<type>]                    the entries <title> names through the tree
-                                                <type> that the view sees, one line per entry
-                                                without parent among them, each as a title
-                                                list: top, then what belongs to it (an entry
-                                                the view does not see takes its branch along)
 [relationtypes[]]                               all relation types, by axis, then the rest
 [relationtypes:list[]]                          those of the relation list: the fields
                                                 without tags and list, the functions on an axis
@@ -168,20 +163,6 @@ exports.relationfield = function(source,operator,options) {
 	var results = [];
 	source(function(tiddler,title) {
 		results.push(relations.fieldLabel(options.wiki,title,operator.operand || ""));
-	});
-	return results;
-};
-
-exports.relationlines = function(source,operator,options) {
-	var wiki = options.wiki,
-		view = visibility.current(wiki),
-		results = [];
-	source(function(tiddler,title) {
-		$tw.utils.each(relations.lines(wiki,operator.operand,title,function(entry) {
-			return visibility.visible(wiki,entry,view);
-		}),function(line) {
-			results.push($tw.utils.stringifyList(line));
-		});
 	});
 	return results;
 };
