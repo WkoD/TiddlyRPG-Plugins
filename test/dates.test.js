@@ -289,7 +289,12 @@ test.describe("section of a date (datesection)", function() {
 		assert.equal(at("1355"), "");
 		assert.equal(at("abc"), "");
 		assert.equal(at(""), "");
-		assert.equal(at("1351", "Missing"), "");
+		h.add(wiki, {title: "Undatiert", text: "Ohne Feld date."});
+		try {
+			assert.equal(at("1351", "Undatiert"), "");
+		} finally {
+			wiki.deleteTiddler("Undatiert");
+		}
 	});
 });
 

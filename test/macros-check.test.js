@@ -53,6 +53,14 @@ test("set in the tiddler: pragmas, $set, $let, $vars, $list, $range, $wikify, $p
 	assert.equal(unknown("<$set name=\"s\" value=\"1\"><<s>></$set> <$let a=\"1\" b=\"2\"><<a>><<b>></$let> <$vars v=\"1\"><<v>></$vars>"), "");
 	assert.equal(unknown("<$list filter=\"x\" variable=\"item\" counter=\"n\"><<item>><<n>><<n-first>></$list> <$list filter=\"x\"><<currentTiddler>></$list>"), "");
 	assert.equal(unknown("<$range from=1 to=3 variable=\"i\"><<i>></$range> <$wikify name=\"w\" text=\"x\"><<w>></$wikify>"), "");
+	assert.equal(unknown("<$parameters x=\"1\"><<x>></$parameters> <<y>>"), "y");
+});
+
+test("the widgets that hand variables to their actions, and the prefixes of their names", function() {
+	["setmultiplevariables", "eventcatcher", "messagecatcher", "keyboard", "droppable", "dropzone", "linkcatcher"].forEach(function(widget) {
+		assert.equal(unknown("<$" + widget + "><<anything>></$" + widget + "> <<outside>>"), "outside", widget);
+	});
+	assert.equal(unknown("<<dom-value>> <<event-key>> <<tv-x>> <<other-x>>"), "other-x");
 });
 
 test("only around the call: after the $let or $list it is unknown again", function() {

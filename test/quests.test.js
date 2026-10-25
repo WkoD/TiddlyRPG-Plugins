@@ -178,6 +178,15 @@ test.describe("index", function() {
 			assert.deepEqual(f("[[Echo]questplayers[]]"), ["Frigg", "Ragna"]);
 		});
 	});
+
+	test("who takes part: a locked player character only for a view that sees it", function() {
+		withTiddlers([{title: "Ragna", tags: "Player Secret", player: "Jan"}, {title: "Nur Ragna", tags: "Event Ragna", date: "1351", text: "<<date>>\n\n<<quest \"Echo\">>Noch einmal."}], function() {
+			assert.deepEqual(f("[[Echo]questplayers[]]"), ["Frigg", "Ragna"]);
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(f("[[Echo]questplayers[]]"), ["Frigg"]);
+			});
+		});
+	});
 });
 
 test.describe("hub and pages", function() {

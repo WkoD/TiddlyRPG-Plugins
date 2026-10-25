@@ -1,11 +1,12 @@
 /*
- * Names after the rename to TiddlyRPG: no file of the plugins and no file name below plugins/
- * uses an old prefix any more - `dndwiki` (plugins, namespaces, fields), `dnd-` (classes,
+ * Names after the rename to TiddlyRPG: no file and no file name below plugins/, scripts/ and
+ * editions/ uses an old prefix any more - `dndwiki` (plugins, namespaces, fields), `dnd-` (classes,
  * widgets, data attributes), `dnd.` (functions) or `dnd` before a name (filter operators,
  * vis-network properties). The new prefixes are `tiddlyrpg-`, `trpg-` and `trpg.`.
  *
- * Case-sensitive, and only where `dnd` starts a name: `tiddlyrpg-dnd` (the repo with the D&D
- * plugins) and `dnd5e2014` (a ruleset) are no old prefixes. Needs no TiddlyWiki boot.
+ * In any case (`DnDWiki-core` too), and only where `dnd` starts a name: `tiddlyrpg-dnd` and
+ * `TiddlyRPG-DnD` (the repo with the D&D plugins) and `dnd5e2014` (a ruleset) are no old
+ * prefixes. Needs no TiddlyWiki boot.
  */
 var test = require("node:test"),
 	assert = require("node:assert/strict"),
@@ -13,7 +14,7 @@ var test = require("node:test"),
 	path = require("path");
 
 var root = path.join(__dirname, ".."),
-	OLD = /(?<![\w-])(?:dnd(?=[A-Za-z.-])|tiddlydnd)/;
+	OLD = /(?<![\w-])(?:dnd(?=[A-Za-z.-])|tiddlydnd)/i;
 
 function walk(dir, out) {
 	fs.readdirSync(dir, {withFileTypes: true}).forEach(function(entry) {
@@ -26,9 +27,11 @@ function walk(dir, out) {
 	return out;
 }
 
-var files = walk(path.join(root, "plugins"), []);
+var files = ["plugins", "scripts", "editions"].reduce(function(out, dir) {
+	return walk(path.join(root, dir), out);
+}, []);
 
-test("no file name below plugins/ uses an old prefix", function() {
+test("no file name below plugins/, scripts/ and editions/ uses an old prefix", function() {
 	var found = files.filter(function(file) {
 		return OLD.test(path.basename(file));
 	}).map(function(file) {
@@ -37,7 +40,7 @@ test("no file name below plugins/ uses an old prefix", function() {
 	assert.deepEqual(found, []);
 });
 
-test("no file of the plugins uses an old prefix", function() {
+test("no file of the plugins, scripts and editions uses an old prefix", function() {
 	var found = [];
 	files.forEach(function(file) {
 		if(fs.statSync(file).isDirectory() || /\.(png|jpe?g|gif|webp|ico|woff2?)$/i.test(file)) {
@@ -54,7 +57,7 @@ test("no file of the plugins uses an old prefix", function() {
 
 test("the pattern finds the old prefixes and passes the new names", function() {
 	["dndwiki-core", "$:/config/dndwiki/calendar", "dnd-timeline", "<<dnd.t Event/Year>>",
-		"[dndtitle[]]", "dndMapFit", "tiddlydnd-plugins"].forEach(function(text) {
+		"[dndtitle[]]", "dndMapFit", "tiddlydnd-plugins", "DnDWiki-core", "$:/config/DnDWiki/old"].forEach(function(text) {
 		assert.ok(OLD.test(text), text);
 	});
 	["tiddlyrpg-core", "trpg-timeline", "trpg.visible", "tiddlyrpg-dnd", "TiddlyRPG-DnD",

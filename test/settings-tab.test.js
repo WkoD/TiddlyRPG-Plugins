@@ -268,6 +268,27 @@ test.describe("campaign setting options", function() {
 	});
 });
 
+test.describe("editor", function() {
+	var EDITOR_TAB = "$:/plugins/tiddlyrpg-core/ui/settings-editor",
+		SWITCH = "$:/config/tiddlyrpg/editor/symmetric";
+
+	test("the switch of the symmetric relations, on by default, and where the toolbar is switched", function() {
+		var html = tab(EDITOR_TAB);
+		assert.match(html, /<button aria-selected="true" class=" tc-tab-selected" data-tab-title="\$:\/plugins\/tiddlyrpg-core\/ui\/settings-editor" role="tab">Editor<\/button>/);
+		assert.match(html, /<input checked="true" type="checkbox"><span> Speichern trägt symmetrische Beziehungen/);
+		assert.match(html, /<div class="trpg-settings-hint">Die Knöpfe des Editors schaltet man unter Aussehen -&gt; Werkzeugleisten/);
+		h.add(wiki, {title: SWITCH, text: "no"});
+		try {
+			assert.match(tab(EDITOR_TAB), /<input type="checkbox"><span> Speichern trägt/);
+			h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});
+			assert.match(tab(EDITOR_TAB), /<input disabled="true" type="checkbox"><span> Speichern trägt/);
+		} finally {
+			wiki.deleteTiddler(SWITCH);
+			wiki.deleteTiddler("$:/status/IsReadOnly");
+		}
+	});
+});
+
 test.describe("published copy and versions", function() {
 	test("in the published copy the inputs are disabled", function() {
 		h.add(wiki, {title: "$:/status/IsReadOnly", text: "yes"});

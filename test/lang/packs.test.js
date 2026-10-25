@@ -3,8 +3,9 @@
  *
  * For every plugin with a language/ folder, each language is compared with en-GB of the same
  * plugin: no keys missing in the language, no keys en-GB does not know, no titles outside
- * $:/tiddlyrpg/language/<code>/. Keys from en-GB/names.multids are proper names (month names, era)
- * that may fall back to en-GB on purpose; their absence is not reported. Keys ending in /Parse
+ * $:/tiddlyrpg/language/<code>/, no empty values in any language (an empty key counts as there).
+ * Keys from en-GB/names.multids are proper names (month names, era) that may fall back to
+ * en-GB on purpose; their absence is not reported. Keys ending in /Parse
  * are the words read in a language ("bludgeon", "nekrotischen Schaden"): each language has
  * its own or none, so they are neither missing nor unknown.
  *
@@ -29,7 +30,8 @@ function readKeys(dir, code) {
 	var prefix = "$:/tiddlyrpg/language/" + code + "/",
 		keys = {},
 		optional = {},
-		outside = [];
+		outside = [],
+		empty = [];
 	fs.readdirSync(dir).forEach(function(file) {
 		var text = fs.readFileSync(path.join(dir, file), "utf8").replace(/\r\n/g, "\n"),
 			header = text.split("\n\n")[0],
@@ -54,13 +56,19 @@ function readKeys(dir, code) {
 				var pos = line.indexOf(":");
 				if(line.trim() && line.charAt(0) !== "#" && pos > 0) {
 					add(title + line.substr(0, pos).trim());
+					if(!line.substr(pos + 1).trim()) {
+						empty.push(file + ": " + line.substr(0, pos).trim());
+					}
 				}
 			});
 		} else if(/\.tid$/.test(file)) {
 			add(title);
+			if(!text.split("\n\n").slice(1).join("\n\n").trim()) {
+				empty.push(file);
+			}
 		}
 	});
-	return {keys: keys, optional: optional, outside: outside};
+	return {keys: keys, optional: optional, outside: outside, empty: empty};
 }
 
 fs.readdirSync(pluginsDir).forEach(function(plugin) {
@@ -95,6 +103,11 @@ fs.readdirSync(pluginsDir).forEach(function(plugin) {
 			});
 			test(code + ": titles inside $:/tiddlyrpg/language/" + code + "/", function() {
 				assert.deepEqual(other.outside, []);
+			});
+		});
+		codes.forEach(function(code) {
+			test(code + ": no empty values (an empty key counts as there, the text would be missing)", function() {
+				assert.deepEqual(readKeys(path.join(langDir, code), code).empty, []);
 			});
 		});
 	});
