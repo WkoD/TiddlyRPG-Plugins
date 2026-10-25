@@ -153,11 +153,16 @@ test("map: places lying in the location and its spots as pins, no edges", functi
 	assert.equal(graph.graph.trpgMapFit, "image");
 });
 
-test("the graph templates close every tag in its place: none left over as text (ego graph, map)", function() {
+test("the graph templates close every tag in its place: none left over as text (ego graph, map, a map with positions)", function() {
 	ego("Town"); // h.graph puts its stand-in for <$graph> in place (it needs a window)
-	[["ego graph", EGO, "Town"], ["map", MAP, "Town"]].forEach(function(view) {
-		var html = h.render(wiki, "text/html", view[1], {currentNode: view[2]});
-		assert.doesNotMatch(html, /&lt;\/\$/, view[0]);
+	var check = function(name, template) {
+		assert.doesNotMatch(h.render(wiki, "text/html", template, {currentNode: "Town"}), /&lt;\/\$/, name);
+	};
+	check("ego graph", EGO);
+	check("map", MAP);
+	// The procedure trpg.fixed places a node with a saved position (its own branch of tags)
+	withTiddlers([{title: "Town", "map-positions": "{\"Tavern\":\"10,-20\"}"}], function() {
+		check("map with positions", MAP);
 	});
 });
 

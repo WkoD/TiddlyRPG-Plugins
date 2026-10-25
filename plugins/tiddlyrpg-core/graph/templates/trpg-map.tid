@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261025153427996
+modified: 20261025193626559
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -24,9 +24,6 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 	trpg-y={{{ [<trpg-pos>split[,]last[]] }}}>
 <%if [<trpg-pos>!is[blank]] %>
 <$properties x=<<trpg-x>> y=<<trpg-y>> physics="no"><$slot $name="ts-raw"/></$properties>
-</$properties>
-</$properties>
-</$properties>
 <%else%>
 <$properties physics="no" trpgUnplaced="yes"><$slot $name="ts-raw"/></$properties>
 <%endif%>
