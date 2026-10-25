@@ -654,7 +654,7 @@ test.describe("copying values in the browser: the actions of the editor reach th
 		invoke(actions(RELATION, "tm-trpg-content-copy"), {currentTiddler: DRAFT, currentField: "base", "trpg-single": "yes", "trpg-pick": "Longsword"});
 		var fields = wiki.getTiddler(DRAFT).fields;
 		assert.equal(requested.length, 1);
-		assert.match(requested[0], /^tiddlyrpg\/content\/entry\.json\?ruleset=[^&]*&id=longsword$/);
+		assert.match(requested[0], /^tiddlyrpg\/content\/entry\.json\?ruleset=%24%3A%2Fplugins%2F[^&]+&package=[^&]+&id=longsword$/, "the active ruleset, the package, the id");
 		assert.equal(fields.base, "Longsword");
 		assert.equal(fields.damage, "1d8 slashing");
 		assert.equal(fields.weight, "3 lb");

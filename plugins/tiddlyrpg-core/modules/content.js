@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261025195559270
+modified: 20261025201715204
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -30,10 +30,12 @@ a tiddler the view does not see counts the same - nothing tells it.
   toFields(wiki,pkg,entry,title)  the fields of the tiddler to take: tags (its type, its tags and
                              the tag of its package),
                              its fields (a price of the ruleset in the coins of the setting,
-                             currency.fromRules()), source, text
+                             currency.fromRules(); never a field of TiddlyWiki, RESERVED), source,
+                             text
   wanting(wiki,fields)       the titles a taken entry names in base, spells and the trees
                              (tiddlyrpg-tree: classes, folk - what it belongs to) that do not
                              exist, with an offer of the same title: [{title, id}]
+  entryUrl(wiki,key)         the address of the entry of a key of entries(): its package and id
   url(path,params)           the address of the route (server/content-route.js) of <path> with
                              the query <params>: on the host the sync adaptor talks to (TiddlyWeb:
                              $:/config/tiddlyweb/host, which a wiki under a path-prefix sets),
@@ -65,6 +67,12 @@ function typeName(wiki,type,code) {
 	return wiki.getTiddlerText(LANGUAGE + code + "/Title/" + type) || wiki.getTiddlerText(LANGUAGE + "en-GB/Title/" + type) || type;
 }
 
+exports.entryUrl = function(wiki,key) {
+	var e = exports.entryOf(wiki,key),
+		ruleset = wiki.getTiddlerData(INDEX,{}).ruleset || require("$:/plugins/tiddlyrpg-core/modules/plugin-types.js").active(wiki,"ruleset") || "";
+	return e ? exports.url("entry.json",{ruleset: ruleset, package: e.package.name, id: e.entry.id}) : null;
+};
+
 exports.url = function(path,params) {
 	var host = $tw.syncadaptor && typeof $tw.syncadaptor.host === "string" ? $tw.syncadaptor.host : "",
 		query = Object.keys(params || {}).map(function(name) {
@@ -92,18 +100,27 @@ function takenTitle(wiki,pkg,entry) {
 	return exists(wiki,own) && types.of(wiki,own).indexOf(entry.type) !== -1 ? own : typed;
 }
 
+// The key of an entry (id of entries()): its id, or "<package name>/<id>" for an id that more than
+// one package of the ruleset has (a package per language)
 var entries = exports.entries = function(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-content-entries",function() {
 		var out = [],
-			seen = Object.create(null);
+			seen = Object.create(null),
+			count = Object.create(null);
 		packages(wiki).forEach(function(pkg) {
 			(pkg.entries || []).forEach(function(entry) {
-				if(seen[entry.id]) {
+				count[entry.id] = (count[entry.id] || 0) + 1;
+			});
+		});
+		packages(wiki).forEach(function(pkg) {
+			(pkg.entries || []).forEach(function(entry) {
+				var key = count[entry.id] > 1 ? pkg.name + "/" + entry.id : entry.id;
+				if(seen[key]) {
 					return;
 				}
-				seen[entry.id] = true;
+				seen[key] = true;
 				var title = titleOf(wiki,pkg,entry);
-				out.push({id: entry.id, title: title || takenTitle(wiki,pkg,entry), type: entry.type, package: pkg, entry: entry, taken: !title});
+				out.push({id: key, title: title || takenTitle(wiki,pkg,entry), type: entry.type, package: pkg, entry: entry, taken: !title});
 			});
 		});
 		return out;
@@ -137,12 +154,18 @@ function text(value) {
 	return $tw.utils.isArray(value) ? $tw.utils.stringifyList(value) : String(value);
 }
 
+// Fields of TiddlyWiki an entry never sets: its title, tags and text come from the entry itself
+var RESERVED = ["title","tags","text","type","created","modified","creator","modifier","draft.of","draft.title","revision","bag","plugin-type"];
+
 exports.toFields = function(wiki,pkg,entry,title) {
 	var out = {title: title, tags: [entry.type].concat(entry.tags || []), text: entry.text || ""};
 	if(pkg.tag && out.tags.indexOf(pkg.tag) === -1) {
 		out.tags.push(pkg.tag);
 	}
 	$tw.utils.each(entry.fields || {},function(value,name) {
+		if(RESERVED.indexOf(name) !== -1) {
+			return;
+		}
 		if(name === "price" && (typeof value === "number" || $tw.utils.isArray(value))) {
 			out.price = currency.fromRules(wiki,value);
 		} else if(value !== null && value !== undefined && value !== "") {

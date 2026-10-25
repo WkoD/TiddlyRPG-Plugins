@@ -3,11 +3,11 @@ title: $:/plugins/tiddlyrpg-core/server/content-route.js
 type: application/javascript
 module-type: route
 created: 20261022165310491
-modified: 20261022165310491
+modified: 20261025201612303
 
 GET /tiddlyrpg/content/index.json?ruleset=<plugin>    the content packages of the ruleset, their
                                                       entries without texts
-GET /tiddlyrpg/content/entry.json?ruleset=<plugin>&id=<id>   one entry with its text and package
+GET /tiddlyrpg/content/entry.json?ruleset=<plugin>&package=<name>&id=<id>   one entry with its text and package
 
 Content packages: modules/content-server.js. Only for who may write (a reader of the published
 copy takes nothing); 404 for an id no package of the ruleset has. The id is only looked up.
@@ -37,6 +37,6 @@ exports.handler = function(request,response,state) {
 	if(state.params[0] === "index") {
 		return send(200,{packages: content.index(wikiPath,ruleset)});
 	}
-	var found = content.entry(wikiPath,ruleset,(state.queryParameters.id || "").toString());
+	var found = content.entry(wikiPath,ruleset,(state.queryParameters.id || "").toString(),(state.queryParameters.package || "").toString());
 	return found ? send(200,found) : send(404,{error: "not found"});
 };

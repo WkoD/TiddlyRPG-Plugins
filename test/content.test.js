@@ -104,6 +104,19 @@ test("entry: with its text and its package; 404 for an unknown id or another rul
 	assert.equal(get("entry", {ruleset: RULESET, id: "../package"}).status, 404, "an id is no path");
 });
 
+test("the same id in two packages of a ruleset: the package names which one", function() {
+	pack("srd-mini-de", {name: "SRD mini Deutsch", ruleset: RULESET, language: "de-DE", "tiddlyrpg-core-version": ">=2.0.0", files: ["items.json"]},
+		{"items.json": {entries: [{id: "longsword", title: "Langschwert", type: "Item", text: "Ein Schwert."}]}});
+	try {
+		assert.equal(get("entry", {ruleset: RULESET, id: "longsword", package: "SRD mini Deutsch"}).data.entry.title, "Langschwert");
+		assert.equal(get("entry", {ruleset: RULESET, id: "longsword", package: "SRD mini"}).data.entry.title, "Longsword");
+		assert.equal(get("entry", {ruleset: RULESET, id: "longsword", package: "Nope"}).status, 404);
+		assert.equal(get("entry", {ruleset: RULESET, id: "longsword"}).data.entry.title, "Longsword", "without a package: the first");
+	} finally {
+		fs.rmSync(path.join(dir, "node_modules", "srd-mini-de"), {recursive: true, force: true});
+	}
+});
+
 test("403 for who may not write", function() {
 	assert.equal(get("index", {ruleset: RULESET}, false).status, 403);
 	assert.equal(get("entry", {ruleset: RULESET, id: "fireball"}, false).status, 403);
@@ -143,6 +156,35 @@ test.describe("in the browser: the offers of the index", function() {
 
 	test.after(function() {
 		["Balor", "Geheimnis", "$:/temp/tiddlyrpg-core/content/index"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
+	test("the fields to take: a field of the package with the name of one of TiddlyWiki is left out", function() {
+		var fields = offers.toFields(wiki, PKG, {id: "x", title: "X", type: "Item", fields: {title: "Index", tags: "Foo", type: "text/html", modified: "x", "draft.of": "Index", damage: "1d6 fire"}}, "X");
+		assert.equal(fields.title, "X");
+		assert.equal(fields.tags.indexOf("Foo"), -1);
+		assert.equal(fields.type, undefined);
+		assert.equal(fields.modified, undefined);
+		assert.equal(fields["draft.of"], undefined);
+		assert.equal(fields.damage, "1d6 fire");
+	});
+
+	// Two packages of the ruleset (a language each) may have the same ids: both entries are offered,
+	// the key names the package then; a unique id stays the key
+	test("the same id in two packages: both offered, the key with the package; the address names it", function() {
+		var de = {name: "SRD mini Deutsch", language: "de-DE", entries: [{id: "longsword", title: "Langschwert", type: "Item", fields: {}},
+			{id: "only-de", title: "Nur deutsch", type: "Item", fields: {}}]};
+		index([PKG, de]);
+		try {
+			var keys = offers.offers(wiki).map(function(o) { return o.id; });
+			assert.ok(keys.indexOf("SRD mini/longsword") !== -1, keys.join());
+			assert.ok(keys.indexOf("SRD mini Deutsch/longsword") !== -1, keys.join());
+			assert.ok(keys.indexOf("only-de") !== -1 && keys.indexOf("fireball") !== -1, "a unique id is the key");
+			assert.equal(offers.offer(wiki, "SRD mini Deutsch/longsword").title, "Langschwert");
+			assert.equal(offers.entryOf(wiki, "SRD mini/longsword").entry.id, "longsword");
+			assert.equal(offers.entryUrl(wiki, "SRD mini Deutsch/longsword"), "tiddlyrpg/content/entry.json?ruleset=" + encodeURIComponent(RULESET) + "&package=SRD%20mini%20Deutsch&id=longsword");
+		} finally {
+			index([PKG]);
+		}
 	});
 
 	// A wiki served under a path-prefix sets $:/config/tiddlyweb/host; relative to the page the

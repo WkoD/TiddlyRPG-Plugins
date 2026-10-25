@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content-server.js
 type: application/javascript
 module-type: library
 created: 20261022165310491
-modified: 20261022182658042
+modified: 20261025201612264
 
 Content packages on the server (the route server/content-route.js; Node only): entries of a
 ruleset - items, spells, creatures - as data a DM takes into the wiki one by one. They are no
@@ -23,7 +23,8 @@ A manifest:
     "files": ["items.json", ...]             beside the manifest
   }
 A file: {"entries": [{"id", "title", "type", "tags": [...], "fields": {...}, "text"}, ...]}; id
-unique in the package, type a type tag of the core (Item, Spell, Creature ...).
+unique in the package (two packages of a ruleset - a language each - may share ids: the name of
+the package tells them apart), type a type tag of the core (Item, Spell, Creature ...).
 
 A package whose core version does not fit, or that cannot be read, is left out with a line on
 the console. Read files are cached by their path and time of change.
@@ -31,7 +32,8 @@ the console. Read files are cached by their path and time of change.
   packages(wikiPath)              every package: [{name, ruleset, language, source, tag,
                                   manifest, entries}]
   index(wikiPath,ruleset)         those of the ruleset without the texts of the entries
-  entry(wikiPath,ruleset,id)      {package, entry} of an id, or null - only looked up, never a
+  entry(wikiPath,ruleset,id,name) {package, entry} of an id in the package of that name (without
+                                  one: the first that has it), or null - only looked up, never a
                                   path
 
 \*/
@@ -126,10 +128,10 @@ exports.index = function(wikiPath,ruleset) {
 	});
 };
 
-exports.entry = function(wikiPath,ruleset,id) {
+exports.entry = function(wikiPath,ruleset,id,name) {
 	var found = null;
 	packages(wikiPath).some(function(p) {
-		if(p.ruleset !== ruleset) {
+		if(p.ruleset !== ruleset || (name && p.name !== name)) {
 			return false;
 		}
 		var entry = p.entries.filter(function(e) { return e.id === id; })[0];

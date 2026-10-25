@@ -426,7 +426,9 @@ the tiddler title:
   `<wiki>/node_modules` (`package.json` -> `"tiddlyrpg": {"content": [...]}`, their manifests
   and entry files: module header), `server/content-route.js` (`module-type: route`) serves
   `/tiddlyrpg/content/index.json` and `.../entry.json` - only to who may write; an id is only
-  looked up, never a path. In the browser `startup/content.js` loads the index of the active
+  looked up, never a path. The key of an entry in the browser is its id, or "<package>/<id>" when
+  two packages of the ruleset (a language each) share it; the entry is fetched by package and id
+  (`content.entryUrl()`, on the host of the sync adaptor, `content.url()`). In the browser `startup/content.js` loads the index of the active
   ruleset into `$:/temp/tiddlyrpg-core/content/index` (empty without a server of the wiki or
   the right to write) and takes an entry on `tm-trpg-content-take`; `modules/content.js` (its
   header) decides the titles - what is in the wiki wins, another type gets "Title (Type)" in the
