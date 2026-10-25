@@ -272,7 +272,7 @@ test.describe("places that list titles", function() {
 	});
 });
 
-// Every secret below carries the word Qx7 (and its dates the year 1399): in its title, its text,
+// Every secret below carries the word Qx7 (and its dates the year 1399; a secret of Frigg Fr9): in its title, its text,
 // the name of a spot or the caption of a section. The sweep renders whatever a reader can reach
 // - every tiddler and hub through the view template with each tab, its graphs, the search, the
 // sidebar, ControlPanel -> License - and in the public view none of it may hold the word. A new feature is covered once
@@ -280,6 +280,8 @@ test.describe("places that list titles", function() {
 test.describe("sweep", function() {
 	var WORD = "Qx7",
 		YEAR = "1399",
+		// A secret of the player character Frigg (helpers.js) only: Anna sees it, Erik does not
+		FRIGG = "Fr9",
 		fixtures = [
 			{title: "Qx7 Akte", tags: "Person Secret", location: "Town", bond: "Baile", text: "Qx7 file."},
 			{title: "Qx7 Ort", tags: "Location Secret", location: "Town", text: "Qx7 house."},
@@ -294,6 +296,8 @@ test.describe("sweep", function() {
 			{title: "Sweep Wirt", tags: "Person", location: "[[Sweep Burg]]", text: "A host."},
 			{title: "Qx7 Keller", tags: "Location Secret", location: "[[Sweep Burg]]", text: "Qx7 cellar."},
 			{title: "Sweep Stall", tags: "Location", location: "[[Sweep Burg]]", text: "A stable."},
+			// An open place within a locked one (the path of a location in the picker)
+			{title: "Sweep Nische", tags: "Location", location: "[[Qx7 Ort]]", text: "A niche."},
 			{title: "Qx7 Pferd", tags: "Person Secret", location: "[[Sweep Stall]]", text: "Qx7 horse."},
 			// The caption of the locked section holds a rules macro: heading, timeline (card and
 			// tooltip) and event table render it, none of them in the public view
@@ -363,6 +367,14 @@ test.describe("sweep", function() {
 			{title: "Sweep Gilde", tags: "Organisation", location: "Town", text: "A guild."},
 			{title: "Qx7 Meister", tags: "Person Secret", leader: "[[Sweep Gilde]]", text: "Qx7 master."},
 			{title: "Sweep Wache", tags: "Person [[Qx7 Ort]]", location: "Baile", member: "[[Qx7 Orden]]", leader: "[[Qx7 Orden]] [[Sweep Gilde]]", text: "A guard."},
+			// ... a former member that is a member still, a family next to a sibling, an ancestor the
+			// line of parents reaches, a dead leader with a successor - the other side each time locked
+			{title: "Sweep Ehemals", tags: "Person", member: "[[Qx7 Orden]]", former: "[[Qx7 Orden]]", text: "A former member."},
+			{title: "Sweep Vetter", tags: "Person", sibling: "[[Qx7 Bruder]]", family: "[[Qx7 Bruder]]", text: "A cousin."},
+			{title: "Qx7 Ahn", tags: "Person Secret", text: "Qx7 forebear."},
+			{title: "Sweep Vater", tags: "Person", parent: "[[Qx7 Ahn]]", text: "A father."},
+			{title: "Sweep Enkel", tags: "Person", parent: "[[Sweep Vater]]", ancestor: "[[Qx7 Ahn]]", text: "A grandson."},
+			{title: "Sweep Altmeister", tags: "Person", leader: "[[Sweep Gilde]]", date: "1300/1340", text: "A late master."},
 			// Quests: a quest tagged Secret with a marker in an open section (the marker is hidden
 			// with it), a rumour whose only marker stands in a locked section, and the end of an
 			// open rumour in that locked section - hub, cards, history and the event leave them out;
@@ -370,6 +382,13 @@ test.describe("sweep", function() {
 			{title: "Qx7 Plan", tags: "Quest Secret", text: "Qx7 planning."},
 			{title: "Sweep Questzug", tags: "Event Frigg", date: "1351-09-01, 1399-03-01",
 				text: "<<date>>\n\n<<quest \"Sweep Gerücht\">>Open rumour.\n\n<<quest \"Qx7 Plan\">>Qx7 marker text.\n\n<<secret>><<date>>\n\n<<quest \"Sweep Gerücht\" status:\"complete\">><<quest \"Qx7 Faden\">>Qx7 hidden thread at [[Sweep Bund]]."},
+			// Opened anyway: a locked tiddler with nothing (what every other one is compared with),
+			// a locked former player character with a player, a date, a location and an image
+			{title: "Qx7 Leer", tags: "Secret"},
+			{title: "Qx7 Alt", tags: "Person Secret", player: "Qx7spieler", date: "1399-01-01", location: "Town", image: "Qx7alt.jpg", text: "Qx7 old."},
+			// A locked active player character: the hub Player, its cards, the pills of the player characters
+			{title: "Fr9 Brief", tags: "Information Frigg Secret", text: "Fr9 letter."},
+			{title: "Qx7 Held", tags: "Player Secret", player: "Qx7held", image: "Qx7held.jpg", text: "Qx7 hero."},
 			{title: "$:/graph/Sweep", type: "application/json", text: "{}",
 				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[!is[system]]", "edges.functions": "links"}
 		],
@@ -380,7 +399,8 @@ test.describe("sweep", function() {
 		DEFAULTS = TABS[0];
 
 	test.before(function() {
-		fixtures.forEach(function(fields) { h.add(wiki, fields); });
+		// With a date of change, so the tab Recent of the sidebar lists them
+		fixtures.forEach(function(fields) { h.add(wiki, Object.assign({modified: "20261020000000000"}, fields)); });
 	});
 
 	test.after(function() {
@@ -400,56 +420,136 @@ test.describe("sweep", function() {
 		h.tabs = Object.assign({}, tabs);
 	}
 
-	// Everything a reader of <view> can reach, as [{where, text}]
+	// Everything a reader of <view> can reach, as [{where, text}] - as in a browser, so the map of a
+	// location renders too
 	function sweep(view) {
-		return inView(view, function() {
-			var out = [],
-				titles = f("[all[shadows+tiddlers]!is[system]!is[draft]] :filter[trpgvisible[]]");
-			TABS.forEach(function(tabs) {
-				setTabs(tabs);
-				titles.forEach(function(title) {
-					var vars = {currentTiddler: title, storyTiddler: title};
-					out.push({where: title, text: seen(h.view(wiki, title))});
-					// The graphs in the view (relations, map) with labels and tooltips
-					out.push({where: title + " (graphs)", text: JSON.stringify(h.graph(wiki, "<$transclude $tiddler=\"$:/core/ui/ViewTemplate\" mode=\"block\"/>", vars))});
-				});
+		return h.inBrowser(wiki, function() {
+			return inView(view, reach);
+		});
+	}
+
+	// The text of a tiddler without its title, plain and as in a link
+	function withoutTitle(text, title) {
+		return text.split(title).join("").split(encodeURIComponent(title)).join("");
+	}
+
+	function reach() {
+		var out = [],
+			titles = f("[all[shadows+tiddlers]!is[system]!is[draft]] :filter[trpgvisible[]]"),
+			locked = f("[all[tiddlers]!is[system]!is[draft]] -[trpgvisible[]]");
+		TABS.forEach(function(tabs) {
+			setTabs(tabs);
+			titles.forEach(function(title) {
+				var vars = {currentTiddler: title, storyTiddler: title};
+				out.push({where: title, text: seen(h.view(wiki, title))});
+				// The graphs in the view (relations, map) with labels and tooltips
+				out.push({where: title + " (graphs)", text: JSON.stringify(h.graph(wiki, "<$transclude $tiddler=\"$:/core/ui/ViewTemplate\" mode=\"block\"/>", vars))});
 			});
-			setTabs(DEFAULTS);
-			f("[all[shadows+tiddlers]prefix[$:/graph/]]").forEach(function(title) {
-				out.push({where: title, text: JSON.stringify(h.graph(wiki, "<$graph.view $tiddler=\"" + title + "\"/>"))});
+			// Opened anyway (a link from outside, the address bar): the graphs of a tiddler the
+			// view does not see (its text: the test "opened anyway" below)
+			locked.forEach(function(title) {
+				var vars = {currentTiddler: title, storyTiddler: title};
+				out.push({where: title + " (opened, graphs)", text: withoutTitle(JSON.stringify(h.graph(wiki, "<$transclude $tiddler=\"$:/core/ui/ViewTemplate\" mode=\"block\"/>", vars)), title)});
 			});
-			["first-search-filter", "second-search-filter"].forEach(function(field) {
-				out.push({where: "search " + field, text: h.render(wiki, "text/plain", "<$let userInput=\"" + WORD + "\"><$list filter={{$:/core/ui/DefaultSearchResultList!!" + field + "}}><<currentTiddler>>|</$list></$let>")});
-			});
-			out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/sidebar\" $mode=\"block\"/>"))});
-			out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/sidebar-recent}}")});
-			out.push({where: "ControlPanel License", text: seen(h.render(wiki, "text/html", "{{$:/plugins/tiddlyrpg-core/ui/controlpanel-license}}"))});
-			// The editor: the hits of the picker for every field of the form, the quests and
-			// rumours and the locations of a link to a spot, with the names written almost alike;
-			// what an item copies values from (Qx7 Klinge has values); the spots of each location
-			// (link to a spot), the player characters (lock, party), (+ on the hubs is in the view
-			// of each hub)
-			f("[trpgformknown[]]").map(function(field) {
-				return "[[" + field + "]relationcandidates[]]";
-			}).concat(["[questnames[]]", "[all[tiddlers]tag[Location]!is[draft]]", "[[Sweep Frost]trpgcopysources[]]"]).forEach(function(candidates) {
-				out.push({where: "picker " + candidates, text: seen(h.render(wiki, "text/html",
-					"<$let trpg-candidates=\"" + candidates + "\" userInput=\"" + WORD + "\"><$list filter={{$:/plugins/tiddlyrpg-core/editor/picker!!first-search-filter}} variable=\"trpg-pick\"><$transclude $variable=\"trpg.pickpill\" title=<<trpg-pick>>/>|</$list></$let>" +
-					"<$list filter=\"[subfilter[" + candidates + "]trpgsimilar[Qx7 Fadn]] [subfilter[" + candidates + "]trpgsimilar[Qx7 Akt]] :filter[trpg.visible[]]\"><<currentTiddler>>|</$list>"))});
-			});
-			out.push({where: "spots of the locations", text: h.render(wiki, "text/plain", "<$list filter=\"[all[tiddlers]tag[Location]]\" variable=\"place\"><$list filter=\"[<place>spots[]]\"><<currentTiddler>>|</$list></$list>")});
-			out.push({where: "player characters", text: seen(h.render(wiki, "text/html", "<$transclude $variable=\"trpg.charpills\" tiddler=\"$:/temp/sweep\" field=\"names\"/>"))});
-			return out;
+		});
+		setTabs(DEFAULTS);
+		f("[all[shadows+tiddlers]prefix[$:/graph/]]").forEach(function(title) {
+			out.push({where: title, text: JSON.stringify(h.graph(wiki, "<$graph.view $tiddler=\"" + title + "\"/>"))});
+		});
+		["first-search-filter", "second-search-filter"].forEach(function(field) {
+			out.push({where: "search " + field, text: h.render(wiki, "text/plain", "<$let userInput=\"" + WORD + "\"><$list filter={{$:/core/ui/DefaultSearchResultList!!" + field + "}}><<currentTiddler>>|</$list></$let>")});
+		});
+		out.push({where: "sidebar", text: seen(h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/ui/sidebar\" $mode=\"block\"/>"))});
+		out.push({where: "sidebar recent", text: h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/sidebar-recent}}")});
+		out.push({where: "ControlPanel License", text: seen(h.render(wiki, "text/html", "{{$:/plugins/tiddlyrpg-core/ui/controlpanel-license}}"))});
+		// The editor: the list of the picker (editor/procedures trpg.picker-list) for every field
+		// of the form, the quests and rumours and the locations of a link to a spot - its hits
+		// with the path of a location, a new name and the names written almost alike - typed: the
+		// word, two names one letter off a secret, an open place within a locked one; what an item
+		// copies values from (Qx7 Klinge has values); the spots of each location (link to a spot),
+		// the player characters (lock, party), (+ on the hubs is in the view of each hub)
+		h.add(wiki, {title: "$:/temp/sweep/open", text: "yes"});
+		var newName = f("[[Editor/Picker/New]trpgtranslate[]]")[0];
+		f("[trpgformknown[]]").map(function(field) {
+			return "[[" + field + "]relationcandidates[]]";
+		}).concat(["[questnames[]]", "[all[tiddlers]tag[Location]!is[draft]]", "[[Sweep Frost]trpgcopysources[]]"]).forEach(function(candidates) {
+			var text = [WORD, "Qx7 Fadn", "Qx7 Akt", "Sweep Nische"].map(function(typed) {
+				h.add(wiki, {title: "$:/temp/sweep/typed", text: typed});
+				// The pill of a new name repeats what the reader typed
+				return seen(h.render(wiki, "text/html", "<$let trpg-pick-open=\"$:/temp/sweep/open\" trpg-pick-store=\"$:/temp/sweep/typed\" trpg-pick-selected=\"$:/temp/sweep/selected\" trpg-pick-free=\"yes\" trpg-candidates=\"" + candidates + "\"><$transclude $variable=\"trpg.picker-list\"/></$let>"))
+					.split("<span role=\"option\" title=\"" + newName + "\">" + typed + "</span>").join("");
+			}).join("|");
+			out.push({where: "picker " + candidates, text: text});
+		});
+		wiki.deleteTiddler("$:/temp/sweep/open");
+		wiki.deleteTiddler("$:/temp/sweep/typed");
+		// The dropdown of every tag pill (templates/tag), opened: qualify gives the bare state
+		f("[all[shadows+tiddlers]!is[system]tags[]] :filter[trpgvisible[]]").forEach(function(tag) {
+			h.add(wiki, {title: "$:/state/popup/tag", text: "(0,0,0,0)"});
+			out.push({where: "tag dropdown " + tag, text: seen(h.render(wiki, "text/html", "\\define qualify(title) $title$\n<$tiddler tiddler=\"" + tag + "\">{{||$:/plugins/tiddlyrpg-core/templates/tag}}</$tiddler>"))});
+		});
+		wiki.deleteTiddler("$:/state/popup/tag");
+		out.push({where: "spots of the locations", text: h.render(wiki, "text/plain", "<$list filter=\"[all[tiddlers]tag[Location]]\" variable=\"place\"><$list filter=\"[<place>spots[]]\"><<currentTiddler>>|</$list></$list>")});
+		out.push({where: "player characters", text: seen(h.render(wiki, "text/html", "<$transclude $variable=\"trpg.charpills\" tiddler=\"$:/temp/sweep\" field=\"names\"/>"))});
+		return out;
+	}
+
+	// The places of items that hold one of words, with the text around it
+	function leaks(items, words) {
+		return items.filter(function(item) {
+			return words.some(function(word) { return item.text.indexOf(word) !== -1; });
+		}).map(function(item) {
+			var at = Math.min.apply(null, words.map(function(word) { return item.text.indexOf(word); }).filter(function(at) { return at !== -1; }));
+			return item.where + ": …" + item.text.substring(Math.max(0, at - 80), at + 40) + "…";
 		});
 	}
 
 	test("public: no word of a secret anywhere", function() {
-		var leaks = sweep("public").filter(function(item) {
-			return item.text.indexOf(WORD) !== -1 || item.text.indexOf(YEAR) !== -1;
-		}).map(function(item) {
-			var at = item.text.indexOf(WORD) !== -1 ? item.text.indexOf(WORD) : item.text.indexOf(YEAR);
-			return item.where + ": …" + item.text.substring(Math.max(0, at - 80), at + 40) + "…";
+		assert.deepEqual(leaks(sweep("public"), [WORD, YEAR, FRIGG]), []);
+	});
+
+	// A secret of Frigg (Fr9 Brief) shows to Anna, who plays Frigg, and to no other: Erik plays Sweep Kämpe
+	test("a player: the secrets of their character, no other", function() {
+		var anna = sweep("player:Anna");
+		assert.deepEqual(leaks(anna, [WORD, YEAR]), []);
+		assert.ok(leaks(anna, [FRIGG]).length > 0);
+		assert.deepEqual(leaks(sweep("player:Erik"), [WORD, YEAR, FRIGG]), []);
+	});
+
+	// A tiddler the view does not see, opened anyway (a link from outside, the address bar), shows
+	// its title and nothing else: without its title it looks like Qx7 Leer, which has nothing
+	test("public: a tiddler the view does not see, opened anyway, shows its title and nothing else", function() {
+		h.inBrowser(wiki, function() {
+			inView("public", function() {
+				var shown = function(title) {
+						return withoutTitle(seen(h.view(wiki, title)), title).replace(/\s+/g, " ");
+					},
+					blank = shown("Qx7 Leer"),
+					locked = f("[all[tiddlers]!is[system]!is[draft]] -[trpgvisible[]]");
+				assert.ok(locked.length > 30, locked.length);
+				locked.forEach(function(title) {
+					assert.equal(shown(title), blank, title);
+				});
+			});
 		});
-		assert.deepEqual(leaks, []);
+	});
+
+	// What the rest tells: the name of a locked tiddler, typed into a picker, is a new name in the
+	// public view - were it not offered, its absence would tell the name is taken
+	test("picker: the name of a locked tiddler typed is a new name in the public view, known to the DM", function() {
+		var picker = function() {
+			return h.render(wiki, "text/html", "<$let trpg-pick-open=\"$:/temp/sweep/open\" trpg-pick-store=\"$:/temp/sweep/typed\" trpg-pick-free=\"yes\" trpg-candidates=\"[[bond]relationcandidates[]]\"><$transclude $variable=\"trpg.picker-list\"/></$let>");
+		};
+		h.add(wiki, {title: "$:/temp/sweep/open", text: "yes"});
+		h.add(wiki, {title: "$:/temp/sweep/typed", text: "Qx7 Akte"});
+		try {
+			var newName = f("[[Editor/Picker/New]trpgtranslate[]]")[0];
+			assert.ok(inView("public", picker).indexOf("title=\"" + newName + "\">Qx7 Akte</span>") !== -1);
+			assert.ok(picker().indexOf(newName) === -1);
+		} finally {
+			wiki.deleteTiddler("$:/temp/sweep/open");
+			wiki.deleteTiddler("$:/temp/sweep/typed");
+		}
 	});
 
 	test("the DM: the messages name the locked tiddlers, so the sweep reaches them", function() {
@@ -463,15 +563,30 @@ test.describe("sweep", function() {
 		assert.match(texts("Sweep Kind"), /relations\/siblings .*Qx7 Bruder/);
 		assert.match(texts("Sweep Lehrling"), /relations\/parent .*Qx7 Pfad/);
 		assert.match(texts("Sweep Gilde"), /relations\/leaders .*Qx7 Meister/);
+		assert.match(texts("Sweep Ehemals"), /relations\/former .*Qx7 Orden/);
+		assert.match(texts("Sweep Vetter"), /relations\/family .*Qx7 Bruder/);
+		assert.match(texts("Sweep Enkel"), /relations\/ancestor .*Qx7 Ahn/);
+		assert.match(texts("Sweep Altmeister"), /relations\/deadleader .*Qx7 Meister/);
 		assert.match(texts("Sweep Regeln"), /links\/missing .*Qx7 Lücke/);
 		assert.match(texts("Sweep Regeln"), /spots\/similar .*Qx7 Akt/);
 	});
 
 	test("the DM: every secret shows, so the sweep reaches them", function() {
-		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
+		var items = sweep("dm"),
+			all = items.map(function(item) { return item.text; }).join("\n");
+		// Every channel beside the tiddlers shows a secret to the DM, so its leaving out in the public
+		// view is tested - the sidebar aside (its tab Recent is a channel of its own) and the
+		// licenses, which hold no title
+		var channels = items.filter(function(item) {
+			return /^(\$:\/graph\/|search |sidebar recent|picker |spots |player characters)/.test(item.where);
+		});
+		assert.ok(channels.length > 30, channels.length);
+		channels.forEach(function(item) {
+			assert.ok(item.text.indexOf(WORD) !== -1, item.where);
+		});
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
 			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
-			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", "Qx7 Pfad", "Qx7 Sippe", "Qx7 Gabe", "Qx7 Talent", "Qx7 Zunge", "Qx7 Regel", "Qx7 Kunst", YEAR].forEach(function(word) {
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", "Qx7 Pfad", "Qx7 Sippe", "Qx7 Gabe", "Qx7 Talent", "Qx7 Zunge", "Qx7 Regel", "Qx7 Kunst", "Qx7 old", "Qx7spieler", "Qx7alt", "Qx7 Held", "Qx7 hero", "Qx7held", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

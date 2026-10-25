@@ -94,6 +94,17 @@ exports.inView = function(wiki, view, fn) {
 	}
 };
 
+// Runs fn as in a browser ($:/info/browser "yes", the shadow "no" again afterwards): what a
+// template shows only there - the map of a location - renders too
+exports.inBrowser = function(wiki, fn) {
+	exports.add(wiki, {title: "$:/info/browser", text: "yes"});
+	try {
+		return fn();
+	} finally {
+		wiki.deleteTiddler("$:/info/browser");
+	}
+};
+
 // Renders wikitext with the global definitions imported, as the page template does in the browser
 var IMPORT = "\\import [subfilter{$:/core/config/GlobalImportFilter}]\n";
 

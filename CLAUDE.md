@@ -139,7 +139,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     every place that lists titles (hubs, search, tag pills, sidebar, relation list, graphs), a
     secret presence, the groups of a location without what the view does not see (no pill, no
     number, no empty group, no arrow); the sweep (see "Visibility - check with every change"; it
-    also renders ControlPanel -> License).
+    runs as in a browser, `h.inBrowser`, so the map renders; it also renders ControlPanel ->
+    License, the list of the picker as typed and the dropdown of every tag pill; in the public
+    view and the views of two players; every channel shows a secret to the DM); a tiddler the
+    view does not see, opened anyway, looks like an empty locked one but for its title.
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
     `$:/status/IsReadOnly`). `h.view` opens the tabs of `h.tabs` for the tiddler it renders (the
     tab states are per tiddler, `h.openTabs`): the list of the relations block and of the events,
