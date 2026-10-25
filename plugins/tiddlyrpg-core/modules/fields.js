@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025124110539
+modified: 20261025192020842
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -93,6 +93,11 @@ into a draft once - nothing stays linked.
   fits(wiki,fields,when,list) whether a "when" holds (list: the fields of the schema)
   copyFrom(wiki,draft,source) the values to copy: {field: value}, "secret-fields" included
   locked(fields)              the fields secret-fields locks: null, "all" or [fields]
+  lockable(wiki,title,fields) the fields of the rules a lock "all" takes beside the price: the
+                              schema and every field of the rules the tiddler has
+  seen(wiki,title,view)       the fields of a tiddler as a view reads them (secret-fields, a field
+                              of the format titles naming what it does not see) - for the block
+                              and the checks alike
   problem(wiki,fields,field,labels)  the problem of a written value: {level, key, params} or null
 
 \*/
@@ -677,6 +682,58 @@ exports.line = function(wiki,fields,combine) {
 // The fields secret-fields locks: null (none), "all" (present but empty, or "all") or a list
 exports.locked = function(fields) {
 	return require("$:/plugins/tiddlyrpg-core/modules/visibility.js").parseLock(fields["secret-fields"]);
+};
+
+// The fields of the rules a lock "all" of <title> takes beside the price: those of its schema and
+// every field of the rules it has - a former player character is a Person and keeps its xp, which
+// the card of the hub Player reads (<values>: its fields)
+var lockable = exports.lockable = function(wiki,title,values) {
+	var list = exports.forTiddler(wiki,title).fields.slice();
+	$tw.utils.each(values,function(value,field) {
+		if(list.indexOf(field) === -1 && spec(wiki,field)) {
+			list.push(field);
+		}
+	});
+	return list;
+};
+
+// The fields of <title> as <view> reads them - the block, its header line and the checks read
+// values through it: without the values secret-fields locks from that view (lockable() and the
+// price for "all", else the fields named; what derives from them has nothing to read then; "all"
+// locks the whole block, so the relations its groups show go too - the relation list shows them
+// on its own), and without a field of the format titles that names a tiddler the view does not see
+// (the levels of a locked class: the rest would tell it)
+exports.seen = function(wiki,title,view) {
+	var visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
+		tiddler = wiki.getTiddler(title);
+	if(!tiddler) {
+		return {title: title};
+	}
+	var values = $tw.utils.extend({},tiddler.fields),
+		lock = visibility.lockedFields(wiki,title);
+	if(lock) {
+		var list = lockable(wiki,title,values);
+		list.concat(["price"]).forEach(function(field) {
+			if(!visibility.fieldVisible(wiki,title,field,view,list)) {
+				delete values[field];
+			}
+		});
+		if(lock === "all" && !visibility.allows(wiki,visibility.characters(wiki,title),view)) {
+			exports.forTiddler(wiki,title).groups.forEach(function(group) {
+				(group.relations || []).forEach(function(name) {
+					delete values[name];
+				});
+			});
+		}
+	}
+	$tw.utils.each(values,function(value,field) {
+		var s = spec(wiki,field),
+			r = s && s.format === "titles" && value ? rules().value(wiki,s,String(value)) : null;
+		if(r && (r.items || []).some(function(item) { return item.title && !visibility.visible(wiki,item.title,view); })) {
+			delete values[field];
+		}
+	});
+	return values;
 };
 
 /*

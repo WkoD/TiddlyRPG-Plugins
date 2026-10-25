@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025135015562
+modified: 20261025191609346
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -81,49 +81,15 @@ var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 var PRICE = "price",
 	REST = "-";
 
-// The fields of the rules a lock of <title> covers: those of its schema and every other field of
-// the rules it has - a former player character is a Person and keeps its xp, which the card of
-// the hub Player reads
-function lockable(wiki,title,values) {
-	var list = fields.forTiddler(wiki,title).fields.slice();
-	$tw.utils.each(values,function(value,field) {
-		if(list.indexOf(field) === -1 && fields.spec(wiki,field)) {
-			list.push(field);
-		}
-	});
-	return list;
-}
-
-// The fields of a tiddler as the block reads them: without the values secret-fields locks from the
-// active view (modules/visibility.js) - what derives from them has nothing to read then -, and
-// without a field of the format titles that names a tiddler the view does not see (the levels of
-// a locked class: the rest would tell it). The editor reads them all (draft: true).
+// The fields of a tiddler as the block reads them in the active view (modules/fields.js seen():
+// without what secret-fields locks from it, the relations of the groups too). The editor reads
+// them all (draft: true).
 function valuesOf(wiki,title,draft) {
 	var tiddler = wiki.getTiddler(title);
 	if(!tiddler) {
 		return {title: title};
 	}
-	var values = $tw.utils.extend({},tiddler.fields);
-	if(!draft && visibility.lockedFields(wiki,title)) {
-		var view = visibility.current(wiki),
-			list = lockable(wiki,title,values);
-		list.concat(["price"]).forEach(function(field) {
-			if(!visibility.fieldVisible(wiki,title,field,view,list)) {
-				delete values[field];
-			}
-		});
-	}
-	if(!draft) {
-		var seen = visibility.current(wiki);
-		$tw.utils.each(values,function(value,field) {
-			var s = fields.spec(wiki,field),
-				r = s && s.format === "titles" && value ? rules.value(wiki,s,String(value)) : null;
-			if(r && (r.items || []).some(function(item) { return item.title && !visibility.visible(wiki,item.title,seen); })) {
-				delete values[field];
-			}
-		});
-	}
-	return values;
+	return draft ? $tw.utils.extend({},tiddler.fields) : fields.seen(wiki,title,visibility.current(wiki));
 }
 
 function each(source,fn) {
@@ -240,7 +206,7 @@ function lineText(wiki,title,field,values) {
 // see them
 function othersOf(wiki,title) {
 	var values = valuesOf(wiki,title,true),
-		list = lockable(wiki,title,values);
+		list = fields.lockable(wiki,title,values);
 	list.concat([PRICE]).forEach(function(field) {
 		if(visibility.fieldLocked(wiki,title,field,list)) {
 			delete values[field];
@@ -345,7 +311,7 @@ exports.trpgfieldlocked = function(source,operator,options) {
 			return lock === "all" ? ["yes"] : [];
 		}
 		// Locked itself, or derived from a locked value: others would see it otherwise
-		return visibility.fieldLocked(wiki,title,field,fields.forTiddler(wiki,title).fields) ||
+		return visibility.fieldLocked(wiki,title,field,fields.lockable(wiki,title,valuesOf(wiki,title,true))) ||
 			lineText(wiki,title,field,valuesOf(wiki,title)) !== lineText(wiki,title,field,othersOf(wiki,title)) ? ["yes"] : [];
 	});
 };

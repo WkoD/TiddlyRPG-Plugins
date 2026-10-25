@@ -624,6 +624,16 @@ test.describe("the levels of the classes (format titles)", function() {
 		assert.match(h.checks(wiki, "Zuviel", "fields")[0].text, /zusammen 4, mehr als Stufe 2/);
 	});
 
+	test("the check tells nothing of a locked XP: compared with the level a view sees", function() {
+		h.add(wiki, {title: "Verdeckt", tags: "Player", player: "Jo", classes: "Kämpfer Schurke", xp: "6500", "class-levels": "Kämpfer 2, Schurke 2", "secret-fields": "xp", text: "Behind."});
+		try {
+			assert.deepEqual(levels("Verdeckt"), ["Check/Fields/LevelsLow"], "the DM");
+			assert.deepEqual(h.inView(wiki, "public", function() { return levels("Verdeckt"); }), []);
+		} finally {
+			wiki.deleteTiddler("Verdeckt");
+		}
+	});
+
 	test("the card: the level before each class in place of the line of the level; none when a class is locked", function() {
 		var lines = function(title, view) {
 			return h.inView(wiki, view || "dm", function() { return f("[[" + title + "]trpgcardlines[]]"); });

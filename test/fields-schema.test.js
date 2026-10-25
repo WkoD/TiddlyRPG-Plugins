@@ -558,6 +558,38 @@ test.describe("the lock of values (secret-fields)", function() {
 		});
 	});
 
+	// The relations are no values of the rules: the relation list shows them on their own, and a
+	// relation named in secret-fields locks nothing
+	test("all: the whole block, the relations its groups show too", function() {
+		withTiddler({title: "Frost", tags: "Item Equipment", category: "weapon", base: "Tavern", "secret-fields": "all"}, function() {
+			h.inView(wiki, "public", function() {
+				assert.doesNotMatch(block("Frost"), /Tavern|trpg-fields/);
+			});
+			assert.match(block("Frost"), /<div class="trpg-fields trpg-fields-locked".*Tavern/);
+		});
+		withTiddler({title: "Frost", tags: "Item Equipment", category: "weapon", base: "Tavern", "secret-fields": "base"}, function() {
+			h.inView(wiki, "public", function() {
+				assert.match(block("Frost"), /Waffe.*href="#Tavern"/);
+			});
+		});
+	});
+
+	// A message must not tell what a locked value holds: "only for weapons" on a locked category
+	// would tell whether it is one
+	test("fields/when: a condition on a field the view does not see does not count", function() {
+		withTiddler({title: "Kelch", tags: "Item Consumable", category: "potion", damage: "1d6 fire", "secret-fields": "category"}, function() {
+			assert.ok(h.checkKeys(wiki, "Kelch", "fields").indexOf("Check/Fields/When") !== -1, "the DM");
+			assert.deepEqual(h.inView(wiki, "public", function() { return h.checkKeys(wiki, "Kelch", "fields"); }), []);
+		});
+	});
+
+	test("items/price: no message on a locked price for a view that does not see it", function() {
+		withTiddler({title: "Kelch", tags: "Item", price: "fifty", "secret-fields": "all"}, function() {
+			assert.equal(h.checkKeys(wiki, "Kelch", "items").length, 1, "the DM");
+			assert.deepEqual(h.inView(wiki, "public", function() { return h.checkKeys(wiki, "Kelch", "items"); }), []);
+		});
+	});
+
 	test("the messages on a locked value only for those who see it", function() {
 		withTiddler({title: "Kelch", tags: "Item Consumable", category: "potion", rarity: "legendary", "secret-fields": "rarity"}, function() {
 			h.inView(wiki, "public", function() {

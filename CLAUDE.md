@@ -1424,10 +1424,14 @@ The rules of who sees what live **once** in `modules/visibility.js`; meaning and
   campaign event (`visibility.campaign`, used by `eventrows` and the timeline).
 - Lock of values: `secret-fields` (empty or `all`: the whole block and the price, else the fields
   named), visible like `Secret` to the DM and the players of the tagged player characters
-  (`visibility.taggedPlayers`, `fieldLocked`, `fieldVisible`). The block, the header line, the
-  reading in the editor and `fields/value` read a tiddler without what the view may not see, so a
-  derived value of a locked field (a saving throw from `str`) and a form that names it (the
-  agreement `$size.@creature-type$`) fall away with it; `copyFrom()` carries the lock along.
+  (`visibility.taggedPlayers`, `fieldLocked`, `fieldVisible`). The block, the header line and
+  every check of a value (`fields/*`, `items/price`) read a tiddler through `fields.seen()` -
+  without what the view may not see, never `tiddler.fields` -, so a derived value of a locked
+  field (a saving throw from `str`), a form that names it (the agreement
+  `$size.@creature-type$`), a condition on it (`fields/when`) and a level by locked XP fall away
+  with it; `all` takes the relations of the groups of the block too (the relation list shows
+  them on its own). The reading in the editor shows every value (`trpgfieldreading`: the DM
+  edits them); `copyFrom()` carries the lock along.
 - Every place that lists titles filters with `:filter[trpg.visible[]]` (hubs, relation list,
   ego graph through `$whitelist` of `$nodes.neighbors`, `trpg-graph`, `trpg-map`,
   search, event lists). A new list does the same. JS widgets that depend on the view refresh on

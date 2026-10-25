@@ -400,12 +400,14 @@ with a bar on top naming whom it is for ("Secret: Theren", "DM only"); a secret 
 in such a frame as a whole, outside the frame of its type, with the bar above its title.
 **Locked values.** The values of the rules of a tiddler everyone sees can be locked on their own:
 the field `secret-fields` lists the fields to lock (`secret-fields: rarity cursed`); `all`, or the
-field left empty, locks the whole block of values and the price. They are visible like a secret
-- to the DM and to the players of the player characters the tiddler is tagged with. What derives
-from a locked value is locked with it: a locked strength shows no modifier and no saving throw,
-a locked challenge rating no proficiency bonus and no XP, a locked part of the header line falls
-away. In the views that see them they are marked in the alert colour. The editor offers the lock
-with the values: "all" and a pill per value written.
+field left empty, locks the whole block of values - the relations it shows too - and the price.
+They are visible like a secret - to the DM and to the players of the player characters the
+tiddler is tagged with. What derives from a locked value is locked with it: a locked strength
+shows no modifier and no saving throw, a locked challenge rating no proficiency bonus and no XP,
+a locked part of the header line falls away, and no message below the title tells what a locked
+value holds. In the views that see them they are marked in the alert colour. The editor offers
+the lock with the values: "all" and a pill per value written. A relation is no value of the
+rules: the relation list shows it on its own, a lock does not take it out there.
 
 Lock only with `Secret`, `<<secret>>`, `<$secret>` and `secret-fields`: a `$list` or `<%if%>` of
 your own on the view hides the text, but not the dates, locations and spots in it, and a

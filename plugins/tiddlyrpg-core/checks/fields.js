@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/fields.js
 type: application/javascript
 module-type: trpg-check
 created: 20261022140929737
-modified: 20261025124110539
+modified: 20261025191849828
 
 Checks of the fields of the rules (modules/fields.js; modules/checks.js runs them).
 
@@ -25,7 +25,8 @@ Checks of the fields of the rules (modules/fields.js; modules/checks.js runs the
                   set the tag
 
 Only the fields of the schema of the tiddler, only what is written - a derived value is no
-problem of the tiddler -, only values the view sees (secret-fields).
+problem of the tiddler -, only values the view sees (secret-fields, fields.seen()): a condition
+on a locked field and a level by locked XP count as not there, so no message tells what they hold.
 
 \*/
 
@@ -36,20 +37,27 @@ var fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
 	language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
-// The written fields of the schema of a tiddler the view sees (secret-fields):
-// [{field, spec, text, label, fields, schema}]
+// The written fields of the schema of a tiddler the view sees: [{field, spec, text, label, fields,
+// schema}] - fields the values the view reads (fields.seen(): without what secret-fields locks
+// from it), schema the fields of the schema it sees, so a condition on a locked field counts as
+// one on a field the schema lacks
 function written(wiki,title,view) {
 	var tiddler = wiki.getTiddler(title),
 		schema = tiddler ? fields.forTiddler(wiki,title) : null;
 	if(!schema) {
 		return [];
 	}
-	return schema.fields.filter(function(field) {
-		var value = tiddler.fields[field];
-		return value !== undefined && value.toString().trim() !== "" && visibility.fieldVisible(wiki,title,field,view,schema.fields);
+	var values = fields.seen(wiki,title,view),
+		list = fields.lockable(wiki,title,tiddler.fields),
+		seenSchema = schema.fields.filter(function(field) {
+			return visibility.fieldVisible(wiki,title,field,view,list);
+		});
+	return seenSchema.filter(function(field) {
+		var value = values[field];
+		return value !== undefined && value.toString().trim() !== "";
 	}).map(function(field) {
-		return {field: field, spec: fields.spec(wiki,field), text: tiddler.fields[field].toString().trim(),
-			label: fields.label(wiki,field,schema.labels), fields: tiddler.fields, schema: schema.fields};
+		return {field: field, spec: fields.spec(wiki,field), text: values[field].toString().trim(),
+			label: fields.label(wiki,field,schema.labels), fields: values, schema: seenSchema};
 	});
 }
 
