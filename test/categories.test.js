@@ -476,6 +476,21 @@ test.describe("trees: classes and folk", function() {
 		}
 	});
 
+	test("a cycle in a tree: an error at its entries; a holder of them shows each, none goes silently", function() {
+		var added = [{title: "Kreis A", tags: "Information Class", classes: "[[Kreis B]]", text: "A."},
+			{title: "Kreis B", tags: "Information Class", classes: "[[Kreis A]]", text: "B."},
+			{title: "Kreisler", tags: "Person", classes: "[[Kreis A]] [[Kreis B]]", text: "Both."}];
+		added.forEach(function(fields) { h.add(wiki, fields); });
+		try {
+			assert.deepEqual(h.checkKeys(wiki, "Kreis A", "relations"), ["Check/Relations/Cycle"]);
+			assert.match(h.checks(wiki, "Kreis A", "relations")[0].text, /Kreis A → Kreis B → Kreis A/);
+			assert.deepEqual(f("[[Kreisler]trpgtreerows[classes]]").map(function(r) { return JSON.parse(r).entries; }), ["[[Kreis A]] [[Kreis B]]"]);
+			assert.deepEqual(h.inView(wiki, "public", function() { return h.checkKeys(wiki, "Kreis A", "relations"); }), ["Check/Relations/Cycle"]);
+		} finally {
+			added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		}
+	});
+
 	// What the rest tells: a label with nothing behind it would tell there is a class the view does
 	// not see (Eingeweihter names the locked Geheimpfad and its choice, which goes with it)
 	test("the block: no label of a tree without a row the view sees", function() {
@@ -692,6 +707,20 @@ test.describe("the levels of the classes (format titles)", function() {
 		assert.deepEqual(f("[[Zwilling]trpglevelset[class-levels],[Kämpfer],[6]]"), ["Kämpfer 6, Schurke 8"]);
 		assert.deepEqual(f("[[Zwilling]trpglevelset[class-levels],[Schurke],[]]"), ["Kämpfer 5"]);
 		assert.deepEqual(f("[[Einzeln]trpglevelset[class-levels],[Kämpfer],[6]]"), ["Kämpfer 6"]);
+	});
+
+	test("the check: a class named without a number, a class named twice", function() {
+		h.add(wiki, {title: "Ohnezahl", tags: "Player", player: "Pi", classes: "Kämpfer Schurke", "class-levels": "Kämpfer, Schurke 3", text: "One number."});
+		h.add(wiki, {title: "Zweimal", tags: "Player", player: "Pi", classes: "Kämpfer", "class-levels": "Kämpfer 3, Kämpfer 2", text: "Twice."});
+		try {
+			assert.deepEqual(levels("Ohnezahl"), ["Check/Fields/LevelsMissing"]);
+			assert.match(h.checks(wiki, "Ohnezahl", "fields")[0].text, /keine Zahl für Kämpfer/);
+			assert.deepEqual(levels("Zweimal"), ["Check/Fields/LevelsTwice"]);
+			assert.match(h.checks(wiki, "Zweimal", "fields")[0].text, /Kämpfer steht zweimal/);
+		} finally {
+			wiki.deleteTiddler("Ohnezahl");
+			wiki.deleteTiddler("Zweimal");
+		}
 	});
 
 	test("the form: a number set keeps every other entry as written, also one the field cannot read", function() {

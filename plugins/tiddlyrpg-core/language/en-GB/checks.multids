@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261025124110539
+modified: 20261025193240501
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
@@ -29,6 +29,7 @@ Fields/LevelsHigh: Check the field $field$: together $total$, more than $other$ 
 Fields/LevelsLow: Level up due: $field$ together $total$, $other$ is $target$
 Fields/LevelsMissing: Check the field $field$: no number for $target$
 Fields/LevelsNotTree: Check the field $field$: $target$ is none of $tree$
+Fields/LevelsTwice: Check the field $field$: $target$ stands twice - join the numbers
 Fields/Reserved: Check the definition: $field$ is a field of the core or of a relation - name it otherwise
 Fields/Tag: Check the field $field$: $value$ belongs to the category $tag$ - set the tag
 Fields/Twice: Check the definition: $field$ is defined in $other$ already
@@ -73,6 +74,7 @@ Relations/Leaders: Check the organisation: several lead it ($leaders$) - a counc
 Relations/Missing: Check the field $field$: $target$ does not exist
 Relations/MissingSpot: Check the field $field$: $target$ is no tiddler, only a spot of $place$ - a tiddler named $target$ joins the spot
 Relations/Parent: Check the field $field$: $target$ belongs to $parents$ - name one of them too
+Relations/Cycle: Check the field $field$: $path$ - an entry belongs to itself through the others, take one link out
 Relations/Siblings: Check the family: $other$ is a child of $parent$ too, but no sibling - true siblings, half siblings or on purpose?
 Relations/Symmetric: Check the field $field$: $other$ names this tiddler, here $other$ is missing
 Secrets/Transclusion: Check the text: it transcludes the secret tiddler $target$ - every view that sees this tiddler sees it

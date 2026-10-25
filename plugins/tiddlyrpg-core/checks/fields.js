@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/fields.js
 type: application/javascript
 module-type: trpg-check
 created: 20261022140929737
-modified: 20261025191849828
+modified: 20261025193229287
 
 Checks of the fields of the rules (modules/fields.js; modules/checks.js runs them).
 
@@ -17,9 +17,10 @@ Checks of the fields of the rules (modules/fields.js; modules/checks.js runs the
                   hold (damage on a potion)
   fields/levels   a field of the format titles with "tree" and "sum" (class-levels): error when
                   it names an entry that is none of the tree without parent (a class the
-                  figure does not have) or its numbers add up to more than the field "sum" (the
-                  level by the XP); hint when a class of the tree has no number, or the numbers
-                  add up to less ("level up due"). Nothing when it names what the view does not see
+                  figure does not have), an entry twice, or its numbers add up to more than the
+                  field "sum" (the level by the XP); hint when a class of the tree has no number
+                  (not named, or named without one), or the numbers add up to less ("level up
+                  due"). Nothing when it names what the view does not see
   fields/tag      hint: a main entry of a list names the category tag of the wiki it stands for
                   ("tag" in its domain: a potion is Consumable) and the tiddler lacks it; fix:
                   set the tag
@@ -128,16 +129,21 @@ exports.rules = [
 					return;
 				}
 				var named = (r.items || []).map(function(item) { return item.title; }),
+					numbered = (r.items || []).filter(function(item) { return item.value; }).map(function(item) { return item.title; }),
 					tops = relations.lines(wiki,w.spec.tree,title,null).map(function(line) { return line[0]; }),
 					seen = function(t) { return visibility.visible(wiki,t,view); };
 				if(!named.concat(tops).every(seen)) {
 					return;
 				}
-				named.filter(function(t) { return tops.indexOf(t) === -1; }).forEach(function(t) {
+				named.filter(function(t,i) { return named.indexOf(t) !== i && named.indexOf(t,i + 1) === -1; }).forEach(function(t) {
+					messages.push({level: "error", key: "Check/Fields/LevelsTwice", params: {field: w.label, target: language.title(wiki,t)}});
+				});
+				named.filter(function(t,i) { return tops.indexOf(t) === -1 && named.indexOf(t) === i; }).forEach(function(t) {
 					messages.push({level: "error", key: "Check/Fields/LevelsNotTree", params: {field: w.label, target: language.title(wiki,t),
 						tree: language.t(wiki,"Field/" + w.spec.tree)}});
 				});
-				tops.filter(function(t) { return named.indexOf(t) === -1; }).forEach(function(t) {
+				// Not named, or named without a number
+				tops.filter(function(t) { return numbered.indexOf(t) === -1; }).forEach(function(t) {
 					messages.push({level: "hint", key: "Check/Fields/LevelsMissing", params: {field: w.label, target: language.title(wiki,t)}});
 				});
 				if(w.spec.sum) {

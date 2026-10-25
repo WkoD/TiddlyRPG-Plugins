@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/relations.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194805000
-modified: 20261025121331430
+modified: 20261025193229327
 
 Checks of the relation fields (the types of modules/relations.js; modules/checks.js runs them).
 The field types come from their configs ($:/config/flibbles/graph/edges/fields/*), so a new type
@@ -32,7 +32,9 @@ tw5-graph draws as well: they are no relations.
   relations/parent      error: a holder of a tree (tiddlyrpg-tree: classes, folk) names an entry
                         that belongs to others, but none of them - a subclass without its class,
                         a subfolk without its folk (the parents of an entry of a content package
-                        from the entry); fix: add the parent when there is one
+                        from the entry); fix: add the parent when there is one. Error at an
+                        entry whose parents lead back to itself (a cycle: no entry of it has
+                        a top, modules/relations.js cycle())
   relations/leaders     hint: an organisation led by several living tiddlers - a council is
                         fine (switch it off with trpg-noinfo), else one too many
   relations/deadleader  hint: a dead tiddler (date ends) that leads something (field leader)
@@ -237,7 +239,14 @@ exports.rules = [
 		run: function(wiki,title,view) {
 			var messages = [];
 			$tw.utils.each(fieldTypes(wiki),function(type) {
-				if(!type.tree || !relations.holder(wiki,type.name,title)) {
+				if(!type.tree) {
+					return;
+				}
+				if(!relations.holder(wiki,type.name,title)) {
+					var cycle = relations.cycle(wiki,type.name,title);
+					if(cycle && cycle.every(function(t) { return visibility.visible(wiki,t,view); })) {
+						messages.push({level: "error", key: "Check/Relations/Cycle", params: {field: type.name, path: cycle.join(" → ")}});
+					}
 					return;
 				}
 				var named = list(wiki,title,type.name);

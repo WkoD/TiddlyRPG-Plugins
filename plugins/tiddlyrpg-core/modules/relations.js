@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261025135015562
+modified: 20261025193305325
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -288,7 +288,10 @@ through the same field.
   lines(wiki,name,title,visible)  the entries <title> names in tree order: one line per entry
                              without a parent among them, each [top, ...descendants] depth
                              first in the order of the field; an entry <visible> refuses takes
-                             its branch with it
+                             its branch with it; an entry in a cycle (none of it without a
+                             parent among them) starts a line of its own - none goes silently
+  cycle(wiki,name,title)     the way from <title> through its parents back to itself
+                             ([title, ..., title]), or null - the check relations/parent
 */
 var parents = exports.parents = function(wiki,name,title) {
 	var tiddler = wiki.getTiddler(title);
@@ -310,29 +313,58 @@ exports.lines = function(wiki,name,title,visible) {
 	var named = targets(wiki,name,title),
 		used = Object.create(null),
 		out = [];
+	// The branch below <entry> into <line>; null: a branch the view does not see, only walked
 	var below = function(entry,line) {
 		$tw.utils.each(named,function(other) {
 			if(!used[other] && parents(wiki,name,other).indexOf(entry) !== -1) {
 				used[other] = true;
-				if(!visible || visible(other)) {
+				var shown = !!line && (!visible || visible(other));
+				if(shown) {
 					line.push(other);
-					below(other,line);
 				}
+				below(other,shown ? line : null);
 			}
 		});
+	};
+	var start = function(entry) {
+		used[entry] = true;
+		var line = !visible || visible(entry) ? [entry] : null;
+		below(entry,line);
+		if(line) {
+			out.push(line);
+		}
 	};
 	$tw.utils.each(named,function(entry) {
 		var top = !parents(wiki,name,entry).some(function(p) { return named.indexOf(p) !== -1 && p !== entry; });
 		if(top && !used[entry]) {
-			used[entry] = true;
-			if(!visible || visible(entry)) {
-				var line = [entry];
-				below(entry,line);
-				out.push(line);
-			}
+			start(entry);
+		}
+	});
+	// What is left belongs to a cycle
+	$tw.utils.each(named,function(entry) {
+		if(!used[entry]) {
+			start(entry);
 		}
 	});
 	return out;
+};
+
+exports.cycle = function(wiki,name,title) {
+	var seen = Object.create(null);
+	var walk = function(entry,path) {
+		var found = null;
+		parents(wiki,name,entry).some(function(parent) {
+			if(parent === title) {
+				found = path.concat([parent]);
+			} else if(!seen[parent]) {
+				seen[parent] = true;
+				found = walk(parent,path.concat([parent]));
+			}
+			return !!found;
+		});
+		return found;
+	};
+	return walk(title,[title]);
 };
 
 /*

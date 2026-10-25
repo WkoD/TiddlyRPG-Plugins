@@ -1027,7 +1027,7 @@ out every message of its level. An id that is no rule is a hint.
 | `fields/value` | error, hint | a value of a field of the rules its format does not read (error); a property that fits two main entries (hint) |
 | `fields/when` | hint | a value of a field that counts only with another value, by itself or by its group (damage on a potion) |
 | `fields/tag` | hint | a value names the category of the wiki it belongs to (a potion: Consumable) and the tiddler lacks the tag; fix: set the tag |
-| `fields/levels` | error, hint | the levels of the classes (`class-levels`): error when they name a class the figure does not have or add up to more than the level by the XP; hint when a class has no number or they add up to less (level up due) |
+| `fields/levels` | error, hint | the levels of the classes (`class-levels`): error when they name a class the figure does not have or one twice, or add up to more than the level by the XP; hint when a class has no number (not named, or named without one) or they add up to less (level up due) |
 | `images/files` | error | a file in `image`, `map`, a spot or `<<image>>` that is not in `images/` (only `check-wiki.js`) |
 | `images/folder` | error | `<<image "...">>` in a tiddler without type and without `folder:` |
 | `images/unused` | hint | a file in the image folder of a type or in `images/map/` that no tiddler names (only `check-wiki.js`, the path of the file as title) |
@@ -1051,7 +1051,7 @@ out every message of its level. An id that is no rule is a hint.
 | `relations/siblings` | hint | two children of a parent without `sibling` between them |
 | `relations/family` | hint | `family` next to another family relation of the same two |
 | `relations/ancestor` | hint | an `ancestor` the line of parents already reaches |
-| `relations/parent` | error | a person, player character or creature names an entry of a tree (`classes`, `folk`) without any of its parents - a subclass without its class; fix for one parent: add it |
+| `relations/parent` | error | a person, player character or creature names an entry of a tree (`classes`, `folk`) without any of its parents - a subclass without its class; fix for one parent: add it. At an entry of a tree whose parents lead back to itself (a cycle) |
 | `relations/leaders` | hint | an organisation led by several living tiddlers |
 | `relations/deadleader` | hint | a dead tiddler leads something a living one leads as well: there is a successor, the dead one is a member now (of a location: no entry). A dead leader without successor stays leader - death ends no membership |
 | `secrets/view` | error | a tiddler asks the view itself (`$:/state/tiddlyrpg/view`, `trpgview`) instead of locking; a list filtered with `trpg.visible` is fine |
