@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261025121331430
+modified: 20261025121932754
 title: $:/tiddlyrpg/language/en-GB/Edge/
 
 alliance: Alliance
@@ -7,6 +7,9 @@ ancestor: descendant of
 base: based on
 bond: Bond
 classes: belongs to
+classes/Artifact: attunement by
+classes/Item: attunement by
+classes/Spell: spell of
 component: contains
 creator: made by
 creature: is a

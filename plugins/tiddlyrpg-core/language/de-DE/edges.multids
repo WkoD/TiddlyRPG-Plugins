@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261025121331430
+modified: 20261025121932754
 title: $:/tiddlyrpg/language/de-DE/Edge/
 
 alliance: Allianz
@@ -7,6 +7,9 @@ ancestor: Nachfahre von
 base: basiert auf
 bond: Bund
 classes: gehört zu
+classes/Artifact: Einstimmung durch
+classes/Item: Einstimmung durch
+classes/Spell: Zauber von
 component: enthält
 creator: erschaffen von
 creature: ist ein(e)

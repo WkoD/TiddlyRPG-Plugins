@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261025121331430
+modified: 20261025121932754
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -43,7 +43,8 @@ its types in order. The axis gives the colour of its edges and the order of the 
 
 Every type draws its own edge; several types between the same two tiddlers stay several edges.
 
-Texts: Edge/<type> (edge label, read from the dependent: "member of"), Field/<type> (group of
+Texts: Edge/<type> (edge label, read from the dependent: "member of"; Edge/<type>/<hub> for a
+dependent of that hub), Field/<type> (group of
 the relation list, forward), FieldInverse/<type> (the way back: "Members").
 
 \*/
@@ -259,9 +260,17 @@ exports.fieldLabel = function(wiki,name,title) {
 	return found || language.t(wiki,"Field/" + name);
 };
 
-// The edge label of a type (Edge/<type>), or "" if the language has none
-exports.label = function(wiki,name) {
-	return language.lookup(wiki,"Edge/" + name) || "";
+// The edge label of a type (Edge/<type>), or "" if the language has none; with <from> the
+// label for the type of the tiddler the edge starts at, if the language has one
+// (Edge/classes/Item: "attunement by")
+exports.label = function(wiki,name,from) {
+	var found = null;
+	if(from) {
+		$tw.utils.each(require("$:/plugins/tiddlyrpg-core/modules/types.js").of(wiki,from),function(type) {
+			found = found || language.lookup(wiki,"Edge/" + name + "/" + type);
+		});
+	}
+	return found || language.lookup(wiki,"Edge/" + name) || "";
 };
 
 /*

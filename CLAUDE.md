@@ -578,7 +578,8 @@ the tiddler title:
 - **Language packs** (`language/<code>/*.multids`): `titles` (`Title/<hub>`), `plurals`
   (`Plural/<hub>`), `fields` (`Field/<type>`, a relation in the relation list, forward;
   `Field/<type>/<hub>` its label on a tiddler of that hub, `relations.fieldLabel()`),
-  `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label),
+  `fieldinverse` (`FieldInverse/<type>`, the way back), `edges` (`Edge/<type>`, edge label;
+  `Edge/<type>/<hub>` for an edge from a tiddler of that hub),
   `texts` (template texts).
 - **Editor** (`editor/*`): the toolbar buttons `editor/toolbar/<name>` with their dropdowns
   `editor/toolbar/<name>-dropdown`, the icon `editor/icons/spot`, the text operations

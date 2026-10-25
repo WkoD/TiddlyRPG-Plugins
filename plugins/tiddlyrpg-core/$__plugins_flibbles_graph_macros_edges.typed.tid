@@ -1,5 +1,5 @@
 created: 20261001104500000
-modified: 20261008072856000
+modified: 20261025121932754
 tags: $:/tags/Global
 code-body: yes
 title: $:/plugins/flibbles/graph/macros/edges.typed
@@ -54,10 +54,10 @@ $(fieldName)$-$(index)$`>
 
 <$vars id={{{ [<trpgBoth>!is[blank]then<trpgPairId>] ~[<trpgOwnId>] }}}>
 
-<!-- tiddlyrpg-core: the label from the language key Edge/<type>; nested inside the config so
-     that it wins -->
+<!-- tiddlyrpg-core: the label from the language key Edge/<type> (Edge/<type>/<hub> for an edge
+     from a tiddler of that hub); nested inside the config so that it wins -->
 <$properties $for=edges
-	label={{{ [<fieldName>relationlabel[]] }}}
+	label={{{ [<fieldName>relationlabel<$tiddler>] }}}
 	arrows={{{ [<trpgBoth>!is[blank]then[to from]] }}} >
 
 <$slot $name=ts-raw>

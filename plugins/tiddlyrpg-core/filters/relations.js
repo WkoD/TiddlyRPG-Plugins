@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/relations.js
 type: application/javascript
 module-type: filteroperator
 created: 20261008062202000
-modified: 20261025121331430
+modified: 20261025121932754
 
 Filters over the relation rules (modules/relations.js). <selected> is a title list of the
 relation types in play (a graph view may draw only some); empty or missing: all.
@@ -13,6 +13,8 @@ relation types in play (a graph view may draw only some); empty or missing: all.
                                                 includes left out
 [<to>relationsources<type>,<selected>]          who has <to> as a shown target of <type>
 [<type>relationlabel[]]                         edge label of <type> (Edge/<type>), if any
+[<type>relationlabel<from>]                     the same for an edge from <from>
+                                                (Edge/<type>/<its type>, else Edge/<type>)
 [<type>relationaxis[]]                          config title of the axis of <type>
 [<type>relationsymmetric[]]                     <type> if it is symmetric
 [<type>relationtree[]]                          <type> if it is a tree (tiddlyrpg-tree)
@@ -76,7 +78,7 @@ exports.relationsources = function(source,operator,options) {
 exports.relationlabel = function(source,operator,options) {
 	var results = [];
 	source(function(tiddler,title) {
-		var label = relations.label(options.wiki,title);
+		var label = relations.label(options.wiki,title,operator.operand);
 		if(label) {
 			results.push(label);
 		}

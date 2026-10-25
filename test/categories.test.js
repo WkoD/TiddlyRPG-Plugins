@@ -401,10 +401,18 @@ test.describe("trees: classes and folk", function() {
 		assert.equal(pub.indexOf("Pfadwahl"), -1, "a locked entry takes its branch along");
 	});
 
-	test("the ego graph: the colour of Class", function() {
-		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Funke"});
-		assert.equal(graph.nodes.Sorcerer.color, wiki.getTiddler("Class").fields.color);
-		assert.ok(graph.edges.some(function(edge) { return edge.from === "Funke" && edge.to === "Sorcerer" && edge.props.label === "gehört zu"; }));
+	test("the ego graph: the colour of Class; the edge labelled for the type it starts at", function() {
+		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Sorcerer"});
+		var label = function(from) {
+			return graph.edges.filter(function(edge) { return edge.from === from && edge.to === "Sorcerer"; }).map(function(edge) { return edge.props.label; })[0];
+		};
+		assert.equal(graph.nodes.Funke.color, wiki.getTiddler("Player").fields.color);
+		assert.equal(graph.nodes["Draconic Bloodline"].color, wiki.getTiddler("Class").fields.color);
+		assert.equal(label("Funke"), "gehört zu");
+		assert.equal(label("Draconic Bloodline"), "gehört zu");
+		assert.equal(label("Drachenring"), "Einstimmung durch");
+		assert.equal(label("Feuerball"), "Zauber von");
+		assert.deepEqual(f("[[classes]relationlabel[Drachenring]] [[classes]relationlabel[]]"), ["Einstimmung durch", "gehört zu"]);
 	});
 
 	test("an entry of a content package: its parents for the check, offered along when taken", function() {

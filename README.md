@@ -539,7 +539,7 @@ relation list show the way back by themselves.
 | | `family` | any other kin, or where the text does not say (both ends) | Family | Family |
 | | `creature` | `creature: Fukuro` (a person, player character or form of a creature: its kind) | is a | Creature / Individuals |
 | | `folk` | `folk: Nichny` (a person, player character or creature; a half-elf names two; a subfolk its folk) | belongs to | Folk / by kind (Persons, Folks, ...) |
-| | `classes` | `classes: Sorcerer [[Draconic Bloodline]]` (a person, player character or creature: its classes and what belongs to them; a spell: the classes that cast it; an item: attunement by; a class entry: what it belongs to) | belongs to | Classes (an item: Attunement by; a class: Belongs to) / by kind (Player characters, Classes, Spells, ...) |
+| | `classes` | `classes: Sorcerer [[Draconic Bloodline]]` (a person, player character or creature: its classes and what belongs to them; a spell: the classes that cast it; an item: attunement by; a class entry: what it belongs to) | belongs to (an item: attunement by; a spell: spell of) | Classes (an item: Attunement by; a class: Belongs to) / by kind (Player characters, Classes, Spells, ...) |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
 | | `patron` | `patron: Sola` | worships | Patron / Followers |
