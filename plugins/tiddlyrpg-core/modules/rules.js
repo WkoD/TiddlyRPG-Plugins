@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261025075210577
+modified: 20261025124110539
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -153,8 +153,8 @@ function byType(wiki,type) {
 	});
 }
 
-function result(text,problem,values) {
-	return {text: text, problem: problem || null, values: values || {}};
+function result(text,problem,values,extra) {
+	return $tw.utils.extend({text: text, problem: problem || null, values: values || {}},extra || {});
 }
 
 /* Numbers */
@@ -795,6 +795,11 @@ The value of a field by its definition (spec, modules/fields.js): spec.format is
            spec.values
   number   spec.min, spec.max
   boolean  yes or no
+  titles   titles of tiddlers, each with a value after it ("Fighter 5, Rogue 8"): spec.titles a
+           filter of the candidates (an entry of a content package counts when its type is a tag
+           the filter names), spec.value the format of the value; items [{title, value,
+           valueText, number}]; spec.tree a relation whose entries without parent the titles are
+           (checks/fields.js fields/levels), spec.sum a field their numbers add up to
   text     shown as written, never checked
 Returns {text, problem, values} like the macros.
 */
@@ -826,10 +831,70 @@ exports.value = function(wiki,spec,text) {
 			return number(wiki,spec,text);
 		case "boolean":
 			return boolean(wiki,spec,text);
+		case "titles":
+			return titles(wiki,spec,text);
 		default:
 			return result(text);
 	}
 };
+
+// The candidates of a field of the format titles: its filter, and the offers of the packages of a
+// type the filter names as a tag
+var candidates = exports.candidates = function(wiki,spec) {
+	var filter = spec.titles || "",
+		out = filter ? wiki.filterTiddlers(filter) : [],
+		tags = require("$:/plugins/tiddlyrpg-core/modules/relations.js").tagsOf(filter);
+	$tw.utils.each(require("$:/plugins/tiddlyrpg-core/modules/content.js").offers(wiki),function(o) {
+		if(tags.indexOf(o.type) !== -1 && out.indexOf(o.title) === -1) {
+			out.push(o.title);
+		}
+	});
+	return out;
+};
+
+// "Fighter 5, Rogue 8": each part the longest candidate it starts with, the rest its value
+function titles(wiki,spec,text) {
+	if(!text) {
+		return result("",null,{},{items: []});
+	}
+	var all = candidates(wiki,spec),
+		lower = all.map(function(t) { return t.toLowerCase(); }),
+		items = text.split(",").map(function(part) { return part.trim(); }).filter(Boolean).map(function(part) {
+			var low = part.toLowerCase(),
+				best = -1;
+			lower.forEach(function(t,i) {
+				if(low.indexOf(t) === 0 && (low.length === t.length || /\s/.test(low.charAt(t.length))) && (best === -1 || t.length > lower[best].length)) {
+					best = i;
+				}
+			});
+			if(best === -1) {
+				return {text: part, problem: {key: "Rules/Check/Title", values: {text: part}}};
+			}
+			var item = {text: part, title: all[best]},
+				rest = part.substr(all[best].length).trim();
+			if(rest) {
+				if(!spec.value) {
+					item.problem = {key: "Rules/Check/Title", values: {text: part}};
+				} else {
+					var v = exports.value(wiki,spec.value,rest);
+					item.value = rest;
+					item.valueText = v.text;
+					item.number = v.value;
+					if(v.problem) {
+						item.problem = {key: v.problem, values: v.values};
+					}
+				}
+			}
+			return item;
+		});
+	var bad = items.filter(function(item) { return item.problem; })[0];
+	if(bad) {
+		return result(text,bad.problem.key,bad.problem.values,{items: items});
+	}
+	return result(items.map(function(item) {
+		return language.title(wiki,item.title) + (item.valueText ? " " + item.valueText : "");
+	}).join(", "),null,{},{items: items});
+}
 
 /* The hub "Ruleset" */
 

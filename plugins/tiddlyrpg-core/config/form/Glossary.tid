@@ -1,0 +1,7 @@
+created: 20261025124110539
+list: term
+modified: 20261025124110539
+title: $:/config/tiddlyrpg/form/Glossary
+type: text/vnd.tiddlywiki
+
+The form in the editor for a tiddler tagged Glossary (modules/form.js): list - the term of the ruleset it explains (the id, as <<term>> writes it), shown also while empty.

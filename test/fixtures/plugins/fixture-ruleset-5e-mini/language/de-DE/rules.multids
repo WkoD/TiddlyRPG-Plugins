@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -128,6 +128,7 @@ Rules/Field/cr: Herausforderungsgrad
 Rules/Field/proficiency: Übungsbonus
 Rules/Field/xp: EP
 Rules/Field/character-level: Stufe
+Rules/Field/class-levels: Klassenstufen
 Rules/Field/xp-next: Nächste Stufe
 Rules/Field/saves: Rettungswürfe
 Rules/Field/skills: Fertigkeiten

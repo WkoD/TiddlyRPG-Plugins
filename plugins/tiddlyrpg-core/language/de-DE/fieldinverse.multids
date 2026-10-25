@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/de-DE/FieldInverse/
 
 ancestor: Nachfahren
@@ -8,8 +8,10 @@ classes: Zugehörige
 component: Bestandteil von
 creator: Erschaffen
 creature: Vertreter
+feats: Gewählt von
 folk: Angehörige
 former: Ehemalige
+languages: Sprecher
 leader: Anführer
 location: Anwesend
 member: Mitglieder

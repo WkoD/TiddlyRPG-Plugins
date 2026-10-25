@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261024170203713
+modified: 20261025124110539
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -19,11 +19,25 @@ header line does not name it already.
                                        is the price
 [<title>trpgfieldsection:layout[<id>]] list, row or inline; :relations the relations it shows
 [<title>trpgfieldshow[<field>]]        the text of a line: a combine filled, the price formatted
+[<title>trpgfieldparts[<field>]]       the same text in parts, each {"text"} or {"text", "to"}: the
+                                       label of an entry of a label or labels field that the
+                                       glossary explains links to it (modules/glossary.js)
 [<title>trpgfieldlabel[<field>]]       the label of a field, by the schema of the tiddler
 [<title>trpgfieldcard[]]               the lines of the card of a player character in the hub Player:
                                        "<label> <value>" of each field in "card" of the schema of
                                        Player that has a text - written or derived, read as the block
                                        reads (without what the view may not see); for a former one too
+[<title>trpgcardtrees[]]               the lines of the trees (tiddlyrpg-tree: folk, classes) on
+                                       the card of a player character: per entry without parent
+                                       "<entry> <level> · <what belongs to it>" - the level from a
+                                       field of the format titles with that "tree" (class-levels),
+                                       for one entry alone from its field "sum" (the level by the
+                                       XP); no levels when an entry is locked from the view
+[<draft>trpglevelentries[<field>]]     the entries without parent of the tree of a field of the
+                                       format titles (the classes a figure has)
+[<draft>trpglevel[<field>],[<entry>]]  the number of an entry in that field
+[<draft>trpglevelset[<field>],[<entry>],[<n>]]  the text of the field with that number (none
+                                       takes the entry out), the entries in the order of the tree
 [<title>trpgfieldcolor[]]              the colour of its first type that has one
 [<title>trpgfieldlocked[<field>]]      "yes" if secret-fields locks the field, or the line would show
                                        otherwise without the values it locks (derived from them);
@@ -76,8 +90,9 @@ function lockable(wiki,title,values) {
 }
 
 // The fields of a tiddler as the block reads them: without the values secret-fields locks from the
-// active view (modules/visibility.js) - what derives from them has nothing to read then. The
-// editor reads them all (draft: true).
+// active view (modules/visibility.js) - what derives from them has nothing to read then -, and
+// without a field of the format titles that names a tiddler the view does not see (the levels of
+// a locked class: the rest would tell it). The editor reads them all (draft: true).
 function valuesOf(wiki,title,draft) {
 	var tiddler = wiki.getTiddler(title);
 	if(!tiddler) {
@@ -89,6 +104,16 @@ function valuesOf(wiki,title,draft) {
 			list = lockable(wiki,title,values);
 		list.concat(["price"]).forEach(function(field) {
 			if(!visibility.fieldVisible(wiki,title,field,view,list)) {
+				delete values[field];
+			}
+		});
+	}
+	if(!draft) {
+		var seen = visibility.current(wiki);
+		$tw.utils.each(values,function(value,field) {
+			var s = fields.spec(wiki,field),
+				r = s && s.format === "titles" && value ? rules.value(wiki,s,String(value)) : null;
+			if(r && (r.items || []).some(function(item) { return item.title && !visibility.visible(wiki,item.title,seen); })) {
 				delete values[field];
 			}
 		});
@@ -227,6 +252,50 @@ exports.trpgfieldshow = function(source,operator,options) {
 	});
 };
 
+exports.trpgfieldparts = function(source,operator,options) {
+	var wiki = options.wiki,
+		field = operator.operand,
+		glossary = require("$:/plugins/tiddlyrpg-core/modules/glossary.js"),
+		labels = require("$:/plugins/tiddlyrpg-core/modules/labels.js"),
+		view = visibility.current(wiki);
+	return each(source,function(title) {
+		var values = valuesOf(wiki,title),
+			text = lineText(wiki,title,field,values);
+		if(!text) {
+			return [];
+		}
+		var spec = field !== PRICE && fields.spec(wiki,field),
+			read = spec && (spec.format === "labels" || spec.format === "label") ? fields.read(wiki,values,field) : null,
+			found = [];
+		if(read) {
+			var items = read.items || (read.id ? [{id: read.id, domain: require("$:/plugins/tiddlyrpg-core/modules/language.js").domains(wiki)[read.domain]}] : []);
+			items.forEach(function(item) {
+				var to = item.domain && glossary.term(wiki,item.id,view);
+				if(to) {
+					found.push({label: labels.labelOf(wiki,item.domain,item.id), to: to});
+				}
+			});
+		}
+		var parts = [],
+			pos = 0;
+		found.forEach(function(f) {
+			var at = text.indexOf(f.label,pos);
+			if(at === -1) {
+				return;
+			}
+			if(at > pos) {
+				parts.push({text: text.slice(pos,at)});
+			}
+			parts.push({text: f.label, to: f.to});
+			pos = at + f.label.length;
+		});
+		if(pos < text.length) {
+			parts.push({text: text.slice(pos)});
+		}
+		return parts.map(function(p) { return JSON.stringify(p); });
+	});
+};
+
 exports.trpgfieldlabel = function(source,operator,options) {
 	return each(source,function(title) {
 		if(operator.operand === PRICE) {
@@ -311,6 +380,9 @@ var inputOf = function(wiki,field) {
 	}
 	if(spec.format === "labels" && !spec.value && !spec.values && domainsOf(wiki,spec).length) {
 		return "pills";
+	}
+	if(spec.format === "titles" && spec.tree) {
+		return "levels";
 	}
 	return "text";
 };
@@ -451,5 +523,97 @@ exports.trpglocktoggle = function(source,operator,options) {
 			list.splice(list.indexOf(id),1);
 		}
 		return [$tw.utils.stringifyList(list)];
+	});
+};
+
+// The field of the format titles whose tree is <name> (the levels of the classes), or null
+function levelsField(wiki,name) {
+	var found = null;
+	$tw.utils.each(fields.all(wiki),function(field) {
+		var s = fields.spec(wiki,field);
+		if(!found && s && s.format === "titles" && s.tree === name) {
+			found = field;
+		}
+	});
+	return found;
+}
+
+// The items of a field of the format titles: {title: number text}
+function levelsOf(wiki,values,field) {
+	var s = fields.spec(wiki,field),
+		r = s && values[field] ? rules.value(wiki,s,String(values[field])) : null,
+		out = {};
+	(r && !r.problem ? r.items || [] : []).forEach(function(item) {
+		out[item.title] = item.value || "";
+	});
+	return out;
+}
+
+exports.trpgcardtrees = function(source,operator,options) {
+	var wiki = options.wiki,
+		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+		all = relations.types(wiki),
+		view = visibility.current(wiki);
+	return each(source,function(title) {
+		var values = valuesOf(wiki,title),
+			out = [];
+		relations.ordered(wiki).filter(function(name) { return all[name].tree; }).forEach(function(name) {
+			var lines = relations.lines(wiki,name,title,function(t) { return visibility.visible(wiki,t,view); }),
+				hidden = relations.lines(wiki,name,title,null).length !== lines.length,
+				field = levelsField(wiki,name),
+				levels = field && !hidden ? levelsOf(wiki,values,field) : {},
+				sum = field && fields.spec(wiki,field).sum;
+			lines.forEach(function(line) {
+				var level = levels[line[0]];
+				if(!level && !hidden && sum && lines.length === 1 && !Object.keys(levels).length) {
+					level = fields.read(wiki,values,sum).text;
+				}
+				out.push(line.map(function(t,i) {
+					return language.title(wiki,t) + (i === 0 && level ? " " + level : "");
+				}).join(" · "));
+			});
+		});
+		return out;
+	});
+};
+
+exports.trpglevelentries = function(source,operator,options) {
+	var wiki = options.wiki,
+		s = fields.spec(wiki,operator.operand),
+		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js");
+	return each(source,function(title) {
+		return s && s.tree ? relations.lines(wiki,s.tree,title,null).map(function(line) { return line[0]; }) : [];
+	});
+};
+
+exports.trpglevel = function(source,operator,options) {
+	var wiki = options.wiki,
+		field = (operator.operands || [])[0],
+		entry = (operator.operands || [])[1];
+	return each(source,function(title) {
+		var tiddler = wiki.getTiddler(title),
+			n = tiddler ? levelsOf(wiki,tiddler.fields,field)[entry] : "";
+		return n ? [n] : [];
+	});
+};
+
+exports.trpglevelset = function(source,operator,options) {
+	var wiki = options.wiki,
+		field = (operator.operands || [])[0],
+		entry = (operator.operands || [])[1],
+		n = ((operator.operands || [])[2] || "").trim(),
+		s = fields.spec(wiki,field),
+		relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js");
+	return each(source,function(title) {
+		var tiddler = wiki.getTiddler(title),
+			levels = tiddler ? levelsOf(wiki,tiddler.fields,field) : {},
+			order = s && s.tree ? relations.lines(wiki,s.tree,title,null).map(function(line) { return line[0]; }) : [];
+		levels[entry] = n;
+		Object.keys(levels).forEach(function(t) {
+			if(order.indexOf(t) === -1) {
+				order.push(t);
+			}
+		});
+		return [order.filter(function(t) { return levels[t]; }).map(function(t) { return t + " " + levels[t]; }).join(", ")];
 	});
 };

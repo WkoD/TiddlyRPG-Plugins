@@ -1,12 +1,12 @@
 created: 20261024170203713
-modified: 20261025121331430
+modified: 20261025124110539
 tags: $:/tags/tiddlyrpg/RulesFields
 title: $:/tiddlyrpg/rules/fields/characters
 type: application/json
 
 {
     "types": ["Player", "Person"],
-    "fields": ["character-level", "xp", "xp-next"],
+    "fields": ["character-level", "xp", "xp-next", "class-levels"],
     "groups": [
         {"id": "advancement", "layout": "inline", "fields": ["character-level", "xp", "xp-next"]}
     ],

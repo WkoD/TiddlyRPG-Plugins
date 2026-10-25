@@ -1,5 +1,5 @@
 created: 20261022160104767
-modified: 20261023181956562
+modified: 20261025124110539
 title: $:/plugins/tiddlyrpg-core/editor/fields/rules
 type: text/vnd.tiddlywiki
 
@@ -9,6 +9,11 @@ type: text/vnd.tiddlywiki
      pills     a list of entries without values: a pill per entry that stands alone and per property
                of an entry chosen ("weapon" brings "martial", "melee" ...), the value holds the
                ids parted by commas; what cannot be read stays in the value
+     levels    a field of the format titles with a tree (class-levels): a number per entry of the
+               tree without parent (the classes of the figure, trpglevelentries), each written
+               into the field as it is typed (trpglevelset); the numbers wait in the temp
+               tiddler $:/temp/tiddlyrpg-core/levels/<draft> (an index per entry); nothing
+               without an entry
      text      the input
    Below it the reading: the value as the wiki shows it (not for a checkbox or a select, they
    show it already), the derived value of an empty field, or the problem (the same as the rule
@@ -53,6 +58,17 @@ type: text/vnd.tiddlywiki
 </$let>
 </$list>
 </span>
+<%elseif [<trpg-input>match[levels]] %>
+<$let trpg-state={{{ [<currentTiddler>addprefix[$:/temp/tiddlyrpg-core/levels/]] }}}>
+<span class="trpg-levels">
+<$list filter="[<currentTiddler>trpglevelentries<currentField>]" variable="trpg-entry" emptyMessage="""<$text text={{{ [<currentTiddler>trpgformlabel<currentField>] }}}/>""">
+<label class="trpg-level"><$text text={{{ [<trpg-entry>trpgtitle[]] }}}/>
+<$edit-text tiddler=<<trpg-state>> index=<<trpg-entry>> tag="input" type="number" class="trpg-level-input"
+	default={{{ [<currentTiddler>trpglevel<currentField>,<trpg-entry>] }}}
+	inputActions="""<$action-setfield $tiddler=<<currentTiddler>> $field=<<currentField>> $value={{{ [<currentTiddler>trpglevelset<currentField>,<trpg-entry>,{{{ [<trpg-state>getindex<trpg-entry>] }}}] }}}/>"""/></label>
+</$list>
+</span>
+</$let>
 <%else%>
 <$edit-text tiddler=<<currentTiddler>> field=<<currentField>> tag="input" class="tc-edit-texteditor tc-edit-fieldeditor trpg-field-input"/>
 <%endif%>

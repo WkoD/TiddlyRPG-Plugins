@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025121331430
+modified: 20261025124110539
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -130,7 +130,7 @@ type: text/vnd.tiddlywiki
 </$let>
 \end
 
-\function trpg.kindhubs() [enlist[Player Person Organisation Location Item Creature Folk Class Spell Quest]]
+\function trpg.kindhubs() [enlist[Player Person Organisation Location Item Creature Folk Class Trait Feat Language Spell Quest]]
 
 \procedure trpg.kindswitches(kinds,state,mode,hubs)
 \whitespace trim
@@ -171,7 +171,8 @@ type: text/vnd.tiddlywiki
      <<term wis variant:"save">>, <<term frightened value:2>>. Filtered attributes, so that they recompute when
      the rules language changes. What is not understood shows unchanged; the hint stands below
      the title (checks/macros.js). Each in a span trpg-rule: the highlight of the setting
-     ($:/config/tiddlyrpg/rules/highlight, config/class-rules-highlight, styles/rules). -->
+     ($:/config/tiddlyrpg/rules/highlight, config/class-rules-highlight, styles/rules). A term the
+     glossary explains links to its entry (trpgglossary, modules/glossary.js). -->
 \procedure unit(value,kind)
 <span class="trpg-rule"><$text text={{{ [<value>trpgunit<kind>] }}}/></span>
 \end
@@ -185,7 +186,14 @@ type: text/vnd.tiddlywiki
 \end
 
 \procedure term(id,variant,value)
+\whitespace trim
+<$let trpg-to={{{ [<id>trpgglossary[]] }}}>
+<%if [<trpg-to>!is[blank]] %>
+<$link to=<<trpg-to>>><span class="trpg-rule"><$text text={{{ [<id>trpgterm<variant>,<value>] }}}/></span></$link>
+<%else%>
 <span class="trpg-rule"><$text text={{{ [<id>trpgterm<variant>,<value>] }}}/></span>
+<%endif%>
+</$let>
 \end
 
 <!-- Locations linked in a section of the body of the current tiddler (0 = before the first
@@ -288,12 +296,13 @@ type: text/vnd.tiddlywiki
 <!-- The name of a section of a kind of the ruleset (modules/sections.js rulesKinds, the
      procedures of startup/sections.js): <<effect "Säureexplosion">> at the start of a paragraph,
      <$effect name="...">...</$effect>. In bold italics before its text, as in a rulebook, with a
-     full stop unless it ends in a mark of its own; wikitext, so links stay links. Nothing without
+     full stop unless it ends in a mark of its own; wikitext, so links stay links; a name that
+     titles a trait, class, feat or entry of the glossary links to it (trpgnamed). Nothing without
      a name: the intro of a kind (modules/sections.js). What it holds and its frame come from the
      parse tree (trpg-section, the block). -->
 \procedure trpg.sectionname(name)
 \whitespace trim
-<%if [<name>!is[blank]] %><span class="trpg-section-name"><$transclude $variable="name" $mode="inline"/><$list filter="[<name>trim[]split[]last[]] -[enlist[. ! ? :]]" variable="ignore">.</$list></span><%endif%>
+<%if [<name>!is[blank]] %><span class="trpg-section-name"><$let trpg-to={{{ [<name>trpgnamed[]] }}}><%if [<trpg-to>!is[blank]] %><$link to=<<trpg-to>>><$transclude $variable="name" $mode="inline"/></$link><%else%><$transclude $variable="name" $mode="inline"/><%endif%></$let><$list filter="[<name>trim[]split[]last[]] -[enlist[. ! ? :]]" variable="ignore">.</$list></span><%endif%>
 \end
 
 <!-- A lock: <<secret "Theren" "Actia">> locks the section it stands at (modules/sections.js),

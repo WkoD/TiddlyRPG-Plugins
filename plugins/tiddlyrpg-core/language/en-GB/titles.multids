@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/en-GB/Title/
 
 Artifact: Artifact
@@ -15,10 +15,13 @@ Currency: Currency
 Deity: Deity
 Equipment: Equipment
 Event: Event
+Feat: Feat
 Folk: Folk
+Glossary: Glossary
 Index: Index
 Information: Information
 Item: Item
+Language: Language
 Location: Location
 Material: Material
 Organisation: Organisation
@@ -28,3 +31,4 @@ Quest: Quest
 Ruleset: Ruleset
 Secret: Secret
 Spell: Spell
+Trait: Trait

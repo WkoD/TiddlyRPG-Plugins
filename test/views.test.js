@@ -324,8 +324,20 @@ test.describe("sweep", function() {
 			{title: "Sweep Wahl", tags: "Information Class", classes: "[[Qx7 Pfad]]", text: "A choice."},
 			{title: "Sweep Kämpe", tags: "Player", player: "Erik", classes: "[[Sweep Klasse]] [[Qx7 Pfad]] [[Sweep Wahl]]", text: "A fighter."},
 			{title: "Sweep Lehrling", tags: "Person", classes: "[[Sweep Wahl]]", text: "An apprentice."},
+			// The levels of the classes with a locked class (the block, the card, the check)
+			{title: "Qx7 Kunst", tags: "Information Class Secret", text: "Qx7 art."},
+			{title: "Sweep Doppelt", tags: "Player", player: "Fenna", classes: "[[Sweep Klasse]] [[Qx7 Kunst]]",
+				"class-levels": "Sweep Klasse 3, Qx7 Kunst 2", text: "Two classes."},
 			{title: "Qx7 Sippe", tags: "Information Folk Secret", folk: "[[Sweep Volk]]", text: "Qx7 kin."},
 			{title: "Sweep Sohn", tags: "Person", folk: "[[Sweep Volk]] [[Qx7 Sippe]]", text: "A son."},
+			// A locked trait of an open folk, a locked feat and language of an open person, a locked
+			// entry of the glossary that explains a term an open text uses (its link leaves it out)
+			{title: "Qx7 Gabe", tags: "Information Trait Secret", folk: "[[Sweep Volk]]", text: "Qx7 gift."},
+			{title: "Qx7 Talent", tags: "Information Feat Secret", text: "Qx7 feat."},
+			{title: "Qx7 Zunge", tags: "Information Language Secret", text: "Qx7 tongue."},
+			{title: "Sweep Sprecher", tags: "Person", feats: "[[Qx7 Talent]]", languages: "[[Qx7 Zunge]]", text: "Speaks."},
+			{title: "Qx7 Regel", tags: "Information Glossary Secret", term: "prone", text: "Qx7 rule."},
+			{title: "Sweep Sturz", tags: "Location", text: "Falling <<term prone>> here."},
 			// Locked values of a tiddler everyone sees (secret-fields): one field, and all with the price
 			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
 			// A section of the ruleset locked by a field (a curse with cursed, modules/sections.js)
@@ -459,7 +471,7 @@ test.describe("sweep", function() {
 		var all = sweep("dm").map(function(item) { return item.text; }).join("\n");
 		["Qx7 Akte", "Qx7 Ort", "Qx7 Fest", "Qx7 Kammer", "Qx7 Nacht", "Qx7 inline", "Qx7 room", "Qx7rule", "Qx7dmg", "Qx7cap", "1399 Qx7", "Qx7src",
 			"Qx7zwei", "Qx7plan", "Qx7b", "Qx7m2", "Qx7pic2", "Qx7 Plan", "Qx7 planning", "Qx7 marker text", "Qx7 Faden", "Qx7 hidden thread",
-			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", "Qx7 Pfad", "Qx7 Sippe", YEAR].forEach(function(word) {
+			"Qx7 Vogt", "Qx7 Bande", "Qx7 Keller", "Qx7 Pferd", "Qx7rar", "Qx7ac", "Qx7selten", "Qx7schwer", "Qx7 Art", "Qx7 Hammer", "Qx7 Bann", "Qx7 Wolf", "Qx7 Volk", "Qx7 Kater", "Qx7 Pfad", "Qx7 Sippe", "Qx7 Gabe", "Qx7 Talent", "Qx7 Zunge", "Qx7 Regel", "Qx7 Kunst", YEAR].forEach(function(word) {
 			assert.ok(all.indexOf(word) !== -1, word);
 		});
 	});

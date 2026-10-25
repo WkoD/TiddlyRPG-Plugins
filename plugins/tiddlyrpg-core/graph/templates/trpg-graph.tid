@@ -1,6 +1,6 @@
 caption: TiddlyRPG graph (type colours, no saved positions)
 created: 20260708125907000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 
 \whitespace trim
@@ -37,6 +37,10 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 <$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
 <$properties $filter="[tag[Folk]]"   color={{Folk!!color}}>
 <$properties $filter="[tag[Class]]"   color={{Class!!color}}>
+<$properties $filter="[tag[Trait]]"   color={{Trait!!color}}>
+<$properties $filter="[tag[Feat]]"   color={{Feat!!color}}>
+<$properties $filter="[tag[Language]]"   color={{Language!!color}}>
+<$properties $filter="[tag[Glossary]]"   color={{Glossary!!color}}>
 <$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
 <$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
 <$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
@@ -65,6 +69,10 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-graph
 </$properties>
 </$properties>
 </$properties.settings>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
 </$properties>
 </$properties>
 </$properties>

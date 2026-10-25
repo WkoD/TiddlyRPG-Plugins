@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261025121932754
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/de-DE/Edge/
 
 alliance: Allianz
@@ -15,8 +15,10 @@ creator: erschaffen von
 creature: ist ein(e)
 enmity: Feindschaft
 family: Familie
+feats: hat das Talent
 folk: gehört zu
 former: ehemals bei
+languages: spricht
 leader: führt
 links: verweist auf
 location: in

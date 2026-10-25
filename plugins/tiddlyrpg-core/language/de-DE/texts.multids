@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025075210577
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -246,6 +246,7 @@ Rules/Check/Unit: Text prüfen: keine bekannte Einheit in <<unit "$text$">>
 Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$“
 Rules/Check/Label: Feld $field$ prüfen: „$text$“ ist hier kein bekannter Begriff
 Rules/Check/Only: Feld $field$ prüfen: „$text$“ ist hier nicht erlaubt (nur $only$)
+Rules/Check/Title: Feld $field$ prüfen: „$text$“ nennt keinen hier bekannten Eintrag
 Rules/Check/PropertyParent: Feld $field$ prüfen: „$id$“ gehört zu $parents$, das fehlt
 Rules/Check/PropertyTwice: Feld $field$ prüfen: „$id$“ passt zu $parents$ gleichermaßen
 Rules/Check/Number: Feld $field$ prüfen: „$text$“ ist keine Zahl

@@ -410,7 +410,9 @@ the tiddler title:
   derived values, the header line, `when`, `copyFrom()` - see "Rules engine"), `types.js`
   (the type tags: the hubs and the categories, `of()` the types of a tiddler; `UNTYPED`: pages
   that need no type), `categories.js` (the categories of the base types, see "Items and
-  categories"),
+  categories"), `glossary.js` (what explains a term or the name of a section: the links of
+  `<<term>>`, of the values of the rules and of section names), `relink-titles.js` (`module-type:
+  relinkfieldtype`, the relink type `trpgtitles` of a field of the format titles),
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor"), `notice.js` (the notifications
   of the editor: each shown from a slot of its own, so two in a row keep their texts).
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
@@ -586,7 +588,8 @@ the tiddler title:
   `editor/operation.js`, the form `editor/form` with the field editors `editor/fields/*`, the
   config of the picker `editor/picker` - see "Editor".
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
-  Material, Book, Consumable, Equipment, Event, Information, Folk, Class, Index, Quest, Spell,
+  Material, Book, Consumable, Equipment, Event, Information, Folk, Class, Trait, Feat, Language,
+  Glossary, Index, Quest, Spell,
   Creature: titles without prefix,
   tag `Index`; the categories also tagged `$:/tags/tiddlyrpg/Category`, see "Items and
   categories"; plus
@@ -1199,7 +1202,27 @@ location of an artifact). Meaning and examples: `README.md` ("Items", "Categorie
   to. One place of the rules: `modules/relations.js` (`parents()` - also of a package entry not
   taken -, `holder()`, `lines()`); `relations/parent` in `checks/relations.js`; the way back by
   kind in `viewtemplates/relations/list` (order `trpg.kindhubs`); the lines of the player card in
-  `Player.tid` (filter `relationlines`); `content.wanting()` offers the parents.
+  `Player.tid` (filter `trpgcardtrees`, the levels of `class-levels`); `content.wanting()` offers the
+  parents.
+- `Trait`, `Feat`, `Language`, `Glossary` are categories of `Information` too; `feats` and
+  `languages` relations (axis things). The glossary (`modules/glossary.js`, the one place): the
+  field `term` of the core on an entry of `Glossary` names the term it explains; `<<term>>`
+  (`functions.tid`), a value of the rules (`trpgfieldparts`, `viewtemplates/fields`) and the name
+  of a section (`trpg.sectionname`, `trpgnamed`) link to it, a package entry not taken too.
+- The format `titles` of a field of the rules (`modules/rules.js`: "Fighter 5, Rogue 8", options
+  `titles`, `tree`, `sum`): the derive `else` and the part `values` (`modules/fields.js`), the rule
+  `fields/levels`, the input `levels` of the form (`editor/fields/rules`, `trpglevelentries`,
+  `trpglevelset`), the relink type `trpgtitles` (`modules/relink-titles.js`). A field of the format
+  that names a tiddler the view does not see is left out of the block (`valuesOf` in
+  `filters/fields.js`).
+- **Term or tiddler** (decided 2026-10-25): a term of the ruleset (a domain) is what the rules
+  compute with or check, a set the rules give, written short in a text (`<<term>>`); a tiddler (a
+  category) is what a figure, spell or item has, with a text of its own, what a DM makes up -
+  classes, folks, traits, feats, languages, the glossary. A tree when its entries belong to each
+  other (`tiddlyrpg-tree`). A kind of item without effect on the rules is a category hub, an
+  extension of a label domain (`"extends": true`) only for a kind the rules compute with. Domains
+  stay: units, dice, damage, tables, sections, abilities, skills, senses, conditions, actions,
+  item categories, kinds of languages.
 - Their messages stand below the title (`items/base`, `items/price`: the price against the
   currency), see "Checks".
 - The price (field `price`) shows as the first line of the block of values

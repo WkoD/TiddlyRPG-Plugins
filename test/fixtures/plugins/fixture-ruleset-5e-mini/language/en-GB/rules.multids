@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -128,6 +128,7 @@ Rules/Field/cr: Challenge
 Rules/Field/proficiency: Proficiency Bonus
 Rules/Field/xp: XP
 Rules/Field/character-level: Level
+Rules/Field/class-levels: Class levels
 Rules/Field/xp-next: Next level
 Rules/Field/saves: Saving Throws
 Rules/Field/skills: Skills

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261025075210577
+modified: 20261025124110539
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -38,12 +38,15 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                            player character, from its XP)
                  "filter": true  a number the hub Content filters by (the level of a spell);
                            a label or a list of a domain always filters
+               Every derive may have "else": a derive for when it gives nothing (the level by the
+               XP, else the sum of the levels of the classes).
                A part of a sum: {"number": 10}, {"field": "proficiency"} (its value, written or
                derived), {"modifier": "wis"} (the modifier of that field), {"entry": "skills",
                "id": "perception", "else": part} (the value of an entry of a labels field); in
                the value of an entry "$entry" is its id, "$entry.<column>" a column of it ("ability"
                of a skill); "times": {"list": "expertise", "factor": 2} multiplies a part when the
-               entry stands in that list.
+               entry stands in that list; {"values": "class-levels"} the sum of the numbers of
+               the items of a field of the format titles.
   schema       {"types": ["Item", ...], "fields": ["<field>", ...], "labels": {"<field>": "<key>"},
                 "summary": {"key", "byValue": {"<field>": {"<value>": "<key>"}}, "ifSet": {"<field>":
                 "<key>"}, "flags": {"<field>": "<key>"}}, "groups": [group, ...], "card": [...]}
@@ -83,6 +86,7 @@ into a draft once - nothing stays linked.
   label(wiki,field,labels)    the label of a field
   read(wiki,fields,field)     {text, problem, values, written, derived, items} of a field of a
                               tiddler (its fields as an object)
+  number(wiki,fields,field)   the number of a field, written or derived, or null
   summary(wiki,fields,schema) the header line, or ""; the fields it uses
   fill(wiki,fields,key,flags) a pattern filled
   line(wiki,fields,combine)   the text of a combine
@@ -103,7 +107,7 @@ var TAG = "$:/tags/tiddlyrpg/RulesFields",
 	// Fields of TiddlyWiki and of tiddlyrpg-core that a schema must not use
 	CORE = ["title","text","tags","type","created","modified","creator","modifier","list","caption",
 		"color","icon","draft.of","draft.title","revision","bag","plugin-type","source","secret-fields",
-		"trpg-noerror","trpg-noinfo","map-positions","data"];
+		"trpg-noerror","trpg-noinfo","map-positions","data","term"];
 
 function rules() {
 	return require("$:/plugins/tiddlyrpg-core/modules/rules.js");
@@ -264,6 +268,11 @@ function numberOf(wiki,fields,field,depth) {
 	return s && s.derive ? compute(wiki,fields,s.derive,null,(depth || 0) + 1) : null;
 }
 
+// The number of a field, written or derived (the level of a character), or null
+exports.number = function(wiki,fields,field) {
+	return numberOf(wiki,fields,field,0);
+};
+
 // The modifier of a field by the formula of its derive "modifier"
 function modifierOf(wiki,fields,field,depth) {
 	var s = spec(wiki,field),
@@ -294,8 +303,13 @@ function entriesOf(wiki,fields,field) {
 	return out;
 }
 
-// The value of a derive that computes (lookup, band, sum), or null
+// The value of a derive that computes (lookup, band, sum), or null; else the one of its "else"
 function compute(wiki,fields,derive,entry,depth) {
+	var n = computeOne(wiki,fields,derive,entry,depth);
+	return n === null && derive && derive.else ? compute(wiki,fields,derive.else,entry,(depth || 0) + 1) : n;
+}
+
+function computeOne(wiki,fields,derive,entry,depth) {
 	if(!derive || depth > 8) {
 		return null;
 	}
@@ -352,6 +366,11 @@ function part(wiki,fields,p,entry,depth) {
 		n = numberOf(wiki,fields,resolve(p.field,entry),depth + 1);
 	} else if(p.modifier !== undefined) {
 		n = modifierOf(wiki,fields,resolve(p.modifier,entry),depth + 1);
+	} else if(p.values !== undefined) {
+		var listed = spec(wiki,p.values),
+			read = listed && raw(fields,p.values) ? rules().value(wiki,listed,raw(fields,p.values)) : null,
+			numbers = read && !read.problem ? (read.items || []).map(function(item) { return item.number; }) : [];
+		n = numbers.length && numbers.every(function(x) { return typeof x === "number"; }) ? numbers.reduce(function(a,b) { return a + b; },0) : null;
 	} else if(p.entry !== undefined) {
 		var list = entriesOf(wiki,fields,p.entry),
 			id = resolve(p.id,entry);
@@ -694,7 +713,7 @@ exports.copyFrom = function(wiki,draft,source) {
 };
 
 // The problems of rules.value() that name the field; the others are written for the macros
-var OWN = ["Label","Only","PropertyParent","PropertyTwice","Number","NumberRange","Boolean","Dice","UnitDomain"].map(function(name) {
+var OWN = ["Label","Only","PropertyParent","PropertyTwice","Number","NumberRange","Boolean","Dice","UnitDomain","Title"].map(function(name) {
 	return "Rules/Check/" + name;
 });
 

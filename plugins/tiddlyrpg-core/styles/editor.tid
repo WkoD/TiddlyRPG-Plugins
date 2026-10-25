@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261017162217509
+modified: 20261025124110539
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/editor
 type: text/vnd.tiddlywiki
@@ -329,4 +329,19 @@ button.trpg-pill-x:hover {
 /* Renaming a rumour: the names that contain the text, those written almost alike */
 .trpg-quest-rename-hits {
 	margin-top: 0.3em;
+}
+
+/* The levels of the classes (editor/fields/rules, input levels): a number per class, side by side */
+.trpg-levels {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3em 1em;
+}
+.trpg-level {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4em;
+}
+.trpg-level-input {
+	width: 4em;
 }

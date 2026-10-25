@@ -1,5 +1,5 @@
 created: 20261008062202000
-modified: 20261025121932754
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/en-GB/Edge/
 
 alliance: Alliance
@@ -15,8 +15,10 @@ creator: made by
 creature: is a
 enmity: Enmity
 family: Family
+feats: has the feat
 folk: belongs to
 former: formerly with
+languages: speaks
 leader: leads
 links: references
 location: in

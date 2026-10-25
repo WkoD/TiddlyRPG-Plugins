@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/config/EditTemplateFields/Visibility/
 
 alliance: hide
@@ -13,9 +13,11 @@ creature: hide
 date: hide
 enmity: hide
 family: hide
+feats: hide
 folk: hide
 former: hide
 image: hide
+languages: hide
 leader: hide
 location: hide
 map: hide
@@ -30,6 +32,7 @@ price: hide
 secret-fields: hide
 sibling: hide
 spells: hide
+term: hide
 spouse: hide
 trpg-inverse-owner: hide
 under: hide

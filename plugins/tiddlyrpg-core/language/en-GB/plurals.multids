@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/en-GB/Plural/
 
 Artifact: Artifacts
@@ -10,9 +10,12 @@ Creature: Creatures
 Deity: Deities
 Equipment: Equipment
 Event: Events
+Feat: Feats
 Folk: Folks
+Glossary: Glossary
 Information: Information
 Item: Items
+Language: Languages
 Location: Locations
 Material: Materials
 Organisation: Organisations
@@ -20,3 +23,4 @@ Person: People
 Player: Players
 Quest: Quests
 Spell: Spells
+Trait: Traits

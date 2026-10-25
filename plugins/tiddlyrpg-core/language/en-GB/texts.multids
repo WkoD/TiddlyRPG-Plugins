@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025075210577
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -246,6 +246,7 @@ Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
 Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
 Rules/Check/Label: Check the field $field$: "$text$" is no known term here
 Rules/Check/Only: Check the field $field$: "$text$" is not allowed here (only $only$)
+Rules/Check/Title: Check the field $field$: "$text$" names no entry known here
 Rules/Check/PropertyParent: Check the field $field$: "$id$" belongs to $parents$, which is missing
 Rules/Check/PropertyTwice: Check the field $field$: "$id$" fits $parents$ alike
 Rules/Check/Number: Check the field $field$: "$text$" is no number

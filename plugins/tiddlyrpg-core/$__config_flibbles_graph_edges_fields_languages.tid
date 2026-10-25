@@ -1,0 +1,9 @@
+created: 20261025124110539
+modified: 20261025124110539
+tiddlyrpg-targets: [tag[Language]]
+title: $:/config/flibbles/graph/edges/fields/languages
+type: application/json
+
+{
+    "label": "Languages"
+}

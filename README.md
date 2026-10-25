@@ -64,7 +64,8 @@ A tour for the DM and the players. The sections after it hold the details.
 - A **hub** is the page of a type and lists its tiddlers. The hubs are `Person`,
   `Organisation`, `Deity`, `Location`, `Event`, `Item` (base types and categories, see "Items"),
   `Spell`, `Creature` (kinds of creatures - a person names its kind in `creature`),
-  `Information` (with the categories `Folk` and `Class`, see "Categories with a tree"), `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
+  `Information` (with the categories `Folk`, `Class`, `Trait`, `Feat`, `Language` and `Glossary`, see
+  "Categories with a tree"), `Player` and `Quest`. `Event` shows every event as timeline and table, `Player`
   shows the player characters as cards, with their level where the ruleset derives one (see
   "Player characters, views and secrets").
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
@@ -263,12 +264,17 @@ separated by lines in the colour of the type, the price with them. The labels an
 follow the rules language: `range: 60 ft` shows "60 ft" or "18 m", `category: weapon, martial`
 "martial weapon" or "Kriegswaffe". A value is read in every language, as in the macros. Damage
 stands short, as in a weapon table - the label says damage already: "1d10 bludgeoning + 1d8 cold"
-or "1W10 Wucht + 1W8 Kälte"; `<<damage>>` in the text keeps the full phrase.
+or "1W10 Wucht + 1W8 Kälte"; `<<damage>>` in the text keeps the full phrase. A term an entry of
+the glossary explains (see "Categories with a tree") links to it, in a value as in `<<term>>`.
 
 **What the rules derive is not written:** the modifier beside an ability ("16 (+3)"), the average
 beside dice ("7 (2d6)"), a total ("19 (18 + 1)" with a bonus), and values from other values -
 in D&D the proficiency bonus and XP from the challenge rating, saving throws and skills from the
-abilities, passive Perception, the level of a player character from its XP. A value written in
+abilities, passive Perception, the level of a player character from its XP - or, without XP, from
+the levels of its classes (`class-levels`, a field of the format "titles with a number": `Fighter
+5, Rogue 8`; the form offers a number per class of the figure, the card shows each beside its
+class, a message tells when they add up to more than the level by the XP, a hint when to less:
+level up due). A value written in
 the field wins. Nothing derived is stored, and a derived value reads only fields of its own
 tiddler. A value the rules only derive (the level) is no field of the form at all. A whole number
 such as the XP may separate thousands as people write them ("120.000", "120,000") and shows with
@@ -335,8 +341,9 @@ a card shows its lines below the name ("Level 13"), a former character keeps its
 player character itself shows XP, level and the XP of the next level in its block of values.
 What `secret-fields` locks (the XP) shows on no card either, nor what derives from it. Below
 them a line per tree the character names (see "Categories with a tree"): its folk ("Dragonborn ·
-Draconic Ancestry: Black") and each class with what belongs to it ("Fighter · Battle Master ·
-Fighting Style: Two-Weapon Fighting"); an entry the view does not see leaves out its branch.
+Draconic Ancestry: Black") and each class with its level and what belongs to it ("Fighter 13 ·
+Battle Master · Fighting Style: Two-Weapon Fighting"); an entry the view does not see leaves out
+its branch, a locked class every level.
 
 **Taking part.** The tag of a player character on an event means: that character was there.
 An event with at least one player character, active or former, belongs to the campaign: the
@@ -548,6 +555,8 @@ relation list show the way back by themselves.
 | | `component` | `component: Löwengras` (the potion) | contains | Components / Part of |
 | | `base` | `base: Warhammer` (an item on a mundane one) | based on | Base item / Variants |
 | | `spells` | `spells: Fireball` (an item, person, player character or creature) | spell | Spells / Known by |
+| | `feats` | `feats: Grappler` (a person, player character or creature) | has the feat | Feats / Taken by |
+| | `languages` | `languages: [[Common (Language)]]` (a person, player character, creature or folk) | speaks | Languages / Speakers |
 
 - **Symmetric relations** (`spouse`, `sibling`, `family`, `alliance`, `enmity`, `bond`) are entered on both
   ends - deleting one tiddler loses nothing of the other. If both ends carry it, the graph draws
@@ -723,10 +732,17 @@ body (PDF), not for a secret the active view does not see.
 
 ## Categories with a tree
 
-What a figure has and the DM may add to - its folk, its classes - is an information with a
-category of its own, not a term of the ruleset: a tiddler with its own text, at once usable
-everywhere. A ruleset with a content package brings its entries (D&D: the classes, subclasses and
-folks of the SRD), a campaign adds its own as tiddlers.
+What a figure has and the DM may add to - its folk, its classes, its traits, feats and languages -
+is an information with a category of its own, not a term of the ruleset: a tiddler with its own
+text, at once usable everywhere. A ruleset with a content package brings its entries (D&D: the
+classes, subclasses, folks, traits, languages and the feat of the SRD), a campaign adds its own as
+tiddlers.
+
+**A term or a tiddler?** A term of the ruleset is what the rules compute with or check, a set the
+rules give, written short in a text (`<<term frightened>>`): abilities, conditions, sizes, damage
+types, units, kinds of items. A tiddler is what a figure, a spell or an item has, with a text of
+its own, and what a DM makes up. A kind of item without effect on the rules (tattoos, totems) is a
+category hub like `Book` (`$:/tags/tiddlyrpg/Category` with `tiddlyrpg-bases`), no term.
 
 **Folks.** A folk - humans, elves, a people of the campaign - is an information with the category
 `Folk` (`tags: Information Folk`). It is no creature: it has no stat block, its values are those of
@@ -758,6 +774,16 @@ on `Hill Dwarf`); several parents alike (a fighting style of the fighter and of 
 - The relation list splits the way back by kind: on a class "Player characters", "Persons",
   "Classes" (what belongs to it), "Spells", "Items"; on a folk "Persons", "Folks" and so on.
 - Taking an entry of a package offers what it belongs to along.
+**Traits, feats, languages.** A trait of a folk (`Information Trait`) names the folks it belongs
+to in `folk`; a feat (`Information Feat`) and a language (`Information Language`) are named by a
+figure in `feats` and `languages`, a language by a folk too.
+
+**The glossary.** An entry of the category `Glossary` explains a term of the ruleset: its field
+`term` holds the id (`term: frightened`). `<<term frightened>>` and a value of the rules with that
+term link to it, an entry of a content package not taken too; the name of a section links to a
+trait, class, feat or entry of the glossary of that title (`<<trait "Pack Tactics">>`). An entry
+the view does not see gets no link.
+
 - The hub `Information` lists each category under a heading of its own, the hub of the category
   only its entries. The category alone, without `Information`, gets a message below the title
   with the fix. The ego graph draws the entries in the grey of `Information`.
@@ -989,6 +1015,7 @@ out every message of its level. An id that is no rule is a hint.
 | `fields/value` | error, hint | a value of a field of the rules its format does not read (error); a property that fits two main entries (hint) |
 | `fields/when` | hint | a value of a field that counts only with another value, by itself or by its group (damage on a potion) |
 | `fields/tag` | hint | a value names the category of the wiki it belongs to (a potion: Consumable) and the tiddler lacks the tag; fix: set the tag |
+| `fields/levels` | error, hint | the levels of the classes (`class-levels`): error when they name a class the figure does not have or add up to more than the level by the XP; hint when a class has no number or they add up to less (level up due) |
 | `images/files` | error | a file in `image`, `map`, a spot or `<<image>>` that is not in `images/` (only `check-wiki.js`) |
 | `images/folder` | error | `<<image "...">>` in a tiddler without type and without `folder:` |
 | `images/unused` | hint | a file in the image folder of a type or in `images/map/` that no tiddler names (only `check-wiki.js`, the path of the file as title) |

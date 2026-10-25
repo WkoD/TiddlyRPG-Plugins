@@ -1,5 +1,5 @@
 created: 20261022152209539
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/config/EditTemplateFields/Visibility/
 
 ac: hide
@@ -29,4 +29,5 @@ weight: hide
 wis: hide
 xp: hide
 character-level: hide
+class-levels: hide
 xp-next: hide

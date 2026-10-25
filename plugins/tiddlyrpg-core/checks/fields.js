@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/fields.js
 type: application/javascript
 module-type: trpg-check
 created: 20261022140929737
-modified: 20261023181956562
+modified: 20261025124110539
 
 Checks of the fields of the rules (modules/fields.js; modules/checks.js runs them).
 
@@ -15,6 +15,11 @@ Checks of the fields of the rules (modules/fields.js; modules/checks.js runs the
                   entries
   fields/when     hint: a written value of a field whose "when" - or that of its group - does not
                   hold (damage on a potion)
+  fields/levels   a field of the format titles with "tree" and "sum" (class-levels): error when
+                  it names an entry that is none of the tree without parent (a class the
+                  figure does not have) or its numbers add up to more than the field "sum" (the
+                  level by the XP); hint when a class of the tree has no number, or the numbers
+                  add up to less ("level up due"). Nothing when it names what the view does not see
   fields/tag      hint: a main entry of a list names the category tag of the wiki it stands for
                   ("tag" in its domain: a potion is Consumable) and the tiddler lacks it; fix:
                   set the tag
@@ -96,6 +101,46 @@ exports.rules = [
 				if(!r.problem && r.tag && tags.indexOf(r.tag) === -1 && messages.every(function(m) { return m.fix.tag !== r.tag; })) {
 					messages.push({level: "hint", key: "Check/Fields/Tag", params: {field: w.label, value: r.text, tag: language.title(wiki,r.tag)},
 						fix: {kind: "tag", tag: r.tag}});
+				}
+			});
+			return messages;
+		}
+	},
+	{
+		id: "fields/levels",
+		run: function(wiki,title,view) {
+			var messages = [],
+				relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js");
+			written(wiki,title,view).forEach(function(w) {
+				if(!w.spec || w.spec.format !== "titles" || !w.spec.tree) {
+					return;
+				}
+				var r = rules.value(wiki,w.spec,w.text);
+				if(r.problem) {
+					return;
+				}
+				var named = (r.items || []).map(function(item) { return item.title; }),
+					tops = relations.lines(wiki,w.spec.tree,title,null).map(function(line) { return line[0]; }),
+					seen = function(t) { return visibility.visible(wiki,t,view); };
+				if(!named.concat(tops).every(seen)) {
+					return;
+				}
+				named.filter(function(t) { return tops.indexOf(t) === -1; }).forEach(function(t) {
+					messages.push({level: "error", key: "Check/Fields/LevelsNotTree", params: {field: w.label, target: language.title(wiki,t),
+						tree: language.t(wiki,"Field/" + w.spec.tree)}});
+				});
+				tops.filter(function(t) { return named.indexOf(t) === -1; }).forEach(function(t) {
+					messages.push({level: "hint", key: "Check/Fields/LevelsMissing", params: {field: w.label, target: language.title(wiki,t)}});
+				});
+				if(w.spec.sum) {
+					var total = (r.items || []).reduce(function(a,item) { return a + (typeof item.number === "number" ? item.number : 0); },0),
+						target = fields.number(wiki,w.fields,w.spec.sum),
+						other = fields.label(wiki,w.spec.sum,fields.forTiddler(wiki,title).labels);
+					if(target !== null && total > target) {
+						messages.push({level: "error", key: "Check/Fields/LevelsHigh", params: {field: w.label, total: total, target: target, other: other}});
+					} else if(target !== null && total < target) {
+						messages.push({level: "hint", key: "Check/Fields/LevelsLow", params: {field: w.label, total: total, target: target, other: other}});
+					}
 				}
 			});
 			return messages;

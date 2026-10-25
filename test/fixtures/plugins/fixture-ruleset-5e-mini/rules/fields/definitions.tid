@@ -1,5 +1,5 @@
 created: 20261022140929737
-modified: 20261025121331430
+modified: 20261025124110539
 tags: $:/tags/tiddlyrpg/RulesFields
 title: $:/tiddlyrpg/rules/fields
 type: application/json
@@ -28,7 +28,10 @@ type: application/json
         "cr": {"format": "label", "domain": "Challenge"},
         "proficiency": {"format": "number", "signed": true, "derive": {"kind": "lookup", "from": "cr", "column": "proficiency"}},
         "xp": {"format": "number", "integer": true, "derive": {"kind": "lookup", "from": "cr", "column": "xp"}},
-        "character-level": {"format": "number", "edit": false, "derive": {"kind": "band", "from": "xp", "domain": "Level", "column": "xp"}},
+        "character-level": {"format": "number", "edit": false, "derive": {"kind": "band", "from": "xp", "domain": "Level", "column": "xp",
+            "else": {"kind": "sum", "parts": [{"values": "class-levels"}]}}},
+        "class-levels": {"format": "titles", "titles": "[tag[Class]]", "tree": "classes", "sum": "character-level",
+            "value": {"format": "number", "min": 1, "max": 20}},
         "xp-next": {"format": "number", "integer": true, "edit": false, "derive": {"kind": "band", "from": "xp", "domain": "Level", "column": "xp", "next": true}},
         "saves": {"format": "labels", "domain": "Ability",
             "value": {"format": "number", "signed": true, "derive": {"kind": "sum", "parts": [{"modifier": "$entry"}, {"field": "proficiency"}]}}},

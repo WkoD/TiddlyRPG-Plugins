@@ -83,8 +83,8 @@ test.describe("categories", function() {
 	test("the item categories and Folk; their base types; a category is a type", function() {
 		var categories = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/categories.js"),
 			types = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/types.js");
-		assert.deepEqual(f("[trpgcategories[]]"), ["Book", "Class", "Consumable", "Equipment", "Folk"]);
-		assert.deepEqual(f("[trpgcategories[Information]]"), ["Class", "Folk"]);
+		assert.deepEqual(f("[trpgcategories[]]"), ["Book", "Class", "Consumable", "Equipment", "Feat", "Folk", "Glossary", "Language", "Trait"]);
+		assert.deepEqual(f("[trpgcategories[Information]]"), ["Class", "Feat", "Folk", "Glossary", "Language", "Trait"]);
 		assert.deepEqual(f("[trpgcategories[Material]]"), ["Book", "Consumable", "Equipment"]);
 		assert.deepEqual(f("[[Book]] [[Folk]] [[Item]] +[trpgcategorybases[]]"), ["Artifact", "Item", "Material", "Information"]);
 		assert.ok(categories.isCategory(wiki, "Folk") && !categories.isCategory(wiki, "Information"));
@@ -96,7 +96,7 @@ test.describe("categories", function() {
 		withTiddlers([{title: "Rune", tags: "$:/tags/tiddlyrpg/Category"}, {title: "Glyphe", tags: "$:/tags/tiddlyrpg/ItemKind"},
 			{title: "Mythos", tags: "$:/tags/tiddlyrpg/Category", "tiddlyrpg-bases": "Information"}], function() {
 			assert.deepEqual(f("[[Rune]] [[Glyphe]] +[trpgcategorybases[]]"), ["Artifact", "Item", "Material"]);
-			assert.deepEqual(f("[trpgcategories[Information]]"), ["Class", "Folk", "Mythos"]);
+			assert.deepEqual(f("[trpgcategories[Information]]"), ["Class", "Feat", "Folk", "Glossary", "Language", "Mythos", "Trait"]);
 			assert.ok(f("[trpgtypelist[]]").indexOf("Glyphe") !== -1);
 		});
 	});
@@ -430,5 +430,180 @@ test.describe("trees: classes and folk", function() {
 		} finally {
 			[INDEX, "Magus"].forEach(function(t) { wiki.deleteTiddler(t); });
 		}
+	});
+});
+
+test.describe("traits, feats, languages and the glossary", function() {
+	var added = [
+		{title: "Steinvolk", tags: "Information Folk", languages: "[[Zwergisch (Language)]]", text: "Of stone."},
+		{title: "Steingespür", tags: "Information Trait", folk: "Steinvolk", text: "Knows stone."},
+		{title: "Zwergisch (Language)", tags: "Information Language", text: "Of the dwarves."},
+		{title: "Ringer", tags: "Information Feat", text: "Holds on."},
+		{title: "Brocken", tags: "Person", folk: "Steinvolk", feats: "Ringer", languages: "[[Zwergisch (Language)]]", text: "A dwarf."},
+		{title: "Verängstigt", tags: "Information Glossary", term: "frightened", text: "Afraid."},
+		{title: "Furcht", tags: "Item", text: "It makes <<term frightened>> and <<term charmed>>.\n\n<<effect \"Steingespür\">> Stone sense.\n\n<<effect \"Ohne Eintrag\">> Nothing."},
+		{title: "Geheimwort", tags: "Information Glossary Secret", term: "charmed", text: "Locked."}
+	];
+
+	test.before(function() {
+		added.forEach(function(fields) { h.add(wiki, fields); });
+	});
+
+	test.after(function() {
+		added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+	});
+
+	function list(self) {
+		return h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/relations/list\" mode=\"block\"/>", {self: self, currentTiddler: self});
+	}
+
+	function html(title) {
+		return h.render(wiki, "text/html", "{{" + title + "}}");
+	}
+
+	test("the relations feats and languages; a trait belongs to its folks", function() {
+		assert.deepEqual(f("[[Brocken]relationtargets[feats]]"), ["Ringer"]);
+		assert.deepEqual(f("[[Brocken]relationtargets[languages]]"), ["Zwergisch (Language)"]);
+		assert.deepEqual(f("[[Steinvolk]relationtargets[languages]]"), ["Zwergisch (Language)"]);
+		assert.deepEqual(f("[[feats]] [[languages]] :map[relationaxis[]]"), ["$:/config/tiddlyrpg/graph/axes/things", "$:/config/tiddlyrpg/graph/axes/things"]);
+		["Person", "Player", "Creature"].forEach(function(type) {
+			var more = f("[[$:/config/tiddlyrpg/form/" + type + "]get[more]enlist-input[]]");
+			assert.ok(more.indexOf("feats") !== -1 && more.indexOf("languages") !== -1, type);
+		});
+		assert.ok(f("[[$:/config/tiddlyrpg/form/Folk]get[more]enlist-input[]]").indexOf("languages") !== -1);
+		assert.deepEqual(f("[[$:/config/tiddlyrpg/form/Trait]get[more]enlist-input[]]"), ["folk"]);
+		assert.deepEqual(f("[[Steingespür]] [[Ringer]] [[Zwergisch (Language)]] :map[relationkind[]]"), ["trait", "feat", "language"]);
+		var folk = list("Steinvolk");
+		assert.ok(inOrder(folk, ["Personen<span", ">Brocken<", "Merkmale<span", ">Steingespür<"]), folk);
+		assert.match(list("Steingespür"), /Gehört zu<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.match(list("Zwergisch (Language)"), /Sprecher<span/);
+		assert.deepEqual(h.checkKeys(wiki, "Brocken", "relations"), []);
+	});
+
+	test("<<term>> links to the entry of the glossary that explains it; not to one the view does not see", function() {
+		var body = html("Furcht");
+		assert.match(body, /<a[^>]*href="#Ver%C3%A4ngstigt"[^>]*><span class="trpg-rule">[^<]+<\/span><\/a>/);
+		assert.match(body, /href="#Geheimwort"/, "the DM: the locked entry is linked");
+		var pub = h.inView(wiki, "public", function() { return html("Furcht"); });
+		assert.equal(pub.indexOf("Geheimwort"), -1, pub);
+		assert.match(pub, /<span class="trpg-rule">[^<]+<\/span>/);
+		assert.deepEqual(f("[[frightened]trpgglossary[]] [[unknown]trpgglossary[]]"), ["Verängstigt"]);
+	});
+
+	test("the name of a section links to a trait, class, feat or entry of the glossary of that title", function() {
+		var body = html("Furcht");
+		assert.match(body, /<a[^>]*>Steingespür<\/a>/);
+		assert.doesNotMatch(body, /<a[^>]*>Ohne Eintrag<\/a>/);
+		assert.deepEqual(f("[[Steingespür]trpgnamed[]] [[Brocken]trpgnamed[]] [[Ohne Eintrag]trpgnamed[]]"), ["Steingespür"]);
+	});
+
+	test("a value of the rules links the label of an entry the glossary explains", function() {
+		h.add(wiki, {title: "Dunkelsicht erklärt", tags: "Information Glossary", term: "darkvision", text: "Sees in the dark."});
+		h.add(wiki, {title: "Höhlenwolf", tags: "Creature", senses: "darkvision 60 ft", text: "A wolf."});
+		try {
+			var block = h.render(wiki, "text/html", "{{Höhlenwolf||$:/plugins/tiddlyrpg-core/viewtemplates/fields}}");
+			assert.match(block, /<a[^>]*href="#Dunkelsicht%20erkl%C3%A4rt"[^>]*>Dunkelsicht<\/a>/, block);
+			assert.match(h.render(wiki, "text/plain", "{{Höhlenwolf||$:/plugins/tiddlyrpg-core/viewtemplates/fields}}"), /Dunkelsicht 18 m/);
+		} finally {
+			["Dunkelsicht erklärt", "Höhlenwolf"].forEach(function(t) { wiki.deleteTiddler(t); });
+		}
+	});
+
+	test("an entry of the glossary from a content package: the link without the entry taken", function() {
+		var INDEX = "$:/temp/tiddlyrpg-core/content/index";
+		h.add(wiki, {title: INDEX, type: "application/json", text: JSON.stringify({ruleset: "$:/plugins/fixture-ruleset-5e-mini", packages: [{name: "SRD mini", language: "en-GB", entries: [
+			{id: "glossary:prone", title: "Prone", type: "Glossary", tags: ["Information"], fields: {term: "prone"}, text: "Down."},
+			{id: "trait:keen", title: "Keen Senses", type: "Trait", tags: ["Information"], fields: {}}
+		]}]})});
+		try {
+			assert.deepEqual(f("[[prone]trpgglossary[]] [[Keen Senses]trpgnamed[]]"), ["Prone", "Keen Senses"]);
+		} finally {
+			wiki.deleteTiddler(INDEX);
+		}
+	});
+});
+
+test.describe("the levels of the classes (format titles)", function() {
+	var added = [
+		{title: "Kämpfer", tags: "Information Class", text: "Fights."},
+		{title: "Schurke", tags: "Information Class", text: "Sneaks."},
+		{title: "Meister", tags: "Information Class", classes: "Kämpfer", text: "A subclass."},
+		{title: "Verborgen", tags: "Information Class Secret", text: "Locked class."},
+		{title: "Zwilling", tags: "Player", player: "Ina", classes: "Kämpfer Meister Schurke", "class-levels": "Kämpfer 5, Schurke 8", text: "Two classes."},
+		{title: "Erfahren", tags: "Player", player: "Jo", classes: "Kämpfer Schurke", xp: "6500", "class-levels": "Kämpfer 2, Schurke 2", text: "Behind."},
+		{title: "Zuviel", tags: "Player", player: "Kai", classes: "Kämpfer", xp: "300", "class-levels": "Kämpfer 4", text: "Too much."},
+		{title: "Einzeln", tags: "Player", player: "Lu", classes: "Kämpfer Meister", xp: "14000", text: "One class."},
+		{title: "Fremd", tags: "Player", player: "Mo", classes: "Kämpfer", "class-levels": "Kämpfer 3, Schurke 2", text: "Names a class it has not."},
+		{title: "Heimlich", tags: "Player", player: "No", classes: "Kämpfer Verborgen", "class-levels": "Kämpfer 3, Verborgen 2", text: "A locked class."}
+	];
+
+	test.before(function() {
+		added.forEach(function(fields) { h.add(wiki, fields); });
+	});
+
+	test.after(function() {
+		added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+	});
+
+	function levels(title) {
+		return h.checks(wiki, title, "fields").filter(function(m) { return m.id === "fields/levels"; }).map(function(m) { return m.key; });
+	}
+
+	test("the format titles: each title with its number; an unknown title is a problem", function() {
+		var rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+			spec = {format: "titles", titles: "[tag[Class]]", value: {format: "number"}};
+		var r = rules.value(wiki, spec, "kämpfer 5, Schurke 8");
+		assert.equal(r.text, "Kämpfer 5, Schurke 8");
+		assert.deepEqual(Array.from(r.items, function(i) { return i.title + "=" + i.number; }), ["Kämpfer=5", "Schurke=8"]);
+		assert.equal(rules.value(wiki, spec, "Magier 3").problem, "Rules/Check/Title");
+		assert.equal(rules.value(wiki, spec, "Kämpfer x").problem, "Rules/Check/Number");
+	});
+
+	test("the level of a character: by the XP, else the sum of the levels of its classes", function() {
+		var fields = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/fields.js");
+		assert.equal(fields.read(wiki, wiki.getTiddler("Zwilling").fields, "character-level").text, "13");
+		assert.equal(fields.read(wiki, wiki.getTiddler("Erfahren").fields, "character-level").text, "5", "the XP win");
+		assert.equal(fields.read(wiki, wiki.getTiddler("Einzeln").fields, "character-level").text, "5");
+	});
+
+	test("the check: classes it does not have, a class without a number, more or less than the level", function() {
+		assert.deepEqual(levels("Zwilling"), []);
+		assert.deepEqual(levels("Erfahren"), ["Check/Fields/LevelsLow"]);
+		assert.deepEqual(levels("Zuviel"), ["Check/Fields/LevelsHigh"]);
+		assert.deepEqual(levels("Fremd"), ["Check/Fields/LevelsNotTree"]);
+		h.add(wiki, {title: "Halb", tags: "Player", player: "Pi", classes: "Kämpfer Schurke", "class-levels": "Kämpfer 3", text: "One number."});
+		try {
+			assert.deepEqual(levels("Halb"), ["Check/Fields/LevelsMissing"]);
+		} finally {
+			wiki.deleteTiddler("Halb");
+		}
+		assert.match(h.checks(wiki, "Zuviel", "fields")[0].text, /zusammen 4, mehr als Stufe 2/);
+	});
+
+	test("the card: the level beside each class; one class takes the level of the character; none when a class is locked", function() {
+		var lines = function(title, view) {
+			return h.inView(wiki, view || "dm", function() { return f("[[" + title + "]trpgcardtrees[]]"); });
+		};
+		assert.deepEqual(lines("Zwilling"), ["Kämpfer 5 · Meister", "Schurke 8"]);
+		assert.deepEqual(lines("Einzeln"), ["Kämpfer 5 · Meister"]);
+		assert.deepEqual(lines("Heimlich"), ["Kämpfer 3", "Verborgen 2"]);
+		assert.deepEqual(lines("Heimlich", "public"), ["Kämpfer"], "the difference to the level would tell the locked class");
+	});
+
+	test("the form: a number per class, written into the field in the order of the tree", function() {
+		assert.deepEqual(f("[[Zwilling]trpglevelentries[class-levels]]"), ["Kämpfer", "Schurke"]);
+		assert.deepEqual(f("[[Zwilling]trpglevel[class-levels],[Schurke]]"), ["8"]);
+		assert.deepEqual(f("[[Zwilling]trpglevelset[class-levels],[Kämpfer],[6]]"), ["Kämpfer 6, Schurke 8"]);
+		assert.deepEqual(f("[[Zwilling]trpglevelset[class-levels],[Schurke],[]]"), ["Kämpfer 5"]);
+		assert.deepEqual(f("[[Einzeln]trpglevelset[class-levels],[Kämpfer],[6]]"), ["Kämpfer 6"]);
+	});
+
+	test("relink: renaming a class renames it in the levels", function() {
+		var type = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/relink-titles.js"),
+			reported = [];
+		type.report("Kämpfer 5, Schurke 8", function(t) { reported.push(t); });
+		assert.deepEqual(reported, ["Kämpfer", "Schurke"]);
+		assert.equal(type.relink("Kämpfer 5, Schurke 8", "Schurke", "Dieb").output, "Kämpfer 5, Dieb 8");
+		assert.equal(type.relink("Kämpfer 5", "Schurke", "Dieb"), undefined);
 	});
 });

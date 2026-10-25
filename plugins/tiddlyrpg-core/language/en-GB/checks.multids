@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261025121331430
+modified: 20261025124110539
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
@@ -25,6 +25,10 @@ Expected/Map: Check the fields: no map yet (field map)
 Expected/Player: Check the fields: who plays this character? (field player)
 Expected/Text: Check the text: it has no text yet
 Fields/Hidden: Check the definition: the field list of the editor shows $field$ beside the form - hide it ($:/config/EditTemplateFields/Visibility/$field$: hide)
+Fields/LevelsHigh: Check the field $field$: together $total$, more than $other$ $target$
+Fields/LevelsLow: Level up due: $field$ together $total$, $other$ is $target$
+Fields/LevelsMissing: Check the field $field$: no number for $target$
+Fields/LevelsNotTree: Check the field $field$: $target$ is none of $tree$
 Fields/Reserved: Check the definition: $field$ is a field of the core or of a relation - name it otherwise
 Fields/Tag: Check the field $field$: $value$ belongs to the category $tag$ - set the tag
 Fields/Twice: Check the definition: $field$ is defined in $other$ already
