@@ -132,6 +132,32 @@ test("in a dated section or a spot a section of the ruleset belongs to it and is
 	}
 });
 
+// After text in a dated section or a spot, <<secret>> on its own locks the section of the ruleset
+// after it - not the dated section or the spot it stands in
+test("<<secret>> on its own after text of a dated section or a spot locks the section after it, not the one around it", function() {
+	h.add(wiki, {title: "Tagebuch", tags: "Event", date: "1351-07-01, 1351-07-02", text: "Offen.\n\n<<date>> Offener Teil.\n\n<<secret>>\n\n<<effect \"Verborgen\">> Geheim.\n\n<<date>> Wieder offen."});
+	h.add(wiki, {title: "Halle", tags: "Location", text: "Ein Ort.\n\n<<spot \"Saal\">> Offener Saal.\n\n<<secret>>\n\n<<effect \"Falle\">> Geheime Falle."});
+	try {
+		var records = sections.read(wiki, "Tagebuch").records,
+			date = records.filter(function(r) { return r.kind === "date"; })[0],
+			effect = records.filter(function(r) { return r.kind === "effect"; })[0];
+		assert.equal(date.locks.length, 0, "the dated section keeps no lock");
+		assert.equal(effect.locks.length, 1, "the effect is locked");
+		h.inView(wiki, "public", function() {
+			var tagebuch = body("Tagebuch"),
+				halle = body("Halle");
+			assert.ok(ascending(positions(tagebuch, ["Offen.", "Offener Teil.", "Wieder offen."])), tagebuch);
+			assert.doesNotMatch(tagebuch, /Geheim|Verborgen/);
+			assert.match(halle, /Offener Saal/);
+			assert.doesNotMatch(halle, /Falle/);
+		});
+		assert.deepEqual(h.checkKeys(wiki, "Tagebuch", "sections"), []);
+	} finally {
+		wiki.deleteTiddler("Tagebuch");
+		wiki.deleteTiddler("Halle");
+	}
+});
+
 // What the rest tells: the sections of the ruleset gather at the first one the view sees - at a
 // locked first one, the open ones would stand before the prose after it and tell it is there
 test("the sections of the ruleset gather at the first one the view sees", function() {

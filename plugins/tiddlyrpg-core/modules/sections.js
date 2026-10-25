@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261025192721614
+modified: 20261025193508321
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -542,12 +542,14 @@ function leadMarkers(node) {
 
 /*
 The groups of one level (a list of sibling nodes): [{kind, form, marker, head, prefix, nodes,
-open}]. The first group holds what comes before the first marker (kind null). A block of a kind
-other than secret is a group of its own, followed by a group without kind. prefix: the
-<<secret>> markers that lock the group. errors: [{node, key, kind}].
+open, headText}]. The first group holds what comes before the first marker (kind null); a
+<<secret>> on its own at its start locks it (the owner of the level) - unless <closed>: the level
+inside a short section whose head holds text after its marker (headText), where it locks the
+next section. A block of a kind other than secret is a group of its own, followed by a group
+without kind. prefix: the <<secret>> markers that lock the group. errors: [{node, key, kind}].
 */
-function group(nodes) {
-	var groups = [{kind: null, form: null, marker: null, head: null, prefix: [], nodes: [], open: true}],
+function group(nodes,closed) {
+	var groups = [{kind: null, form: null, marker: null, head: null, prefix: [], nodes: [], open: !closed}],
 		pending = [],
 		errors = [];
 	var flush = function() {
@@ -592,7 +594,7 @@ function group(nodes) {
 			$tw.utils.each(markers.slice(1),function(marker) {
 				errors.push({node: marker, key: "Section/Check/Inside", kind: shortKind(marker)});
 			});
-			groups.push({kind: shortKind(markers[0]), form: "short", marker: markers[0], head: node, prefix: pending.concat(secrets), nodes: [node], open: !lead.rest});
+			groups.push({kind: shortKind(markers[0]), form: "short", marker: markers[0], head: node, prefix: pending.concat(secrets), nodes: [node], open: !lead.rest, headText: !!lead.rest});
 			pending = [];
 			return;
 		}
@@ -784,8 +786,8 @@ function build(text,tree,hasTag) {
 		}
 		visitChildren(node,section);
 	};
-	visitContainer = function(nodes,parent,owner) {
-		var result = group(unwrap(nodes));
+	visitContainer = function(nodes,parent,owner,closed) {
+		var result = group(unwrap(nodes),closed);
 		$tw.utils.each(result.errors,function(error) {
 			errors.push({key: error.key, kind: error.kind, start: error.node.start});
 		});
@@ -808,7 +810,7 @@ function build(text,tree,hasTag) {
 			// then the rest as a level of its own, like the content of a block
 			if(g.inner) {
 				visitNode(g.head,section);
-				visitContainer(g.nodes.slice(1),section,records[section]);
+				visitContainer(g.nodes.slice(1),section,records[section],g.headText);
 				return;
 			}
 			// Inside a block (<$quest>, <$secret>) a marker with nest holds the rest of the block
@@ -1203,7 +1205,7 @@ var transform = exports.transform = function(wiki,title,nodes,options) {
 	}
 	var model = read(wiki,title),
 		out = [];
-	var kept = group(nodes).groups.filter(function(g) {
+	var kept = group(nodes,options.closed).groups.filter(function(g) {
 		var key = g.kind ? g.marker.start.toString() : (g.prefix.length && options.root ? "intro" : null),
 			record = key ? model.byKey[key] || null : null;
 		return !(options.only && g.kind !== options.only) && !(options.omit && g.kind === options.omit) &&
@@ -1225,7 +1227,7 @@ var transform = exports.transform = function(wiki,title,nodes,options) {
 			out.push({
 				type: "trpg-section",
 				attributes: {key: {type: "string", value: key}, kind: {type: "string", value: g.kind || "intro"}},
-				children: g.inner ? wrapNests(options.nomarker ? [] : [g.head]).concat(transform(wiki,title,g.nodes.slice(1),{})) :
+				children: g.inner ? wrapNests(options.nomarker ? [] : [g.head]).concat(transform(wiki,title,g.nodes.slice(1),{closed: g.headText})) :
 					wrapNests(options.nomarker ? g.nodes.filter(function(node) { return node !== g.head; }) : g.nodes),
 				isBlock: true
 			});
