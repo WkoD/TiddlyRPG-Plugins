@@ -1,5 +1,5 @@
 created: 20200814090319235
-modified: 20261024161412996
+modified: 20261025150222673
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/border
 type: text/vnd.tiddlywiki
@@ -35,4 +35,16 @@ background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--tpc-foregr
 border: none;
 height: 2px;
 background: linear-gradient(to right, var(--trpg-type, <<colour muted-foreground>>), transparent);
+}
+
+/* Tables in a tiddler without a class of their own (written in wikitext or Markdown, the event
+   list): never wider than the tiddler. As a block as wide as its content (fit-content), at most
+   the width of the tiddler: the cells wrap first, what still does not fit scrolls sideways
+   inside the table instead of running over the frame. Tables with a class (the rules tables,
+   the list of a content package) keep their own layout. */
+.tc-tiddler-body table:not([class]) {
+display: block;
+width: fit-content;
+max-width: 100%;
+overflow-x: auto;
 }

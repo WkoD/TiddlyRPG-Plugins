@@ -85,6 +85,8 @@ A tour for the DM and the players. The sections after it hold the details.
   It colours nodes by type, names edges in the wiki language and leaves out what the view does
   not see. Above the graph the same switches by kind as on the relations block, one per kind
   the view shows. `$:/graph/Default` shows the tiddlers that are open.
+- A table in the text is never wider than its tiddler: the cells wrap, what still does not fit
+  scrolls sideways inside the table.
 - A link in a tiddler opens its target above that tiddler, a link in the sidebar at the top.
   Only `[[...]]` links; a word in CamelCase stays a word.
 
