@@ -326,7 +326,7 @@ test.describe("relations: open quests around what they mention, switches by kind
 		assert.match(html, /<div class="trpg-quest-event"><span class="trpg-pill-item"><a [^>]*><span class="tc-tag-label trpg-pill"[^>]*>Questfahrt<\/span><\/a><span class="trpg-via">\(1\. Ches 1351\)<\/span><\/span><\/div><div class="trpg-pills trpg-quest-event-entries">/);
 		assert.match(html, /class="tc-tag-label trpg-pill trpg-pill-rumour"[^>]*style="--trpg-pill:var\(--trpg-rumour\);">Spur<\/span>/, "a linked rumour gold, dashed and striped");
 		assert.match(html, /class="tc-tag-label trpg-pill"[^>]*>Questfahrt<\/span>/, "an event no rumour");
-		assert.equal(h.render(wiki, "text/plain", "<$text text={{{ [function[trpg.pillstyle],[Spur]] }}}/>"), "--trpg-kind:var(--trpg-rumour);--trpg-kind-border:dashed;--trpg-kind-fill:var(--trpg-rumour-pill)", "the pill of the editor alike");
+		assert.equal(h.render(wiki, "text/plain", "<$text text={{{ [function[trpg.pillstyle],[Spur]] }}}/>"), "--trpg-kind:var(--trpg-rumour);--trpg-kind-border:dashed;--trpg-kind-stripes:var(--trpg-rumour-stripes)", "the pill of the editor alike");
 		assert.match(h.view(wiki, "Spur"), /trpg-kind-switches/, "a rumour has the block too");
 		assert.match(h.view(wiki, "Spur"), /<div class="[^"]*trpg-rumour-tiddler[^"]*"[^>]*data-tiddler-title="Spur"/, "its page dashed and striped");
 		assert.doesNotMatch(h.view(wiki, "Turm"), /trpg-rumour-tiddler/, "a quest: gold from its tag");

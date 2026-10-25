@@ -1,5 +1,5 @@
 created: 20261015143331000
-modified: 20261025152828901
+modified: 20261025154251797
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/quest
 type: text/vnd.tiddlywiki
@@ -11,11 +11,12 @@ type: text/vnd.tiddlywiki
    A quest (tiddler tagged Quest) gold, a rumour gold too, but dashed where a quest has a line
    and striped at 45° where a quest is tinted (gold and the background, as the dead are striped
    grey and their colour, styles/border), whatever its status; complete and failed cards grey
-   like the dead (styles/dead). Palette colours via --tpc-*. --trpg-rumour-pill: the stripes of
-   a pill of the editor (styles/editor, --trpg-kind-fill from trpg.pillstyle). */
+   like the dead (styles/dead). Palette colours via --tpc-*. --trpg-rumour-stripes: the stripes
+   of a pill of the editor - bands of the background over its tint, which a hover deepens
+   (styles/editor, --trpg-kind-stripes from trpg.pillstyle). */
 :root {
 	--trpg-rumour: #e6b400;
-	--trpg-rumour-pill: repeating-linear-gradient(45deg, color-mix(in srgb, var(--trpg-rumour) 22%, var(--tpc-tiddler-background, #fff)) 0 12px, var(--tpc-tiddler-background, #fff) 12px 24px);
+	--trpg-rumour-stripes: repeating-linear-gradient(45deg, transparent 0 12px, var(--tpc-tiddler-background, #fff) 12px 24px);
 }
 
 /* The paragraphs the wikitext parser puts around inline-parsed content of the containers below

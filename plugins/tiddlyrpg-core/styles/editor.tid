@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261025152828901
+modified: 20261025154251797
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/editor
 type: text/vnd.tiddlywiki
@@ -10,7 +10,7 @@ type: text/vnd.tiddlywiki
    on the hubs (ui/hub-new), renaming a rumour (templates/quest-body).
    One system of controls:
      choose    .trpg-pick-pill - the colour of its type (--trpg-kind; a rumour dashed and striped:
-               --trpg-kind-border, --trpg-kind-fill from trpg.pillstyle); .trpg-off only the outline;
+               --trpg-kind-border, --trpg-kind-stripes from trpg.pillstyle); .trpg-off only the outline;
                .trpg-warn yellow (a new name, a name written almost alike); .trpg-neutral grey
      do        .trpg-do - filled in the accent colour (primary of the palette); .trpg-do-2 outlined
      take out  .trpg-pill-x - × at a pill; .trpg-remove - red text in a red outline
@@ -176,7 +176,8 @@ button.trpg-remove:hover,
 	padding: 0 8px;
 	border: 1px var(--trpg-kind-border, solid) var(--trpg-kind, var(--tpc-tag-background, #999));
 	border-radius: 999px;
-	background: var(--trpg-kind-fill, color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 22%, var(--tpc-tiddler-background, #fff)));
+	background-color: color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 22%, var(--tpc-tiddler-background, #fff));
+	background-image: var(--trpg-kind-stripes, none);
 	color: var(--trpg-ink);
 	font-size: 0.9em;
 	line-height: 1.6;
@@ -200,7 +201,8 @@ button.trpg-remove:hover,
 .trpg-pick-pill.trpg-choice:hover,
 .trpg-picker-hit:hover,
 .trpg-picker-hit.tc-list-item-selected {
-	background: color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 45%, var(--tpc-tiddler-background, #fff));
+	background-color: color-mix(in srgb, var(--trpg-kind, var(--tpc-tag-background, #999)) 45%, var(--tpc-tiddler-background, #fff));
+	background-image: var(--trpg-kind-stripes, none);
 }
 .trpg-pick-path {
 	font-size: 0.85em;

@@ -550,7 +550,7 @@ the tiddler title:
   headings, the tree with its arrow and line; static CSS, `type: text/css`), `path` (the font
   size of the path below the title from the theme; wikitext), `quest` (the frame of a marker in gold, a rumour dashed and striped
   at 45°, a quest and a rumour together gold, none on a card and in the history; `--trpg-rumour`,
-  `--trpg-rumour-pill` for the pills of the editor; wikitext),
+  `--trpg-rumour-stripes` for the pills of the editor; wikitext),
   `checks` (the messages below the title: a bar on the left, an error in the alert colour, a
   hint muted; static CSS), `sections` (the frames of the sections - a line on the left in the
   colour of `Event` or `Location`, a lock framed in the alert colour with its marker as a bar -
