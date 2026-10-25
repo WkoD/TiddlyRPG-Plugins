@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261024170203713
+modified: 20261025072238772
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -715,9 +715,20 @@ exports.damage = function(wiki,text,short) {
 /* Values of fields (modules/fields.js) */
 
 // A number: "19", "+2", "-1", "1,5"; spec.min/spec.max limit it. Shown as written, with the
-// decimal mark of the wiki language and the sign it carries.
+// decimal mark of the wiki language and the sign it carries. spec.integer: a whole number - a
+// point, comma, space or apostrophe before every group of three digits separates thousands, as
+// people write them ("120.000", "120,000", "120 000" are 120000, shown without separator);
+// anything else that is no whole number ("1,5", "12.00") is a problem, never read as a fraction.
 var number = exports.number = function(wiki,spec,text) {
 	text = (text || "").toString().trim();
+	if(spec.integer) {
+		var grouped = /^[+\-−]?\d{1,3}([.,   '’])\d{3}(?:\1\d{3})*$/.exec(text),
+			digits = grouped ? text.split(grouped[1]).join("") : text;
+		if(!/^[+\-−]?\d+$/.test(digits)) {
+			return result(text,"Rules/Check/Integer",{text: text});
+		}
+		text = digits;
+	}
 	if(!/^[+\-−]?\d+(?:[.,]\d+)?$/.test(text)) {
 		return result(text,"Rules/Check/Number",{text: text});
 	}

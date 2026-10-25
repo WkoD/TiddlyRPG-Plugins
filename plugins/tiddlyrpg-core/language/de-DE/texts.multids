@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261024152302984
+modified: 20261025072238772
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -249,6 +249,7 @@ Rules/Check/PropertyParent: Feld $field$ prüfen: „$id$“ gehört zu $parents
 Rules/Check/PropertyTwice: Feld $field$ prüfen: „$id$“ passt zu $parents$ gleichermaßen
 Rules/Check/Number: Feld $field$ prüfen: „$text$“ ist keine Zahl
 Rules/Check/NumberRange: Feld $field$ prüfen: $text$ liegt außerhalb von $min$ bis $max$
+Rules/Check/Integer: Feld $field$ prüfen: „$text$“ ist keine ganze Zahl
 Rules/Check/Boolean: Feld $field$ prüfen: „$text$“ ist weder ja noch nein
 Rules/Check/Dice: Feld $field$ prüfen: „$text$“ ist kein Würfelausdruck
 Rules/Check/UnitDomain: Feld $field$ prüfen: „$text$“ ist kein Wert für $domain$

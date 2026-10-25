@@ -676,3 +676,49 @@ test.describe("the level of a player character", function() {
 		});
 	});
 });
+
+test.describe("XP: a whole number, also for a person", function() {
+	var form;
+
+	test.before(function() {
+		form = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/form.js");
+	});
+
+	test("thousands separated as people write them; a fraction is a problem, never read as one", function() {
+		["6500", "6.500", "6,500", "6 500", "6 500", "6'500"].forEach(function(xp) {
+			assert.equal(fields.read(wiki, {xp: xp}, "player-level").text, "5", xp);
+			assert.equal(fields.read(wiki, {xp: xp}, "xp").text, "6500", xp + " shown without separator");
+			assert.equal(fields.read(wiki, {xp: xp}, "xp").problem, null, xp);
+		});
+		["1,5", "12.00", "6.5000", "6,500.5", "6.500,000"].forEach(function(xp) {
+			var r = fields.read(wiki, {xp: xp}, "xp");
+			assert.equal(r.problem, "Rules/Check/Integer", xp);
+			assert.equal(fields.problem(wiki, {xp: xp}, "xp").key, "Check/Fields/Value", xp + ": the message below the title");
+			assert.equal(fields.read(wiki, {xp: xp}, "player-level").text, "", xp + " gives no level");
+		});
+		assert.equal(rules.number(wiki, {format: "number"}, "1,5").value, 1.5, "a number without integer keeps its fraction");
+	});
+
+	test("a person may have XP: the form offers it, the block shows the level", function() {
+		h.add(wiki, {title: "Draft of 'Wirt'", "draft.of": "Wirt", "draft.title": "Wirt", tags: "Person"});
+		h.add(wiki, {title: "Wirt", tags: "Person", xp: "2700"});
+		try {
+			assert.ok(form.offered(wiki, "Draft of 'Wirt'").indexOf("xp") !== -1);
+			var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/fields\" mode=\"block\"/>", {currentTiddler: "Wirt"});
+			assert.match(html.replace(/>\s+</g, "><"), /Stufe<\/span> 4<\/span>/);
+		} finally {
+			wiki.deleteTiddler("Draft of 'Wirt'");
+			wiki.deleteTiddler("Wirt");
+		}
+	});
+
+	test("a player character becomes a person: the XP stays", function() {
+		h.add(wiki, {title: "Draft of 'Held'", "draft.of": "Held", "draft.title": "Held", tags: "Person", player: "Anna", xp: "1000"});
+		try {
+			assert.equal(form.dropped(wiki, "Draft of 'Held'").indexOf("xp"), -1);
+			assert.ok(form.fields(wiki, "Draft of 'Held'").indexOf("xp") !== -1, "shown in the form");
+		} finally {
+			wiki.deleteTiddler("Draft of 'Held'");
+		}
+	});
+});

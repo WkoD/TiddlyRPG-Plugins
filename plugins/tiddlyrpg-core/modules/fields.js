@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/fields.js
 type: application/javascript
 module-type: library
 created: 20261022141507011
-modified: 20261024170203713
+modified: 20261025072238772
 
 The fields of the rules: which fields a type has, how their values read and show. The data is the
 ruleset's (or the wiki's), the core knows no field name. JSON data tiddlers tagged
@@ -27,6 +27,9 @@ $:/tags/tiddlyrpg/RulesFields, two kinds:
                  "computed" {"<entry>": derive}  entries of a labels field shown with their value
                            even when not written (senses: passive-perception)
                  "signed"  a number shown with its sign ("+6")
+                 "integer": true  a whole number; thousands may be separated as people write
+                           them ("120.000", "120,000"), a fraction is a problem - never read
+                           as one (the XP; modules/rules.js number())
                  "view": false  only in the editor, not in the block (expertise: it shows in
                            the values of the skills already)
                  "edit": false  only derived, never written: the form neither shows nor offers it
@@ -247,11 +250,16 @@ function numberOf(wiki,fields,field,depth) {
 		return null;
 	}
 	var text = raw(fields,field);
+	var s = spec(wiki,field);
 	if(text) {
+		// A whole number as the rules read it: thousands separated, nothing for what is no number
+		if(s && s.integer) {
+			var r = rules().number(wiki,s,text);
+			return r.problem ? null : r.value;
+		}
 		var n = parseFloat(text.replace(",",".").replace("−","-"));
 		return isNaN(n) ? null : n;
 	}
-	var s = spec(wiki,field);
 	return s && s.derive ? compute(wiki,fields,s.derive,null,(depth || 0) + 1) : null;
 }
 

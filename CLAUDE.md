@@ -260,7 +260,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     with those of the wiki, labels, derived values (modifier, average, total, lookup, band - the
     level of a player character by its XP from a table domain -, sum over the entries of a list,
     computed entries), a field only derived (`"edit": false`: not in the form, no lock of its
-    own), the card of a player character (`card`, `trpgfieldcard`, a former one and a locked XP), the header line, `when`, `copyFrom()` with the
+    own), a whole number (`"integer"`: thousands separated, a fraction a problem), the XP of a
+    person, kept when a player character becomes one, the card of a player character (`card`,
+    `trpgfieldcard`, a former one and a locked XP), the header line, `when`, `copyFrom()` with the
     lock; patterns with parts in braces (`fill()`), a label in a variant and in the variant
     another field names (`$size.@creature-type$`, a locked field names none), combined lines; the rule `fields/schema` (a
     reserved name, a field defined twice, without definition); the block of values
@@ -366,7 +368,8 @@ name, `kebab-case`). Macros are called by their `exports.name` (e.g. `<<image>>`
 the tiddler title:
 
 - **Functions and procedures** (`functions`, tag `$:/tags/Global`): `trpg.visible`, `trpg.dead`,
-  `trpg.link`, `trpg.pill` (see "Functions & cascades"), `trpg.t`, `trpg.title`, `trpg.plural` (language
+  `trpg.link`, `trpg.pill` (see "Functions & cascades"), `trpg.hub`, `trpg.hub.entries`,
+  `trpg.hub.list`, `trpg.hub.entry` (the type hubs, see "Index/hub tiddlers"), `trpg.t`, `trpg.title`, `trpg.plural` (language
   system), the procedures `dateformat`, `dateadd`, `datediff` (calendar), `unit`, `dice`, `damage`, `term`
   (rules engine), `date` (dated section in a body,
   with `widgets/date.js`), `trpg.places` (location pills of a section, with the pills of
@@ -463,7 +466,8 @@ the tiddler title:
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
   `fields.js` (`trpgfieldsummary`, `trpgfieldsections`, `trpgfieldlines`, `trpgfieldsection`,
-  `trpgfieldshow`, `trpgfieldlabel`, `trpgfieldcolor`: the block of values, see "Rules
+  `trpgfieldshow`, `trpgfieldlabel`, `trpgfieldcolor`, `trpgfieldcard`: the block of values and the
+  card of a player character, see "Rules
   engine"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
   `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, see "Relations"),
@@ -733,7 +737,8 @@ Of each type one is active, chosen in
   language than the wiki. Domains are JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain`
   from the active ruleset or setting (`domain`, `type`, `keys` and what the type needs, in the
   JSON - the field `type` is the content type, `application/json`); the core knows the
-  types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`), never a domain name. A
+  types (`calendar`, `unit`, `label`, `tokens`, `damage`, `currency`, `section`, `table`), never a
+  domain name. A
   domain belongs to a group, `ruleset` or `setting` (`domainGroup()`, operator
   `trpgrulesgroup`: the type of its plugin; a domain without tiddler belongs to the setting),
   and each group has a setting of its own: the DM sets the language shown under
