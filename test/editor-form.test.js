@@ -31,7 +31,17 @@ function f(text, variables) {
 	return Array.from(h.filter(wiki, text, variables));
 }
 
+// After each test of a block without drafts of its own: no draft, no state of the form, no
+// notice left, also when the test failed halfway
+function dropDrafts() {
+	wiki.filterTiddlers("[all[tiddlers]is[draft]] [all[tiddlers]prefix[$:/state/tiddlyrpg-core/form-extra/]] [[$:/temp/tiddlyrpg-core/editor/notice]]").forEach(function(title) {
+		wiki.deleteTiddler(title);
+	});
+}
+
 test.describe("fields of the form", function() {
+	test.afterEach(dropDrafts);
+
 	test("the fields the type expects first by kind, then every known field the draft has", function() {
 		h.add(wiki, {title: "Draft of 'Ann'", "draft.of": "Ann", tags: "Person", bond: "Bea", text: "A."});
 		assert.deepEqual(Array.from(form.fields(wiki, "Draft of 'Ann'")), ["image", "bond"]);
@@ -298,6 +308,8 @@ test.describe("fields of the form", function() {
 });
 
 test.describe("symmetric relations on both ends", function() {
+	test.afterEach(dropDrafts);
+
 	function list(title, field) {
 		return $tw.utils.parseStringArray((wiki.getTiddler(title).fields[field]) || "") || [];
 	}
@@ -354,6 +366,8 @@ test.describe("symmetric relations on both ends", function() {
 });
 
 test.describe("messages of a draft and their fixes", function() {
+	test.afterEach(dropDrafts);
+
 	test("rules on the draft, those about others on the title it is the draft of; a fix done leaves its message out", function() {
 		// Cid has bond Ann, Ann not bond Cid: the hint is at Ann
 		h.add(wiki, {title: "Draft of 'Ann'", "draft.of": "Ann", tags: "Person", location: "Nowhere-land", text: "A."});

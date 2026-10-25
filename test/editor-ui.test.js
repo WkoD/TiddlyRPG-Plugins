@@ -59,6 +59,13 @@ test.describe("the text operations", function() {
 			$tw.utils.extend(ops, module);
 		});
 	});
+	// each operation starts without the draft, its probe, its inputs, the new location and a notice
+	test.afterEach(function() {
+		["Draft of 'Zug'", "$:/temp/tiddlyrpg-core/editor/probe/Draft of 'Zug'", "$:/temp/tiddlyrpg-core/editor/input/Draft of 'Zug'",
+			"Neue Mühle", "$:/temp/tiddlyrpg-core/editor/notice"].forEach(function(title) {
+			wiki.deleteTiddler(title);
+		});
+	});
 	// The edit-text widget as the operations see it
 	function widget(draft) {
 		var events = [];

@@ -39,12 +39,20 @@ function keys(title) {
 	return h.checkKeys(wiki, title, "categories");
 }
 
+// Adds the tiddlers for fn and writes back what was there before (a fixture stays as it was)
 function withTiddlers(list, fn) {
+	var before = list.map(function(fields) { return wiki.getTiddler(fields.title); });
 	list.forEach(function(fields) { h.add(wiki, fields); });
 	try {
 		return fn();
 	} finally {
-		list.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		list.forEach(function(fields, i) {
+			if(before[i]) {
+				wiki.addTiddler(before[i]);
+			} else {
+				wiki.deleteTiddler(fields.title);
+			}
+		});
 	}
 }
 

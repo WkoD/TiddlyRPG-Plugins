@@ -300,8 +300,13 @@ test.describe("the hub Content", function() {
 		h.add(wiki, {title: "Dagger", tags: "Item", text: "Ours."});
 	});
 
+	// every test starts without a chosen type, filter, page or search
+	test.afterEach(function() {
+		[STATE, STATE + "/search"].forEach(function(t) { wiki.deleteTiddler(t); });
+	});
+
 	test.after(function() {
-		["$:/temp/tiddlyrpg-core/content/index", "Dagger", STATE, STATE + "/search"].forEach(function(t) { wiki.deleteTiddler(t); });
+		["$:/temp/tiddlyrpg-core/content/index", "Dagger"].forEach(function(t) { wiki.deleteTiddler(t); });
 	});
 
 	test("in Information only with a package", function() {

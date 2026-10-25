@@ -138,6 +138,7 @@ test.describe("trpg.link", function() {
 	];
 
 	test.before(function() {
+		h.setLanguage(wiki, "de-DE");
 		added.forEach(function(fields) {
 			h.add(wiki, fields);
 		});
