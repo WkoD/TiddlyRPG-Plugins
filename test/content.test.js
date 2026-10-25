@@ -280,6 +280,30 @@ test.describe("the hub Content", function() {
 		}
 	});
 
+	test("a taken tiddler the view does not see: its row like an offer, no link, no \"in the wiki\"", function() {
+		h.add(wiki, {title: STATE, type: "Item"});
+		h.add(wiki, {title: STATE + "/search", text: "dag"});
+		h.add(wiki, {title: "Dagger", tags: "Item Secret", text: "Ours, locked."});
+		try {
+			assert.match(hub(), /<a [^>]*>Dagger<\/a><\/td>.*?im Wiki/, "the DM");
+			var pub = h.inView(wiki, "public", hub),
+				offer = h.inView(wiki, "public", function() {
+					h.add(wiki, {title: STATE + "/search", text: "long"});
+					return hub();
+				});
+			assert.doesNotMatch(pub, /href="#Dagger"|im Wiki/);
+			assert.match(pub, /<td>Dagger<\/td>.*?Vorschau.*?Übernehmen/);
+			var row = function(html, name) {
+				return html.match(/<table class="trpg-content-list">.*<\/table>/)[0].split(name).join("X").replace(/<td class="trpg-content-summary">[^<]*<\/td>/, "");
+			};
+			assert.equal(row(pub, "Dagger"), row(offer, "Longsword"), "the same as an offer");
+		} finally {
+			h.add(wiki, {title: "Dagger", tags: "Item", text: "Ours."});
+			wiki.deleteTiddler(STATE + "/search");
+			wiki.deleteTiddler(STATE);
+		}
+	});
+
 	test("the filters of the schema, the search, the pages", function() {
 		h.add(wiki, {title: STATE, type: "Item"});
 		var html = hub();
