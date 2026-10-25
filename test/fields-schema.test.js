@@ -635,6 +635,10 @@ test.describe("the lock of values (secret-fields)", function() {
 			assert.deepEqual(f("[[Draft of 'Kelch']trpglocktoggle[rarity]]"), [""], "nothing stays: the field goes");
 			assert.deepEqual(f("[[Draft of 'Kelch']trpglocktoggle[all]]"), ["all"]);
 			assert.match(h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: "Draft of 'Kelch'"}), /Gesperrte Werte.*alle.*Seltenheit/);
+			// The price is locked on its own too (secret-fields: price): a pill for it, last
+			h.add(wiki, {title: "Draft of 'Kelch'", "draft.of": "Kelch", tags: "Item", rarity: "rare", price: "50 gp", "secret-fields": "price"});
+			assert.deepEqual(f("[[Draft of 'Kelch']trpglockfields[]]"), ["rarity", "price"]);
+			assert.match(h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: "Draft of 'Kelch'"}), /Gesperrte Werte.*alle.*Seltenheit.*Preis/);
 		} finally {
 			wiki.deleteTiddler("Draft of 'Kelch'");
 		}

@@ -1,16 +1,17 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261025195338380
 title: $:/plugins/tiddlyrpg-core/editor/fields/price
 type: text/vnd.tiddlywiki
 
-<!-- Editor of the field price: the input; a plain number gets the reference coin of the active
-     currency (currency reference, the one the prices of the ruleset are written in) shown pale
-     behind it while typing, and written behind it when the input is left - without a currency
-     nothing. Below the price as the wiki shows it (priceformat) or why it cannot be read
-     (pricecheck, the same rule as items/price). Read after the input (focus). Variables:
+<!-- Editor of the field price: the input; a plain number, or a range of two ("50-100", the coin
+     behind the upper bound counts for both), gets the reference coin of the active currency
+     (currency reference, the one the prices of the ruleset are written in) shown pale behind it
+     while typing, and written behind it when the input is left - without a currency nothing.
+     Below the price as the wiki shows it (priceformat) or why it cannot be read (pricecheck,
+     the same rule as items/price). Read after the input (focus). Variables:
      currentTiddler (the draft), currentField. -->
 \function trpg.pricecoin() [currency[reference]]
-\procedure trpg.pricenumber() ^\d+(?:[.,]\d+)?$
+\procedure trpg.pricenumber() ^\d+(?:[.,]\d+)?(?:\s*[-–—]\s*\d+(?:[.,]\d+)?)?$
 
 \procedure trpg.priceleave()
 <$let trpg-value={{{ [<currentTiddler>get<currentField>trim[]] }}}>

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261022164852090
+modified: 20261025195319654
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
@@ -244,10 +244,11 @@ function total(cur,parsed) {
 	},0);
 }
 
-// The worth of a price in the smallest coin, or null; a range: [low, high]
+// The worth of a price in the smallest coin, or null; a range: [low, high] - null as well when a
+// bound has no coin of its own and inherits none ("5 - 2 gp 5 sp"), as pricecheck reports it
 var worth = exports.worth = function(wiki,cur,text) {
 	var parsed = parse(wiki,cur,text);
-	if(!cur || parsed.invalid || parsed.unknown || parsed.plain) {
+	if(!cur || parsed.invalid || parsed.unknown || parsed.plain || (parsed.range && (parsed.range[0].plain || parsed.range[1].plain))) {
 		return null;
 	}
 	return parsed.range ? [total(cur,parsed.range[0]),total(cur,parsed.range[1])] : total(cur,parsed);

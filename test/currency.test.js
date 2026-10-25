@@ -152,6 +152,30 @@ test.describe("a range of prices", function() {
 		assert.equal(f("[<v>trpgunit[]]", {v: "50-100 gp"}), "50–100 GM");
 	});
 
+	test("the editor of the price: a number or a range of numbers gets the coin of reference when left", function() {
+		var leave = function(value) {
+			h.add(wiki, {title: "Draft of 'Ware'", "draft.of": "Ware", price: value});
+			$tw.rootWidget.invokeActionString("\\import [[$:/plugins/tiddlyrpg-core/editor/fields/price]]\n<<trpg.priceleave>>", $tw.rootWidget, null,
+				{currentTiddler: "Draft of 'Ware'", currentField: "price"});
+			return wiki.getTiddler("Draft of 'Ware'").fields.price;
+		};
+		try {
+			assert.equal(leave("50"), "50 gp");
+			assert.equal(leave("50-100"), "50-100 gp", "the coin behind the upper bound counts for both");
+			assert.equal(leave("50 gp"), "50 gp");
+			assert.equal(leave("50-100 sp"), "50-100 sp");
+		} finally {
+			wiki.deleteTiddler("Draft of 'Ware'");
+		}
+	});
+
+	// A plain bound inherits only the one coin of the other bound; else it has no worth
+	test("a bound without a coin that inherits none: no worth, nothing converted", function() {
+		assert.equal(f("[<p>priceconvert[gp]]", {p: "5 - 2 gp 5 sp"}), "");
+		assert.equal(f("[<p>priceconvert[gp]]", {p: "10 gp-5"}), "");
+		assert.equal(currency.worth(wiki, currency.active(wiki), "5 - 2 gp 5 sp"), null);
+	});
+
 	test("en-GB", function() {
 		h.setLanguage(wiki, "en-GB");
 		try {

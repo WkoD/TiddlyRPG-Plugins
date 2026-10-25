@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025193043305
+modified: 20261025195355536
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -60,7 +60,8 @@ The editor of a field of the rules (editor/fields/rules), for a draft:
 [<draft>trpgfieldreading<field>]       the reading below the input: "Output: ..." of a value, the
                                        derived value of an empty field; :problem the problem
 The lock of the values, secret-fields (editor/fields/secret-fields):
-[<draft>trpglockfields[]]              the fields of the rules the draft has, to lock one by one
+[<draft>trpglockfields[]]              the fields of the rules the draft has, to lock one by one, and
+                                       its price last
 [<draft>trpglockon<id>]                "yes" if <id> (a field or "all") is locked
 [<draft>trpglocktoggle<id>]            the value with <id> locked or no more: "all" stands alone,
                                        a field takes "all" out; empty when nothing stays (the field
@@ -464,11 +465,12 @@ exports.trpgfieldreading = function(source,operator,options) {
 exports.trpglockfields = function(source,operator,options) {
 	var wiki = options.wiki;
 	return each(source,function(title) {
-		var values = valuesOf(wiki,title,true);
+		var values = valuesOf(wiki,title,true),
+			written = function(field) { return (values[field] || "").toString().trim() !== ""; };
 		return fields.forTiddler(wiki,title).fields.filter(function(field) {
 			var s = fields.spec(wiki,field);
-			return (values[field] || "").toString().trim() !== "" && !(s && s.edit === false);
-		});
+			return written(field) && !(s && s.edit === false);
+		}).concat(written(PRICE) ? [PRICE] : []);
 	});
 };
 
