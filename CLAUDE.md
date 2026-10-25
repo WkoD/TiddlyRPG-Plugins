@@ -216,8 +216,9 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     Locations; everyone once, in every opened place too), the messages of `checks/relations.js`
   - `graph` - through the nodes and edges of the real templates (`h.graph`): the
     `edges.typed` override (`tiddlyrpg-exclude`, symmetric edges, style from the edge type
-    config and its axis, included types, every type its own edge, the types of a view), the function edges `rules`, `spots` and `links`, the ego graph (type colours, the dead, a location as centre,
-    folding), the map (pins, spots, positions, editing, hidden nodes, image and fit), the view
+    config and its axis, included types, every type its own edge, the types of a view), the function edges `rules`, `spots` and `links`, the ego graph (type colours, the dead, a location as centre
+    with its spots, the places within as plain nodes), the map (pins, spots, positions, editing,
+    image and fit, a hidden tab waits), the view
     template `trpg-graph` (its switches, no tag left over as text); the map view outside `$:/graph/`, the fit of the map image
     (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`)
   - `plugin-types` - the plugin types `ruleset` and `setting` against the fixture plugins: the
@@ -481,7 +482,12 @@ the tiddler title:
   `hubs.js` (`trpghubentries`, `trpghubsubs`, `trpgsortname`, `trpginitial`, see "Index/hub tiddlers"),
   `spots.js` (`spots`, `spottargets`, `spotplain`,
   `spotanchor`, `spottarget`, `spotref`, `spotowner`, `spotlinked`), `images.js` (`imagetabs`,
-  `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations"),
+  `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations";
+  `imagefolder`: the folder of a type),
+  `content.js` (`trpgcontentready`, `trpgcontentfor`, `trpgcontentids`, `trpgcontentsearch`,
+  `trpgwikilink`, `relationcontent`, `trpgcontentoffer`; for the hub `Content`
+  `trpgcontenttypes`, `trpgcontentlist`, `trpgcontentfilters`, `trpgcontentvalues`; see
+  "Content packages"),
   `fields.js` (`trpgfieldsummary`, `trpgfieldsections`, `trpgfieldlines`, `trpgfieldsection`,
   `trpgfieldshow`, `trpgfieldparts`, `trpgfieldlabel`, `trpgfieldcolor`, `trpgfieldlocked`,
   `trpgtreerows`: the block of values; `trpgcardlines`: the card of a player character;
@@ -494,7 +500,7 @@ the tiddler title:
   `questplayers`, `questlinks`, `questmarked`, `questmentions`, `questevents`, `questlinkat`,
   `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
-  `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgunit`,
+  `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgruleslabel`, `trpgunit`,
   `trpgdice`, `trpgdamage`, `trpgterm`, see "Language system" -> "Rules language" and "Rules
   engine"), `checks.js` (`trpgcheck`, `trpgdraftcheck`, see "Checks"), `editor.js` (the
   filters of the editor, listed in its header, see "Editor").
@@ -568,7 +574,11 @@ the tiddler title:
   and the frame of a locked tiddler outside the frame of its type; wikitext for the colours),
   `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
   `Player`), `hubs` (the hubs and `Campaign` in their colour, their lists, the list of the hubs
-  of `Index`; see "Index/hub tiddlers") and `editor` (the controls of the editor, see "Editor").
+  of `Index`; see "Index/hub tiddlers"), `content` (the offer of a missing tiddler, the hub
+  `Content`, a hit of a package in the search and in a picker; static CSS), `rules` (the tables
+  of the hubs `Ruleset` and `CampaignSetting` and of the rules language, the choice of ruleset
+  and setting, the converter of `Currency`, the highlight of the rules macros; static CSS) and
+  `editor` (the controls of the editor, see "Editor").
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/quest-body`, `templates/quest-card`, `templates/quest-list` (see "Quests"),
@@ -1102,7 +1112,7 @@ only call their operators.
   `location` points to the location or, through spots only, to a part of it. Organisations,
   items and materials may have several locations; persons one, artifacts one owner or one
   location (`locations/structure` reports more, or both). Items are occupants like everyone else:
-  in the tree of the relation list and for the folding in the ego graph.
+  in the tree of the relation list and in the ego graph of a location.
 - The path below the title (`trpg.locationpath`, filter `locationgroups`): for a location its
   parents; for every other type the places of `location` and the locations of `leader`
   together, one line per parent path, the places of a line side by side ("Materielle Ebene ▸

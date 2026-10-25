@@ -719,10 +719,10 @@ Every item has **one base type** and any number of **categories**:
 | `Consumable` | potions, tinctures and everything used up |
 | `Equipment` | everything one can equip: weapons, armour, a bag of holding |
 
-Plenty of items need no category (`tags: Item`). A category never stands alone - a hint below
+Plenty of items need no category (`tags: Item`). A category never stands alone - an error below
 the title asks for the base type, as it does for two base types (not in the published copy).
 The hub `Item` lists every item from A to Z; above the list `Artifact`, `Material` and the
-categories lead to their hubs, which list only their own items. How many of an item exist is
+categories, sorted by name, lead to their hubs, which list only their own items. How many of an item exist is
 told by the text - a list field carries every name once.
 
 **An own category** of a campaign: a tiddler (e.g. `Rune`) tagged `$:/tags/tiddlyrpg/Category`,
@@ -783,8 +783,9 @@ on `Hill Dwarf`); several parents alike (a fighting style of the fighter and of 
   Ancestor: Red]]`. One that names an entry without any of its parents gets a message with the
   fix (`relations/parent`); an entry of a content package not taken counts with the parents of
   the entry.
-- The card of a player character shows a line per entry without parent, what belongs to it
-  after it (see "Player characters, views and secrets").
+- The card of a player character shows a line per entry without parent: a class after its
+  level, a folk as its subfolk where it has one; the block of values of the character shows the
+  whole trees (see "Player characters, views and secrets").
 - The relation list splits the way back by kind: on a class "Player characters", "Persons",
   "Classes" (what belongs to it), "Spells", "Items"; on a folk "Persons", "Folks" and so on.
 - Taking an entry of a package offers what it belongs to along.
@@ -1044,7 +1045,7 @@ out every message of its level. An id that is no rule is a hint.
 | `macros/rules` | error | a rules macro with a text the ruleset does not understand |
 | `macros/unknown` | error | a macro nothing defines |
 | `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
-| `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a property whose parent is no entry of its domain or that is its own ancestor (only `check-wiki.js`); a kind of sections with the name of a kind of the core or of a widget, or locked by a field the rules do not define |
+| `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a property whose parent is no entry of its domain or that is its own ancestor (only `check-wiki.js`); a kind of sections with the name of a kind of the core or `intro`, of a widget or of a global procedure or macro (its call would replace it), or locked by a field the rules do not define |
 | `quests/marker` | hint | a quest without a marker |
 | `quests/similar` | hint | two names of quests or rumours that look like one written two ways: the same apart from case, spaces and punctuation, or - from five letters on - one letter or two swapped |
 | `relations/missing` | error | a relation field names a tiddler that does not exist (for `location` with the spot of that name); not an entry of a content package it may name |

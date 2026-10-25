@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261025193508321
+modified: 20261025211407212
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -308,7 +308,8 @@ function rulesKind(domain,entry,order) {
 			if(intro && record.params.name && named[0] === record && !intros.length) {
 				problems.push({key: "Section/Check/IntroMissing", params: {macro: macro}});
 			}
-			// A lock by a field that is empty locks nothing: everyone sees the section
+			// A section bound to a field that is empty belongs to nothing (who sees it follows
+			// secret-fields, not the value)
 			if(lock && tiddler && !(tiddler.fields[lock] || "").toString().trim()) {
 				problems.push({level: "hint", key: "Section/Check/LockField", params: {macro: macro, name: record.params.plain,
 					field: require("$:/plugins/tiddlyrpg-core/modules/fields.js").label(wiki,lock)}});
