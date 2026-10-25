@@ -414,7 +414,7 @@ test.describe("de-DE", function() {
 
 	test("one map: the tabs Map and Quests and rumours, the map with its graph", function() {
 		assert.ok(avalon.indexOf('class="trpg-map"') !== -1 && avalon.indexOf('data-tab-title="map"') !== -1 && avalon.indexOf('data-tab-title="quests"') !== -1, avalon);
-		assert.ok(avalon.indexOf("<span>Karte</span>") < avalon.indexOf("<span>Quests und Gerüchte</span>"), avalon);
+		assert.ok(h.inOrder(avalon, ["<span>Karte</span>", "<span>Quests und Gerüchte</span>"]), avalon);
 	});
 
 	test("map: a rule parts it from the relations", function() {
@@ -495,7 +495,7 @@ test.describe("de-DE", function() {
 			var one = h.view(wiki, "Pic One"),
 				two = h.view(wiki, "Pic Two");
 			assert.ok(one.indexOf('src="images/person/Face.jpg"') !== -1 && one.indexOf('href="images/') === -1 && one.indexOf("<span>Face</span>") === -1, one);
-			assert.ok(two.indexOf("<span>Front</span>") !== -1 && two.indexOf("<span>Front</span>") < two.indexOf("<span>Side view</span>"), two);
+			assert.ok(h.inOrder(two, ["<span>Front</span>", "<span>Side view</span>"]), two);
 			assert.ok(two.indexOf('src="images/person/Front.png"') !== -1 && two.indexOf("Side view.png") === -1, two);
 			assert.ok(h.view(wiki, "Pic Info").indexOf('src="images/information/Note.png"') !== -1);
 		} finally {
@@ -543,7 +543,7 @@ test.describe("de-DE", function() {
 	});
 
 	test("map block before history", function() {
-		assert.ok(avalon.indexOf("Kantine") !== -1 && avalon.indexOf("Kantine") < avalon.indexOf(">Zeitstrahl<"), avalon);
+		assert.ok(h.inOrder(avalon, ["Kantine", ">Zeitstrahl<"]), avalon);
 	});
 
 	test("locked events are left out of the event list", function() {

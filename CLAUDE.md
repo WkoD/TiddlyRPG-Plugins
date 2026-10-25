@@ -141,7 +141,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     number, no empty group, no arrow); the sweep (see "Visibility - check with every change"; it
     runs as in a browser, `h.inBrowser`, so the map renders; it also renders ControlPanel ->
     License, the list of the picker as typed and the dropdown of every tag pill; in the public
-    view and the views of two players; every channel shows a secret to the DM); a tiddler the
+    view and the views of two players; every channel shows a secret to the DM; its fixtures
+    hold a secret on every hub and behind every relation field, a test names what is missing); a tiddler the
     view does not see, opened anyway, looks like an empty locked one but for its title.
     `h.setView`/`h.inView` set the view; without them the tests run in the view of the DM (no
     `$:/status/IsReadOnly`). `h.view` opens the tabs of `h.tabs` for the tiddler it renders (the
@@ -291,10 +292,16 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     an own calendar); disabled inputs in the published copy, version hints
   - `rules-check` - the messages on rules macros below the title: wiki language, not in the
     published copy, not for a section the view does not see, not for computed parameters
-  - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name) in the files
-    or file names below `plugins/`; new names use `tiddlyrpg-`, `trpg-`, `trpg.`
+  - `naming` - no old prefix (`dndwiki`, `dnd-`, `dnd.`, `dnd` before a name, in any case) in
+    the files or file names below `plugins/`, `scripts/` and `editions/`; new names use
+    `tiddlyrpg-`, `trpg-`, `trpg.`
+  - `inventory` - this file against the plugin: every filter operator named in the header of
+    its module and here (`editor.js`: in its header), every file of the folders of the plugin
+    named here
+  - `hygiene` - the tests themselves: no order compared as two `indexOf` (it holds when the
+    first is missing); `h.inOrder(text, strings)` fails then
   - `lang/packs` - every language complete against en-GB (keys only in `en-GB/names.multids`
-    may be missing; keys ending in `/Parse` are words read in one language only)
+    may be missing; keys ending in `/Parse` are words read in one language only), no empty value
   - `lang/i18n` - display names, tag hook, search, edge labels of the real edges, refresh after
     a language change
   - `lang/rules-lang` - the rules language: both settings in the three modes, independent,
@@ -491,8 +498,9 @@ the tiddler title:
   `fields.js` (`trpgfieldsummary`, `trpgfieldsections`, `trpgfieldlines`, `trpgfieldsection`,
   `trpgfieldshow`, `trpgfieldparts`, `trpgfieldlabel`, `trpgfieldcolor`, `trpgfieldlocked`,
   `trpgtreerows`: the block of values; `trpgcardlines`: the card of a player character;
-  `trpgfieldreading`, `trpglockfields`, `trpglevelentries`, `trpglevel`, `trpglevelset` and the
-  rest of the form: its header; see "Rules engine"),
+  `trpgfieldreading`, `trpglockfields`, `trpglevelentries`, `trpglevel`, `trpglevelset`,
+  `trpgfieldinput`, `trpgfieldchoices`, `trpgfieldchoice`, `trpgfieldchosen`,
+  `trpgfieldtoggle`, `trpglockon`, `trpglocktoggle`: the form; see "Rules engine"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
   `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, `relationtree`,
   `relationfield`, `relationgroups`, `relationgroup`, see "Relations"),
@@ -582,7 +590,8 @@ the tiddler title:
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/quest-body`, `templates/quest-card`, `templates/quest-list` (see "Quests"),
-  `templates/title-translated`, `templates/title-hub`,
+  `templates/title-translated`, `templates/title-hub`, `templates/title-preview` (the heading
+  of the preview of a package entry, see "Content packages"),
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
 - **Configuration** (`config/*`): `type-colour`, `class-dead`, `class-secret` (class

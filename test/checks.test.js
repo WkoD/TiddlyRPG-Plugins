@@ -78,7 +78,7 @@ test.describe("messages", function() {
 			var html = h.view(wiki, "Mischung");
 			assert.match(html, /<div class="trpg-check trpg-check-error" title="dates\/format">Datum prüfen: 1351-13 – den Monat 13 gibt es nicht<\/div>/);
 			assert.match(html, /<div class="trpg-check trpg-check-hint" title="links\/missing">Link prüfen: /);
-			assert.ok(html.indexOf("trpg-check-error") < html.indexOf("trpg-check-hint"));
+			assert.ok(h.inOrder(html, ["trpg-check-error", "trpg-check-hint"]), html);
 		});
 	});
 

@@ -120,7 +120,7 @@ test.describe("body and map tab", function() {
 
 	test("spots: the texts follow their headings", function() {
 		var html = mapBlock("Town");
-		assert.ok(html.indexOf("spot-old-well") < html.indexOf("Deep and dark.") && html.indexOf("Deep and dark.") < html.indexOf("spot-tempel-von-chauntea"), html);
+		assert.ok(h.inOrder(html, ["spot-old-well", "Deep and dark.", "spot-tempel-von-chauntea"]), html);
 	});
 
 	test("location without map image: the graph with its buttons, the spots", function() {

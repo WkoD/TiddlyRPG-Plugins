@@ -75,7 +75,7 @@ test("rendered: the name in bold before the text, a full stop unless it has a ma
 	var totem = body(TOTEM);
 	assert.match(totem, /<div class="trpg-section trpg-section-effect trpg-section-rules"><p><span class="trpg-section-name">Geist des Hirsches\.<\/span> Der Träger springt weit\.<\/p><p>Und landet sicher\.<\/p><\/div>/,
 		"the block: the name runs into its first paragraph");
-	assert.ok(totem.indexOf("Geist des Hirsches") < totem.indexOf("Ende."), "the block ends with its closing tag");
+	assert.ok(h.inOrder(totem, ["Geist des Hirsches", "Ende."]), "the block ends with its closing tag");
 });
 
 test("collected in the order of the domain, a heading before each kind that has one, the intro first", function() {

@@ -445,7 +445,7 @@ test.describe("fields of the rules in the form", function() {
 	test("shown when written, after the general fields and before the relations; labels of the ruleset", function() {
 		withDraft({tags: "Item", price: "5 gp", rarity: "rare", owner: "Ann"}, function() {
 			var shown = Array.from(form.fields(wiki, draft));
-			assert.ok(shown.indexOf("price") < shown.indexOf("rarity") && shown.indexOf("rarity") < shown.indexOf("owner"), shown.join());
+			assert.ok(h.inOrder(shown.join(" "), ["price", "rarity", "owner"]), shown.join());
 			assert.equal(form.label(wiki, draft, "rarity"), "Seltenheit");
 			assert.equal(form.label(wiki, draft, "owner"), "Besitzer");
 			assert.match(h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/form}}", {currentTiddler: draft}), /Seltenheit/);

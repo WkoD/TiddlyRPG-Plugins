@@ -50,15 +50,6 @@ function withTiddlers(list, fn) {
 	}
 }
 
-// True if the strings occur in the text in this order (each searched after the one before)
-function inOrder(text, strings) {
-	var from = 0;
-	return strings.every(function(s) {
-		var p = text.indexOf(s, from);
-		from = p + s.length;
-		return p !== -1;
-	});
-}
 
 test.describe("base type", function() {
 	test("no hint: one base type with or without categories", function() {
@@ -196,7 +187,7 @@ test.describe("file of a book", function() {
 
 	test("before the relations", function() {
 		var html = h.view(wiki, "Newspaper");
-		assert.ok(html.indexOf("<embed") !== -1 && html.indexOf("<embed") < html.indexOf("tc-tab-set"), html);
+		assert.ok(h.inOrder(html, ["<embed", "tc-tab-set"]), html);
 	});
 });
 

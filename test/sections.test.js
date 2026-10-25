@@ -214,12 +214,12 @@ test("event table: a span is a start and an end row in one title cell, with capt
 	// Points and an open span of one event read as one cell over both rows
 	assert.match(table, /<td rowspan="2"><a[^>]*>Vinland<\/a> <em>\(Start\)<\/em><\/td>/);
 	// Newest first
-	assert.ok(table.indexOf("Vinland") < table.indexOf("Schild"));
+	assert.ok(h.inOrder(table, ["Vinland", "Schild"]), table);
 });
 
 test("date line below the tags: span of an event, years of the other types", function() {
 	var event = h.view(wiki, "Schild");
-	assert.ok(event.indexOf("tc-tags-wrapper") < event.indexOf("trpg-dateline"));
+	assert.ok(h.inOrder(event, ["tc-tags-wrapper", "trpg-dateline"]), event);
 	assert.doesNotMatch(event, /trpg-dateline[^>]*>[^<]*<\/div><h2/);
 	assert.match(h.view(wiki, "Grum"), /<div class="trpg-dateline">\?\?\?\? – 1350 DR<\/div>/);
 });
@@ -275,7 +275,7 @@ test("event table: a span alone reads across both years without a flag", functio
 	try {
 		var table = h.render(wiki, "text/html", "<$let trpg-events=\"[[Spanne]]\">{{||$:/plugins/tiddlyrpg-core/viewtemplates/event-list/list}}</$let>");
 		assert.match(table, /<td rowspan="2"><a[^>]*>Spanne<\/a><\/td>/);
-		assert.ok(table.indexOf(">849<") < table.indexOf(">700<"));
+		assert.ok(h.inOrder(table, [">849<", ">700<"]), table);
 	} finally {
 		wiki.deleteTiddler("Spanne");
 	}

@@ -167,8 +167,8 @@ test.describe("new tiddlers", function() {
 		var hub = h.view(wiki, "Location"),
 			controls = hub.slice(hub.indexOf("tc-tiddler-controls"), hub.indexOf("tc-tiddler-body"));
 		assert.match(controls, /<button[^>]*class="[^"]*tc-btn-%24%3A%2Fplugins%2Ftiddlyrpg-core%2Fui%2Fhub-new trpg-hub-plus"[^>]*>/);
-		assert.ok(controls.indexOf("more-tiddler-actions") < controls.indexOf("trpg-hub-plus"));
-		assert.ok(controls.indexOf("trpg-hub-plus") < controls.indexOf("Buttons%2Fedit"));
+		assert.ok(h.inOrder(controls, ["more-tiddler-actions", "trpg-hub-plus"]), controls);
+		assert.ok(h.inOrder(controls, ["trpg-hub-plus", "Buttons%2Fedit"]), controls);
 		assert.doesNotMatch(hub.slice(hub.indexOf("tc-tiddler-body")), /trpg-hub-plus/);
 		assert.doesNotMatch(h.view(wiki, "Baile"), /trpg-hub-plus/);
 		assert.match(h.render(wiki, "text/plain", "{{$:/plugins/tiddlyrpg-core/ui/new-event}}", {"trpg-input": "$:/temp/e"}), /Datum.*Anlegen/);

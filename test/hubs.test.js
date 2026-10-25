@@ -247,15 +247,6 @@ test.describe("hubs in their colour: frame, list, number", function() {
 		return Number((h.view(wiki, title).match(/<span class="trpg-hub-count">(\d+)<\/span>/) || [])[1]);
 	}
 
-	// True if the strings occur in the text in this order
-	function inOrder(text, strings) {
-		var from = 0;
-		return strings.every(function(s) {
-			var p = text.indexOf(s, from);
-			from = p + s.length;
-			return p !== -1;
-		});
-	}
 
 	test("the stylesheet frames every hub and Campaign in its colour, not Index", function() {
 		var css = wiki.renderTiddler("text/plain", "$:/plugins/tiddlyrpg-core/styles/hubs");
@@ -290,7 +281,7 @@ test.describe("hubs in their colour: frame, list, number", function() {
 
 	test("the list sorted by the displayed name, an umlaut with its letter, a heading per letter", function() {
 		var person = h.view(wiki, "Person");
-		assert.ok(inOrder(person, ["trpg-hub-letter\">A<", "Ärger Hub", "Azur Hub", "trpg-hub-letter\">B<", "Barkeep"]), person);
+		assert.ok(h.inOrder(person, ["trpg-hub-letter\">A<", "Ärger Hub", "Azur Hub", "trpg-hub-letter\">B<", "Barkeep"]), person);
 		assert.equal(person.indexOf("trpg-hub-letter\">Ä<"), -1, person);
 		assert.equal((person.match(/trpg-hub-letter">A</g) || []).length, 1, "each letter once");
 		assert.equal((person.match(/>Azur Hub</g) || []).length, 1, "each entry once");
@@ -299,7 +290,7 @@ test.describe("hubs in their colour: frame, list, number", function() {
 
 	test("Information sorted by the displayed name, not by the title", function() {
 		var information = h.view(wiki, "Information");
-		assert.ok(inOrder(information, [">Dorf Info<", ">Kalender<"]), information);
+		assert.ok(h.inOrder(information, [">Dorf Info<", ">Kalender<"]), information);
 	});
 
 	test("number and letters only of what the view sees", function() {
@@ -352,7 +343,7 @@ test.describe("hubs in their colour: frame, list, number", function() {
 	test("Campaign: the heading of the player characters once, then the list of the hubs, then the cards", function() {
 		var campaign = h.view(wiki, "Campaign");
 		assert.equal((campaign.match(/>Spielerfiguren</g) || []).length, 1, campaign);
-		assert.ok(inOrder(campaign, [">Spielerfiguren<", "trpg-campaign-index", "trpg-hub-index", "trpg-players"]), campaign);
+		assert.ok(h.inOrder(campaign, [">Spielerfiguren<", "trpg-campaign-index", "trpg-hub-index", "trpg-players"]), campaign);
 		assert.ok(h.view(wiki, "Player").indexOf(">Spielerfiguren<") !== -1, "the hub Player keeps it");
 	});
 });

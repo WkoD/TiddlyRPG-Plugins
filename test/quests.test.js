@@ -78,7 +78,7 @@ test.describe("markers in the text", function() {
 		assert.match(html, /<li><div class="trpg-section trpg-section-quest trpg-quest-rumour" data-trpg-anchor="quest-\d+"><span class="trpg-quest-label trpg-quest-rumour"><span class="trpg-quest-kind">Gerücht<\/span><a[^>]*>Liste<\/a><\/span>Ein Punkt<\/div><\/li><li>Ein anderer<\/li>/);
 		assert.match(html, /<span class="trpg-quest-kind">Quest<\/span><a[^>]*>Turm<\/a><span class="trpg-quest-status">abgeschlossen<\/span>/);
 		assert.match(html, /Dazwischen\./);
-		assert.ok(html.indexOf("trpg-section-quest") < html.indexOf("Dazwischen") && html.lastIndexOf("Dazwischen") < html.indexOf("Zwei"), html);
+		assert.ok(h.inOrder(html, ["trpg-section-quest", "Dazwischen"]) && html.lastIndexOf("Dazwischen") < html.indexOf("Zwei"), html);
 	});
 
 	test("trpg-body $quest: only what one marker holds", function() {

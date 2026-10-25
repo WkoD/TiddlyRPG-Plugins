@@ -123,15 +123,15 @@ test.describe("sections", function() {
 
 	test("card: the span with the tag dots above the title", function() {
 		var html = draw("[[Mixed]]");
-		assert.ok(html.indexOf("trpg-tl-date") < html.indexOf("trpg-tl-title"));
+		assert.ok(h.inOrder(html, ["trpg-tl-date", "trpg-tl-title"]), html);
 		assert.match(html, /class="trpg-tl-date">1351 – 1356</);
 	});
 
 	test("selected card: below the title the tags, then one line per section with its caption", function() {
 		var html = draw("[[Mixed]]"),
 			details = html.slice(html.indexOf("trpg-tl-details"));
-		assert.ok(html.indexOf("trpg-tl-title") < html.indexOf("trpg-tl-details"));
-		assert.ok(details.indexOf("trpg-tl-tags") < details.indexOf("trpg-tl-point-date"));
+		assert.ok(h.inOrder(html, ["trpg-tl-title", "trpg-tl-details"]), html);
+		assert.ok(h.inOrder(details, ["trpg-tl-tags", "trpg-tl-point-date"]), details);
 		assert.match(details, /trpg-tl-point-date"[^>]*>1351 – 1352<span class="trpg-tl-caption">Krieg</);
 		assert.match(details, /trpg-tl-point-date"[^>]*>1356<span class="trpg-tl-caption">Nachspiel</);
 	});

@@ -56,15 +56,6 @@ function withTiddlers(list, fn) {
 	}
 }
 
-// True if the strings occur in the text in this order (each searched after the one before)
-function inOrder(text, strings) {
-	var from = 0;
-	return strings.every(function(s) {
-		var p = text.indexOf(s, from);
-		from = p + s.length;
-		return p !== -1;
-	});
-}
 
 // Renders a template for currentTiddler, finds the button whose class matches and whose text is
 // <label> (any text without), runs its actions; the messages tm-new-tiddler it sent
@@ -182,14 +173,14 @@ test.describe("hubs", function() {
 
 	test("Information: every entry from A to Z, above it its categories with their numbers", function() {
 		var hub = h.body(wiki, "Information");
-		assert.ok(inOrder(hub, ["Kalender", "Nichny", "Yuan-Ti"]), hub);
+		assert.ok(h.inOrder(hub, ["Kalender", "Nichny", "Yuan-Ti"]), hub);
 		assert.equal(hub.indexOf("Nichny"), hub.lastIndexOf("Nichny"), "once");
 		assert.equal(bar("Information"), "Völker 2");
 	});
 
 	test("the hub of a category lists only its own entries, without the bar", function() {
 		var hub = h.body(wiki, "Folk");
-		assert.ok(inOrder(hub, ["Nichny", "Yuan-Ti"]), hub);
+		assert.ok(h.inOrder(hub, ["Nichny", "Yuan-Ti"]), hub);
 		assert.ok(["Völker", "Kalender"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
 		assert.equal(bar("Folk"), "");
 		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">Volk<span class="trpg-hub-count">2<\/span><\/h2>/);
@@ -295,7 +286,7 @@ test.describe("relation folk", function() {
 		assert.match(list("Ki-Ra"), /Volk<span class="trpg-relations-count">/);
 		assert.match(nichny, /Personen<span class="trpg-relations-count"> · 2<\/span>/);
 		assert.match(nichny, /Kreaturen<span class="trpg-relations-count"> · 1<\/span>/);
-		assert.ok(inOrder(nichny, ["Personen<span", ">Halbblut<", ">Ki-Ra<", "Kreaturen<span", ">Pantherkrieger<"]), nichny);
+		assert.ok(h.inOrder(nichny, ["Personen<span", ">Halbblut<", ">Ki-Ra<", "Kreaturen<span", ">Pantherkrieger<"]), nichny);
 		assert.equal(nichny.indexOf("Angehörige"), -1, "every source has a kind of its own");
 		assert.match(h.view(wiki, "Nichny"), /Personen/);
 	});
@@ -337,7 +328,7 @@ test.describe("a folk at a location", function() {
 		var dm = list("Baile"),
 			pub = h.inView(wiki, "public", function() { return list("Baile"); });
 		assert.match(dm, /Völker<span class="trpg-relations-count"> · 2<\/span>/);
-		assert.ok(inOrder(dm, ["Völker<span", ">Bergvolk<", ">Schattenvolk<"]), dm);
+		assert.ok(h.inOrder(dm, ["Völker<span", ">Bergvolk<", ">Schattenvolk<"]), dm);
 		assert.equal((dm.match(/>Bergvolk</g) || []).length, 1, "in one group only");
 		assert.match(pub, /Völker<span class="trpg-relations-count"> · 1<\/span>/);
 		assert.equal(pub.indexOf("Schattenvolk"), -1, pub);
@@ -444,7 +435,7 @@ test.describe("trees: classes and folk", function() {
 
 	test("the way back of a class by kind, the forward group labelled for the type", function() {
 		var sorcerer = list("Sorcerer");
-		assert.ok(inOrder(sorcerer, ["Spieler<span", ">Doppel<", ">Funke<", "Gegenstände<span", ">Drachenring<", "Klassen<span", ">Draconic Bloodline<", "Zauber<span", ">Feuerball<"]), sorcerer);
+		assert.ok(h.inOrder(sorcerer, ["Spieler<span", ">Doppel<", ">Funke<", "Gegenstände<span", ">Drachenring<", "Klassen<span", ">Draconic Bloodline<", "Zauber<span", ">Feuerball<"]), sorcerer);
 		assert.match(sorcerer, /Gegenstände<span class="trpg-relations-count"> · 1<\/span>/);
 		assert.match(list("Draconic Bloodline"), /Gehört zu<span class="trpg-relations-count"> · 1<\/span>/);
 		assert.match(list("Drachenring"), /Einstimmung durch<span class="trpg-relations-count"> · 1<\/span>/);
@@ -577,7 +568,7 @@ test.describe("traits, feats, languages and the glossary", function() {
 		assert.deepEqual(f("[[$:/config/tiddlyrpg/form/Trait]get[more]enlist-input[]]"), ["folk"]);
 		assert.deepEqual(f("[[Steingespür]] [[Ringer]] [[Zwergisch (Language)]] :map[relationkind[]]"), ["information", "information", "information"]);
 		var folk = list("Steinvolk");
-		assert.ok(inOrder(folk, ["Personen<span", ">Brocken<", "Merkmale<span", ">Steingespür<"]), folk);
+		assert.ok(h.inOrder(folk, ["Personen<span", ">Brocken<", "Merkmale<span", ">Steingespür<"]), folk);
 		assert.match(list("Steingespür"), /Gehört zu<span class="trpg-relations-count"> · 1<\/span>/);
 		assert.match(list("Zwergisch (Language)"), /Sprecher<span/);
 		assert.deepEqual(h.checkKeys(wiki, "Brocken", "relations"), []);

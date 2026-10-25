@@ -234,6 +234,18 @@ exports.checkKeys = function(wiki, title, theme) {
 	});
 };
 
+// True if every string occurs in the text, in this order (each searched after the one before).
+// For order assertions: comparing two indexOf holds when the first string is missing (-1), see
+// test/hygiene.test.js
+exports.inOrder = function(text, strings) {
+	var from = 0;
+	return strings.every(function(s) {
+		var p = text.indexOf(s, from);
+		from = p + s.length;
+		return p !== -1;
+	});
+};
+
 // Result of a filter (array of titles)
 exports.filter = function(wiki, text, variables) {
 	return wiki.filterTiddlers(text, $tw.rootWidget.makeFakeWidgetWithVariables(variables || {}));

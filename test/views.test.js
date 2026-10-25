@@ -161,7 +161,7 @@ test.describe("Player hub", function() {
 	test("cards of the active characters, the former ones below", function() {
 		var html = h.render(wiki, "text/html", "{{Player}}");
 		assert.match(html, /trpg-player-card"[^>]*>.*Frigg.*Anna/s);
-		assert.ok(html.indexOf("Spielerfiguren") < html.indexOf("Frühere Figuren"));
+		assert.ok(h.inOrder(html, ["Spielerfiguren", "Frühere Figuren"]), html);
 		assert.ok(html.indexOf("Ylva") > html.indexOf("Frühere Figuren"));
 	});
 
@@ -381,6 +381,20 @@ test.describe("sweep", function() {
 			// Quests: a quest tagged Secret with a marker in an open section (the marker is hidden
 			// with it), a rumour whose only marker stands in a locked section, and the end of an
 			// open rumour in that locked section - hub, cards, history and the event leave them out;
+			// A secret on every hub and behind every relation field (the test "the fixtures reach
+			// every hub and every relation field" names what is missing)
+			{title: "Qx7 Axt", tags: "Artifact Secret", text: "Qx7 axe."},
+			{title: "Qx7 Buch", tags: "Item Book Secret", text: "Qx7 book."},
+			{title: "Qx7 Trank", tags: "Item Consumable Secret", text: "Qx7 potion."},
+			{title: "Qx7 Schild", tags: "Item Equipment Secret", text: "Qx7 shield."},
+			{title: "Qx7 Erz", tags: "Material Secret", location: "Baile", text: "Qx7 ore."},
+			{title: "Qx7 Gott", tags: "Deity Secret", text: "Qx7 god."},
+			{title: "Sweep Hauptmann", tags: "Person", officer: "[[Qx7 Orden]]", under: "[[Qx7 Vogt]]", mentor: "[[Qx7 Meister]]",
+				patron: "[[Qx7 Gott]]", spouse: "[[Qx7 Feind]]", text: "A captain."},
+			{title: "Sweep Pakt", tags: "Organisation", alliance: "[[Qx7 Orden]]", text: "A pact."},
+			{title: "Sweep Ring", tags: "Artifact", owner: "[[Qx7 Feind]]", creator: "[[Qx7 Meister]]", text: "A ring."},
+			{title: "Sweep Zauber", tags: "Spell", component: "[[Qx7 Erz]]", text: "A spell."},
+			{title: "Sweep Liste", tags: "Information", list: "[[Qx7 Akte]] [[Sweep Ring]]", text: "A list."},
 			// the locked rumour mentions Sweep Bund: its graph, list and switches leave it out too
 			{title: "Qx7 Plan", tags: "Quest Secret", text: "Qx7 planning."},
 			{title: "Sweep Questzug", tags: "Event Frigg", date: "1351-09-01, 1399-03-01",
@@ -506,6 +520,21 @@ test.describe("sweep", function() {
 			return item.where + ": …" + item.text.substring(Math.max(0, at - 80), at + 40) + "…";
 		});
 	}
+
+	// The sweep finds only what its fixtures hold: a new hub or a new relation field without a
+	// secret here would pass it unseen
+	test("the fixtures reach every hub and every relation field", function() {
+		var hubs = Array.from(wiki.filterTiddlers("[all[shadows+tiddlers]tag[Index]has[color]!match[Index]]")).filter(function(hub) {
+				return !h.filter(wiki, "[<hub>trpghubentries[]prefix[" + WORD + "]]", {hub: hub}).length;
+			}),
+			// fields only: the function edges (rules, links, spots, transcludes) come from other data
+			fields = Array.from(h.filter(wiki, "[relationtypes[]] -rules -links -spots -transcludes")).filter(function(field) {
+				return !fixtures.some(function(fixture) {
+					return fixture[field] !== undefined && (fixture.title.indexOf(WORD) === 0 || String(fixture[field]).indexOf(WORD) !== -1);
+				});
+			});
+		assert.deepEqual({hubs: hubs, fields: fields}, {hubs: [], fields: []});
+	});
 
 	test("public: no word of a secret anywhere", function() {
 		assert.deepEqual(leaks(sweep("public"), [WORD, YEAR, FRIGG]), []);
