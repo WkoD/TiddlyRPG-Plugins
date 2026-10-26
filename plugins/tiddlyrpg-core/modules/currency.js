@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261026092040936
+modified: 20261026092740875
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
@@ -29,9 +29,10 @@ currency (the setting registers it, usually "Currency") and follow its display l
 
 A price is "25" or a sequence of "<number> <unit>" ("3 gp 5 sp"); the number may separate
 thousands with ".", ",", a space or an apostrophe and decimals with "." or "," (numberValue:
-"12.000", "12,000" and "12 000" are 12000, "1,5" and "1.5" one and a half); a unit is the id, a label or a name of any language, case-insensitive (the
-id is what to write). format() shows it as written with the labels and the marks of numbers of
-the display language; no coin is converted (150 cp stays 150 cp).
+"12.000", "12,000" and "12 000" are 12000, "1,5" and "1.5" one and a half); a unit is the id,
+a label or a name of any language, case-insensitive (the id is what to write). format() shows
+it as written with the labels and the numbers of the display language, the thousands grouped as
+the converter shows them ("12000 gp" is "12.000 GM"); no coin is converted (150 cp stays 150 cp).
 
 A range is two prices joined by a dash or a word of Currency/Range/Parse of any language
 ("50-100 gp", "50 - 100 gp", "50 to 100 gp", "50 bis 100 gp", "5 sp - 2 gp"); a coin written only
@@ -224,15 +225,14 @@ var numberValue = exports.numberValue = function(text) {
 	return g ? parseFloat(g.groups.join("") + (g.decimals !== undefined ? "." + g.decimals : "")) : parseFloat(text.replace(",","."));
 };
 
-// The number of an amount in the display language: thousands with Number/Group, decimals with
-// Number/Decimal; a number without a mark as written ("12000" stays)
+// The number of an amount in the display language, as the converter shows it (filters/currency.js
+// priceconvert): thousands with Number/Group, written so or not ("12000" and "12,000" are
+// "12.000" in German), decimals with Number/Decimal as written ("2.50" is "2,50")
 function numberText(wiki,text) {
 	var g = grouped(text),
-		decimal = language.t(wiki,"Number/Decimal") === "," ? "," : ".";
-	if(g) {
-		return g.groups.join(language.t(wiki,"Number/Group")) + (g.decimals !== undefined ? decimal + g.decimals : "");
-	}
-	return text.replace(/[.,]/,decimal);
+		decimal = language.t(wiki,"Number/Decimal") === "," ? "," : ".",
+		parts = g ? [g.groups.join(""),g.decimals] : text.split(/[.,]/);
+	return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,language.t(wiki,"Number/Group")) + (parts[1] !== undefined ? decimal + parts[1] : "");
 }
 
 function parseOne(wiki,cur,text) {
@@ -260,8 +260,8 @@ function parseOne(wiki,cur,text) {
 	return {amounts: amounts};
 }
 
-// A price as written, with the unit labels of the display language; unchanged without currency
-// or if it cannot be read
+// A price as written, with the unit labels and the numbers of the display language; unchanged
+// without currency or if it cannot be read
 var format = exports.format = function(wiki,cur,text) {
 	text = (text || "").toString().trim();
 	var parsed = parse(wiki,cur,text);

@@ -3,13 +3,14 @@ title: $:/plugins/tiddlyrpg-core/filters/currency.js
 type: application/javascript
 module-type: filteroperator
 created: 20261010063203140
-modified: 20261026092040936
+modified: 20261026092740875
 
 The currency (modules/currency.js):
 
 [<price>priceformat[]]          each price as written, with the unit labels of the display
-                                language and the marks of its numbers ("3 gp 5 sp" -> "3 GM 5 SM",
-                                "1,500 gp" -> "1.500 GM"); unchanged without currency
+                                language and its numbers like priceconvert ("3 gp 5 sp" -> "3 GM
+                                5 SM", "1,500 gp" and "1500 gp" -> "1.500 GM"); unchanged without
+                                currency
 [<price>priceconvert<coin>]     each price in the coin, as number with the marks of the wiki
                                 language ("1.200.000", "3,5"; nothing if it cannot be read); a
                                 range bound by bound ("5–10")

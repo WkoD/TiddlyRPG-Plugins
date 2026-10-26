@@ -991,8 +991,9 @@ description, a converter (a price in coins, in any language) and the table of th
 
 A price is written as people write it: "3 gp 5 sp", "1,5 gp" or "1.5 gp", "12.000 GM",
 "12,000 gp" or "12 000 gp" (a point, comma, space or apostrophe before groups of three digits
-separates thousands, else a point or comma is the decimal mark). It shows with the labels and the
-marks of numbers of the wiki language, the converter too.
+separates thousands, else a point or comma is the decimal mark). It shows with the labels of the
+wiki language and its numbers as the converter shows them: thousands grouped ("12000 gp" is
+"12.000 GM" in German), decimals with the decimal mark of the language.
 
 ## Checks
 

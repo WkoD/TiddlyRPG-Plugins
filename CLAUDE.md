@@ -1039,8 +1039,9 @@ campaign setting or from the wiki, like the calendar. Data model, price syntax a
 module header.
 
 - A price is shown as written; the unit labels change to the display language of the rules
-  domain of type `currency` (`Currency/<id>/Unit/<coin>`), the marks of a number to those of the
-  wiki language (`Number/Group`, `Number/Decimal`). No coin is converted (150 cp stays 150 cp).
+  domain of type `currency` (`Currency/<id>/Unit/<coin>`), a number shows like the converter does:
+  thousands grouped and decimals marked as the wiki language does (`Number/Group`,
+  `Number/Decimal`; "12000 gp" is "12.000 GM"). No coin is converted (150 cp stays 150 cp).
 - A point, comma, space or apostrophe before groups of three digits, after a first group of one
   to three that is no 0, separates thousands ("12.000", "12,000", "12 000", "1.000,50") - the
   marks of the whole numbers of the rules; else a point or comma is the decimal mark ("1,5",
