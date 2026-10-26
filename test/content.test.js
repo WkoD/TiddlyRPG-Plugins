@@ -365,6 +365,23 @@ test.describe("the hub Content", function() {
 		}
 	});
 
+	// The real package has 600 items: reading every entry for each entry once froze the hub for
+	// seconds. Counted, not timed: the values read grow with the entries, not with their square
+	test("a filter reads each entry a few times, not once per other entry", function() {
+		var rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+			value = rules.value,
+			calls = 0,
+			items = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content.js").entries(wiki).filter(function(e) { return e.type === "Item"; }).length;
+		h.add(wiki, {title: STATE, type: "Item", "filter-category": "potion"});
+		rules.value = function() { calls++; return value.apply(this, arguments); };
+		try {
+			assert.equal(Array.from(h.filter(wiki, "[trpgcontentlist[" + STATE + "]]")).length, 50);
+		} finally {
+			rules.value = value;
+		}
+		assert.ok(items > 50 && calls <= 5 * items, calls + " values read for " + items + " items");
+	});
+
 	test("the filters of the schema, the search, the pages", function() {
 		h.add(wiki, {title: STATE, type: "Item"});
 		var html = hub();

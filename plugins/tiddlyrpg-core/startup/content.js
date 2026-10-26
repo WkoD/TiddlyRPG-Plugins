@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/startup/content.js
 type: application/javascript
 module-type: startup
 created: 20261022165648795
-modified: 20261025201620684
+modified: 20261026075818584
 
 Content packages in the browser (modules/content.js): loads the index of the packages of the active
 ruleset from the server (server/content-route.js) into the temp tiddler of the index - at the
@@ -21,7 +21,10 @@ packages shows.
                          title (modules/content.js); from a draft, cancelling the draft takes it
                          back while it is unchanged (modules/form.js noteCreated). A notification
                          names it and what it names in base and spells that the wiki lacks, each
-                         with a button to take it too - nothing comes by itself.
+                         with a button to take it too - nothing comes by itself. Preview and
+                         take act on an offer, or on an entry taken as a tiddler the view does
+                         not see (the hub Content shows it as an offer): the preview shows the
+                         package, taking it fails with the notice of a taken title.
   tm-trpg-content-copy   param: the id of an entry; draft: the draft to fill; relate (yes: the
                          row "Take values from", editor/form): the relation that copies (base)
                          names the entry if the draft has none (modules/form.js relateCopy).
@@ -44,7 +47,8 @@ var content = require("$:/plugins/tiddlyrpg-core/modules/content.js"),
 	pluginTypes = require("$:/plugins/tiddlyrpg-core/modules/plugin-types.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
 	language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
-	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js");
+	notice = require("$:/plugins/tiddlyrpg-core/modules/notice.js"),
+	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
 
 var PREVIEW = "$:/temp/tiddlyrpg-core/content/preview",
 	RULESET = "$:/config/tiddlyrpg/ruleset";
@@ -108,8 +112,16 @@ function story(wiki) {
 	return new $tw.Story({wiki: wiki});
 }
 
+// An offer, or an entry whose tiddler the view does not see: the hub Content shows it as an offer
+// (nothing tells that it was taken), so its buttons work alike - the preview shows the package,
+// taking it fails with the notice of a title taken meanwhile
+function shownOffer(wiki,id) {
+	var entry = content.offer(wiki,id) || content.entryOf(wiki,id);
+	return entry && (!entry.taken || !visibility.visible(wiki,entry.title)) ? entry : null;
+}
+
 function preview(wiki,id) {
-	var offer = content.offer(wiki,id);
+	var offer = shownOffer(wiki,id);
 	if(!offer) {
 		return;
 	}
@@ -127,7 +139,7 @@ function preview(wiki,id) {
 }
 
 function take(wiki,id,draft) {
-	var offer = content.offer(wiki,id);
+	var offer = shownOffer(wiki,id);
 	if(!offer) {
 		return;
 	}

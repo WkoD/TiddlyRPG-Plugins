@@ -686,6 +686,26 @@ test.describe("copying values in the browser: the actions of the editor reach th
 		[INDEX, NOTICE, DRAFT, "Kurzschwert"].forEach(function(t) { wiki.deleteTiddler(t); });
 	});
 
+	test("a taken entry the view does not see: its buttons in the hub Content work like those of an offer", function() {
+		var PREVIEW = "$:/temp/tiddlyrpg-core/content/preview",
+			send = function(message) { invoke("<$action-sendmessage $message=\"" + message + "\" $param=\"longsword\"/>"); };
+		h.add(wiki, {title: "Longsword", tags: "Item Secret", text: "Ours, locked."});
+		wiki.deleteTiddler(NOTICE);
+		try {
+			send("tm-trpg-content-preview");
+			assert.equal(wiki.tiddlerExists(PREVIEW), false, "the DM sees it taken: no preview");
+			h.inView(wiki, "public", function() {
+				send("tm-trpg-content-preview");
+				assert.equal(wiki.getTiddler(PREVIEW).fields.caption, "Longsword", "the preview of the package");
+				send("tm-trpg-content-take");
+			});
+			assert.equal(wiki.getTiddlerText(NOTICE), "Nicht übernommen: Der Eintrag war nicht abrufbar, oder sein Titel ist inzwischen vergeben");
+			assert.equal(wiki.getTiddler("Longsword").fields.text, "Ours, locked.", "nothing written over");
+		} finally {
+			[PREVIEW, "Longsword", "$:/StoryList"].forEach(function(t) { wiki.deleteTiddler(t); });
+		}
+	});
+
 	test("picking a base from the wiki: base set, its values into the empty fields, a notice", function() {
 		draft();
 		invoke(actions(RELATION, "tm-trpg-copy"), {currentTiddler: DRAFT, currentField: "base", "trpg-single": "yes", "trpg-pick": "Kurzschwert"});

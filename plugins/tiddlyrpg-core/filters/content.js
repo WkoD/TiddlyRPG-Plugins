@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261025193917072
+modified: 20261026075818584
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -149,6 +149,11 @@ exports.trpgcontentlist = function(source,operator,options) {
 		// a filter the type does not offer, or a value it does not offer (set for another type),
 		// does not count - the select shows none of it
 		offered = state.type ? filtersOf(wiki,state.type) : [],
+		// the filters that count, once - valuesOf() reads every entry of the type
+		active = Object.keys(state).filter(function(name) {
+			return name.indexOf("filter-") === 0 && state[name] && offered.indexOf(name.substr(7)) !== -1 &&
+				valuesOf(wiki,name.substr(7),state.type).indexOf(state[name]) !== -1;
+		}),
 		hits = content.entries(wiki).filter(function(e) {
 			if(state.type && e.type !== state.type) {
 				return false;
@@ -156,11 +161,7 @@ exports.trpgcontentlist = function(source,operator,options) {
 			if(search && e.title.toLowerCase().indexOf(search) === -1) {
 				return false;
 			}
-			return Object.keys(state).every(function(name) {
-				if(name.indexOf("filter-") !== 0 || !state[name] || offered.indexOf(name.substr(7)) === -1 ||
-					valuesOf(wiki,name.substr(7),state.type).indexOf(state[name]) === -1) {
-					return true;
-				}
+			return active.every(function(name) {
 				return idsOf(wiki,name.substr(7),(e.entry.fields || {})[name.substr(7)]).indexOf(state[name]) !== -1;
 			});
 		});
