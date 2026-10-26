@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261025195319654
+modified: 20261026090128410
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
@@ -27,10 +27,11 @@ comma separated) and .../Description. Names and labels are terms of the rules do
 currency (the setting registers it, usually "Currency") and follow its display language
 (modules/language.js); without a domain tiddler they follow the mode like any domain.
 
-A price is "25" or a sequence of "<number> <unit>" ("3 gp 5 sp"); the number may have "." or ","
-as decimal mark; a unit is the id, a label or a name of any language, case-insensitive (the
-id is what to write). format() shows it as written with the labels of the display language;
-nothing is normalised (150 cp stays 150 cp).
+A price is "25" or a sequence of "<number> <unit>" ("3 gp 5 sp"); the number may separate
+thousands and decimals with "." or "," (numberValue: "12.000" and "12,000" are 12000, "1,5" and
+"1.5" one and a half); a unit is the id, a label or a name of any language, case-insensitive (the
+id is what to write). format() shows it as written with the labels and the marks of numbers of
+the display language; no coin is converted (150 cp stays 150 cp).
 
 A range is two prices joined by a dash or a word of Currency/Range/Parse of any language
 ("50-100 gp", "50 - 100 gp", "50 to 100 gp", "50 bis 100 gp", "5 sp - 2 gp"); a coin written only
@@ -188,12 +189,46 @@ var parse = exports.parse = function(wiki,cur,text) {
 	return parseOne(wiki,cur,text);
 };
 
+/*
+The number of an amount. A point or comma before every group of three digits, after a first group
+of one to three digits that is no 0, separates thousands - "12.000" and "12,000" are 12000, as
+people write them in German and English, "1.000,50" and "1,000.50" with the other mark for the
+decimals; else it is the decimal mark ("1,5", "2.50", "0.500"). The groups first: "1.500" is
+1500, no price has three decimals (the smallest coin is a hundredth of the gold piece).
+*/
+var GROUPED = /^[1-9]\d{0,2}(?:(\.)\d{3}(?:\.\d{3})*(?:,\d+)?|(,)\d{3}(?:,\d{3})*(?:\.\d+)?)$/,
+	NUMBER = "[1-9]\\d{0,2}(?:\\.\\d{3})+(?:,\\d+)?(?!\\d)|[1-9]\\d{0,2}(?:,\\d{3})+(?:\\.\\d+)?(?!\\d)|\\d+(?:[.,]\\d+)?";
+
+var numberValue = exports.numberValue = function(text) {
+	var g = GROUPED.exec(text);
+	if(g) {
+		var group = g[1] || g[2];
+		return parseFloat(text.split(group).join("").replace(",","."));
+	}
+	return parseFloat(text.replace(",","."));
+};
+
+// The number of an amount in the display language: thousands with Number/Group, decimals with
+// Number/Decimal; a number without a mark as written ("12000" stays)
+function numberText(wiki,text) {
+	var g = GROUPED.exec(text),
+		decimal = language.t(wiki,"Number/Decimal") === "," ? "," : ".";
+	if(g) {
+		var group = g[1] || g[2],
+			parts = text.split(group),
+			last = parts.pop().split(group === "." ? "," : "."),
+			groupMark = language.t(wiki,"Number/Group");
+		return parts.concat(last[0]).join(groupMark) + (last[1] !== undefined ? decimal + last[1] : "");
+	}
+	return text.replace(/[.,]/,decimal);
+}
+
 function parseOne(wiki,cur,text) {
-	if(/^\d+(?:[.,]\d+)?$/.test(text)) {
+	if(new RegExp("^(?:" + NUMBER + ")$").test(text)) {
 		return {plain: true, amounts: []};
 	}
 	var known = cur ? words(wiki,cur) : {map: {}, pattern: ""},
-		re = /(\d+(?:[.,]\d+)?)\s*([^\s\d]+)/g,
+		re = new RegExp("(" + NUMBER + ")\\s*([^\\s\\d]+)","g"),
 		amounts = [],
 		match,
 		rest = text;
@@ -203,7 +238,8 @@ function parseOne(wiki,cur,text) {
 		if(!coin) {
 			return {amounts: amounts, unknown: word};
 		}
-		amounts.push({number: match[1], coin: coin, start: match.index + match[0].indexOf(match[2]), end: match.index + match[0].indexOf(match[2]) + word.length});
+		amounts.push({number: match[1], coin: coin, numberEnd: match.index + match[1].length, numberStart: match.index,
+			start: match.index + match[0].indexOf(match[2]), end: match.index + match[0].indexOf(match[2]) + word.length});
 		rest = rest.replace(match[0],"");
 	}
 	if(!amounts.length || rest.replace(/[\s,;+]|and|und/g,"").length) {
@@ -220,7 +256,7 @@ var format = exports.format = function(wiki,cur,text) {
 	if(parsed.range && !parsed.invalid && !parsed.unknown && (cur || parsed.plain)) {
 		// "50–100 GM": a lower bound with the coin of the upper one, or two numbers, without spaces
 		var joint = language.t(wiki,"Currency/Range");
-		return (parsed.inherited ? parsed.texts[0] : format(wiki,cur,parsed.texts[0])) +
+		return (parsed.inherited ? numberText(wiki,parsed.texts[0]) : format(wiki,cur,parsed.texts[0])) +
 			(parsed.inherited || parsed.plain ? joint : " " + joint + " ") + format(wiki,cur,parsed.texts[1]);
 	}
 	if(!cur) {
@@ -232,7 +268,7 @@ var format = exports.format = function(wiki,cur,text) {
 	var out = "",
 		pos = 0;
 	parsed.amounts.forEach(function(a) {
-		out += text.slice(pos,a.start) + unitLabel(wiki,cur,a.coin);
+		out += text.slice(pos,a.numberStart) + numberText(wiki,a.number) + text.slice(a.numberEnd,a.start) + unitLabel(wiki,cur,a.coin);
 		pos = a.end;
 	});
 	return out + text.slice(pos);
@@ -240,7 +276,7 @@ var format = exports.format = function(wiki,cur,text) {
 
 function total(cur,parsed) {
 	return parsed.amounts.reduce(function(sum,a) {
-		return sum + parseFloat(a.number.replace(",",".")) * cur.byId[a.coin].value;
+		return sum + numberValue(a.number) * cur.byId[a.coin].value;
 	},0);
 }
 
@@ -316,7 +352,7 @@ exports.check = function(wiki,cur,text) {
 		if(problem) {
 			return problem;
 		}
-		var w = cur ? worth(wiki,cur,text) : parsed.texts.map(function(t) { return parseFloat(t.replace(",",".")); });
+		var w = cur ? worth(wiki,cur,text) : parsed.texts.map(numberValue);
 		return w && w[0] > w[1] ? "Item/Check/PriceRange" : null;
 	}
 	return checkOne(cur,parsed);

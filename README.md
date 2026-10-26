@@ -989,6 +989,10 @@ so, and warns if the currency has no such coin. Display names go into
 `Coin/<coin>` "crown" / "Krone", `Description`). The hub "Currency" shows the
 description, a converter (a price in coins, in any language) and the table of the coins.
 
+A price is written as people write it: "3 gp 5 sp", "1,5 gp" or "1.5 gp", "12.000 GM" or
+"12,000 gp" (a point or comma before groups of three digits separates thousands, else it is the
+decimal mark). It shows with the labels and the marks of numbers of the wiki language.
+
 ## Checks
 
 Below the title of a tiddler stand its messages - in the editable wiki only, not in the

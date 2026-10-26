@@ -79,6 +79,23 @@ test.describe("coins in the style of Faerûn", function() {
 		assert.equal(price("1,5 gp"), "1,5 GM");
 	});
 
+	test("thousands as people write them, in German and English; else a decimal mark - read and shown in the wiki language", function() {
+		var gp = function(value) { return f("[<p>priceconvert[gp]]", {p: value}); };
+		[["12.000 GM", "12.000 GM", "12000"], ["12,000 gp", "12.000 GM", "12000"], ["1,500 gp", "1.500 GM", "1500"],
+			["1.000.000 gp", "1.000.000 GM", "1000000"], ["1.000,50 gp", "1.000,50 GM", "1000,5"], ["1,000.50 gp", "1.000,50 GM", "1000,5"],
+			["1.5 gp", "1,5 GM", "1,5"], ["2.50 gp", "2,50 GM", "2,5"], ["0,500 gp", "0,500 GM", "0,5"], ["1.5000 gp", "1,5000 GM", "1,5"],
+			["12000 gp", "12000 GM", "12000"], ["1.000-2.000 gp", "1.000–2.000 GM", "1000–2000"]].forEach(function(c) {
+			assert.deepEqual([price(c[0]), gp(c[0])], [c[1], c[2]], c[0]);
+		});
+		h.setLanguage(wiki, "en-GB");
+		try {
+			assert.equal(price("12.000 GM"), "12,000 gp");
+			assert.equal(price("1,5 gp"), "1.5 gp");
+		} finally {
+			h.setLanguage(wiki, "de-DE");
+		}
+	});
+
 	test("the display language of the domain Currency", function() {
 		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/setting/mode", text: "domain"});
 		h.add(wiki, {title: "$:/config/tiddlyrpg/rules/setting/domain/Currency", text: "en-GB"});
@@ -164,6 +181,7 @@ test.describe("a range of prices", function() {
 			assert.equal(leave("50-100"), "50-100 gp", "the coin behind the upper bound counts for both");
 			assert.equal(leave("50 gp"), "50 gp");
 			assert.equal(leave("50-100 sp"), "50-100 sp");
+			assert.equal(leave("1.000,50"), "1.000,50 gp", "thousands and decimals");
 		} finally {
 			wiki.deleteTiddler("Draft of 'Ware'");
 		}
