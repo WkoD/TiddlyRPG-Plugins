@@ -966,7 +966,7 @@ tests reach it without a browser; the wikitext only asks and passes values.
   lock, before a quest marker, behind a date or a spot the text a paragraph of its own (in the same
   paragraph it would not count), a line of markers standing for the paragraph after it; a marker
   found from the end of the head (a date behind an effect ends it); a name needed but for a kind with an intro; at a marker another
-  kind (`retype`), another name, remove. An entry
+  kind (`retype`, with the name in the input), another name, remove. An entry
   of a content package chosen in a relation, the row "Possessions" or the button "Content" is
   taken (saved) at once as well (`tm-trpg-content-take` with `draft`). A tiddler
   saved at once is noted for the draft (`form.noteCreated`,

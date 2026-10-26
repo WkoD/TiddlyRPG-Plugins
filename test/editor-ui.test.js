@@ -238,6 +238,28 @@ test.describe("the button Section: the kinds of sections of the ruleset as a men
 		probe("<<legendary>> Der Wolf| kann 3 legendäre Aktionen ausführen.");
 		assert.match(dropdown(), /^Legendäre Aktion \(Einleitung\)/);
 	});
+	test("at a section: another kind from the menu takes the name typed along", function() {
+		probe("<<curse \"Gier\">> Wer| sie trägt.");
+		h.add(wiki, {title: INPUT, name: "Habgier"});
+		var parser = wiki.parseText("text/vnd.tiddlywiki", "\\import [subfilter{$:/core/config/GlobalImportFilter}]\n{{||$:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown}}"),
+			root = wiki.makeWidget(parser, {document: $tw.fakeDocument, variables: {targetTiddler: DRAFT}}),
+			sent = [],
+			found = null;
+		root.addEventListener("tm-edit-text-operation", function(event) {
+			sent.push(JSON.parse(JSON.stringify(event.paramObject)));
+			return false;
+		});
+		root.render($tw.fakeDocument.createElement("div"), null);
+		(function walk(w) {
+			if(w.parseTreeNode && w.parseTreeNode.type === "button" && /trpg-editor-menu-item/.test(w.getAttribute("class", "")) && w.domNodes[0] && /<<trait>>/.test(w.domNodes[0].textContent)) {
+				found = w;
+			}
+			(w.children || []).forEach(walk);
+		})(root);
+		assert.ok(found, "the row of the kind trait");
+		found.invokeActionString(found.getAttribute("actions"), found, {});
+		assert.deepEqual(sent, [{kind: "section", op: "retype", section: "trait", name: "Habgier"}]);
+	});
 	test("edit: inserted, retyped, removed as the smallest replacement", function() {
 		var after = function(op) {
 			return op.text.substring(0, op.cutStart) + op.replacement + op.text.substring(op.cutEnd);

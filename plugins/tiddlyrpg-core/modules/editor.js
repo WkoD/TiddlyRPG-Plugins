@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/editor.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261026110030758
+modified: 20261026122956624
 
 The buttons of the editor toolbar on the text in the editor (editor/operation.js) - the one place
 of these rules, plain functions on a text so the tests reach them without a browser.
@@ -40,7 +40,8 @@ marker, and behind the marker of a date or a spot the text goes to a paragraph o
 of markers stands for the paragraph after it (see insertRules()); before a list or a table on a
 line of its own. A selection gets the block form around the units it touches. A name is needed
 but for a kind with an intro. At a marker - only the paragraph that holds it, as with a date or a
-spot - the name changes, the kind changes (retype: name and form stay), or it goes.
+spot - the name changes, the kind changes (retype: the form stays, the name typed in the dropdown
+goes along), or it goes.
 
 input   {text, selStart, selEnd, tags, fields, title}: the text in the editor, the tags and fields
         of the draft, the title it is the draft of
@@ -963,7 +964,15 @@ function applySection(wiki,a,input,action) {
 		return fail("Editor/Error/Nothing");
 	}
 	if(op === "retype") {
-		return at.form ? done(input,retype(a,at,kind)) : fail("Editor/Error/Nothing");
+		if(!at.form) {
+			return fail("Editor/Error/Nothing");
+		}
+		// The name typed in the dropdown goes along; without one the name stays
+		var params = action.name === undefined ? at.params : {name: name};
+		if(!params.name && !def.intro) {
+			return fail("Editor/Error/NoName");
+		}
+		return done(input,retype(a,at,kind,params));
 	}
 	if(!name && !def.intro) {
 		return fail("Editor/Error/NoName");
@@ -1043,12 +1052,13 @@ function insertRules(a,kind,params) {
 	return [{from: lead[cut].end, to: next, text: "\n\n"},{from: at, to: at, text: marker + " "}];
 }
 
-// The marker of a section of the ruleset with another kind; a block changes its closing tag too
-function retype(a,at,kind) {
+// The marker of a section of the ruleset with another kind and <params>; a block changes its
+// closing tag too
+function retype(a,at,kind,params) {
 	if(at.form === "short") {
-		return [{from: at.node.start, to: at.node.end, text: shortMarker(kind,at.params)}];
+		return [{from: at.node.start, to: at.node.end, text: shortMarker(kind,params)}];
 	}
-	var edits = [{from: at.parts.start, to: at.parts.openEnd, text: blockOpen(kind,at.params)}],
+	var edits = [{from: at.parts.start, to: at.parts.openEnd, text: blockOpen(kind,params)}],
 		close = "</$" + at.kind + ">";
 	if(!at.parts.self && a.text.substr(at.parts.closeStart,close.length) === close) {
 		edits.push({from: at.parts.closeStart, to: at.parts.closeStart + close.length, text: "</$" + kind + ">"});

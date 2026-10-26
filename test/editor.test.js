@@ -375,10 +375,14 @@ test.describe("sections of the ruleset (fixture 5e-mini: effect, curse, trait, a
 		assert.equal(section("<<legendary \"A\">> Te|xt.", "change", "", "").text, "<<legendary>> Text.");
 		assert.deepEqual(plain(section("Te|xt.", "change", "", "B")), {error: "Editor/Error/Nothing"});
 	});
-	test("retype: another kind, name and form stay - a block with its closing tag", function() {
-		assert.equal(section("<<effect \"A\">> Te|xt.", "retype", "trait", "").text, "<<trait \"A\">> Text.");
-		assert.equal(section("<$effect name=\"A\">\n\nX|.\n\n</$effect>", "retype", "curse", "").text, "<$curse name=\"A\">\n\nX.\n\n</$curse>");
-		assert.deepEqual(plain(section("Te|xt.", "retype", "trait", "")), {error: "Editor/Error/Nothing"});
+	test("retype: another kind, the form stays - a block with its closing tag; the name typed goes along, without one it stays", function() {
+		assert.equal(section("<<effect \"A\">> Te|xt.", "retype", "trait").text, "<<trait \"A\">> Text.");
+		assert.equal(section("<<effect \"A\">> Te|xt.", "retype", "trait", "B").text, "<<trait \"B\">> Text.");
+		assert.equal(section("<$effect name=\"A\">\n\nX|.\n\n</$effect>", "retype", "curse", "A").text, "<$curse name=\"A\">\n\nX.\n\n</$curse>");
+		assert.equal(section("<$effect name=\"A\">\n\nX|.\n\n</$effect>", "retype", "curse", "B").text, "<$curse name=\"B\">\n\nX.\n\n</$curse>");
+		assert.deepEqual(plain(section("<<effect \"A\">> Te|xt.", "retype", "trait", " ")), {error: "Editor/Error/NoName"}, "the name cleared");
+		assert.equal(section("<<effect \"A\">> Te|xt.", "retype", "legendary", "").text, "<<legendary>> Text.", "an intro goes without");
+		assert.deepEqual(plain(section("Te|xt.", "retype", "trait", "A")), {error: "Editor/Error/Nothing"});
 	});
 	test("remove: the marker and the space after it, a line of its own with its blank lines, a block keeps what it holds", function() {
 		assert.equal(section("Vor.\n\n<<effect \"A\">> Te|xt.", "remove").text, "Vor.\n\nText.");

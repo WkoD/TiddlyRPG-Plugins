@@ -1,5 +1,5 @@
 created: 20261026100136136
-modified: 20261026100136136
+modified: 20261026122956624
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown
 type: text/vnd.tiddlywiki
 
@@ -9,7 +9,8 @@ type: text/vnd.tiddlywiki
      from the input, so the name keeps its focus), then its name; Insert sets <<kind "Name">> at the
      start of the paragraph or <$kind> around the selection (modules/editor.js). A kind with an intro
      may go without a name. At such a section - its marker in the paragraph at the cursor, or a block
-     around it: another kind from the menu (the one there checked), another name, remove it. -->
+     around it: another kind from the menu (the one there checked; the name in the input goes
+     along), another name, remove it. -->
 \procedure trpg.sectionmenu(actions,current)
 \whitespace trim
 <div class="trpg-editor-menu">
@@ -99,7 +100,7 @@ type: text/vnd.tiddlywiki
 <%else%>
 <div class="trpg-editor-head"><$text text={{{ [<trpg-at-name>is[blank]then[Editor/Section/AtIntro]else[Editor/Section/At]trpgtranslate[]search-replace[$kind$],<trpg-at-label>search-replace[$name$],<trpg-at-name>] }}}/></div>
 <div class="trpg-editor-label"><$text text={{{ [[Editor/Section/Kind]trpgtranslate[]] }}}/></div>
-<$transclude $variable="trpg.sectionmenu" current=<<trpg-at-kind>> actions="""<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="section" op="retype" section=<<trpg-menu-kind>>/><$action-deletetiddler $tiddler=<<dropdown-state>>/>"""/>
+<$transclude $variable="trpg.sectionmenu" current=<<trpg-at-kind>> actions="""<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="section" op="retype" section=<<trpg-menu-kind>> name={{{ [<trpg-input>get[name]] }}}/><$action-deletetiddler $tiddler=<<dropdown-state>>/>"""/>
 <div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Section/Name]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> field="name" tag="input" class="trpg-editor-input"/></div>
 <$transclude $variable="trpg.sectionchange"/>
 <%endif%>
