@@ -3,15 +3,16 @@ title: $:/plugins/tiddlyrpg-core/filters/currency.js
 type: application/javascript
 module-type: filteroperator
 created: 20261010063203140
-modified: 20261022164852090
+modified: 20261026092040936
 
 The currency (modules/currency.js):
 
 [<price>priceformat[]]          each price as written, with the unit labels of the display
-                                language ("3 gp 5 sp" -> "3 GM 5 SM"); unchanged without currency
-[<price>priceconvert<coin>]     each price in the coin, as number with the decimal mark of the
-                                wiki language (nothing if it cannot be read); a range bound by
-                                bound ("5–10")
+                                language and the marks of its numbers ("3 gp 5 sp" -> "3 GM 5 SM",
+                                "1,500 gp" -> "1.500 GM"); unchanged without currency
+[<price>priceconvert<coin>]     each price in the coin, as number with the marks of the wiki
+                                language ("1.200.000", "3,5"; nothing if it cannot be read); a
+                                range bound by bound ("5–10")
 [<price>pricecheck[]]           the problem of each price as language key (Item/Check/...)
 [currency[id]]                  of the active currency (nothing without): id, title, base,
 [currency[coins]]               coins (the coin ids in order), table (wikitext), reference,
@@ -47,15 +48,21 @@ exports.priceformat = function(source,operator,options) {
 
 exports.priceconvert = function(source,operator,options) {
 	var wiki = options.wiki,
-		cur = currency.active(wiki);
+		cur = currency.active(wiki),
+		// at most two decimals, the thousands grouped like a price ("1.200.000", "1.000,5")
+		number = function(v) {
+			var text = rules.formatNumber(wiki,v,2),
+				mark = language.t(wiki,"Number/Decimal") === "," ? "," : ".",
+				parts = text.split(mark);
+			return rules.formatInteger(wiki,parts[0]) + (parts.length > 1 ? mark + parts[1] : "");
+		};
 	return each(source,function(price) {
 		var value = cur && currency.convert(wiki,cur,price,operator.operand);
 		if(value === null || value === undefined || value === false) {
 			return null;
 		}
 		// A range bound by bound
-		return $tw.utils.isArray(value) ? value.map(function(v) { return rules.formatNumber(wiki,v,2); }).join(language.t(wiki,"Currency/Range")) :
-			rules.formatNumber(wiki,value,2);
+		return $tw.utils.isArray(value) ? value.map(number).join(language.t(wiki,"Currency/Range")) : number(value);
 	});
 };
 

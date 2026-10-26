@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261026090128410
+modified: 20261026092040936
 title: $:/plugins/tiddlyrpg-core/editor/fields/price
 type: text/vnd.tiddlywiki
 
@@ -11,7 +11,7 @@ type: text/vnd.tiddlywiki
      the same rule as items/price). Read after the input (focus). Variables:
      currentTiddler (the draft), currentField. -->
 \function trpg.pricecoin() [currency[reference]]
-\procedure trpg.pricenumber() ^\d+(?:[.,]\d+)*(?:\s*[-–—]\s*\d+(?:[.,]\d+)*)?$
+\procedure trpg.pricenumber() ^\d+(?:[.,\s'’]\d+)*(?:\s*[-–—]\s*\d+(?:[.,\s'’]\d+)*)?$
 
 \procedure trpg.priceleave()
 <$let trpg-value={{{ [<currentTiddler>get<currentField>trim[]] }}}>

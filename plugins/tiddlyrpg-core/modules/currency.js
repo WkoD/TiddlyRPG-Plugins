@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/currency.js
 type: application/javascript
 module-type: library
 created: 20261010063203140
-modified: 20261026090128410
+modified: 20261026092040936
 
 Currency engine (backlog of prices with a unit). Knows no particular coins: the active currency
 is the JSON data tiddler named in $:/config/tiddlyrpg/currency, brought by the campaign setting
@@ -28,8 +28,8 @@ currency (the setting registers it, usually "Currency") and follow its display l
 (modules/language.js); without a domain tiddler they follow the mode like any domain.
 
 A price is "25" or a sequence of "<number> <unit>" ("3 gp 5 sp"); the number may separate
-thousands and decimals with "." or "," (numberValue: "12.000" and "12,000" are 12000, "1,5" and
-"1.5" one and a half); a unit is the id, a label or a name of any language, case-insensitive (the
+thousands with ".", ",", a space or an apostrophe and decimals with "." or "," (numberValue:
+"12.000", "12,000" and "12 000" are 12000, "1,5" and "1.5" one and a half); a unit is the id, a label or a name of any language, case-insensitive (the
 id is what to write). format() shows it as written with the labels and the marks of numbers of
 the display language; no coin is converted (150 cp stays 150 cp).
 
@@ -190,35 +190,47 @@ var parse = exports.parse = function(wiki,cur,text) {
 };
 
 /*
-The number of an amount. A point or comma before every group of three digits, after a first group
-of one to three digits that is no 0, separates thousands - "12.000" and "12,000" are 12000, as
-people write them in German and English, "1.000,50" and "1,000.50" with the other mark for the
-decimals; else it is the decimal mark ("1,5", "2.50", "0.500"). The groups first: "1.500" is
-1500, no price has three decimals (the smallest coin is a hundredth of the gold piece).
+The number of an amount. A point, comma, space or apostrophe before every group of three digits,
+after a first group of one to three digits that is no 0, separates thousands - "12.000",
+"12,000", "12 000" are 12000, as people write them in German and English (and as the whole
+numbers of the rules read them, modules/rules.js number()), "1.000,50" and "1,000.50" with the
+other mark for the decimals; else a point or comma is the decimal mark ("1,5", "2.50", "0.500").
+The groups first: "1.500" is 1500, no price has three decimals (the smallest coin is a
+hundredth of the gold piece).
 */
-var GROUPED = /^[1-9]\d{0,2}(?:(\.)\d{3}(?:\.\d{3})*(?:,\d+)?|(,)\d{3}(?:,\d{3})*(?:\.\d+)?)$/,
-	NUMBER = "[1-9]\\d{0,2}(?:\\.\\d{3})+(?:,\\d+)?(?!\\d)|[1-9]\\d{0,2}(?:,\\d{3})+(?:\\.\\d+)?(?!\\d)|\\d+(?:[.,]\\d+)?";
+var MARKS = [".",","," "," "," ","'","’"];
+
+// The source of a number grouped by <mark>, with decimals behind a point or comma that is not it
+function groupedBy(mark) {
+	var decimals = mark === "." ? "," : mark === "," ? "\\." : "[.,]";
+	return "[1-9]\\d{0,2}(?:" + escape(mark) + "\\d{3})+(?:" + decimals + "\\d+)?(?!\\d)";
+}
+
+var NUMBER = MARKS.map(groupedBy).join("|") + "|\\d+(?:[.,]\\d+)?";
+
+// {digits, decimals} of a grouped number ("1.000,50": "1000" and "50"), or null
+function grouped(text) {
+	var mark = MARKS.filter(function(m) { return new RegExp("^" + groupedBy(m) + "$").test(text); })[0];
+	if(mark === undefined) {
+		return null;
+	}
+	var parts = text.split(mark),
+		last = parts.pop().split(/[.,]/);
+	return {groups: parts.concat(last[0]), decimals: last[1]};
+}
 
 var numberValue = exports.numberValue = function(text) {
-	var g = GROUPED.exec(text);
-	if(g) {
-		var group = g[1] || g[2];
-		return parseFloat(text.split(group).join("").replace(",","."));
-	}
-	return parseFloat(text.replace(",","."));
+	var g = grouped(text);
+	return g ? parseFloat(g.groups.join("") + (g.decimals !== undefined ? "." + g.decimals : "")) : parseFloat(text.replace(",","."));
 };
 
 // The number of an amount in the display language: thousands with Number/Group, decimals with
 // Number/Decimal; a number without a mark as written ("12000" stays)
 function numberText(wiki,text) {
-	var g = GROUPED.exec(text),
+	var g = grouped(text),
 		decimal = language.t(wiki,"Number/Decimal") === "," ? "," : ".";
 	if(g) {
-		var group = g[1] || g[2],
-			parts = text.split(group),
-			last = parts.pop().split(group === "." ? "," : "."),
-			groupMark = language.t(wiki,"Number/Group");
-		return parts.concat(last[0]).join(groupMark) + (last[1] !== undefined ? decimal + last[1] : "");
+		return g.groups.join(language.t(wiki,"Number/Group")) + (g.decimals !== undefined ? decimal + g.decimals : "");
 	}
 	return text.replace(/[.,]/,decimal);
 }

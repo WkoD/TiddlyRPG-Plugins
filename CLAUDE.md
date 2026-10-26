@@ -1041,10 +1041,12 @@ module header.
 - A price is shown as written; the unit labels change to the display language of the rules
   domain of type `currency` (`Currency/<id>/Unit/<coin>`), the marks of a number to those of the
   wiki language (`Number/Group`, `Number/Decimal`). No coin is converted (150 cp stays 150 cp).
-- A point or comma before groups of three digits, after a first group of one to three that is no
-  0, separates thousands ("12.000", "12,000", "1.000,50"); else it is the decimal mark ("1,5",
+- A point, comma, space or apostrophe before groups of three digits, after a first group of one
+  to three that is no 0, separates thousands ("12.000", "12,000", "12 000", "1.000,50") - the
+  marks of the whole numbers of the rules; else a point or comma is the decimal mark ("1,5",
   "2.50", "0.500"). The groups first: "1.500" is 1500 - no price has three decimals, and the
-  SRD writes "1,500 gp" for fifteen hundred (`numberValue()`).
+  SRD writes "1,500 gp" for fifteen hundred (`numberValue()`). The converter groups its
+  results the same way (`priceconvert`).
 - Units are read in every language, case-insensitive. `<<unit>>` reads coins only when the text
   holds no length or weight: the German copper piece is "KM", the length "km".
 - `reference` is the coin that matches the price unit of the ruleset (`currency-reference` of

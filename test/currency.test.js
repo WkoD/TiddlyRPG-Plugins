@@ -81,10 +81,11 @@ test.describe("coins in the style of Faerûn", function() {
 
 	test("thousands as people write them, in German and English; else a decimal mark - read and shown in the wiki language", function() {
 		var gp = function(value) { return f("[<p>priceconvert[gp]]", {p: value}); };
-		[["12.000 GM", "12.000 GM", "12000"], ["12,000 gp", "12.000 GM", "12000"], ["1,500 gp", "1.500 GM", "1500"],
-			["1.000.000 gp", "1.000.000 GM", "1000000"], ["1.000,50 gp", "1.000,50 GM", "1000,5"], ["1,000.50 gp", "1.000,50 GM", "1000,5"],
+		[["12.000 GM", "12.000 GM", "12.000"], ["12,000 gp", "12.000 GM", "12.000"], ["1,500 gp", "1.500 GM", "1.500"],
+			["12 000 gp", "12.000 GM", "12.000"], ["12 000 gp", "12.000 GM", "12.000"], ["12'000 gp", "12.000 GM", "12.000"], ["1 000,50 gp", "1.000,50 GM", "1.000,5"],
+			["1.000.000 gp", "1.000.000 GM", "1.000.000"], ["1.000,50 gp", "1.000,50 GM", "1.000,5"], ["1,000.50 gp", "1.000,50 GM", "1.000,5"],
 			["1.5 gp", "1,5 GM", "1,5"], ["2.50 gp", "2,50 GM", "2,5"], ["0,500 gp", "0,500 GM", "0,5"], ["1.5000 gp", "1,5000 GM", "1,5"],
-			["12000 gp", "12000 GM", "12000"], ["1.000-2.000 gp", "1.000–2.000 GM", "1000–2000"]].forEach(function(c) {
+			["12000 gp", "12000 GM", "12.000"], ["1.000-2.000 gp", "1.000–2.000 GM", "1.000–2.000"], ["1 000 - 2 000 gp", "1.000–2.000 GM", "1.000–2.000"]].forEach(function(c) {
 			assert.deepEqual([price(c[0]), gp(c[0])], [c[1], c[2]], c[0]);
 		});
 		h.setLanguage(wiki, "en-GB");
@@ -110,7 +111,7 @@ test.describe("coins in the style of Faerûn", function() {
 	test("convert", function() {
 		assert.equal(f("[<p>priceconvert[sp]]", {p: "3 gp 5 sp"}), "35");
 		assert.equal(f("[<p>priceconvert[gp]]", {p: "3 gp 5 sp"}), "3,5");
-		assert.equal(f("[<p>priceconvert[cp]]", {p: "1 pp"}), "1000");
+		assert.equal(f("[<p>priceconvert[cp]]", {p: "1 pp"}), "1.000", "thousands grouped like a price");
 		assert.equal(f("[<p>priceconvert[sp]]", {p: "1 ep"}), "5");
 		assert.equal(f("[<p>priceconvert[sp]]", {p: "50 xp"}), "", "unreadable");
 	});
@@ -182,6 +183,7 @@ test.describe("a range of prices", function() {
 			assert.equal(leave("50 gp"), "50 gp");
 			assert.equal(leave("50-100 sp"), "50-100 sp");
 			assert.equal(leave("1.000,50"), "1.000,50 gp", "thousands and decimals");
+			assert.equal(leave("12 000"), "12 000 gp", "thousands with a space");
 		} finally {
 			wiki.deleteTiddler("Draft of 'Ware'");
 		}
