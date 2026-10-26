@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/plugins.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015193638000
-modified: 20261025211407212
+modified: 20261026071106286
 
 Checks of the plugins of the wiki (modules/plugin-types.js, modules/currency.js;
 modules/checks.js runs them). The titles are system tiddlers: in the wiki the same problems show
@@ -18,8 +18,8 @@ scripts/check-wiki.js.
                     none of its coins
   plugins/domains   error: an extension of a rules domain without base domain, of a base that is
                     no label domain, or with an id the base has; a property whose "for" names no
-                    entry of its domain; a property that is its own ancestor (modules/language.js,
-                    modules/labels.js); a kind of sections with the name of a kind of the core or
+                    entry of its domain; a property that is its own ancestor; an id that stands
+                    alone in two label domains (modules/language.js, modules/labels.js); a kind of sections with the name of a kind of the core or
                     "intro", of another widget or of a global procedure or macro, or a lock by a
                     field the rules do not define (modules/sections.js)
 

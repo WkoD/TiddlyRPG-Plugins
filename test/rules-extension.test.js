@@ -77,6 +77,18 @@ test("problems: no base, a base of another type, an id the base has", function()
 	});
 });
 
+test("problems of the data: an id that stands alone in two label domains, at the later one; a property may repeat it", function() {
+	assert.deepEqual(domainMessages(), [], "the fixtures have none");
+	extension("Zweite Seltenheit", {domain: "ZweiteSeltenheit", type: "label", keys: "Rules/Zweit/", entries: [{id: "Rare"}]}, function() {
+		assert.deepEqual(domainMessages(), [{title: "Zweite Seltenheit", key: "Check/Plugins/IdTwice"}], "any case, as <<term>> reads it");
+		var message = checks.all(wiki, "dm", ["plugins"])["Zweite Seltenheit"][0];
+		assert.equal(checks.text(wiki, message), "Bereich ZweiteSeltenheit prüfen: „Rare“ steht auch in Rarity allein – <<term>> nimmt den aus Rarity");
+	});
+	extension("Zweite Seltenheit", {domain: "ZweiteSeltenheit", type: "label", keys: "Rules/Zweit/", entries: [{id: "gem"}, {id: "rare", for: ["gem"]}]}, function() {
+		assert.deepEqual(domainMessages(), []);
+	});
+});
+
 test("problems of the data: a for to nowhere, a cycle", function() {
 	extension("Ext Bad", {domain: "ItemCategory", extends: true, entries: [{id: "rune", for: ["scroll"]}, {id: "a", for: ["b"]}, {id: "b", for: ["a"]}]}, function() {
 		var keys = domainMessages().map(function(m) { return m.key; }).sort();

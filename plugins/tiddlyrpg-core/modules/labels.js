@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/labels.js
 type: application/javascript
 module-type: library
 created: 20261022135703721
-modified: 20261025201024058
+modified: 20261026071106286
 
 Values made of the entries of label domains (modules/rules.js): one entry ("rare"), a list
 ("fire, cold"), entries with a value after them ("dex +6", "darkvision 60 ft"), and lists of main
@@ -365,11 +365,28 @@ exports.chain = function(wiki,ids) {
 
 /*
 The problems of the data of the label domains, each {title, key, params}: a property whose "for"
-names no entry of its domain, a cycle of properties (checks/plugins.js, rule plugins/domains; the
-extensions are reported by modules/language.js).
+names no entry of its domain, a cycle of properties, an id that stands alone in two label domains
+(<<term>> finds the first in the order of the domains, modules/rules.js; reported at the later
+one) (checks/plugins.js, rule plugins/domains; the extensions are reported by
+modules/language.js).
 */
 exports.dataProblems = function(wiki) {
-	var problems = [];
+	var problems = [],
+		all = language.domains(wiki),
+		alone = {};
+	Object.keys(all).filter(function(name) { return all[name].type === "label"; }).forEach(function(name) {
+		$tw.utils.each(all[name].entries || [],function(entry) {
+			var id = (entry.id || "").toString().toLowerCase();
+			if(!id || !standsAlone(entry)) {
+				return;
+			}
+			if(alone[id] && alone[id] !== name) {
+				problems.push({title: all[name].title, key: "Check/Plugins/IdTwice", params: {domain: name, id: entry.id, other: alone[id]}});
+			} else {
+				alone[id] = name;
+			}
+		});
+	});
 	labelDomains(wiki).forEach(function(domain) {
 		var ids = (domain.entries || []).map(function(e) { return e.id; });
 		(domain.entries || []).forEach(function(entry) {

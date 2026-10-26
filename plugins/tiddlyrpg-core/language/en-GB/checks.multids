@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261025200520269
+modified: 20261026071106286
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
@@ -53,6 +53,7 @@ Locations/Tag: Check the tags: $tag$ is a location - locations are never tags, t
 Plugins/ExtensionBase: Check the extension: there is no domain $domain$ to extend
 Plugins/ExtensionId: Check the extension: $domain$ has "$id$" already
 Plugins/ExtensionType: Check the extension: $domain$ is of type $type$; only label domains can be extended
+Plugins/IdTwice: Check the domain $domain$: "$id$" stands alone in $other$ as well - <<term>> takes the one of $other$
 Plugins/Reference: Check the currency: the coin of the prices of the ruleset is $reference$, which is none of its coins ($coins$)
 Plugins/PropertyCycle: Check the domain $domain$: "$id$" is its own ancestor
 Plugins/PropertyFor: Check the domain $domain$: "$id$" belongs to "$parent$", which is no entry of it

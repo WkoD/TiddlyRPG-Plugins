@@ -1,7 +1,7 @@
 /*
  * Domains of type label (modules/rules.js, <<term>>) against fixture-ruleset-5e-mini (Ability,
  * Terms): the label in the display language of its domain, a variant, the id in any case, an
- * unknown id or variant; ids unique among the entries that stand alone; a main entry with its
+ * unknown id or variant (an id twice: rules-extension.test.js); a main entry with its
  * properties in one <<term>> ("armor medium"), a property alone is no term, "medium" alone the
  * size; "GM" is the game master in the domain Terms (in a currency it would be a gold piece -
  * parsing stays within a domain).
@@ -10,14 +10,13 @@ var test = require("node:test"),
 	assert = require("node:assert/strict"),
 	h = require("./helpers");
 
-var $tw, wiki, rules, language;
+var $tw, wiki, rules;
 
 test.before(function() {
 	return h.boot().then(function(tw) {
 		$tw = tw;
 		wiki = $tw.wiki;
 		rules = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/rules.js");
-		language = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/language.js");
 	});
 });
 
@@ -108,21 +107,4 @@ test("a value as ordinal: $value.ordinal$ from Rules/Ordinal/<n>, else as writte
 	} finally {
 		h.setLanguage(wiki, "de-DE");
 	}
-});
-
-test("the ids are unique among the entries that stand alone (a property may repeat one)", function() {
-	var domains = language.domains(wiki),
-		seen = {},
-		twice = [];
-	Object.keys(domains).forEach(function(name) {
-		if(domains[name].type === "label") {
-			(domains[name].entries || []).filter(function(entry) { return !entry.for || entry.main; }).forEach(function(entry) {
-				if(seen[entry.id]) {
-					twice.push(entry.id);
-				}
-				seen[entry.id] = true;
-			});
-		}
-	});
-	assert.deepEqual(twice, []);
 });
