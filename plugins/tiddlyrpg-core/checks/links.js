@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/checks/links.js
 type: application/javascript
 module-type: trpg-check
 created: 20261015194805000
-modified: 20261016214011000
+modified: 20261026071425205
 
 Checks of the links in a body (the links of the model of modules/sections.js; modules/checks.js
 runs them).
@@ -14,6 +14,10 @@ runs them).
                   its location and <<spotlink>>. Only links in sections the view sees, none to
                   system tiddlers; the count and the spot only as far as the view sees them, a
                   draft counted as the tiddler it is the draft of
+  links/locked    hint: a link to a locked tiddler in text that a view sees which does not see the
+                  tiddler (the public view, else the views of players) - there the link shows its
+                  title, as text or as its target ([[House|Secret Place]]). Not a link in a note
+                  of the DM; told only to a view that sees the tiddler
 
 \*/
 
@@ -71,6 +75,37 @@ exports.rules = [
 				messages.push(count > 1 ?
 					{level: "hint", key: "Check/Links/MissingOften", params: {target: target, count: count}, fix: {kind: "create", title: target, type: ""}} :
 					{level: "hint", key: "Check/Links/Missing", params: {target: target}, fix: {kind: "create", title: target, type: ""}});
+			});
+			return messages;
+		}
+	},
+	{
+		id: "links/locked",
+		run: function(wiki,title,view) {
+			var seen = Object.create(null),
+				messages = [],
+				views = [{mode: "public"}].concat(visibility.players(wiki).map(function(player) {
+					return {mode: "player", player: player};
+				}));
+			$tw.utils.each(sections.read(wiki,title).links,function(link) {
+				var target = link.to;
+				if(!target || seen[target] || link.frame || !visibility.locked(wiki,target) || !visibility.visible(wiki,target,view) ||
+					!sections.visible(wiki,title,link.section,view)) {
+					return;
+				}
+				// The views that see the link but not its target: the public view alone if it is
+				// one of them (every player sees what it sees), else the players
+				var told = views.filter(function(other) {
+					return visibility.visible(wiki,title,other) && sections.visible(wiki,title,link.section,other) &&
+						!visibility.visible(wiki,target,other);
+				});
+				if(!told.length) {
+					return;
+				}
+				seen[target] = true;
+				messages.push(told[0].mode === "public" ?
+					{level: "hint", key: "Check/Links/LockedPublic", params: {target: target}} :
+					{level: "hint", key: "Check/Links/Locked", params: {target: target, players: told.map(function(other) { return other.player; }).join(", ")}});
 			});
 			return messages;
 		}

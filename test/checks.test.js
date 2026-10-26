@@ -245,6 +245,25 @@ test.describe("content", function() {
 		});
 	});
 
+	test("links/locked: a link to a locked tiddler in text a view sees that does not see the tiddler; told only to a view that sees it", function() {
+		withTiddlers([
+			{title: "Ragna", tags: "Player", player: "Jan"},
+			{title: "Geheimhaus", tags: "Location Secret", text: "Locked."},
+			{title: "Friggs Haus", tags: "Location Secret Frigg", text: "Frigg's."},
+			{title: "Offene Notiz", tags: "Event Frigg", date: "1351, 1352", text: "<<date>>\n\n[[Geheimhaus]], [[Haus|Geheimhaus]], [[Friggs Haus]], [[Baile]].\n\n<<secret>><<date>>\n\n[[Geheimhaus]].\n\n@@.tc-tiddler-frame\n[[Geheimhaus]]\n@@"},
+			{title: "Friggs Notiz", tags: "Event", date: "1351", text: "<<secret \"Frigg\">><<date>>\n\n[[Friggs Haus]] and [[Geheimhaus]].\n\n@@.tc-tiddler-frame\n[[Geheimhaus]]\n@@"},
+			{title: "DM-Notiz", tags: "Event", date: "1351", text: "<<date>>\n\n@@.tc-tiddler-frame\n[[Geheimhaus]]\n@@"}
+		], function() {
+			var texts = function(title) { return h.checks(wiki, title, "links").map(function(m) { return m.key + " " + m.params.target + (m.params.players ? " " + m.params.players : ""); }); };
+			assert.deepEqual(texts("Offene Notiz"), ["Check/Links/LockedPublic Geheimhaus", "Check/Links/LockedPublic Friggs Haus"], "an alias too, once");
+			assert.deepEqual(texts("Friggs Notiz"), ["Check/Links/Locked Geheimhaus Anna"], "the players of the lock, not Jan");
+			assert.deepEqual(texts("DM-Notiz"), [], "a note of the DM");
+			assert.equal(h.checks(wiki, "Friggs Notiz", "links")[0].text, "Link prüfen: Geheimhaus ist gesperrt, aber in der Sicht von Anna steht der Link und damit sein Titel – den Text mitsperren oder entlinken");
+			assert.deepEqual(h.inView(wiki, "public", function() { return texts("Offene Notiz"); }), []);
+			assert.deepEqual(h.inView(wiki, "player:Anna", function() { return texts("Offene Notiz"); }), ["Check/Links/LockedPublic Friggs Haus"]);
+		});
+	});
+
 	test("links/missing: the name of a spot names its location; several linking tiddlers are counted, as far as the view sees them", function() {
 		withTiddlers([
 			{title: "Brunnenweg", tags: "Event", date: "1351", text: "<<date>>\n\nTo the [[Old Well]] and [[Ferne Insel]]; [[Einsam]]."},

@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261026071106286
+modified: 20261026071425205
 title: $:/tiddlyrpg/language/en-GB/Check/
 
 Categories/NoBase: Check the tags: $category$ needs a base type as well: $bases$
@@ -46,6 +46,8 @@ Images/NoFolder: Check the text: <<image "$files$">> in a tiddler without type -
 Images/SpotImage: Check the spot $spot$: its image $path$ does not exist
 Images/SpotMap: Check the spot $spot$: its map $path$ does not exist
 Images/Unused: Check the file: no tiddler shows it - use it in image, map or <<image>>, or remove it
+Links/Locked: Check the link: $target$ is locked, but the view of $players$ shows the link and with it its title - lock the text too or unlink it
+Links/LockedPublic: Check the link: $target$ is locked, but every view shows the link and with it its title - lock the text too or unlink it
 Links/Missing: Check the link: $target$ does not exist - create it, unlink it or leave it on purpose
 Links/MissingOften: Check the link: $target$ does not exist and is linked from $count$ tiddlers - create it, unlink it or leave it on purpose
 Links/MissingSpot: Check the link: $target$ is no tiddler, only a spot of $place$ - link it with <<spotlink "$place$" "$target$">>, or create the tiddler

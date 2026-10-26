@@ -1,5 +1,5 @@
 created: 20261015193638000
-modified: 20261026071106286
+modified: 20261026071425205
 title: $:/tiddlyrpg/language/de-DE/Check/
 
 Categories/NoBase: Tags prüfen: $category$ braucht dazu einen Grundtyp: $bases$
@@ -46,6 +46,8 @@ Images/NoFolder: Text prüfen: <<image "$files$">> in einem Tiddler ohne Typ –
 Images/SpotImage: Spot $spot$ prüfen: Sein Bild $path$ gibt es nicht
 Images/SpotMap: Spot $spot$ prüfen: Seine Karte $path$ gibt es nicht
 Images/Unused: Datei prüfen: Kein Tiddler zeigt sie – in image, map oder <<image>> verwenden oder entfernen
+Links/Locked: Link prüfen: $target$ ist gesperrt, aber in der Sicht von $players$ steht der Link und damit sein Titel – den Text mitsperren oder entlinken
+Links/LockedPublic: Link prüfen: $target$ ist gesperrt, aber in jeder Sicht steht der Link und damit sein Titel – den Text mitsperren oder entlinken
 Links/Missing: Link prüfen: $target$ gibt es nicht – anlegen, entlinken oder bewusst stehen lassen
 Links/MissingOften: Link prüfen: $target$ gibt es nicht und $count$ Tiddler verlinken es – anlegen, entlinken oder bewusst stehen lassen
 Links/MissingSpot: Link prüfen: $target$ ist kein Tiddler, nur ein Spot von $place$ – mit <<spotlink "$place$" "$target$">> verlinken oder den Tiddler anlegen
