@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261026132300929
+modified: 20261026143641254
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>>, <<term>> and <<rule>> (functions.tid,
 operators in filters/rules.js) show rules terms in the display language of their domain
@@ -725,8 +725,19 @@ function calcPattern(wiki) {
 
 // <<damage value>>: "1d8 slashing", "1d8 + 1d4 + 1 fire DMG", "1d8 bludgeon und 1d8 cold".
 // short: the form of a field, where the label already says damage - "1d10 bludgeoning + 1d8 cold"
-// instead of "1d10 bludgeoning damage plus 1d8 cold damage"
-exports.damage = function(wiki,text,short) {
+// instead of "1d10 bludgeoning damage plus 1d8 cold damage". The calculation of a part may be a
+// formula (modules/formula.js): a name in single quotes, the id of a term that is no damage word,
+// * / × ÷ and brackets - "1d6 + 'Rage Damage|Barbarian' cold" -> "1d6 + Rage Damage cold damage",
+// its pieces linked in <view> (parts [{text, to, anchor}])
+var DAMAGE_FORMULA = /^(?:'[^']*'|[*×÷\/()]|[a-z][a-z0-9-]*(?::[a-z0-9-]+)?(?![\p{L}\d']))/iu;
+
+exports.damage = function(wiki,text,short,view) {
+	var r = damageText(wiki,text,short,view);
+	r.parts = r.parts || [{text: r.text}];
+	return r;
+};
+
+function damageText(wiki,text,short,view) {
 	text = (text || "").toString().trim();
 	var known = damageWords(wiki);
 	if(!known.length) {
@@ -738,6 +749,17 @@ exports.damage = function(wiki,text,short) {
 		rest = text,
 		domain = null,
 		unknown = null;
+	// A piece of a formula at the start of <rest>: never a word of the damage domains ("cold")
+	var formulaPiece = function() {
+		var f = DAMAGE_FORMULA.exec(rest),
+			lower = rest.toLowerCase();
+		if(!f || (/^[a-z]/i.test(f[0]) && (known.some(function(w) {
+				return lower.indexOf(w.word) === 0 && !/[\p{L}\d]/u.test(lower.charAt(w.word.length));
+			}) || !findEntry(wiki,"label",f[0].split(":")[0])))) {
+			return null;
+		}
+		return f[0];
+	};
 	while(rest.length) {
 		var lower,
 			hit = null;
@@ -752,6 +774,13 @@ exports.damage = function(wiki,text,short) {
 		if(m && m[0].length) {
 			part.calc += m[0];
 			rest = rest.slice(m[0].length);
+			continue;
+		}
+		var piece = !part.type && !part.qualifiers.length && formulaPiece();
+		if(piece) {
+			part.calc += piece;
+			part.formula = true;
+			rest = rest.slice(piece.length);
 			continue;
 		}
 		rest = rest.replace(/^\s+/,"");
@@ -797,19 +826,44 @@ exports.damage = function(wiki,text,short) {
 	}
 	var name = domain.domain,
 		pattern = language.lookupRules(wiki,name,"Rules/Damage/Pattern") || "$dice$ $qualifiers$ $type$",
-		join = short ? "+" : language.lookupRules(wiki,name,"Rules/Damage/Join") || "+";
-	var shown = parts.filter(function(p) { return p.calc.trim() || p.type; }).map(function(p) {
-		var key = "Rules/Damage/" + p.type;
-		return language.format(pattern,{
-			dice: dice(wiki,p.calc.trim().replace(/\s+/g," ")).text,
+		join = short ? "+" : language.lookupRules(wiki,name,"Rules/Damage/Join") || "+",
+		problem = null,
+		out = [];
+	// The parts in one list: plain text joined, a piece with a link on its own
+	var push = function(piece) {
+		var last = out[out.length - 1];
+		if(!piece.to && last && !last.to) {
+			last.text += piece.text;
+		} else if(piece.text) {
+			out.push($tw.utils.extend({},piece));
+		}
+	};
+	parts.filter(function(p) { return p.calc.trim() || p.type; }).forEach(function(p,index) {
+		var key = "Rules/Damage/" + p.type,
+			f = p.formula ? formula().read(wiki,p.calc.trim(),view) : null;
+		if(f && f.problem && !problem) {
+			problem = {key: f.problem, values: f.values};
+		}
+		var text = language.format(pattern,{
+			dice: f ? "\u0000" : dice(wiki,p.calc.trim().replace(/\s+/g," ")).text,
 			qualifiers: p.qualifiers.map(function(q) {
 				return language.lookupRules(wiki,name,"Rules/Damage/" + q) || q;
 			}).join(" "),
 			type: p.type ? ((!short && language.lookupRules(wiki,name,key + "/Phrase")) || language.lookupRules(wiki,name,key) || p.type) : ""
 		}).replace(/\s+/g," ").trim();
+		if(index > 0) {
+			push({text: " " + join + " "});
+		}
+		$tw.utils.each(text.split("\u0000"),function(piece,i) {
+			if(i > 0) {
+				$tw.utils.each(f.parts,push);
+			}
+			push({text: piece});
+		});
 	});
-	return result(shown.join(" " + join + " "));
-};
+	var shown = out.map(function(piece) { return piece.text; }).join("");
+	return problem ? result(shown,problem.key,problem.values,{parts: out}) : result(shown,null,{},{parts: out});
+}
 
 /* Values of fields (modules/fields.js) */
 
@@ -1170,7 +1224,7 @@ function runMacro(wiki,name,node,view) {
 	return computed(p) ? null :
 		name === "unit" ? exports.unit(wiki,p.value,p.kind) :
 		name === "dice" ? exports.diceText(wiki,p.value,view) :
-		name === "damage" ? exports.damage(wiki,p.value) :
+		name === "damage" ? exports.damage(wiki,p.value,false,view) :
 		name === "rule" ? exports.rule(wiki,p.name,p.entry,view) :
 		exports.term(wiki,p.id,p.variant,p.value,view);
 }

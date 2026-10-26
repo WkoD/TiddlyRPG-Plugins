@@ -304,7 +304,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     also with a kind); two values of a kind that reads pairs (`20/60 ft`), fractions (`1/4 lb`,
     `½`), measures (`10 x 10 x 1 ft`), `ft³` as a volume, `0` in the unit of its pair, a domain
     without conversion (durations) with plural labels
-  - `formula` - formulas (`modules/formula.js`) in the value of `<<term>>` and in `<<dice>>`:
+  - `formula` - formulas (`modules/formula.js`) in the value of `<<term>>`, in `<<dice>>` and in
+    the calculation of `<<damage>>` (damage words stay damage words):
     each piece in the rules language (de-DE, en-GB), the spaces around operators, `*` and `x` as
     `×`, the decimal comma (no list, no thousands), the parts with their links and jump marks, one
     span, unknown words and open brackets as problems, dice alone as before, a change of the
@@ -575,7 +576,7 @@ the tiddler title:
   `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
   `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgruleslabel`, `trpgunit`,
-  `trpgdice`, `trpgdamage`, `trpgterm`, `trpgtermparts`, `trpgdiceparts`, `trpgruleparts`, see
+  `trpgdice`, `trpgdamage`, `trpgterm`, `trpgtermparts`, `trpgdiceparts`, `trpgdamageparts`, `trpgruleparts`, see
   "Language system" -> "Rules language" and "Rules engine"), `checks.js` (`trpgcheck`, `trpgdraftcheck`, see "Checks"), `editor.js` (the
   filters of the editor, listed in its header, see "Editor").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
@@ -869,13 +870,14 @@ Of each type one is active, chosen in
   shows terms refreshes on `$:/config/tiddlyrpg/rules/...` (the timeline does).
 - **Rules engine** (`modules/rules.js`; the data formats of the domain types are in its header,
   the one place for them): the procedures `unit`, `dice`, `damage`, `term`, `rule` (`functions.tid`,
-  filtered attributes) through the operators `trpgunit`, `trpgdamage` and the parts of
-  `trpgdiceparts`, `trpgtermparts`, `trpgruleparts` - JSON `[{text, to, anchor}]` that
+  filtered attributes) through the operator `trpgunit` and the parts of `trpgdiceparts`,
+  `trpgdamageparts`, `trpgtermparts`, `trpgruleparts` - JSON `[{text, to, anchor}]` that
   `trpg.ruleparts` draws as one span `trpg-rule` with the links inside (a term to its entry of the
-  glossary, a name to its target with the jump mark). A value of `<<term>>` that is no number and
-  a text of `<<dice>>` with more than dice, numbers, + and - are formulas (`modules/formula.js`,
-  its header: the pieces, the spaces, the problems); `dice()` itself stays as it was, `damage`
-  and the fields use it. `<<rule "Name" entry:"Entry">>` and a name in a formula
+  glossary, a name to its target with the jump mark). A value of `<<term>>` that is no number, a
+  text of `<<dice>>` with more than dice, numbers, + and -, and the calculation of a part of
+  `<<damage>>` with a name, a term that is no damage word, `* /` or brackets are formulas
+  (`modules/formula.js`, its header: the pieces, the spaces, the problems); `dice()` itself stays
+  as it was, `damage` and the fields use it. `<<rule "Name" entry:"Entry">>` and a name in a formula
   (`'Name|Entry'`) resolve through `glossary.ref()` in the view (`check()` passes it on).
   It knows no word of a rules system - units, tokens, damage words and labels all come from the
   domains and the language keys of the active ruleset or setting; the die letters of a damage

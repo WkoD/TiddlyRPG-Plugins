@@ -112,6 +112,25 @@ test.describe("en-GB", function() {
 		assert.equal(dice("1d4 + 'Rage Damage").problem, "Rules/Check/Formula", "a quote not closed");
 	});
 
+	test("<<damage>>: the calculation of a part may be a formula; damage words stay damage words", function() {
+		var damage = function(text) { return rules.damage(wiki, text); };
+		var plain = damage("1d8 cold");
+		assert.deepEqual(Array.from(plain.parts, function(p) { return Object.assign({}, p); }), [{text: plain.text}], "no formula: as before");
+		var rage = damage("1d6 + 'Rage Damage|Barbar' cold");
+		assert.equal(rage.problem, null);
+		assert.equal(rage.text, "1d6 + Rage Damage " + damage("cold").text);
+		assert.deepEqual(Array.from(rage.parts, function(p) { return Object.assign({}, p); })[1], {text: "Rage Damage", to: "Barbar", anchor: "column-rage-damage"});
+		assert.equal(damage("1d4 + pb fire").text, "1d4 + PB " + damage("fire").text);
+		assert.equal(damage("(1d6 + pb) * 2 fire").text, "(1d6 + PB) × 2 " + damage("fire").text);
+		var two = damage("1d6 + pb cold plus 1d4 fire");
+		assert.ok(h.inOrder(two.text, ["1d6 + PB", damage("cold").text, "1d4", damage("fire").text]), two.text);
+		assert.equal(damage("1d6 + Rage Damage cold").problem, "Rules/Check/Damage", "a word that is no term and no damage word");
+		assert.equal(damage("1d6 + 'Nothing' cold").problem, "Rules/Check/Name");
+		assert.equal(damage("2d6 + 3 fire").text, damage("2d6+3 fire").text.replace("2d6+3", "2d6 + 3"), "a plain calculation as before");
+		var out = html("<<damage \"1d6 + 'Rage Damage|Barbar' cold\">>");
+		assert.match(out, /<span class="trpg-rule">1d6 \+ <a [^>]*href="#Barbar"[^>]*>Rage Damage<\/a> [^<]+<\/span>/, out);
+	});
+
 	test("checks: the messages of the rule macros/rules, none for a formula that reads", function() {
 		h.add(wiki, {title: "Probe Formel", tags: "Item", text: "<<term dc value:\"10 + rage\">> and <<dice \"1d4 + (pb\">> and <<term dc value:\"10 + cr\">>"});
 		try {

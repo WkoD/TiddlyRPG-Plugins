@@ -348,7 +348,7 @@ test.describe("sweep", function() {
 			// A locked class whose feature and column an open text names (<<rule>>, a name in a
 			// formula, also with the entry): no link, no jump, no title
 			{title: "Qx7 Zorn", tags: "Information Class Secret", text: "|!Level |!Zornspalte |\n|1st |+2 |\n\n<<trait \"Wutanfall\">> Qx7 rage."},
-			{title: "Sweep Wut", tags: "Item", text: "Once per <<rule \"Wutanfall\">>, <<rule \"Wutanfall\" entry:\"Qx7 Zorn\">>, <<dice \"10 + 'Zornspalte'\">>."},
+			{title: "Sweep Wut", tags: "Item", text: "Once per <<rule \"Wutanfall\">>, <<rule \"Wutanfall\" entry:\"Qx7 Zorn\">>, <<dice \"10 + 'Zornspalte'\">>, <<damage \"1d6 + 'Zornspalte' cold\">>."},
 			// Locked values of a tiddler everyone sees (secret-fields): one field, and all with the price
 			{title: "Sweep Kelch", tags: "Item Consumable", category: "potion", rarity: "Qx7selten", "secret-fields": "rarity", text: "A cup."},
 			// A section of the ruleset locked by a field (a curse with cursed, modules/sections.js)

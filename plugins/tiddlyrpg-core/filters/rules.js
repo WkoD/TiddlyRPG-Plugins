@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261026132300929
+modified: 20261026143641254
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -13,6 +13,8 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<value>trpgunit<kind>]            each input as <<unit>> shows it: "228 cm" -> "7 ft 7 in"
 [<value>trpgdice[]]                each input with the dice tokens of the display language
 [<value>trpgdamage[]]              each input as damage expression: "1d8 cold" -> "1W8 Kälteschaden"
+[<value>trpgdamageparts[]]         <<damage>> as JSON parts: a calculation that is a formula in its
+                                   pieces with their links ("1d6 + 'Rage Damage|Barbarian' cold")
 [<id>trpgterm<variant>,<value>]    each input id as term, with a variant ("save") and/or a value (2)
 [<id>trpgtermparts<variant>,<value>]  the same as JSON [{text, to, anchor}]: the label linked to
                                    the glossary, a value that is a formula in its pieces
@@ -93,6 +95,13 @@ exports.trpgdiceparts = function(source,operator,options) {
 	var view = visibility.current(options.wiki);
 	return each(source,function(value) {
 		return JSON.stringify(rules.diceText(options.wiki,value,view).parts);
+	});
+};
+
+exports.trpgdamageparts = function(source,operator,options) {
+	var view = visibility.current(options.wiki);
+	return each(source,function(value) {
+		return JSON.stringify(rules.damage(options.wiki,value,false,view).parts);
 	});
 };
 

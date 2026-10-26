@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261026132300929
+modified: 20261026143641254
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -187,7 +187,7 @@ type: text/vnd.tiddlywiki
 <!-- Rules terms in the display language of their domain (modules/rules.js, filters/rules.js):
      <<unit "228 cm">>, <<unit "60 ft" kind:"range">>, <<dice "4d6">>, <<damage "1d8 slashing">>,
      <<term wis variant:"save">>, <<term frightened value:2>>; formulas <<term dc value:"10 + cr">>,
-     <<dice "1d4 + 'Rage Damage|Barbarian'">> (modules/formula.js); <<rule "Rage" entry:"Barbarian">>
+     <<dice "1d4 + 'Rage Damage|Barbarian'">>, <<damage "1d6 + pb cold">> (modules/formula.js); <<rule "Rage" entry:"Barbarian">>
      names a section, table heading or entry of a text (modules/glossary.js ref). Filtered
      attributes, so that they recompute when the rules language or the view changes. What is not
      understood shows unchanged; the hint stands below the title (checks/macros.js). Each is one
@@ -203,7 +203,7 @@ type: text/vnd.tiddlywiki
 \end
 
 \procedure damage(value)
-<span class="trpg-rule"><$text text={{{ [<value>trpgdamage[]] }}}/></span>
+<$transclude $variable="trpg.ruleparts" parts={{{ [<value>trpgdamageparts[]] }}}/>
 \end
 
 \procedure term(id,variant,value)

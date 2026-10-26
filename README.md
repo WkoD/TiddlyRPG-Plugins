@@ -222,7 +222,7 @@ words of every language are read: `<<damage "2W6 Feuer">>` works as well. A numb
 A kind only chooses how a value is shown, e.g. a range in whole feet.
 
 **Formulas.** How a value is computed - shown, never computed - is one formula: the value of
-`<<term>>` or the text of `<<dice>>`.
+`<<term>>`, the text of `<<dice>>`, or the calculation of a part of `<<damage>>`.
 
 ```
                                                   shown in English               shown in German
@@ -230,7 +230,11 @@ A kind only chooses how a value is shown, e.g. a range in whole feet.
 <<dice "1d8 * cr">>                               1d8 × CR                       1W8 × HG
 <<dice "1/4 hit-dice + con:mod">>                 1/4 Hit Dice + CON modifier    ...
 <<term dc value:"10 + 'Rage Damage|Barbarian'">>  DC 10 + Rage Damage            SG 10 + Rage Damage
+<<damage "1d6 + 'Rage Damage|Barbarian' cold">>   1d6 + Rage Damage cold damage  1W6 + Rage Damage Kälteschaden
 ```
+
+In `<<damage>>` a word of the damage (a type, "plus", "damage") stays what it is; an id of a term
+that is no such word, a name, `* /` or brackets make the calculation before it a formula.
 
 A formula holds numbers (`1,5`, `1/4` without spaces around the slash, `½`), dice, the operators
 `+ - * / ×` (`*` and `x` show as `×`) and brackets, ids of terms with a variant after a colon

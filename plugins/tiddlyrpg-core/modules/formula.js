@@ -3,11 +3,12 @@ title: $:/plugins/tiddlyrpg-core/modules/formula.js
 type: application/javascript
 module-type: library
 created: 20261026130930621
-modified: 20261026130930621
+modified: 20261026143641254
 
 A formula of the rules as the text shows it - how a value is computed, never computed: the value
-of <<term>> (<<term dc value:"10 + cr">> -> "DC 10 + CR") and the text of <<dice>> that holds
-more than dice (<<dice "1d4 + 'Rage Damage|Barbarian'">>), modules/rules.js. Read piece by
+of <<term>> (<<term dc value:"10 + cr">> -> "DC 10 + CR"), the text of <<dice>> that holds
+more than dice (<<dice "1d4 + 'Rage Damage|Barbarian'">>) and the calculation of a part of
+<<damage>> ("1d6 + 'Rage Damage|Barbarian' cold"), modules/rules.js. Read piece by
 piece, each in the rules language and with its link:
 
   number    "10", "1,5", "1/4" (no space around the slash), "½" - with the decimal mark of the
