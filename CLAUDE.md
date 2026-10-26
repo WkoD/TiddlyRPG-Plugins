@@ -126,6 +126,23 @@ one mechanically, it is named.
   in a list, `1,320 lb`, `0,500`). A reader of numbers or lists says which it takes and is
   tested with the other two.
 
+A second review, of the fixes themselves, found these on top:
+
+- **A fix moves the problem to its neighbour:** a later field of a combine shown alone while the
+  first is locked; a hidden branch of a tree that takes an entry with another, visible parent;
+  a merged `when` that hides the fields of the ruleset. After a fix, test the case beside it -
+  the same rule with the alternative locked, missing or in the other order.
+- **What depends on the view is built anew when the view changes:** a transformed tree, a
+  cached order (`trpg-body` and `arrange()`), not only the text of a widget. Test it by
+  rendering, switching the view and refreshing, against a fresh render.
+- **Nothing that reads all entries inside a loop over entries:** the hub `Content` read every
+  entry of the type per entry (10 s with the SRD package). Compute what the loop needs before
+  it; a test counts the calls (`content` counts the values read), it does not time them.
+- **A tolerant reader for the form is no reader for the output:** the form keeps what a field
+  holds ("Fighter 1,5"), the block and the card show only what reads.
+- **Numbers beyond a double:** `Number()` gives `Infinity`, `BigInt(Infinity)` throws - a reader
+  rejects what it cannot hold.
+
 ## Editing the format layer
 
 `tiddlyrpg-core` and `staticfiles` are **folder plugins** under `plugins/` (no build step - the

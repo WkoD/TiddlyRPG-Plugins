@@ -410,6 +410,27 @@ test.describe("trees: classes and folk", function() {
 		assert.deepEqual(lines("Halbe"), [["Draconic Bloodline"]], "an entry whose parent is missing stands alone");
 	});
 
+	test("the lines of a tree: an entry with two parents, one locked, goes with the other - in either order", function() {
+		var relations = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/relations.js"),
+			visibility = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
+			lines = function(title) {
+				return JSON.parse(JSON.stringify(relations.lines(wiki, "folk", title, function(t) { return visibility.visible(wiki, t, visibility.current(wiki)); })));
+			};
+		withTiddlers([
+			{title: "Alb", tags: "Information Folk Secret", text: "x"},
+			{title: "Mensch", tags: "Information Folk", text: "x"},
+			{title: "Halbalb", tags: "Information Folk", folk: "Alb Mensch", text: "x"},
+			{title: "Mira", tags: "Person", folk: "Alb Mensch Halbalb", text: "x"},
+			{title: "Mara", tags: "Person", folk: "Mensch Alb Halbalb", text: "x"}
+		], function() {
+			assert.deepEqual(lines("Mira"), [["Alb", "Halbalb"], ["Mensch"]], "the DM: below the first parent");
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(lines("Mira"), [["Mensch", "Halbalb"]]);
+				assert.deepEqual(lines("Mara"), [["Mensch", "Halbalb"]]);
+			});
+		});
+	});
+
 	test("the check: a holder names a parent of each entry; a fix for one parent; not for a spell or an item", function() {
 		assert.deepEqual(parent("Funke"), []);
 		assert.deepEqual(parent("Doppel"), []);
@@ -692,6 +713,12 @@ test.describe("the levels of the classes (format titles)", function() {
 		assert.deepEqual(lines("Einzeln"), ["Stufe 5 Kämpfer"]);
 		assert.deepEqual(lines("Heimlich"), ["Stufe 3 Kämpfer", "Stufe 2 Verborgen"]);
 		assert.deepEqual(lines("Heimlich", "public"), ["Kämpfer"], "the difference to the level would tell the locked class");
+		h.add(wiki, {title: "Komma", tags: "Player", player: "Qi", classes: "Kämpfer", "class-levels": "Kämpfer 1,5", text: "A fraction."});
+		try {
+			assert.deepEqual(lines("Komma"), ["Kämpfer"], "a field that cannot be read shows no level (\"1,5\" is no level 1)");
+		} finally {
+			wiki.deleteTiddler("Komma");
+		}
 		h.add(wiki, {title: "Waldvolk", tags: "Information Folk", text: "Forest folk."});
 		h.add(wiki, {title: "Hochwald", tags: "Information Folk", folk: "Waldvolk", text: "Of the high forest."});
 		h.add(wiki, {title: "Volkstreu", tags: "Player", player: "Vi", xp: "900", folk: "Waldvolk Hochwald", classes: "Kämpfer", text: "One class, a folk."});

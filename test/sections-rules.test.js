@@ -203,6 +203,23 @@ test("the sections of the ruleset gather at the first one the view sees", functi
 	}
 });
 
+test("... also after a change of the view on the page: the body is built anew", function() {
+	h.add(wiki, {title: "Ordnung", tags: "Creature", text: "Anfang.\n\n<<secret>>\n\n<$action name=\"Geheim\">\n\nVersteckt.\n\n</$action>\n\nProsa.\n\n<<trait \"Offen\">> Sichtbar."});
+	var container = $tw.fakeDocument.createElement("div"),
+		widget = wiki.makeWidget(wiki.parseText("text/vnd.tiddlywiki", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/templates/body-sections\" $mode=\"block\"/>"),
+			{document: $tw.fakeDocument, variables: {currentTiddler: "Ordnung"}});
+	try {
+		widget.render(container, null);
+		assert.ok(ascending(positions(container.textContent, ["Anfang.", "Sichtbar.", "Versteckt.", "Prosa."])), "the DM");
+		h.setView(wiki, "public");
+		widget.refresh({"$:/state/tiddlyrpg/view": {modified: true}});
+		assert.ok(ascending(positions(container.textContent, ["Anfang.", "Prosa.", "Sichtbar."])), container.textContent);
+	} finally {
+		h.setView(wiki, null);
+		wiki.deleteTiddler("Ordnung");
+	}
+});
+
 test("two domains of type section: one order over both, one heading per kind", function() {
 	h.add(wiki, {title: "Eigene Abschnitte", tags: "$:/tags/tiddlyrpg/RulesDomain", type: "application/json",
 		text: JSON.stringify({domain: "SectionCampaign", type: "section", keys: "Rules/Section/", entries: [{id: "ritual"}, {id: "lair", heading: true}]})});

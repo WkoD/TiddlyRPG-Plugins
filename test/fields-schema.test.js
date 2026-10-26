@@ -94,7 +94,7 @@ test.describe("schemas", function() {
 		assert.equal(fields.forTypes(wiki, ["Item"]).groups[0].fields.join(), "damage,range,ac,bonus,healing", "the ruleset's group unchanged");
 	});
 
-	test("a group of the wiki with the id of one of the ruleset adds its relations and combines; layout and when only where the ruleset has none", function() {
+	test("a group of the wiki with the id of one of the ruleset adds its relations and combines; a layout only where the ruleset has none, never a when", function() {
 		withSchema("Groups of the campaign", {
 			types: ["Item"],
 			fields: ["rarity"],
@@ -110,7 +110,7 @@ test.describe("schemas", function() {
 			assert.equal(properties.combine.length, 1);
 			assert.equal(properties.layout, "row", "the ruleset has none");
 			assert.equal(trade.layout, "inline", "the ruleset's");
-			assert.deepEqual(trade.when, {category: ["weapon"]});
+			assert.equal(trade.when, undefined, "no when is always: a condition of the wiki would hide the fields of the ruleset");
 		});
 		var again = fields.forTypes(wiki, ["Item"]).groups;
 		assert.deepEqual(Array.from(again[0].relations), ["base"], "the ruleset's group unchanged");
@@ -412,6 +412,14 @@ test.describe("the block of values", function() {
 			var html = block("Wolf");
 			assert.match(html, /<span class="trpg-fields-label">EP<\/span> 450<\/span>/);
 			assert.doesNotMatch(html, /Herausforderungsgrad/);
+		});
+		// ... not when the first is there but locked: the later one goes with its line (the XP
+		// would tell the challenge rating)
+		withTiddler({title: "Wolf", tags: "Creature", size: "medium", cr: "1/4", xp: "450", "secret-fields": "cr"}, function() {
+			assert.match(block("Wolf"), /Herausforderungsgrad<\/span> 1\/4 \(450 EP\)/);
+			h.inView(wiki, "public", function() {
+				assert.doesNotMatch(block("Wolf"), /450|EP|Herausforderungsgrad/);
+			});
 		});
 	});
 
@@ -781,6 +789,16 @@ test.describe("XP: a whole number, also for a person", function() {
 		assert.equal(rules.number(wiki, {format: "number"}, "1,5").value, 1.5, "a number without integer keeps its fraction");
 		assert.equal(rules.formatInteger(wiki, 1234567890123456789012), "1.234.567.890.123.456.774.144", "no exponent in a very large number");
 		assert.equal(rules.formatInteger(wiki, -1500), "-1.500");
+		var huge = "1" + "0".repeat(400);
+		assert.equal(rules.formatInteger(wiki, huge), huge, "beyond what a number holds: as written, no crash");
+		h.add(wiki, {title: "Riese", tags: "Creature", size: "huge", xp: huge});
+		try {
+			var html = h.render(wiki, "text/html", "<$transclude $tiddler=\"$:/plugins/tiddlyrpg-core/viewtemplates/fields\" mode=\"block\"/>", {currentTiddler: "Riese"});
+			assert.ok(html.indexOf("EP</span> " + huge) !== -1, "as written, not Infinity");
+			assert.ok(h.checkKeys(wiki, "Riese").indexOf("Rules/Check/Number") !== -1, "no number: a message, no crash");
+		} finally {
+			wiki.deleteTiddler("Riese");
+		}
 	});
 
 	test("a person may have XP: the form offers it, the block shows the level", function() {

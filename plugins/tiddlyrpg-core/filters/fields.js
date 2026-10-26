@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/fields.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022142450275
-modified: 20261025195950139
+modified: 20261026080753034
 
 The block of values of a tiddler (viewtemplates/fields), laid out like the stat block of a
 rulebook: the header line, then sections - the fields of no group (with the price, unless a group
@@ -101,6 +101,7 @@ function each(source,fn) {
 function state(wiki,title) {
 	var schema = fields.forTiddler(wiki,title),
 		values = valuesOf(wiki,title),
+		raw = (wiki.getTiddler(title) || {fields: {}}).fields,
 		summary = fields.summary(wiki,values,schema),
 		combineOf = function(field) {
 			var found = null;
@@ -125,15 +126,37 @@ function state(wiki,title) {
 			return false;
 		}
 		if(combine) {
-			var line = fields.line(wiki,values,combine);
-			// A later field of a combine whose line needs the first one that is empty: on its own
-			return combine.fields[0] === field ? !!line : !line && !!fields.read(wiki,values,field).text;
+			var line = fields.line(wiki,values,combine),
+				first = combine.fields[0];
+			if(first === field) {
+				return !!line;
+			}
+			// A later field of a combine whose line needs the first one that is empty: on its own -
+			// not when the first is there but locked from the view, it goes with its line
+			return !line && !(raw[first] || "").toString().trim() && !!fields.read(wiki,values,field).text;
 		}
 		return !!fields.read(wiki,values,field).text;
 	};
-	var grouped = [];
+	// The fields of a group with the later fields of its combines (they show in its place, when
+	// they show on their own)
+	var grouped = [],
+		linesOf = function(group) {
+			var out = [];
+			(group.fields || []).forEach(function(field) {
+				var combine = combineOf(field);
+				if(shows(field)) {
+					out.push(field);
+				} else if(combine && combine.fields[0] === field) {
+					out = out.concat(combine.fields.slice(1).filter(shows));
+				}
+			});
+			return out;
+		};
 	schema.groups.forEach(function(group) {
 		grouped = grouped.concat(group.fields || []);
+		(group.combine || []).forEach(function(c) {
+			grouped = grouped.concat(c.fields || []);
+		});
 	});
 	var rest = (grouped.indexOf(PRICE) === -1 ? [PRICE] : []).concat(schema.fields.filter(function(field) {
 		return grouped.indexOf(field) === -1;
@@ -147,7 +170,7 @@ function state(wiki,title) {
 		return {
 			id: group.id,
 			layout: group.layout || "list",
-			lines: (group.fields || []).filter(shows),
+			lines: linesOf(group),
 			// A relation with an entry the view sees; a tree with a row it sees (an entry below a
 			// locked parent has none - its label alone would tell there is one)
 			relations: (group.relations || []).filter(function(name) {
@@ -498,9 +521,15 @@ function levelsField(wiki,name) {
 }
 
 // The items of a field of the format titles: {title: number text} - every item that names a
-// title, as written, also one whose number is a problem (the form shows what the field holds)
-function levelsOf(wiki,values,field) {
-	var out = {};
+// title, as written, also one whose number is a problem (the form shows what the field holds);
+// <shown>: none when the field cannot be read (the block and the card show no level then -
+// "Fighter 1,5" is no level 1)
+function levelsOf(wiki,values,field,shown) {
+	var out = {},
+		s = shown && fields.spec(wiki,field);
+	if(s && values[field] && rules.value(wiki,s,String(values[field])).problem) {
+		return out;
+	}
 	levelItems(wiki,values,field).forEach(function(item) {
 		if(item.title) {
 			out[item.title] = item.value || "";
@@ -524,7 +553,7 @@ function treeRows(wiki,title,name,values,view) {
 		lines = relations.lines(wiki,name,title,function(t) { return visibility.visible(wiki,t,view); }),
 		hidden = relations.lines(wiki,name,title,null).length !== lines.length,
 		field = levelsField(wiki,name),
-		levels = field && !hidden ? levelsOf(wiki,values,field) : {},
+		levels = field && !hidden ? levelsOf(wiki,values,field,true) : {},
 		sum = field && fields.spec(wiki,field).sum;
 	var label = sum ? fields.label(wiki,sum,fields.forTiddler(wiki,title).labels) : "";
 	return lines.map(function(line) {

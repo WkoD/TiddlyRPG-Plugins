@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/relations.js
 type: application/javascript
 module-type: library
 created: 20261008062202000
-modified: 20261025193305325
+modified: 20261026080753034
 
 Relations: the rules of the relation types - the one place of them. Used by the relation
 filters (filters/relations.js), and through them by the override of $edges.typed and the
@@ -313,10 +313,14 @@ exports.lines = function(wiki,name,title,visible) {
 	var named = targets(wiki,name,title),
 		used = Object.create(null),
 		out = [];
-	// The branch below <entry> into <line>; null: a branch the view does not see, only walked
+	// The branch below <entry> into <line>; null: a branch the view does not see, only walked - an
+	// entry with another parent the view sees is left to that one (Half-Elf below Elf and Human)
 	var below = function(entry,line) {
 		$tw.utils.each(named,function(other) {
-			if(!used[other] && parents(wiki,name,other).indexOf(entry) !== -1) {
+			var others = parents(wiki,name,other);
+			if(!used[other] && others.indexOf(entry) !== -1 && (line || !others.some(function(p) {
+				return p !== entry && p !== other && named.indexOf(p) !== -1 && (!visible || visible(p));
+			}))) {
 				used[other] = true;
 				var shown = !!line && (!visible || visible(other));
 				if(shown) {

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261025201320896
+modified: 20261026080753034
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
 filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
@@ -202,11 +202,15 @@ var formatNumber = exports.formatNumber = function(wiki,value,decimals) {
 };
 
 // A whole number with the thousands separator of the wiki language (Number/Group): 120000 ->
-// "120.000" / "120,000"; below 1000 as it is
+// "120.000" / "120,000"; below 1000 as it is; beyond what a number holds (300 digits and more) as
+// written
 var formatInteger = exports.formatInteger = function(wiki,value) {
-	var n = Math.round(Number(value)),
-		// all its digits, also from 1e21 on (toString would give an exponent)
-		digits = (Math.abs(n) >= 1e21 ? BigInt(Math.abs(n)).toString() : Math.abs(n).toString()).replace(/\B(?=(\d{3})+(?!\d))/g,language.t(wiki,"Number/Group"));
+	var n = Math.round(Number(value));
+	if(!isFinite(n)) {
+		return String(value).trim();
+	}
+	// all its digits, also from 1e21 on (toString would give an exponent)
+	var digits = (Math.abs(n) >= 1e21 ? BigInt(Math.abs(n)).toString() : Math.abs(n).toString()).replace(/\B(?=(\d{3})+(?!\d))/g,language.t(wiki,"Number/Group"));
 	return (n < 0 ? "-" : "") + digits;
 };
 
@@ -756,6 +760,10 @@ var number = exports.number = function(wiki,spec,text) {
 		return result(text,"Rules/Check/Number",{text: text});
 	}
 	var value = parseNumber(text.replace("−","-"));
+	// beyond what a number holds (some 300 digits): no number
+	if(!isFinite(value)) {
+		return result(text,"Rules/Check/Number",{text: text});
+	}
 	if((spec.min !== undefined && value < spec.min) || (spec.max !== undefined && value > spec.max)) {
 		return result(text,"Rules/Check/NumberRange",{text: text, min: spec.min === undefined ? "" : spec.min, max: spec.max === undefined ? "" : spec.max});
 	}

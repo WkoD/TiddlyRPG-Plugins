@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/widgets/sections.js
 type: application/javascript
 module-type: widget
 created: 20261007170000000
-modified: 20261025193824745
+modified: 20261026080753034
 
 Rendering of the sections of a body (modules/sections.js).
 
@@ -100,9 +100,14 @@ BodyWidget.prototype.parseTransclusionTarget = function(parseAsInline) {
 	return target;
 };
 
+// The transformed tree depends on the view: the sections of the ruleset gather at the first one
+// it sees (sections.arrange()) - a change of the view or of a player character builds it anew
 BodyWidget.prototype.refresh = function(changedTiddlers) {
-	var changedAttributes = this.computeAttributes();
-	if(changedAttributes.$only || changedAttributes.$omit || changedAttributes.$name || changedAttributes.$marker || changedAttributes.$quest) {
+	var changedAttributes = this.computeAttributes(),
+		wiki = this.wiki,
+		viewChanged = visibility.watched.some(function(title) { return changedTiddlers[title]; }) ||
+			Object.keys(changedTiddlers).some(function(title) { return visibility.isCharacter(wiki,title); });
+	if(changedAttributes.$only || changedAttributes.$omit || changedAttributes.$name || changedAttributes.$marker || changedAttributes.$quest || viewChanged) {
 		this.refreshSelf();
 		return true;
 	}
