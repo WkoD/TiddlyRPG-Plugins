@@ -300,8 +300,9 @@ test.describe("relation folk", function() {
 
 test.describe("a folk at a location", function() {
 	var added = [
-		{title: "Bergvolk", tags: "Information Folk", location: "Baile Town", text: "Lives in the hills."},
-		{title: "Schattenvolk", tags: "Information Folk Secret", location: "Baile", text: "Hidden."}
+		{title: "Bergvolk", tags: "Information Folk", location: "Baile Town", patron: "Berggott", text: "Lives in the hills."},
+		{title: "Schattenvolk", tags: "Information Folk Secret", location: "Baile", patron: "Berggott", text: "Hidden."},
+		{title: "Berggott", tags: "Deity", text: "God of the hills."}
 	];
 
 	test.before(function() {
@@ -338,6 +339,19 @@ test.describe("a folk at a location", function() {
 		assert.match(list("Bergvolk"), />Baile</);
 		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Bergvolk"});
 		assert.ok(graph.edges.some(function(edge) { return edge.from === "Bergvolk" && edge.to === "Baile"; }), JSON.stringify(graph.edges));
+	});
+
+	test("the folk worships its deities: the form, both lists, the edge; a secret folk only for the DM", function() {
+		assert.ok(f("[[$:/config/tiddlyrpg/form/Folk]get[more]enlist-input[]]").indexOf("patron") !== -1);
+		assert.ok(h.inOrder(list("Bergvolk"), ["Patron<span", ">Berggott<"]), list("Bergvolk"));
+		var dm = list("Berggott"),
+			pub = h.inView(wiki, "public", function() { return list("Berggott"); });
+		assert.match(dm, /Anhänger<span class="trpg-relations-count"> · 2<\/span>/);
+		assert.ok(h.inOrder(dm, ["Anhänger<span", ">Bergvolk<", ">Schattenvolk<"]), dm);
+		assert.match(pub, /Anhänger<span class="trpg-relations-count"> · 1<\/span>/);
+		assert.equal(pub.indexOf("Schattenvolk"), -1, pub);
+		var graph = h.graph(wiki, "<$graph.view $tiddler=\"$:/plugins/tiddlyrpg-core/graph/ego\"/>", {currentNode: "Bergvolk"});
+		assert.ok(graph.edges.some(function(edge) { return edge.from === "Bergvolk" && edge.to === "Berggott" && edge.props.label === "verehrt"; }), JSON.stringify(graph.edges));
 	});
 });
 

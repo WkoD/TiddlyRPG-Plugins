@@ -1329,7 +1329,8 @@ location of an artifact). Meaning and examples: `README.md` ("Items", "Categorie
   folk is named by the relation `folk` (axis family; several allowed, not in `form.SINGLE`) and
   shows the relations block (`viewtemplates/relations`) for its way back. Where it lives is its
   field `location` (`config/form/Folk`, several places; an occupant in `filters/location.js`, the
-  group "Folks" of the place). `Class` is the same kind of category: classes, subclasses and
+  group "Folks" of the place); the deities it worships its field `patron` (the same form; no
+  `tiddlyrpg-sources`, so nothing else to change). `Class` is the same kind of category: classes, subclasses and
   lasting choices, named by the relation `classes` (axis family, several) from a figure, a spell,
   an item and from an entry of its own (`config/form/Class`: `classes spells`).
 - **Trees** (`tiddlyrpg-tree` on the config of `classes` and `folk`, a filter of the holders):

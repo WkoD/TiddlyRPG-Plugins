@@ -315,9 +315,11 @@ test.describe("sweep", function() {
 			{title: "Qx7 Wolf", tags: "Creature Secret", location: "Baile", text: "Qx7 wolf."},
 			// The relation folk to a locked folk, and a locked member of a folk everyone sees (the
 			// heading of the categories in the hub Information, the group Angehörige)
-			{title: "Qx7 Volk", tags: "Information Folk Secret", text: "Qx7 folk."},
+			// A folk worships: an open folk a locked deity, a locked folk an open deity (its followers)
+			{title: "Qx7 Volk", tags: "Information Folk Secret", patron: "[[Sweep Göttin]]", text: "Qx7 folk."},
 			{title: "Sweep Nu", tags: "Person", folk: "[[Qx7 Volk]]", text: "A hunter."},
-			{title: "Sweep Volk", tags: "Information Folk", text: "A folk."},
+			{title: "Sweep Volk", tags: "Information Folk", patron: "[[Qx7 Gott]]", text: "A folk."},
+			{title: "Sweep Göttin", tags: "Deity", text: "A goddess."},
 			// A locked category with an open entry (the bar of the hub Information)
 			{title: "Qx7 Bund", tags: "Index $:/tags/tiddlyrpg/Category Secret", "tiddlyrpg-bases": "Information", text: "{{ || Information }}"},
 			{title: "Sweep Notiz", tags: "Information [[Qx7 Bund]]", text: "A note."},

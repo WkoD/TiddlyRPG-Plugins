@@ -599,7 +599,7 @@ relation list show the way back by themselves.
 | | `classes` | `classes: Sorcerer [[Draconic Bloodline]]` (a person, player character or creature: its classes and what belongs to them; a spell: the classes that cast it; an item: attunement by; a class entry: what it belongs to) | belongs to (an item: attunement by; a spell: spell of) | Classes (an item: Attunement by; a class: Belongs to) / by kind (Player characters, Classes, Spells, ...) |
 | attitude | `alliance`, `enmity`, `bond` | both ends | Alliance, Enmity, Bond | the same |
 | guidance | `mentor` | `mentor: Agin` (the student) | student of | Mentor / Students |
-| | `patron` | `patron: Sola` | worships | Patron / Followers |
+| | `patron` | `patron: Sola` (a person, player character, organisation, deity or folk) | worships | Patron / Followers |
 | things | `creator` | `creator: Corelei` (the item) | made by | Creator / Created |
 | | `owner` | `owner: Balseth` | owned by | Owner / Possessions |
 | | `component` | `component: Löwengras` (the potion) | contains | Components / Part of |
@@ -808,6 +808,7 @@ with values of its own (a warrior, a priestess) is a `Creature` that names the f
   something; a half-elf may name two.
 - A folk names where it lives in `location`, several places alike; the place lists it under
   "Folks", apart from those present.
+- A folk names the deities it worships in `patron`; the deity lists it among its followers.
 
 **Classes.** A class, a subclass and a lasting choice of them (a dragon ancestor, a pact, a
 fighting style) is an information with the category `Class` (`tags: Information Class`). A
