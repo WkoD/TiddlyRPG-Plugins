@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261026100136136
+modified: 20261026132300929
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -21,6 +21,10 @@ picker (editor/procedures) and the kinds of the search.
 [trpgtermsearch<text>]         those whose id or term contains <text> (any case); a property with
                                its main entry ("armor medium")
 [<id>trpgtermcall[]]           the call of <<term>> for each input id, quoted when it has spaces
+[trpgrulesearch<text>]         the names of sections and table headings of a class, trait, feat
+                               or entry of the glossary that contain <text> (modules/glossary.js
+                               search) as JSON {name, entry, call}: call <<rule "Name"
+                               entry:"Entry">> - always with its entry
 [trpgsectionkinds[]]           the kinds of sections of the ruleset (modules/sections.js
                                rulesKinds) in the order of their domain; operand intro: those with
                                an intro, whose section may go without a name
@@ -185,6 +189,16 @@ exports.trpgtermsearch = function(source,operator,options) {
 	return terms(options.wiki).filter(function(entry) {
 		return entry.id.toLowerCase().indexOf(needle) !== -1 || (entry.text || "").toLowerCase().indexOf(needle) !== -1;
 	}).map(function(entry) { return entry.id; });
+};
+
+exports.trpgrulesearch = function(source,operator,options) {
+	var glossary = require("$:/plugins/tiddlyrpg-core/modules/glossary.js"),
+		visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
+	return glossary.search(options.wiki,operator.operand,visibility.current(options.wiki)).filter(function(hit) {
+		return hit.name.indexOf("\"") === -1 && hit.entry.indexOf("\"") === -1;
+	}).map(function(hit) {
+		return JSON.stringify({name: hit.name, entry: hit.entry, call: "<<rule \"" + hit.name + "\" entry:\"" + hit.entry + "\">>"});
+	});
 };
 
 // "60 f" -> "60 ft", "60 feet"...: the number with each unit of the rules whose label (in the rules

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/rules.js
 type: application/javascript
 module-type: filteroperator
 created: 20261009181232255
-modified: 20261015193638000
+modified: 20261026132300929
 
 The rules language (modules/language.js) and the rules engine (modules/rules.js):
 
@@ -14,6 +14,12 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 [<value>trpgdice[]]                each input with the dice tokens of the display language
 [<value>trpgdamage[]]              each input as damage expression: "1d8 cold" -> "1W8 Kälteschaden"
 [<id>trpgterm<variant>,<value>]    each input id as term, with a variant ("save") and/or a value (2)
+[<id>trpgtermparts<variant>,<value>]  the same as JSON [{text, to, anchor}]: the label linked to
+                                   the glossary, a value that is a formula in its pieces
+                                   (modules/formula.js) - for the view of the page
+[<value>trpgdiceparts[]]           <<dice>> as JSON parts: dice, or a formula in its pieces
+[<name>trpgruleparts<entry>]       <<rule>> as JSON parts: the name linked to its entry, section or
+                                   table heading with the jump mark (modules/glossary.js ref)
 [trpgrulesdomains[]]               the names of the registered rules domains, sorted; with an
 [trpgrulesdomains[ruleset]]        operand only those of that group (ruleset, setting)
 [<name>trpgrulesgroup[]]           the group of each input domain: ruleset or setting
@@ -30,7 +36,8 @@ The rules language (modules/language.js) and the rules engine (modules/rules.js)
 "use strict";
 
 var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
-	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js");
+	rules = require("$:/plugins/tiddlyrpg-core/modules/rules.js"),
+	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
 
 exports.trpgruleslang = function(source,operator,options) {
 	return [language.rulesLang(options.wiki,operator.operand)];
@@ -71,6 +78,28 @@ exports.trpgterm = function(source,operator,options) {
 	return each(source,function(id) {
 		var operands = operator.operands || [operator.operand];
 		return rules.term(options.wiki,id,operands[0],operands[1]).text;
+	});
+};
+
+exports.trpgtermparts = function(source,operator,options) {
+	var view = visibility.current(options.wiki);
+	return each(source,function(id) {
+		var operands = operator.operands || [operator.operand];
+		return JSON.stringify(rules.term(options.wiki,id,operands[0],operands[1],view).parts);
+	});
+};
+
+exports.trpgdiceparts = function(source,operator,options) {
+	var view = visibility.current(options.wiki);
+	return each(source,function(value) {
+		return JSON.stringify(rules.diceText(options.wiki,value,view).parts);
+	});
+};
+
+exports.trpgruleparts = function(source,operator,options) {
+	var view = visibility.current(options.wiki);
+	return each(source,function(name) {
+		return JSON.stringify(rules.rule(options.wiki,name,operator.operand,view).parts);
 	});
 };
 

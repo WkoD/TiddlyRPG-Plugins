@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/spots.js
 type: application/javascript
 module-type: library
 created: 20261006064449000
-modified: 20261015194805000
+modified: 20261026132300929
 
 Spots: the places of interest of a location, written in its body - the one place of these rules.
 Used by the spot filters (filters/spots.js), the location rules (filters/location.js) and the
@@ -62,11 +62,7 @@ exports.reference = function(spec) {
 
 // Anchor of a spot (data-trpg-anchor), from its name: "spot-schloss-baile"
 exports.anchor = function(name) {
-	var text = plain(name).toLowerCase();
-	if($tw.utils.transliterate) {
-		text = $tw.utils.transliterate(text);
-	}
-	return "spot-" + text.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+	return "spot-" + sections.slug(name);
 };
 
 /*

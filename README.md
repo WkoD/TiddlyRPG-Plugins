@@ -221,7 +221,36 @@ words of every language are read: `<<damage "2W6 Feuer">>` works as well. A numb
 (`<<unit 60>>` is not read, also not with a kind): what a text means never depends on a setting.
 A kind only chooses how a value is shown, e.g. a range in whole feet.
 
-**Highlight.** What the four macros show stands out in the text with a dotted underline, so a
+**Formulas.** How a value is computed - shown, never computed - is one formula: the value of
+`<<term>>` or the text of `<<dice>>`.
+
+```
+                                                  shown in English               shown in German
+<<term dc value:"10 + cr">>                       DC 10 + CR                     SG 10 + HG
+<<dice "1d8 * cr">>                               1d8 × CR                       1W8 × HG
+<<dice "1/4 hit-dice + con:mod">>                 1/4 Hit Dice + CON modifier    ...
+<<term dc value:"10 + 'Rage Damage|Barbarian'">>  DC 10 + Rage Damage            SG 10 + Rage Damage
+```
+
+A formula holds numbers (`1,5`, `1/4` without spaces around the slash, `½`), dice, the operators
+`+ - * / ×` (`*` and `x` show as `×`) and brackets, ids of terms with a variant after a colon
+(`con:mod`), and names in single quotes - a section, a table heading or an entry of a text (see
+below), with its entry after `|`. Each term and name links like `<<term>>` and `<<rule>>`; the
+whole formula is one dotted unit. Any other word is an error below the title - a word of the
+campaign that is no term stays text outside the formula. Dice alone (`<<dice "1d4+1">>`) show as
+before.
+
+**Names in a text.** `<<rule "Rage" entry:"Barbarian">>` names a part of the text of a class,
+trait, feat or entry of the glossary: a named section (`<<feature "Rage">>`), a heading of the
+first row of one of its tables ("Rage Damage"), or the entry itself (`<<rule "Breath Weapon">>`).
+It shows the name as written, dotted, as a link that opens the entry at that place. Name the entry
+(`entry:`, in a formula `'Name|Entry'`): a name another entry brings later stays clear. An entry
+of a content package not taken counts too (on the Node server). A name only a locked tiddler or
+section has shows as text, without link and without a message; renaming the entry rewrites
+`entry:` (Relink), not a name inside a formula. The button "Rules" of the editor offers the names
+with their entry.
+
+**Highlight.** What the macros show stands out in the text with a dotted underline, so a
 reader sees which words are rules terms; a link is told apart by its colour and a solid
 underline (a link within the wiki on hover, an external one always). ControlPanel -> Settings -> TiddlyRPG -> "Ruleset options" -> "Highlight"
 switches it off ("none"); the setting is the tiddler `$:/config/tiddlyrpg/rules/highlight`
@@ -476,7 +505,10 @@ locked by a value of the rules: a curse is seen where the field `cursed` is - wi
 `secret-fields: cursed` the DM and the players of the tagged characters see the field and the
 curse, nobody else; lifting the lock shows both. A curse whose field is empty gets a hint. In a
 dated section or a spot such a section belongs to it and is locked with it. The hub `Ruleset`
-lists the kinds; the button "Section" of the editor sets them (see "Editing").
+lists the kinds; the button "Section" of the editor sets them (see "Editing"). Each named section
+is a jump mark (`<kind>-<name>`, "feature-rage"), and so is each heading cell of a table in such a
+text ("column-rage-damage") - the targets of `<<rule>>` (see "Rules terms in the text"); not a
+section at the very start of the body, where the plain navigation shows it.
 
 The hints stand below the title of the tiddler, not in the published copy.
 
@@ -758,7 +790,10 @@ tiddlers.
 rules give, written short in a text (`<<term frightened>>`): abilities, conditions, sizes, damage
 types, units, kinds of items. A tiddler is what a figure, a spell or an item has, with a text of
 its own, and what a DM makes up. A kind of item without effect on the rules (tattoos, totems) is a
-category hub like `Book` (`$:/tags/tiddlyrpg/Category` with `tiddlyrpg-bases`), no term.
+category hub like `Book` (`$:/tags/tiddlyrpg/Category` with `tiddlyrpg-bases`), no term. A value
+of one class - a column of its table such as "Rage Damage" or "Sorcery Points", a feature such as
+"Rage" - belongs to the class, no term either: a text names it with `<<rule>>` (see "Rules terms in
+the text"), as long as the rules do not compute it themselves.
 
 **Folks.** A folk - humans, elves, a people of the campaign - is an information with the category
 `Folk` (`tags: Information Folk`). It is no creature: it has no stat block, its values are those of
@@ -798,8 +833,9 @@ figure in `feats` and `languages`, a language by a folk too.
 **The glossary.** An entry of the category `Glossary` explains a term of the ruleset: its field
 `term` holds the id (`term: frightened`). `<<term frightened>>` and a value of the rules with that
 term link to it, an entry of a content package not taken too; the name of a section links to a
-trait, class, feat or entry of the glossary of that title (`<<trait "Pack Tactics">>`). An entry
-the view does not see gets no link.
+trait, class, feat or entry of the glossary of that title (`<<trait "Pack Tactics">>`). The other
+way round, `<<rule "Rage" entry:"Barbarian">>` links to a section or table heading inside such an
+entry. An entry the view does not see gets no link.
 
 - The hub `Information` lists each category under a heading of its own, the hub of the category
   only its entries. The category alone, without `Information`, gets a message below the title
@@ -1051,7 +1087,7 @@ out every message of its level. An id that is no rule is a hint.
 | `locations/structure` | error | a location in two places or in a cycle, naming no location, with a parent hidden from someone who sees it; a person in two places; an artifact in two places, with two owners, or with owner and location |
 | `locations/led` | hint | `location` names a location `leader` already holds |
 | `locations/tag` | error | a location as tag |
-| `macros/rules` | error | a rules macro with a text the ruleset does not understand |
+| `macros/rules` | error | a rules macro with a text the ruleset does not understand; a formula with a word that is no number, die, term or name, or with a bracket not closed; a name of `<<rule>>` or of a formula that names nothing, stands in two entries (name the entry) or whose entry is no class, trait, feat or entry of the glossary |
 | `macros/unknown` | error | a macro nothing defines |
 | `plugins/choice`, `plugins/version`, `plugins/currency` | error | the chosen ruleset or setting is missing, disabled or of another type; a plugin needs a newer core; the reference coin is none of the currency (only `check-wiki.js`; in the wiki under ControlPanel -> Settings and in the hub Currency) |
 | `plugins/domains` | error | an extension of a rules domain without base domain, of a domain that holds no terms, or with an id the domain has; a property whose parent is no entry of its domain or that is its own ancestor, an id that stands alone in two label domains (`<<term>>` takes the first) (only `check-wiki.js`); a kind of sections with the name of a kind of the core or `intro`, of a widget or of a global procedure or macro (its call would replace it), or locked by a field the rules do not define |
@@ -1095,7 +1131,7 @@ changed or opened in the editor since.
 | Spot | locations | `<<spot>>` before the paragraph (it holds the text up to the next marker) or `<$spot>` around the selection; at a spot: remove |
 | Link to a spot | all | `<<spotlink>>`: a location, then one of its spots; a selection becomes the text of the link |
 | Sub-location | locations | a new location inside this one, saved and opened at once - a selected text moves into it; with the cursor in a spot without tiddler: the spot as a location of its own, with its text, images and lock, the marker stays |
-| Rules | all | `<<term>>` by id or term, `<<unit>>` with the units of the ruleset that fit the number |
+| Rules | all | `<<term>>` by id or term, `<<rule>>` with its entry by the name of a section or table heading, `<<unit>>` with the units of the ruleset that fit the number |
 | Section | all, with a ruleset that has kinds of sections | the kinds of the ruleset as a menu, then the name of the one chosen: `<<effect "Name">>` at the start of the paragraph (behind a lock, before a quest marker; behind a date or a spot the text becomes a paragraph of its own), `<$effect>` around the selection; a kind with an introduction goes without a name; at a section: another kind, another name, remove |
 | Content | all | an entry of a content package by its title: taken into the wiki and linked in the text (see "Content packages") |
 

@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261025124110539
+modified: 20261026131153696
 title: $:/tiddlyrpg/language/en-GB/
 
 Rules/Damage/Extras: extra
@@ -37,10 +37,14 @@ Rules/Term/gm: GM
 Rules/Term/str: STR
 Rules/Term/str/name: Strength
 Rules/Term/str/save: STR save
+Rules/Term/str/mod: STR modifier
+Rules/Term/str/score: STR score
 Rules/Term/wis: WIS
 Rules/Term/wis/name: Wisdom
 Rules/Term/wis/save: WIS save
 Rules/Term/xp: XP
+Rules/Term/cr: CR
+Rules/Term/pb: PB
 Rules/Category/weapon: weapon
 Rules/Category/armor: armor
 Rules/Category/ammunition: ammunition

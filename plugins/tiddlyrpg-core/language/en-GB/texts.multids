@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261026100136136
+modified: 20261026132300929
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -255,6 +255,11 @@ Rules/Check/PairNoKind: Check the text: "$text$" in <<unit>> holds two values a/
 Rules/Check/Term: Check the text: <<term>> knows no "$id$"
 Rules/Check/Unit: Check the text: no known unit in <<unit "$text$">>
 Rules/Check/Variant: Check the text: <<term $id$>> has no variant "$variant$"
+Rules/Check/Formula: Check the text: "$text$" in the formula "$formula$" is no number, die, term or name
+Rules/Check/FormulaSyntax: Check the text: the brackets of the formula "$text$" do not close
+Rules/Check/Name: Check the text: "$name$" names no section, table heading or entry
+Rules/Check/NameTwice: Check the text: "$name$" stands in $titles$ - name the entry (entry:"…", in a formula '$name$|…')
+Rules/Check/NameEntry: Check the text: "$entry$" is no class, trait, feat or entry of the glossary
 Rules/Check/Label: Check the field $field$: "$text$" is no known term here
 Rules/Check/Only: Check the field $field$: "$text$" is not allowed here (only $only$)
 Rules/Check/Title: Check the field $field$: "$text$" names no entry known here

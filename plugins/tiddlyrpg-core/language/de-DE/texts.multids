@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261026100136136
+modified: 20261026132300929
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -255,6 +255,11 @@ Rules/Check/PairNoKind: Text prüfen: „$text$“ in <<unit>> enthält zwei Wer
 Rules/Check/Term: Text prüfen: <<term>> kennt kein „$id$“
 Rules/Check/Unit: Text prüfen: keine bekannte Einheit in <<unit "$text$">>
 Rules/Check/Variant: Text prüfen: <<term $id$>> hat keine Variante „$variant$“
+Rules/Check/Formula: Text prüfen: „$text$“ in der Formel „$formula$“ ist keine Zahl, kein Würfel, Begriff oder Name
+Rules/Check/FormulaSyntax: Text prüfen: die Klammern der Formel „$text$“ gehen nicht auf
+Rules/Check/Name: Text prüfen: „$name$“ nennt keinen Abschnitt, keine Tabellenspalte und keinen Eintrag
+Rules/Check/NameTwice: Text prüfen: „$name$“ steht in $titles$ – den Eintrag nennen (entry:"…", in einer Formel '$name$|…')
+Rules/Check/NameEntry: Text prüfen: „$entry$“ ist keine Klasse, kein Trait, Feat oder Glossareintrag
 Rules/Check/Label: Feld $field$ prüfen: „$text$“ ist hier kein bekannter Begriff
 Rules/Check/Only: Feld $field$ prüfen: „$text$“ ist hier nicht erlaubt (nur $only$)
 Rules/Check/Title: Feld $field$ prüfen: „$text$“ nennt keinen hier bekannten Eintrag

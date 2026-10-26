@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261011172757439
+modified: 20261026131153696
 tags: $:/tags/tiddlyrpg/RulesDomain
 title: $:/tiddlyrpg/rules/domain/Terms
 type: application/json
@@ -20,6 +20,12 @@ type: application/json
         },
         {
             "id": "xp"
+        },
+        {
+            "id": "cr"
+        },
+        {
+            "id": "pb"
         },
         {
             "id": "spell-slot"

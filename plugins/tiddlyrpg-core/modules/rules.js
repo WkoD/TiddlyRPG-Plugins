@@ -3,11 +3,13 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261026080753034
+modified: 20261026132300929
 
-Rules engine: the macros <<unit>>, <<dice>>, <<damage>> and <<term>> (functions.tid, operators in
-filters/rules.js) show rules terms in the display language of their domain (modules/language.js,
-"rules language"). The engine knows types of domains, never their names; what a domain contains
+Rules engine: the macros <<unit>>, <<dice>>, <<damage>>, <<term>> and <<rule>> (functions.tid,
+operators in filters/rules.js) show rules terms in the display language of their domain
+(modules/language.js, "rules language"). A formula in the value of <<term>> or in <<dice>> is read
+by modules/formula.js; <<rule>> and the names in a formula point into a text through
+modules/glossary.js ref(). The engine knows types of domains, never their names; what a domain contains
 is data of the active ruleset or setting, in the JSON of its domain tiddler and in language keys
 $:/tiddlyrpg/language/<code>/<key>. Parsing accepts the words of every language, case-insensitive.
 
@@ -109,11 +111,20 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js");
 
 var PREFIX = "$:/tiddlyrpg/language/",
 	BASE = "en-GB",
-	MACROS = {unit: ["value","kind"], dice: ["value"], damage: ["value"], term: ["id","variant","value"]};
+	MACROS = {unit: ["value","kind"], dice: ["value"], damage: ["value"], term: ["id","variant","value"], rule: ["name","entry"]};
 
 // modules/labels.js, loaded when first used (it requires this module for the values of entries)
 function labels() {
 	return require("$:/plugins/tiddlyrpg-core/modules/labels.js");
+}
+
+// modules/formula.js and modules/glossary.js, loaded when first used (formula requires this module)
+function formula() {
+	return require("$:/plugins/tiddlyrpg-core/modules/formula.js");
+}
+
+function glossary() {
+	return require("$:/plugins/tiddlyrpg-core/modules/glossary.js");
 }
 
 function escape(text) {
@@ -215,9 +226,9 @@ var formatInteger = exports.formatInteger = function(wiki,value) {
 };
 
 // A number as written, with the decimal mark of the wiki language
-function asWritten(wiki,text) {
+var asWritten = exports.asWritten = function(wiki,text) {
 	return text.replace(/[.,]/,language.t(wiki,"Number/Decimal") === "," ? "," : ".");
-}
+};
 
 /* Units */
 
@@ -556,6 +567,29 @@ var dice = exports.dice = function(wiki,text) {
 	return result(text);
 };
 
+// <<dice value>>: dice as dice() shows them; a text with more than dice, numbers, + and - is a
+// formula (modules/formula.js): "1d8 * cr" -> "1d8 × CR", "1d4 + 'Rage Damage|Barbarian'". With
+// parts [{text, to, anchor}] for the links of its terms and names in <view>
+exports.diceText = function(wiki,text,view) {
+	text = (text || "").toString();
+	if(formula().plain(wiki,text)) {
+		var shown = dice(wiki,text).text;
+		return result(shown,null,{},{parts: [{text: shown}]});
+	}
+	var f = formula().read(wiki,text,view);
+	return result(f.text,f.problem,f.values,{parts: f.parts});
+};
+
+// <<rule name entry>>: the name as written, linked to the entry, section or table heading of a
+// text it names (modules/glossary.js ref) - parts [{text, to, anchor}]; nothing linked when only
+// what <view> does not see has the name, and then no problem either
+exports.rule = function(wiki,name,entry,view) {
+	name = (name || "").toString().trim();
+	var ref = glossary().ref(wiki,name,entry,view),
+		part = ref.title ? {text: name, to: ref.title, anchor: ref.anchor || ""} : {text: name};
+	return result(name,ref.problem || null,ref.values || {},{parts: [part]});
+};
+
 /* Labels */
 
 // The entry of an id among the entries that stand alone (modules/labels.js: a property is found
@@ -578,11 +612,44 @@ function findEntry(wiki,type,id) {
 // <<term id variant|value>>: "wis", "wis save", "frightened 2"
 // A term in the rules language: <id>, with a variant ("save": Rules/Term/<id>/<variant>) and/or
 // a value ("frightened 2": in place of $value$ in the text, or after it; in place of
-// $value.ordinal$ as ordinal, Rules/Ordinal/<value>, else as written: "spell slot of 3rd level")
-exports.term = function(wiki,id,variant,value) {
+// $value.ordinal$ as ordinal, Rules/Ordinal/<value>, else as written: "spell slot of 3rd level").
+// A value that is no number is a formula (modules/formula.js): "10 + cr" -> "DC 10 + CR". The
+// result has parts [{text, to, anchor}]: the label linked to the entry of the glossary that
+// explains the term in <view>, the pieces of a formula with their links
+exports.term = function(wiki,id,variant,value,view) {
 	id = (id || "").toString().trim();
 	variant = (variant || "").toString().trim();
 	value = (value || "").toString().trim();
+	var f = value && !/^[+\-−]?\d+(?:[.,]\d+)?$/.test(value) ? formula().read(wiki,value,view) : null,
+		r = termText(wiki,id,variant,f ? "\u0000" : value),
+		to = glossary().term(wiki,id,view) || "",
+		parts = [];
+	var push = function(part) {
+		var last = parts[parts.length - 1];
+		if(!part.to && last && !last.to) {
+			last.text += part.text;
+		} else {
+			parts.push($tw.utils.extend({},part));
+		}
+	};
+	$tw.utils.each(r.text.split("\u0000"),function(piece,index) {
+		if(index > 0) {
+			$tw.utils.each(f.parts,push);
+		}
+		if(piece) {
+			push(to ? {text: piece, to: to, anchor: ""} : {text: piece});
+		}
+	});
+	r.text = f ? r.text.replace("\u0000",f.text) : r.text;
+	r.parts = parts;
+	if(f && f.problem && !r.problem) {
+		r.problem = f.problem;
+		r.values = f.values;
+	}
+	return r;
+};
+
+function termText(wiki,id,variant,value) {
 	var written = [id,variant,value].filter(function(s) { return !!s; }).join(" ");
 	// Several ids: a main entry and its properties (<<term "armor medium">>)
 	if(/\s/.test(id)) {
@@ -635,17 +702,23 @@ function damageWords(wiki) {
 	});
 }
 
+// The words of the tokens domains in every language ("d", "W"), as alternatives of a regexp
+var tokenAlternatives = exports.tokenAlternatives = function(wiki) {
+	var tokens = [];
+	byType(wiki,"tokens").forEach(function(domain) {
+		(domain.tokens || []).forEach(function(token) {
+			tokens = tokens.concat(words(wiki,["Rules/Token/" + token.id]));
+		});
+	});
+	return tokens.map(escape).join("|");
+};
+
 // The start of a calculation: an average with the dice in brackets ("7 (1d8 + 3)"), dice with
 // the tokens of every language ("1d8", "1W8"), a number, an operator or spaces
 function calcPattern(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-rules-calc",function() {
-		var tokens = [];
-		byType(wiki,"tokens").forEach(function(domain) {
-			(domain.tokens || []).forEach(function(token) {
-				tokens = tokens.concat(words(wiki,["Rules/Token/" + token.id]));
-			});
-		});
-		var die = tokens.length ? "|\\d*\\s*(?:" + tokens.map(escape).join("|") + ")\\s*\\d+" : "";
+		var tokens = tokenAlternatives(wiki),
+			die = tokens ? "|\\d*\\s*(?:" + tokens + ")\\s*\\d+" : "";
 		return new RegExp("^(?:\\d+\\s*\\([^)]*\\)" + die + "|\\d+|[+\\-−]|\\s+)","i");
 	});
 }
@@ -1091,14 +1164,15 @@ function computed(p) {
 	return Object.keys(p).some(function(name) { return p[name] === null; });
 }
 
-// The result of a call of a rules macro, or null
-function runMacro(wiki,name,node) {
+// The result of a call of a rules macro in <view>, or null
+function runMacro(wiki,name,node,view) {
 	var p = params(node,MACROS[name]);
 	return computed(p) ? null :
 		name === "unit" ? exports.unit(wiki,p.value,p.kind) :
-		name === "dice" ? dice(wiki,p.value) :
+		name === "dice" ? exports.diceText(wiki,p.value,view) :
 		name === "damage" ? exports.damage(wiki,p.value) :
-		exports.term(wiki,p.id,p.variant,p.value);
+		name === "rule" ? exports.rule(wiki,p.name,p.entry,view) :
+		exports.term(wiki,p.id,p.variant,p.value,view);
 }
 
 // The problems of the rules macros in the body of a tiddler, each {key, params}
@@ -1117,7 +1191,7 @@ exports.check = function(wiki,title,view) {
 		$tw.utils.each(nodes,function(node) {
 			var attrs = node.attributes || {},
 				name = node.type === "transclude" && attrs.$variable && attrs.$variable.value,
-				r = name && MACROS[name] && !inHidden(node) ? runMacro(wiki,name,node) : null;
+				r = name && MACROS[name] && !inHidden(node) ? runMacro(wiki,name,node,view) : null;
 			if(r && r.problem) {
 				problems.push({key: r.problem, params: r.values || {}});
 			}

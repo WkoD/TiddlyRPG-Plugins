@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content-server.js
 type: application/javascript
 module-type: library
 created: 20261022165310491
-modified: 20261025201612264
+modified: 20261026132300929
 
 Content packages on the server (the route server/content-route.js; Node only): entries of a
 ruleset - items, spells, creatures - as data a DM takes into the wiki one by one. They are no
@@ -31,7 +31,10 @@ the console. Read files are cached by their path and time of change.
 
   packages(wikiPath)              every package: [{name, ruleset, language, source, tag,
                                   manifest, entries}]
-  index(wikiPath,ruleset)         those of the ruleset without the texts of the entries
+  index(wikiPath,ruleset)         those of the ruleset without the texts of the entries; an entry
+                                  of a category with a text of its own (Class, Trait ...) carries
+                                  the names in its text instead: names [{kind, name}] - its named
+                                  sections and table headings (kind "column"), for <<rule>>
   entry(wikiPath,ruleset,id,name) {package, entry} of an id in the package of that name (without
                                   one: the first that has it), or null - only looked up, never a
                                   path
@@ -118,12 +121,34 @@ var packages = exports.packages = function(wikiPath) {
 	return out;
 };
 
+// The names in the text of an entry with a text of its own (modules/glossary.js NAMED, ref()): the
+// named sections at the start of a paragraph (<<feature "Rage">>: {kind: "feature", name}) and the
+// headings of the first row of its tables ({kind: "column", name: "Rage Damage"})
+function names(text) {
+	var glossary = require("$:/plugins/tiddlyrpg-core/modules/glossary.js"),
+		out = [],
+		re = /(?:^|\n)<<([a-z][a-z0-9-]*) "([^"]+)">>/g,
+		m;
+	while((m = re.exec(text || ""))) {
+		out.push({kind: m[1], name: m[2]});
+	}
+	glossary.headings(text).forEach(function(h) {
+		out.push({kind: "column", name: h.name});
+	});
+	return out;
+}
+
 exports.index = function(wikiPath,ruleset) {
+	var named = require("$:/plugins/tiddlyrpg-core/modules/glossary.js").NAMED;
 	return packages(wikiPath).filter(function(p) {
 		return p.ruleset === ruleset;
 	}).map(function(p) {
 		return {name: p.name, language: p.language, source: p.source, tag: p.tag, entries: p.entries.map(function(e) {
-			return {id: e.id, title: e.title, type: e.type, tags: e.tags || [], fields: e.fields || {}};
+			var out = {id: e.id, title: e.title, type: e.type, tags: e.tags || [], fields: e.fields || {}};
+			if(named.indexOf(e.type) !== -1) {
+				out.names = names(e.text);
+			}
+			return out;
 		})};
 	});
 };

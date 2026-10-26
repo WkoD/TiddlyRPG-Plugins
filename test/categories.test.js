@@ -597,7 +597,7 @@ test.describe("traits, feats, languages and the glossary", function() {
 
 	test("<<term>> links to the entry of the glossary that explains it; not to one the view does not see", function() {
 		var body = html("Furcht");
-		assert.match(body, /<a[^>]*href="#Ver%C3%A4ngstigt"[^>]*><span class="trpg-rule">[^<]+<\/span><\/a>/);
+		assert.match(body, /<span class="trpg-rule"><a[^>]*href="#Ver%C3%A4ngstigt"[^>]*>[^<]+<\/a><\/span>/);
 		assert.match(body, /href="#Geheimwort"/, "the DM: the locked entry is linked");
 		var pub = h.inView(wiki, "public", function() { return html("Furcht"); });
 		assert.equal(pub.indexOf("Geheimwort"), -1, pub);

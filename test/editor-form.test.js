@@ -249,6 +249,27 @@ test.describe("fields of the form", function() {
 		assert.deepEqual(f("[[Baile]] [[Town]] +[trpgpickmatch[]]"), ["Baile", "Town"]);
 		assert.deepEqual(f("[[Baile]] [[Town]] +[trpgpickmatch[tow]]"), ["Town"]);
 	});
+	test("the names of the button Rules: sections and table headings with their entry, not what the view does not see", function() {
+		var added = [
+			{title: "Probe Barbar", tags: "Information Class", text: "A class.\n\n|!Level |!Rage Damage |\n|1st |+2 |\n\n<<trait \"Rage\">> Wild."},
+			{title: "Probe Geheim", tags: "Information Class Secret", text: "A class.\n\n<<trait \"Rage of Qx\">> Locked."}
+		];
+		added.forEach(function(fields) { h.add(wiki, fields); });
+		try {
+			var hits = f("[trpgrulesearch[rage]]").map(function(json) { return JSON.parse(json); });
+			assert.deepEqual(hits, [
+				{name: "Rage", entry: "Probe Barbar", call: "<<rule \"Rage\" entry:\"Probe Barbar\">>"},
+				{name: "Rage Damage", entry: "Probe Barbar", call: "<<rule \"Rage Damage\" entry:\"Probe Barbar\">>"},
+				{name: "Rage of Qx", entry: "Probe Geheim", call: "<<rule \"Rage of Qx\" entry:\"Probe Geheim\">>"}
+			]);
+			h.inView(wiki, "public", function() {
+				assert.deepEqual(f("[trpgrulesearch[rage]]").map(function(json) { return JSON.parse(json).name; }), ["Rage", "Rage Damage"]);
+			});
+			assert.deepEqual(f("[trpgrulesearch[]]"), []);
+		} finally {
+			added.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		}
+	});
 	test("no form for a system tiddler", function() {
 		h.add(wiki, {title: "Draft of '$:/x'", "draft.of": "$:/x", tags: "Person", text: ""});
 		assert.deepEqual(Array.from(form.fields(wiki, "Draft of '$:/x'")), []);

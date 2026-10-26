@@ -304,6 +304,16 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     also with a kind); two values of a kind that reads pairs (`20/60 ft`), fractions (`1/4 lb`,
     `½`), measures (`10 x 10 x 1 ft`), `ft³` as a volume, `0` in the unit of its pair, a domain
     without conversion (durations) with plural labels
+  - `formula` - formulas (`modules/formula.js`) in the value of `<<term>>` and in `<<dice>>`:
+    each piece in the rules language (de-DE, en-GB), the spaces around operators, `*` and `x` as
+    `×`, the decimal comma (no list, no thousands), the parts with their links and jump marks, one
+    span, unknown words and open brackets as problems, dice alone as before, a change of the
+    rules language
+  - `rule-names` - `<<rule>>` and the names of formulas (`glossary.ref()`): entry, section, table
+    heading in this order, `entry:`, two hits, an entry that is none, a package entry not taken
+    with the names of its index (and `content-server.index()` writing them), the jump marks of
+    sections and table headings, a locked class, section or column that tells nothing, the
+    messages, relink of `entry:`
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain, fields of its own (a group, a header line, a
     formula of its own), kinds of sections of its own in the button Section of the editor -
@@ -477,7 +487,11 @@ the tiddler title:
   (the type tags: the hubs and the categories, `of()` the types of a tiddler; `UNTYPED`: pages
   that need no type), `categories.js` (the categories of the base types, see "Items and
   categories"), `glossary.js` (what explains a term or the name of a section: the links of
-  `<<term>>`, of the values of the rules and of section names), `relink-titles.js` (`module-type:
+  `<<term>>`, of the values of the rules and of section names; `ref()` the target of
+  `<<rule>>` and of a name in a formula - an entry, a named section, a table heading - and
+  `search()` for the button Rules), `formula.js` (a formula in the value of `<<term>>` and in
+  `<<dice>>`, piece by piece: shown, never computed - see "Rules engine"),
+  `relink-titles.js` (`module-type:
   relinkfieldtype`, the relink type `trpgtitles` of a field of the format titles),
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor"), `notice.js` (the notifications
   of the editor: each shown from a slot of its own, so two in a row keep their texts).
@@ -561,8 +575,8 @@ the tiddler title:
   `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),
   `visibility.js` (`trpgvisible`, `trpgview`, `trpgcharacter`, `trpgcharacters`, `trpgplayer`,
   `trpgplayedby`, see "Views"), `rules.js` (`trpgruleslang`, `trpgruleslangs`, `trpgruleslabel`, `trpgunit`,
-  `trpgdice`, `trpgdamage`, `trpgterm`, see "Language system" -> "Rules language" and "Rules
-  engine"), `checks.js` (`trpgcheck`, `trpgdraftcheck`, see "Checks"), `editor.js` (the
+  `trpgdice`, `trpgdamage`, `trpgterm`, `trpgtermparts`, `trpgdiceparts`, `trpgruleparts`, see
+  "Language system" -> "Rules language" and "Rules engine"), `checks.js` (`trpgcheck`, `trpgdraftcheck`, see "Checks"), `editor.js` (the
   filters of the editor, listed in its header, see "Editor").
 - **Page parts** (`ui/*`): `view-switcher` (page control "View", `$:/tags/PageControls`),
   `sidebar` (the sidebar tabs per view, `$:/tags/SideBarSegment`) and `sidebar-recent` (its
@@ -720,7 +734,8 @@ the tiddler title:
   `spots` (a spot that is a location -> the location it is part of, dashed) and a copy of
   `links` of tw5-graph (grey, symmetric); the axes
   `$:/config/tiddlyrpg/graph/axes[/<axis>]` (see "Relations"); relink of the macro parameters
-  of `spot` and `spotlink`; the graph templates
+  of `spot` and `spotlink` and of `entry` of `rule` (its `name` is no title; a name inside a
+  formula is not relinked); the graph templates
   `$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph` (type colours from the tag `color`,
   `shape=box`, no saved positions, the switches by kind above it, state
   `$:/state/tiddlyrpg-core/graph-filter/<view>`), `.../trpg-ego`, `.../trpg-quest` (graph of a quest, see
@@ -853,8 +868,15 @@ Of each type one is active, chosen in
   without setting) follows the mode; in the mode `domain` it gets the wiki language. JS that
   shows terms refreshes on `$:/config/tiddlyrpg/rules/...` (the timeline does).
 - **Rules engine** (`modules/rules.js`; the data formats of the domain types are in its header,
-  the one place for them): the procedures `unit`, `dice`, `damage`, `term` (`functions.tid`,
-  filtered attributes) through the operators `trpgunit`, `trpgdice`, `trpgdamage`, `trpgterm`.
+  the one place for them): the procedures `unit`, `dice`, `damage`, `term`, `rule` (`functions.tid`,
+  filtered attributes) through the operators `trpgunit`, `trpgdamage` and the parts of
+  `trpgdiceparts`, `trpgtermparts`, `trpgruleparts` - JSON `[{text, to, anchor}]` that
+  `trpg.ruleparts` draws as one span `trpg-rule` with the links inside (a term to its entry of the
+  glossary, a name to its target with the jump mark). A value of `<<term>>` that is no number and
+  a text of `<<dice>>` with more than dice, numbers, + and - are formulas (`modules/formula.js`,
+  its header: the pieces, the spaces, the problems); `dice()` itself stays as it was, `damage`
+  and the fields use it. `<<rule "Name" entry:"Entry">>` and a name in a formula
+  (`'Name|Entry'`) resolve through `glossary.ref()` in the view (`check()` passes it on).
   It knows no word of a rules system - units, tokens, damage words and labels all come from the
   domains and the language keys of the active ruleset or setting; the die letters of a damage
   calculation are the tokens of the `tokens` domains. Parsing reads the words of every language,
@@ -1154,8 +1176,12 @@ from wikitext right after `$action-navigate` comes before the refresh that shows
   section at the very start of the body, where a jump would only hide the title -, the
   headings of spots (`spot-<plain name>`, `spots.anchor()`) and the frames of quest markers
   (`quest-<key>`, `anchor()` of the kind in `modules/sections.js`; none for a marker before any
-  content of the body, `lead` of the model). A kind of section gets its mark through `anchor()`,
-  `widgets/sections.js` sets it.
+  content of the body, `lead` of the model), the named sections of the kinds of the ruleset
+  (`<kind>-<name>`, "feature-rage"; not at the very start either) and the heading cells of the
+  tables of a body with sections (`column-<heading>`, `markColumns()` in `transform()` - the
+  cached parse tree is copied on the way to a cell, never changed; `orderedAttributes` too, the
+  element widget renders those). All names through `sections.slug()`. A kind of section gets its
+  mark through `anchor()`, `widgets/sections.js` sets it.
 - `<$trpg-jump anchor="...">` (`widgets/jump.js`) wraps ordinary links. It sees their
   `tm-navigate` on its way to the navigator, passes it on unchanged and calls
   `modules/anchor-jump.js`, which waits for the next change event (the main refresh runs before)

@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261025204906697
+modified: 20261026132300929
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -186,17 +186,20 @@ type: text/vnd.tiddlywiki
 
 <!-- Rules terms in the display language of their domain (modules/rules.js, filters/rules.js):
      <<unit "228 cm">>, <<unit "60 ft" kind:"range">>, <<dice "4d6">>, <<damage "1d8 slashing">>,
-     <<term wis variant:"save">>, <<term frightened value:2>>. Filtered attributes, so that they recompute when
-     the rules language changes. What is not understood shows unchanged; the hint stands below
-     the title (checks/macros.js). Each in a span trpg-rule: the highlight of the setting
-     ($:/config/tiddlyrpg/rules/highlight, config/class-rules-highlight, styles/rules). A term the
-     glossary explains links to its entry (trpgglossary, modules/glossary.js). -->
+     <<term wis variant:"save">>, <<term frightened value:2>>; formulas <<term dc value:"10 + cr">>,
+     <<dice "1d4 + 'Rage Damage|Barbarian'">> (modules/formula.js); <<rule "Rage" entry:"Barbarian">>
+     names a section, table heading or entry of a text (modules/glossary.js ref). Filtered
+     attributes, so that they recompute when the rules language or the view changes. What is not
+     understood shows unchanged; the hint stands below the title (checks/macros.js). Each is one
+     span trpg-rule: the highlight of the setting ($:/config/tiddlyrpg/rules/highlight,
+     config/class-rules-highlight, styles/rules). Inside, a term the glossary explains links to its
+     entry (modules/glossary.js term), a name to its target with the jump mark (trpg-jump). -->
 \procedure unit(value,kind)
 <span class="trpg-rule"><$text text={{{ [<value>trpgunit<kind>] }}}/></span>
 \end
 
 \procedure dice(value)
-<span class="trpg-rule"><$text text={{{ [<value>trpgdice[]] }}}/></span>
+<$transclude $variable="trpg.ruleparts" parts={{{ [<value>trpgdiceparts[]] }}}/>
 \end
 
 \procedure damage(value)
@@ -204,14 +207,28 @@ type: text/vnd.tiddlywiki
 \end
 
 \procedure term(id,variant,value)
+<$transclude $variable="trpg.ruleparts" parts={{{ [<id>trpgtermparts<variant>,<value>] }}}/>
+\end
+
+\procedure rule(name,entry)
+<$transclude $variable="trpg.ruleparts" parts={{{ [<name>trpgruleparts<entry>] }}}/>
+\end
+
+<!-- The parts of a rules macro ([{text, to, anchor}] as JSON) in one span trpg-rule: a part with
+     to a link, with anchor inside trpg-jump -->
+\procedure trpg.ruleparts(parts)
 \whitespace trim
-<$let trpg-to={{{ [<id>trpgglossary[]] }}}>
+<span class="trpg-rule"><$list filter="[<parts>jsonindexes[]]" variable="trpg-i"><$let trpg-text={{{ [<parts>jsonget<trpg-i>,[text]] }}} trpg-to={{{ [<parts>jsonget<trpg-i>,[to]] }}} trpg-anchor={{{ [<parts>jsonget<trpg-i>,[anchor]] }}}>
 <%if [<trpg-to>!is[blank]] %>
-<$link to=<<trpg-to>>><span class="trpg-rule"><$text text={{{ [<id>trpgterm<variant>,<value>] }}}/></span></$link>
+<%if [<trpg-anchor>!is[blank]] %>
+<$trpg-jump anchor=<<trpg-anchor>>><$link to=<<trpg-to>>><$text text=<<trpg-text>>/></$link></$trpg-jump>
 <%else%>
-<span class="trpg-rule"><$text text={{{ [<id>trpgterm<variant>,<value>] }}}/></span>
+<$link to=<<trpg-to>>><$text text=<<trpg-text>>/></$link>
 <%endif%>
-</$let>
+<%else%>
+<$text text=<<trpg-text>>/>
+<%endif%>
+</$let></$list></span>
 \end
 
 <!-- Locations linked in a section of the body of the current tiddler (0 = before the first

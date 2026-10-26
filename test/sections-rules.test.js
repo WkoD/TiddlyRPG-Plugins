@@ -69,11 +69,11 @@ test("the model: a short form runs to the next marker, a list belongs to it; the
 
 test("rendered: the name in bold before the text, a full stop unless it has a mark of its own", function() {
 	var html = body(AXE);
-	assert.match(html, /<div class="trpg-section trpg-section-effect trpg-section-rules"><p><span class="trpg-section-name">Säureexplosion\.<\/span> Stirbt ein Gegner, explodiert er\.<\/p><ul>/);
+	assert.match(html, /<div class="trpg-section trpg-section-effect trpg-section-rules" data-trpg-anchor="effect-saureexplosion"><p><span class="trpg-section-name">Säureexplosion\.<\/span> Stirbt ein Gegner, explodiert er\.<\/p><ul>/);
 	assert.match(html, /<span class="trpg-section-name">Hass des Raksha!<\/span> Der sechste/);
 	assert.doesNotMatch(html, /trpg-section-heading/, "effects have no heading");
 	var totem = body(TOTEM);
-	assert.match(totem, /<div class="trpg-section trpg-section-effect trpg-section-rules"><p><span class="trpg-section-name">Geist des Hirsches\.<\/span> Der Träger springt weit\.<\/p><p>Und landet sicher\.<\/p><\/div>/,
+	assert.match(totem, /<div class="trpg-section trpg-section-effect trpg-section-rules" data-trpg-anchor="effect-geist-des-hirsches"><p><span class="trpg-section-name">Geist des Hirsches\.<\/span> Der Träger springt weit\.<\/p><p>Und landet sicher\.<\/p><\/div>/,
 		"the block: the name runs into its first paragraph");
 	assert.ok(h.inOrder(totem, ["Geist des Hirsches", "Ende."]), "the block ends with its closing tag");
 });

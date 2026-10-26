@@ -1,11 +1,13 @@
 created: 20261016184211000
-modified: 20261023181956562
+modified: 20261026132300929
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/term-dropdown
 type: text/vnd.tiddlywiki
 
 <!-- Dropdown of the button Rules (editor/toolbar/term): a search over the terms of the rules
      (trpgtermsearch: id or term, as the hub Ruleset lists them; a property with its main entry,
      "armor medium") - a pill sets <<term id>> at the cursor (trpgtermcall: quoted with spaces);
+     the names of the sections and table headings of a class, trait, feat or entry of the
+     glossary (trpgrulesearch) - a pill "Rage (Barbarian)" sets <<rule "Rage" entry:"Barbarian">>;
      a value with its unit - the units of the rules that fit what follows the number
      (trpgunitsuggest) as pills, one sets <<unit "…">>. Without a ruleset there are neither. -->
 \procedure trpg.termhits()
@@ -13,7 +15,8 @@ type: text/vnd.tiddlywiki
 <$let trpg-query={{{ [<trpg-input>get[term]trim[]] }}}>
 <%if [<trpg-query>!is[blank]] %>
 <div class="trpg-pills">
-<$list filter="[trpgtermsearch<trpg-query>limit[15]]" variable="trpg-id" emptyMessage=<<trpg.t Editor/Term/None>>>
+<%if [trpgtermsearch<trpg-query>] [trpgrulesearch<trpg-query>] +[first[]] %>
+<$list filter="[trpgtermsearch<trpg-query>limit[15]]" variable="trpg-id">
 <$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-neutral" tooltip=<<trpg-id>>>
 <$action-sendmessage $message="tm-edit-text-operation" $param="insert-text" text={{{ [<trpg-id>trpgtermcall[]] }}}/>
 <$action-setfield $tiddler=<<trpg-input>> term=""/>
@@ -21,6 +24,17 @@ type: text/vnd.tiddlywiki
 <$text text={{{ [<trpg-id>trpgterm[]] }}}/> <code><$text text=<<trpg-id>>/></code>
 </$button>
 </$list>
+<$list filter="[trpgrulesearch<trpg-query>limit[15]]" variable="trpg-hit">
+<$button class="tc-btn-invisible trpg-pick-pill trpg-choice trpg-neutral" tooltip={{{ [<trpg-hit>jsonget[call]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="insert-text" text={{{ [<trpg-hit>jsonget[call]] }}}/>
+<$action-setfield $tiddler=<<trpg-input>> term=""/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [<trpg-hit>jsonget[name]] }}}/> <code><$text text={{{ [<trpg-hit>jsonget[entry]] }}}/></code>
+</$button>
+</$list>
+<%else%>
+<<trpg.t Editor/Term/None>>
+<%endif%>
 </div>
 <%endif%>
 </$let>

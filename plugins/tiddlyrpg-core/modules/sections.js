@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261026100136136
+modified: 20261026132300929
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -90,6 +90,16 @@ var plain = exports.plain = function(name) {
 		var bar = inner.indexOf("|");
 		return bar === -1 ? inner : inner.substring(0,bar);
 	}).replace(/\s+/g," ").trim();
+};
+
+// A name as part of a jump mark, kebab-case: "Schloss Baile" -> "schloss-baile", "Rage Damage" ->
+// "rage-damage" (spots.anchor(), the marks of the kinds of the ruleset and of table headings)
+var slug = exports.slug = function(name) {
+	var text = plain(name).toLowerCase();
+	if($tw.utils.transliterate) {
+		text = $tw.utils.transliterate(text);
+	}
+	return text.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
 };
 
 /* ---------- Kinds ---------- */
@@ -277,6 +287,12 @@ function rulesKind(domain,entry,order) {
 		lock: lock,
 		classes: function() {
 			return "trpg-section-rules";
+		},
+		// "<kind>-<name>": <<rule "Rage" entry:"Barbarian">> jumps to the class feature
+		// ("feature-rage") - none for an intro and at the very start of the body
+		anchor: function(record) {
+			var name = slug(record.params.plain || "");
+			return record.lead || !name ? "" : record.kind + "-" + name;
 		},
 		// <<effect "Name">>, <<effect name:"Name">>; <$effect name="Name">
 		params: function(node) {
@@ -1237,5 +1253,43 @@ var transform = exports.transform = function(wiki,title,nodes,options) {
 		}
 		Array.prototype.push.apply(out,wrapNests(g.nodes));
 	});
-	return out;
+	return markColumns(out);
 };
+
+/*
+The heading cells of the tables of a level with a jump mark "column-<heading>" ("column-rage-damage",
+the target of <<rule>> and of a name in a formula, modules/glossary.js ref). The parse tree is
+cached by TiddlyWiki: a node on the way to a cell is copied, never changed.
+*/
+var columnAnchor = exports.columnAnchor = function(heading) {
+	var name = slug(heading);
+	return name ? "column-" + name : "";
+};
+
+function markColumns(nodes) {
+	var changed = false,
+		out = (nodes || []).map(function(node) {
+			var copy = node;
+			if(node.type === "element" && node.tag === "th" && !(node.attributes && node.attributes["data-trpg-anchor"])) {
+				var anchor = columnAnchor($tw.utils.getParseTreeText(node.children || []));
+				if(anchor) {
+					var mark = {name: "data-trpg-anchor", type: "string", value: anchor};
+					copy = $tw.utils.extend({},node);
+					copy.attributes = $tw.utils.extend({},node.attributes,{"data-trpg-anchor": mark});
+					// the element widget renders the attributes in this order (TiddlyWiki 5.3)
+					if(node.orderedAttributes) {
+						copy.orderedAttributes = node.orderedAttributes.concat([mark]);
+					}
+				}
+			} else if(node.children && node.children.length) {
+				var children = markColumns(node.children);
+				if(children !== node.children) {
+					copy = $tw.utils.extend({},node);
+					copy.children = children;
+				}
+			}
+			changed = changed || copy !== node;
+			return copy;
+		});
+	return changed ? out : nodes;
+}

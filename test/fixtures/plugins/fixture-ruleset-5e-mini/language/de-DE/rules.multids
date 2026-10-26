@@ -1,5 +1,5 @@
 created: 20261009183000000
-modified: 20261025124110539
+modified: 20261026131153696
 title: $:/tiddlyrpg/language/de-DE/
 
 Rules/Damage/Extras: zusätzlich, zusätzlichen
@@ -37,10 +37,14 @@ Rules/Term/gm: SL
 Rules/Term/str: STR
 Rules/Term/str/name: Stärke
 Rules/Term/str/save: STR-Rettungswurf
+Rules/Term/str/mod: STR-Modifikator
+Rules/Term/str/score: Stärkewert
 Rules/Term/wis: WEI
 Rules/Term/wis/name: Weisheit
 Rules/Term/wis/save: WEI-Rettungswurf
 Rules/Term/xp: EP
+Rules/Term/cr: HG
+Rules/Term/pb: ÜB
 Rules/Category/weapon: Waffe
 Rules/Category/armor: Rüstung
 Rules/Category/ammunition: Munition
