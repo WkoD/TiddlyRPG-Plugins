@@ -161,6 +161,20 @@ test.describe("sections", function() {
 		}
 	});
 
+	test("card: a section the view does not see leaves the span of its date and its point", function() {
+		h.add(wiki, {title: "Halb", tags: "Event", date: "1351-07-01, 1351-07-20", text: "<<date>>\n\nA.\n\n<<secret>><<date>>\n\nB."});
+		try {
+			var dm = draw("[[Halb]]"),
+				pub = h.inView(wiki, "public", function() { return draw("[[Halb]]"); });
+			assert.match(dm, /<div class="trpg-tl-date">1\. – 20\. Flamerule 1351<\/div>/);
+			assert.match(dm, /<title>20\. Flamerule 1351<\/title>/);
+			assert.match(pub, /<div class="trpg-tl-date">1\. Flamerule 1351<\/div>/);
+			assert.doesNotMatch(pub, /20\. Flamerule/);
+		} finally {
+			wiki.deleteTiddler("Halb");
+		}
+	});
+
 	test("redrawn when the rules language, the ruleset, the setting or the currency changes", function() {
 		var root = wiki.makeWidget(wiki.parseText("text/vnd.tiddlywiki", "<$trpg-timeline filter=\"[[Points]]\"/>"));
 		root.render(tw.fakeDocument.createElement("div"), null);

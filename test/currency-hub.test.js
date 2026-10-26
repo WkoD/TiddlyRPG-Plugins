@@ -55,9 +55,10 @@ test("description and table: name, short label, worth in the leading coin", func
 test("the converter: one row per coin", function() {
 	h.add(wiki, {title: "$:/temp/tiddlyrpg/currency", amount: "3 gp 5 sp"});
 	try {
-		var html = hub();
-		assert.match(html, /<th>Silbermünze<\/th><td>35<\/td>/);
-		assert.match(html, /<th>Goldmünze<\/th><td>3,5<\/td>/);
+		var rows = (hub().match(/<tr><th>[^<]*<\/th><td>[^<]*<\/td><\/tr>/g) || []).map(function(row) {
+			return row.replace(/<\/th><td>/, ": ").replace(/<[^>]+>/g, "");
+		});
+		assert.deepEqual(rows, ["Kupfermünze: 350", "Silbermünze: 35", "Elektrummünze: 7", "Goldmünze: 3,5", "Platinmünze: 0,35"]);
 	} finally {
 		wiki.deleteTiddler("$:/temp/tiddlyrpg/currency");
 	}
