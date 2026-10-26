@@ -964,7 +964,8 @@ tests reach it without a browser; the wikitext only asks and passes values.
   `$:/temp/tiddlyrpg-core/editor/input/<draft>/section`, apart from the input, so the name keeps
   its focus; each probe clears it); the short form before the text of the paragraph - behind a
   lock, before a quest marker, behind a date or a spot the text a paragraph of its own (in the same
-  paragraph it would not count); a name needed but for a kind with an intro; at a marker another
+  paragraph it would not count), a line of markers standing for the paragraph after it; a marker
+  found from the end of the head (a date behind an effect ends it); a name needed but for a kind with an intro; at a marker another
   kind (`retype`), another name, remove. An entry
   of a content package chosen in a relation, the row "Possessions" or the button "Content" is
   taken (saved) at once as well (`tm-trpg-content-take` with `draft`). A tiddler

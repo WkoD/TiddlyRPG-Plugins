@@ -345,11 +345,24 @@ test.describe("sections of the ruleset (fixture 5e-mini: effect, curse, trait, a
 		assert.equal(section("<<date>> <<quest \"Spur\">>Te|xt.", "insert", "effect", "Falle", ["Event"]).text, "<<date>>\n\n<<effect \"Falle\">> <<quest \"Spur\">>Text.");
 		assert.equal(section("<<spot \"Krypta\">> Ein|e Gruft.", "insert", "trait", "Kalt", ["Location"]).text, "<<spot \"Krypta\">>\n\n<<trait \"Kalt\">> Eine Gruft.");
 	});
+	test("a line of markers at the cursor stands for the paragraph after it; the last one gets it behind it", function() {
+		var dated = section("Offen.\n\n<<da|te>>\n\nText.\n\n<<date>>\n\nZwei.", "insert", "effect", "Falle", ["Event"]).text;
+		assert.equal(dated, "Offen.\n\n<<date>>\n\n<<effect \"Falle\">> Text.\n\n<<date>>\n\nZwei.");
+		assert.equal(record(dated, "effect", ["Event"]).parent, record(dated, "date", ["Event"]).id, "in the dated section, not empty before it");
+		var locked = section("Vor.\n\n<<sec|ret>>\n\nText.", "insert", "effect", "Falle").text;
+		assert.equal(locked, "Vor.\n\n<<secret>>\n\n<<effect \"Falle\">> Text.");
+		assert.equal(record(locked, "effect", ["Item"]).locks.length, 1, "the lock right before its marker locks it");
+		var last = section("Text.\n\n<<da|te>>", "insert", "effect", "Falle", ["Event"]);
+		assert.equal(last.text, "Text.\n\n<<date>>\n\n<<effect \"Falle\">> ");
+		assert.equal(last.selStart, last.text.length);
+	});
 	test("probe: the marker of the paragraph or the block around the cursor, with its kind and name - not a later paragraph of a short section", function() {
 		assert.deepEqual(plain(probe("<<effect \"Säure\">> Te|xt.", "section", ["Item"])), {kind: "section", form: "short", selection: false, params: {name: "Säure"}, section: "effect"});
 		var block = probe("<$trait name=\"Rudel\">\n\nTe|xt.\n\n</$trait>", "section", ["Item"]);
 		assert.deepEqual([block.form, block.section, block.params.name], ["block", "trait", "Rudel"]);
 		assert.equal(probe("<<date>>\n\n<<effect \"A\">> Te|xt.", "section", ["Event"]).section, "effect");
+		assert.equal(probe("<<effect \"A\">>\n\n<<secret>>\n\nTe|xt.", "section", ["Item"]).section, "effect", "a lock behind its marker");
+		assert.equal(probe("<<effect \"A\">>\n\n<<date>>\n\nTe|xt.", "section", ["Event"]).form, "", "a date behind it ends it");
 		assert.equal(probe("Te|xt.", "section", ["Item"]).form, "");
 		var later = "<<effect \"A\">> Erster.\n\nZwei|ter.";
 		assert.equal(probe(later, "section", ["Item"]).form, "");

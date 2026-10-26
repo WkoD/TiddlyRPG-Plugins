@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/editor.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261026100136136
+modified: 20261026110030758
 
 The buttons of the editor toolbar on the text in the editor (editor/operation.js) - the one place
 of these rules, plain functions on a text so the tests reach them without a browser.
@@ -36,10 +36,11 @@ numbers behind it (<<date 3>>, section="3") count on.
 The kinds of the ruleset (modules/sections.js rulesKinds: <<effect "Name">>) share one button,
 kind "section", the kind of the ruleset in action.section. The short form goes to the start of the
 paragraph at the cursor with a space before the text - behind a lock that starts it, before a quest
-marker, and behind the marker of a date or a spot the text goes to a paragraph of its own (see
-insertRules()); before a list or a table on a line of its own. A selection gets the block form around the units it touches. A name is
-needed but for a kind with an intro. At a marker - only the paragraph that holds it, as with a date
-or a spot - the name changes, the kind changes (retype: name and form stay), or it goes.
+marker, and behind the marker of a date or a spot the text goes to a paragraph of its own; a line
+of markers stands for the paragraph after it (see insertRules()); before a list or a table on a
+line of its own. A selection gets the block form around the units it touches. A name is needed
+but for a kind with an intro. At a marker - only the paragraph that holds it, as with a date or a
+spot - the name changes, the kind changes (retype: name and form stay), or it goes.
 
 input   {text, selStart, selEnd, tags, fields, title}: the text in the editor, the tags and fields
         of the draft, the title it is the draft of
@@ -501,13 +502,18 @@ function existing(a,kind) {
 /*
 The section of a kind of the ruleset at the cursor, as existing() gives it for one kind: a marker
 of the head of the unit, else the innermost block of such a kind around the cursor; kind: its id.
+The head is read from its end: the unit belongs to the last marker that is no lock - a marker of
+a date or a spot behind an effect ends it there.
 */
 function existingRules(a) {
 	var head = headOf(a.level);
-	for(var i = 0; i < head.markers.length; i++) {
+	for(var i = head.markers.length - 1; i >= 0; i--) {
 		var kind = sections.shortKind(head.markers[i]);
 		if(isRules(kind)) {
 			return {form: "short", node: head.markers[i], params: paramsOf(kind,head.markers[i],"short"), kind: kind};
+		}
+		if(kind !== "secret") {
+			break;
 		}
 	}
 	var blocks = blocksAround(a,isRules),
@@ -978,13 +984,25 @@ cursor, by the markers that start it: behind a lock (<<secret>> <<effect "A">> T
 locks it), before a quest marker (<<effect "A">> <<quest "Q">>Text: the quest keeps its text).
 Behind the marker of a date or a spot the text goes to a paragraph of its own (<<date>>\n\n<<effect
 "A">> Text: in the same paragraph it would not count), with the locks right behind that marker.
-Before another unit on a line of its own; behind the last unit at the cursor.
+A line of markers (<<date>>, <<secret>>) stands for the unit after it - before it the section
+would be empty and outside the dated section -, the last one gets it on a line of its own after
+it. Before another unit on a line of its own; behind the last unit at the cursor.
 */
 function insertRules(a,kind,params) {
 	var marker = shortMarker(kind,params),
+		index = a.level.index,
 		unit = a.level.unit;
 	if(!unit) {
 		return atCursor(a,marker + " ");
+	}
+	while(markerUnit(unit) && index + 1 < a.level.list.length) {
+		unit = a.level.list[++index];
+	}
+	if(markerUnit(unit)) {
+		var end = textEnd(a.text,unit.start,unit.end),
+			edits = [{from: end, to: end, text: "\n\n" + marker + " "}];
+		edits.cursor = end + edits[0].text.length;
+		return edits;
 	}
 	if(unit.type !== "element" || unit.tag !== "p") {
 		return [{from: unit.start, to: unit.start, text: marker + "\n\n"}];
