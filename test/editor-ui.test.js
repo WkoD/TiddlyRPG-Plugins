@@ -154,6 +154,110 @@ test.describe("the kinds in the search", function() {
 	});
 });
 
+test.describe("the button Section: the kinds of sections of the ruleset as a menu", function() {
+	var DRAFT = "Draft of 'Axt'",
+		PROBE = "$:/temp/tiddlyrpg-core/editor/probe/" + DRAFT,
+		INPUT = "$:/temp/tiddlyrpg-core/editor/input/" + DRAFT,
+		CHOICE = INPUT + "/section",
+		ops;
+	test.before(function() {
+		ops = {};
+		$tw.modules.forEachModuleOfType("texteditoroperation", function(title, module) {
+			$tw.utils.extend(ops, module);
+		});
+		h.add(wiki, {title: DRAFT, "draft.of": "Axt", tags: "Item", text: "x"});
+	});
+	test.afterEach(function() {
+		[PROBE, INPUT, CHOICE, "$:/temp/tiddlyrpg-core/editor/notice"].forEach(function(title) {
+			wiki.deleteTiddler(title);
+		});
+	});
+	test.after(function() {
+		wiki.deleteTiddler(DRAFT);
+	});
+	function widget() {
+		return {wiki: wiki, editTitle: DRAFT, dispatchEvent: function() {}};
+	}
+	function probe(marked) {
+		var pos = marked.indexOf("|");
+		ops["trpg-probe"].call(widget(), {paramObject: {kind: "section"}}, {text: marked.replace("|", ""), selStart: pos, selEnd: pos});
+	}
+	function dropdown(type) {
+		return h.render(wiki, type || "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown}}", {targetTiddler: DRAFT});
+	}
+	function settle() {
+		return new Promise(function(resolve) { setTimeout(resolve, 0); });
+	}
+	test("in any wikitext while the ruleset has kinds of sections, not in markdown, not without a ruleset", function() {
+		var shown = function(draft) {
+			return f(wiki.getTiddler("$:/plugins/tiddlyrpg-core/editor/toolbar/section").fields.condition, {targetTiddler: draft}).length > 0;
+		};
+		assert.ok(shown(DRAFT));
+		assert.ok(shown("Draft of 'Ort'"));
+		assert.ok(!shown("Draft of 'Md'"));
+		var order = f("[all[shadows+tiddlers]tag[$:/tags/EditorToolbar]removeprefix[$:/plugins/tiddlyrpg-core/editor/toolbar/]]");
+		assert.deepEqual(order.slice(order.indexOf("term"), order.indexOf("term") + 3), ["term", "section", "content"], "beside Rules");
+		wiki.addTiddler(new $tw.Tiddler({title: "$:/config/tiddlyrpg/ruleset", text: "none"}));
+		return settle().then(function() {
+			assert.ok(!shown(DRAFT));
+		}).finally(function() {
+			wiki.deleteTiddler("$:/config/tiddlyrpg/ruleset");
+			return settle();
+		});
+	});
+	test("without a section at the cursor: the kinds in the order of their domain, then the name of the one chosen", function() {
+		probe("Eine Axt|.");
+		var html = dropdown("text/html");
+		assert.match(dropdown(), /Neuer Abschnitt/);
+		var rows = html.match(/<button[^>]*trpg-editor-menu-item[^>]*>.*?<\/button>/g).map(function(row) { return row.replace(/<[^>]+>/g, ""); });
+		assert.deepEqual(rows, ["Effekt&lt;&lt;effect&gt;&gt;", "Fluch&lt;&lt;curse&gt;&gt;", "Merkmal&lt;&lt;trait&gt;&gt;", "Aktion&lt;&lt;action&gt;&gt;", "Legendäre Aktion&lt;&lt;legendary&gt;&gt;"]);
+		assert.doesNotMatch(html, /<input/, "no name before a kind is chosen");
+		h.add(wiki, {title: CHOICE, text: "effect"});
+		html = dropdown("text/html");
+		assert.match(dropdown(), /Effekt.*Andere Art.*Name.*An den Anfang des Absatzes/);
+		assert.match(html, /<button[^>]*class="trpg-do"[^>]*disabled/, "no name: Insert waits");
+		assert.doesNotMatch(dropdown(), /Ohne Namen/);
+		h.add(wiki, {title: CHOICE, text: "legendary"});
+		assert.match(dropdown(), /Ohne Namen: die Einleitung der Art/);
+		assert.doesNotMatch(dropdown("text/html"), /<button[^>]*class="trpg-do"[^>]*disabled/, "an intro goes without a name");
+	});
+	test("every opening starts with the menu", function() {
+		h.add(wiki, {title: CHOICE, text: "effect"});
+		probe("Eine Axt|.");
+		assert.equal(wiki.getTiddler(CHOICE), undefined);
+	});
+	test("at a section: its kind and name, the kind there checked and no button, another name, remove", function() {
+		probe("<<curse \"Gier\">> Wer sie trägt|, gibt sie nicht her.");
+		assert.equal(wiki.getTiddler(INPUT).fields.name, "Gier");
+		var text = dropdown(), html = dropdown("text/html");
+		assert.match(text, /^Fluch „Gier“/);
+		assert.match(html, /<div class="trpg-editor-menu-item trpg-current">.*?Fluch/);
+		assert.doesNotMatch(html, /<button[^>]*trpg-editor-menu-item[^>]*>(?:(?!<\/button>).)*Fluch/);
+		assert.match(text, /Entfernen.*Ändern/);
+		assert.match(html, /<button[^>]*class="trpg-do"[^>]*disabled/, "the name unchanged: nothing to change");
+		probe("<<legendary>> Der Wolf| kann 3 legendäre Aktionen ausführen.");
+		assert.match(dropdown(), /^Legendäre Aktion \(Einleitung\)/);
+	});
+	test("edit: inserted, retyped, removed as the smallest replacement", function() {
+		var after = function(op) {
+			return op.text.substring(0, op.cutStart) + op.replacement + op.text.substring(op.cutEnd);
+		};
+		var op = {text: "Eine Axt.\n\nStirbt ein Gegner.", selStart: 15, selEnd: 15};
+		ops["trpg-edit"].call(widget(), {paramObject: {kind: "section", op: "insert", section: "effect", name: "Säure"}}, op);
+		assert.deepEqual([op.cutStart, op.cutEnd, op.replacement], [11, 11, "<<effect \"Säure\">> "]);
+		var op2 = {text: "<<effect \"Säure\">> Stirbt.", selStart: 22, selEnd: 22};
+		ops["trpg-edit"].call(widget(), {paramObject: {kind: "section", op: "retype", section: "trait"}}, op2);
+		assert.equal(after(op2), "<<trait \"Säure\">> Stirbt.");
+		var op4 = {text: "Vor.\n\n<<trait \"Säure\">> Stirbt.", selStart: 28, selEnd: 28};
+		ops["trpg-edit"].call(widget(), {paramObject: {kind: "section", op: "remove"}}, op4);
+		assert.equal(after(op4), "Vor.\n\nStirbt.");
+		var op3 = {text: "Stirbt.", selStart: 2, selEnd: 2};
+		ops["trpg-edit"].call(widget(), {paramObject: {kind: "section", op: "insert", section: "effect", name: ""}}, op3);
+		assert.equal(op3.replacement, undefined);
+		assert.equal(wiki.getTiddlerText("$:/temp/tiddlyrpg-core/editor/notice"), f("[[Editor/Error/NoName]trpgtranslate[]]")[0]);
+	});
+});
+
 test.describe("new tiddlers", function() {
 	test("+ in the toolbar of the hubs of the types, only in the editable wiki; items and categories offer the base types, events ask for the date", function() {
 		// A plain "+" on Location, a "+" with a dropdown (popup) on Item, a category and Event

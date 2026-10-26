@@ -476,7 +476,7 @@ locked by a value of the rules: a curse is seen where the field `cursed` is - wi
 `secret-fields: cursed` the DM and the players of the tagged characters see the field and the
 curse, nobody else; lifting the lock shows both. A curse whose field is empty gets a hint. In a
 dated section or a spot such a section belongs to it and is locked with it. The hub `Ruleset`
-lists the kinds.
+lists the kinds; the button "Section" of the editor sets them (see "Editing").
 
 The hints stand below the title of the tiddler, not in the published copy.
 
@@ -1096,6 +1096,7 @@ changed or opened in the editor since.
 | Link to a spot | all | `<<spotlink>>`: a location, then one of its spots; a selection becomes the text of the link |
 | Sub-location | locations | a new location inside this one, saved and opened at once - a selected text moves into it; with the cursor in a spot without tiddler: the spot as a location of its own, with its text, images and lock, the marker stays |
 | Rules | all | `<<term>>` by id or term, `<<unit>>` with the units of the ruleset that fit the number |
+| Section | all, with a ruleset that has kinds of sections | the kinds of the ruleset as a menu, then the name of the one chosen: `<<effect "Name">>` at the start of the paragraph (behind a lock, before a quest marker; behind a date or a spot the text becomes a paragraph of its own), `<$effect>` around the selection; a kind with an introduction goes without a name; at a section: another kind, another name, remove |
 | Content | all | an entry of a content package by its title: taken into the wiki and linked in the text (see "Content packages") |
 
 With the cursor on a line of its own behind the last paragraph, a marker goes there - for the

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261023181956562
+modified: 20261026100136136
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -21,6 +21,10 @@ picker (editor/procedures) and the kinds of the search.
 [trpgtermsearch<text>]         those whose id or term contains <text> (any case); a property with
                                its main entry ("armor medium")
 [<id>trpgtermcall[]]           the call of <<term>> for each input id, quoted when it has spaces
+[trpgsectionkinds[]]           the kinds of sections of the ruleset (modules/sections.js
+                               rulesKinds) in the order of their domain; operand intro: those with
+                               an intro, whose section may go without a name
+[<id>trpgsectionlabel[]]       the label of each input kind (modules/sections.js kindLabel)
 [<text>trpgunitsuggest[]]      a number with the units that fit what follows it ("60 f" -> "60 ft")
 [<field>relationcandidates[]]  what the field may name (field tiddlyrpg-targets of its config,
                                modules/relations.js); without it every typed tiddler; never a
@@ -155,6 +159,21 @@ exports.trpgtermids = function(source,operator,options) {
 exports.trpgtermcall = function(source,operator,options) {
 	return each(source,function(id,results) {
 		results.push(/\s/.test(id) ? "<<term \"" + id + "\">>" : "<<term " + id + ">>");
+	});
+};
+
+exports.trpgsectionkinds = function(source,operator,options) {
+	var kinds = sections.rulesKinds(options.wiki);
+	return Object.keys(kinds).filter(function(id) {
+		return operator.operand !== "intro" || kinds[id].intro;
+	}).sort(function(a,b) {
+		return kinds[a].order - kinds[b].order;
+	});
+};
+
+exports.trpgsectionlabel = function(source,operator,options) {
+	return each(source,function(id,results) {
+		results.push(sections.kindLabel(options.wiki,id));
 	});
 };
 

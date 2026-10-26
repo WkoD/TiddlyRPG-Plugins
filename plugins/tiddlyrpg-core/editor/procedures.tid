@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261025154251797
+modified: 20261026100136136
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/editor/procedures
 type: text/vnd.tiddlywiki
@@ -12,7 +12,9 @@ type: text/vnd.tiddlywiki
        do       one button in the accent colour (trpg-do) per dropdown, at the right of its last
                 row; a second, outlined (trpg-do-2)
        take out × at a pill (trpg-pill-x); a button "Remove", red text in a red outline
-                (trpg-remove), at the left of the last row -->
+                (trpg-remove), at the left of the last row
+       menu     a row per entry across the dropdown (trpg-editor-menu), the entry there checked
+                and no button (trpg-current) -->
 
 <!-- The input state of the dropdowns of a draft: the probe (tm-trpg-probe) fills it with what
      stands at the cursor (fields date, label, name, status, names, dm), the dropdown edits it -->

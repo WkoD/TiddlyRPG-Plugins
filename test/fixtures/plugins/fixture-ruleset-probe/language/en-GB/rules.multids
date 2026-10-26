@@ -1,7 +1,10 @@
 created: 20261009183000000
-modified: 20261022150206856
+modified: 20261026100136136
 title: $:/tiddlyrpg/language/en-GB/
 
+Rules/Ability/ability: ability
+Rules/Ability/activity: activity
+Rules/Ability/activity/Heading: Activities
 Rules/Damage/Fillers: damage
 Rules/Damage/Join: plus
 Rules/Damage/Joiners: plus, and
@@ -12,6 +15,7 @@ Rules/Damage/fire: fire
 Rules/Damage/fire/Phrase: fire damage
 Rules/Damage/persistent: persistent
 Rules/Damage/splash: splash
+Rules/Domain/Abilities: Abilities
 Rules/Domain/Bulk: Bulk
 Rules/Domain/Conditions: Conditions
 Rules/Domain/Damage: Damage

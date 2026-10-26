@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/editor.js
 type: application/javascript
 module-type: library
 created: 20261016184211000
-modified: 20261016214011000
+modified: 20261026100136136
 
 The buttons of the editor toolbar on the text in the editor (editor/operation.js) - the one place
 of these rules, plain functions on a text so the tests reach them without a browser.
@@ -33,6 +33,14 @@ A date also changes the field date: the n-th marker is the n-th section of the f
 marker gets its section at its place, a removed one takes its section with it, and explicit
 numbers behind it (<<date 3>>, section="3") count on.
 
+The kinds of the ruleset (modules/sections.js rulesKinds: <<effect "Name">>) share one button,
+kind "section", the kind of the ruleset in action.section. The short form goes to the start of the
+paragraph at the cursor with a space before the text - behind a lock that starts it, before a quest
+marker, and behind the marker of a date or a spot the text goes to a paragraph of its own (see
+insertRules()); before a list or a table on a line of its own. A selection gets the block form around the units it touches. A name is
+needed but for a kind with an intro. At a marker - only the paragraph that holds it, as with a date
+or a spot - the name changes, the kind changes (retype: name and form stay), or it goes.
+
 input   {text, selStart, selEnd, tags, fields, title}: the text in the editor, the tags and fields
         of the draft, the title it is the draft of
 result  {text, selStart, selEnd, fields, create, navigate, error}: the new text, fields of the
@@ -41,12 +49,14 @@ result  {text, selStart, selEnd, fields, create, navigate, error}: the new text,
         in an attribute ending in " or holding """, in a macro parameter also holding ]])
 
   probe(wiki,input,kind)      what stands at the cursor for <kind>: form "short", "block" or ""
-                              (nothing - an empty text, as jsonget reads JSON null as "null")
+                              (nothing - an empty text, as jsonget reads JSON null as "null");
+                              kind section: also section, the kind of the ruleset there
   apply(wiki,input,action)    action {kind, op, ...}: op insert, change, remove, add (a further
-                              quest marker), cycle (quest status); values name, status, names,
-                              dm, date, label. Kind sublocation: the spot at the cursor becomes a
-                              location of its own; kind spotlink: <<spotlink>> with place and
-                              spot at the cursor, a selection as the text of the link
+                              quest marker), cycle (quest status), retype (kind section); values
+                              name, status, names, dm, date, label, section. Kind sublocation: the
+                              spot at the cursor becomes a location of its own; kind spotlink:
+                              <<spotlink>> with place and spot at the cursor, a selection as the
+                              text of the link
   questStatusNamed(wiki,text,tags,start)  <<quest "N" "complete">> -> status:"complete"
   dateLabelNamed(wiki,text,tags,start)    <<date "Caption">> -> label:"Caption"
   taken(wiki,title)           the tiddler (not a draft) or shadow named <title> in any case - the
@@ -190,8 +200,17 @@ function attr(node,name) {
 	return a && a.type === "string" ? a.value : undefined;
 }
 
+// A kind of the ruleset (the kinds of the model, set by sections.readText)
+function isRules(kind) {
+	var def = kind && sections.kind(kind);
+	return !!(def && def.domain);
+}
+
 function shortMarker(kind,params) {
 	params = params || {};
+	if(isRules(kind)) {
+		return "<<" + kind + (params.name ? " " + quote(params.name) : "") + ">>";
+	}
 	switch(kind) {
 		case "date":
 			return "<<date" + (params.n ? " " + params.n : "") + (params.label ? " label:" + quote(params.label) : "") + ">>";
@@ -207,6 +226,9 @@ function shortMarker(kind,params) {
 
 function blockOpen(kind,params) {
 	params = params || {};
+	if(isRules(kind)) {
+		return "<$" + kind + (params.name ? " name=" + quote(params.name,true) : "") + ">";
+	}
 	switch(kind) {
 		case "date":
 			return "<$date" + (params.n ? " section=" + quote(String(params.n),true) : "") + (params.label ? " label=" + quote(params.label,true) : "") + ">";
@@ -224,6 +246,9 @@ function blockOpen(kind,params) {
 function paramsOf(kind,node,form) {
 	var def = sections.kind(kind),
 		p = def.params(node,form);
+	if(def.domain) {
+		return {name: p.name};
+	}
 	switch(kind) {
 		case "date":
 			return {n: p.n, label: p.label};
@@ -473,17 +498,39 @@ function existing(a,kind) {
 	return {form: null};
 }
 
-// The blocks of <kind> whose content holds the cursor (the whole selection), outermost first -
-// on the level of the sections or inside a paragraph
+/*
+The section of a kind of the ruleset at the cursor, as existing() gives it for one kind: a marker
+of the head of the unit, else the innermost block of such a kind around the cursor; kind: its id.
+*/
+function existingRules(a) {
+	var head = headOf(a.level);
+	for(var i = 0; i < head.markers.length; i++) {
+		var kind = sections.shortKind(head.markers[i]);
+		if(isRules(kind)) {
+			return {form: "short", node: head.markers[i], params: paramsOf(kind,head.markers[i],"short"), kind: kind};
+		}
+	}
+	var blocks = blocksAround(a,isRules),
+		inner = blocks[blocks.length - 1];
+	if(inner) {
+		return {form: "block", node: inner.node, parts: inner.parts, params: paramsOf(inner.kind,inner.node,"block"), kind: inner.kind};
+	}
+	return {form: null};
+}
+
+// The blocks of <kind> (an id, or a function true for the ids it takes) whose content holds the
+// cursor (the whole selection), outermost first - on the level of the sections or inside a paragraph
 function blocksAround(a,kind) {
-	var found = [];
+	var found = [],
+		takes = typeof kind === "function" ? kind : function(id) { return id === kind; };
 	(function walk(nodes) {
 		$tw.utils.each(nodes,function(node) {
 			if(node.start !== undefined && node.start <= a.selStart && a.selEnd <= node.end) {
-				if(sections.blockKind(node) === kind) {
-					var parts = blockParts(a.text,node,kind);
+				var id = sections.blockKind(node);
+				if(id && takes(id)) {
+					var parts = blockParts(a.text,node,id);
 					if(!parts.self && parts.openEnd <= a.selStart && a.selEnd <= parts.closeStart) {
-						found.push({node: node, kind: kind, parts: parts});
+						found.push({node: node, kind: id, parts: parts});
 					}
 				}
 				walk(node.children || []);
@@ -586,6 +633,16 @@ exports.probe = function(wiki,input,kind) {
 		result.selection = a.selStart !== a.selEnd;
 		if(spot) {
 			result.spot = {name: spot.record.params.name, title: spot.title, problem: spot.problem || ""};
+		}
+		return result;
+	}
+	if(kind === "section") {
+		var found = existingRules(a);
+		result.form = found.form || "";
+		result.selection = a.selStart !== a.selEnd;
+		if(found.form) {
+			result.params = found.params;
+			result.section = found.kind;
 		}
 		return result;
 	}
@@ -752,6 +809,9 @@ function applyAction(wiki,input,action) {
 	if(kind === "quest") {
 		return applyQuest(a,input,action);
 	}
+	if(kind === "section") {
+		return applySection(wiki,a,input,action);
+	}
 	if(kind === "sublocation") {
 		return applySublocation(wiki,a,input);
 	}
@@ -878,6 +938,113 @@ function applyQuest(a,input,action) {
 	}
 	var where = container ? contentStart(container) : a.level.unit.start;
 	return done(input,[{from: where, to: where, text: shortMarker("quest",params)}]);
+}
+
+// A section of a kind of the ruleset: the kind in action.section, see the header
+function applySection(wiki,a,input,action) {
+	var at = existingRules(a),
+		op = action.op,
+		name = (action.name || "").trim(),
+		kind = op === "insert" || op === "retype" ? action.section : at.kind,
+		def = kind ? sections.rulesKinds(wiki)[kind] : null;
+	if(op === "remove") {
+		if(!at.form) {
+			return fail("Editor/Error/Nothing");
+		}
+		return done(input,at.form === "short" ? removeLead(a,at.node) : unwrapBlock(a,at.parts));
+	}
+	if(!def) {
+		return fail("Editor/Error/Nothing");
+	}
+	if(op === "retype") {
+		return at.form ? done(input,retype(a,at,kind)) : fail("Editor/Error/Nothing");
+	}
+	if(!name && !def.intro) {
+		return fail("Editor/Error/NoName");
+	}
+	if(op === "change") {
+		return done(input,rewrite(a,kind,at,{name: name}));
+	}
+	if(a.selStart !== a.selEnd) {
+		var edits = wrapUnits(a,kind,{name: name});
+		return edits ? done(input,edits) : fail("Editor/Error/Nothing");
+	}
+	return done(input,insertRules(a,kind,{name: name}));
+}
+
+/*
+The short form of a kind of the ruleset without selection, at the start of the paragraph at the
+cursor, by the markers that start it: behind a lock (<<secret>> <<effect "A">> Text: the lock
+locks it), before a quest marker (<<effect "A">> <<quest "Q">>Text: the quest keeps its text).
+Behind the marker of a date or a spot the text goes to a paragraph of its own (<<date>>\n\n<<effect
+"A">> Text: in the same paragraph it would not count), with the locks right behind that marker.
+Before another unit on a line of its own; behind the last unit at the cursor.
+*/
+function insertRules(a,kind,params) {
+	var marker = shortMarker(kind,params),
+		unit = a.level.unit;
+	if(!unit) {
+		return atCursor(a,marker + " ");
+	}
+	if(unit.type !== "element" || unit.tag !== "p") {
+		return [{from: unit.start, to: unit.start, text: marker + "\n\n"}];
+	}
+	var lead = [],
+		text = null;
+	$tw.utils.each(unit.children || [],function(child) {
+		if(text || child.start === undefined || isBlank(child)) {
+			return;
+		}
+		if(sections.shortKind(child) || sections.nestKind(child)) {
+			lead.push(child);
+		} else {
+			text = child;
+		}
+	});
+	var textStart = text ? text.start + (text.type === "text" ? /^\s*/.exec(text.text)[0].length : 0) : textEnd(a.text,unit.start,unit.end),
+		cut = -1;
+	$tw.utils.each(lead,function(node,i) {
+		var id = sections.shortKind(node);
+		if(id && id !== "secret") {
+			cut = i;
+		}
+	});
+	while(cut !== -1 && cut + 1 < lead.length && sections.shortKind(lead[cut + 1]) === "secret") {
+		cut++;
+	}
+	var rest = lead.slice(cut + 1),
+		quest = rest.filter(function(node) { return sections.nestKind(node); })[0],
+		at = quest ? quest.start : textStart;
+	if(cut === -1) {
+		return [{from: at, to: at, text: marker + " "}];
+	}
+	var next = rest.length ? rest[0].start : textStart;
+	if(at === next) {
+		return [{from: lead[cut].end, to: at, text: "\n\n" + marker + " "}];
+	}
+	return [{from: lead[cut].end, to: next, text: "\n\n"},{from: at, to: at, text: marker + " "}];
+}
+
+// The marker of a section of the ruleset with another kind; a block changes its closing tag too
+function retype(a,at,kind) {
+	if(at.form === "short") {
+		return [{from: at.node.start, to: at.node.end, text: shortMarker(kind,at.params)}];
+	}
+	var edits = [{from: at.parts.start, to: at.parts.openEnd, text: blockOpen(kind,at.params)}],
+		close = "</$" + at.kind + ">";
+	if(!at.parts.self && a.text.substr(at.parts.closeStart,close.length) === close) {
+		edits.push({from: at.parts.closeStart, to: at.parts.closeStart + close.length, text: "</$" + kind + ">"});
+	}
+	return edits;
+}
+
+// Removes a short marker; at the start of a paragraph the spaces before its text go with it
+function removeLead(a,node) {
+	var edits = removeShort(a,node);
+	if(edits[0].to === node.end) {
+		edits[0].to += /^[ \t]*/.exec(a.text.substring(node.end))[0].length;
+	}
+	return edits;
 }
 
 // Where a new marker or block goes: before the first unit of the selection, or of the cursor

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/editor/operation.js
 type: application/javascript
 module-type: texteditoroperation
 created: 20261016184211000
-modified: 20261022184902362
+modified: 20261026100136136
 
 The text operations of the buttons of the editor toolbar (editor/toolbar/*), sent as
 tm-edit-text-operation. They run in the edit-text widget, so they reach the text, the selection
@@ -15,7 +15,8 @@ and the draft (this.editTitle); the rules are modules/editor.js.
                selection, as a text operation would focus the text and close the dropdown), so the
                dropdown offers to change or remove what is there; its
                values go to the fields of $:/temp/tiddlyrpg-core/editor/input/<draft>, which the
-               dropdown edits
+               dropdown edits; kind section also clears the kind chosen in its menu
+               ($:/temp/tiddlyrpg-core/editor/input/<draft>/section)
   trpg-edit    kind, op and the values of the dropdown (modules/editor.js apply): changes the
                text as the smallest replacement (undo keeps working), the fields of the draft,
                creates a tiddler and opens it (noted for the draft: cancelling the draft takes it
@@ -69,6 +70,10 @@ exports["trpg-probe"] = function(event,operation) {
 		names: $tw.utils.stringifyList(names),
 		dm: result.form && params.kind === "secret" && !names.length ? "yes" : ""
 	}));
+	// The kind chosen in the menu of the button Section: every opening starts with the menu
+	if(params.kind === "section") {
+		this.wiki.deleteTiddler(INPUT + this.editTitle + "/section");
+	}
 };
 
 exports["trpg-edit"] = function(event,operation) {

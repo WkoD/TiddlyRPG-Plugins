@@ -1,7 +1,8 @@
 /*
  * Another rules system without code changes in tiddlyrpg-core: fixture-ruleset-probe, in the style
  * of Pathfinder 2E, as the active ruleset - label domains with a value ("frightened 2"), a tokens
- * domain Bulk ("L"), damage with qualifiers ("persistent", "splash") and the dice, all only as
+ * domain Bulk ("L"), damage with qualifiers ("persistent", "splash"), the dice and kinds of sections
+ * of its own (Abilities: activity, ability) in the button Section of the editor, all only as
  * data. The hub "Ruleset" and the tab "TiddlyRPG" join this file with their phases.
  */
 var test = require("node:test"),
@@ -41,7 +42,7 @@ test("the probe is the active ruleset, its domains are registered", function() {
 	assert.equal(f("[trpgplugin[ruleset]]"), "$:/plugins/fixture-ruleset-probe");
 	var domains = language.domains(wiki);
 	assert.deepEqual(Object.keys(domains).filter(function(name) { return name !== "Calendar" && name !== "Currency"; }).sort(),
-		["Bulk", "Conditions", "Damage", "Dice", "Saves", "Traits"]);
+		["Abilities", "Bulk", "Conditions", "Damage", "Dice", "Saves", "Traits"]);
 	assert.equal(domains.Length, undefined, "no units");
 });
 
@@ -143,5 +144,31 @@ test.describe("fields of the probe", function() {
 		assert.equal(fields.summary(wiki, {rank: "3"}, schema).text, "Zauber 3");
 		h.setLanguage(wiki, "en-GB");
 		assert.equal(fields.summary(wiki, {rank: "3"}, schema).text, "Spell 3");
+	});
+});
+
+test.describe("kinds of sections of its own", function() {
+	var editor;
+	test.before(function() {
+		editor = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/editor.js");
+		h.setLanguage(wiki, "de-DE");
+	});
+
+	test("its kinds only, in the order of its domain, with its labels", function() {
+		assert.equal(f("[trpgsectionkinds[]]"), "activity,ability");
+		assert.equal(f("[trpgsectionkinds[]trpgsectionlabel[]]"), "Aktivität,Fähigkeit");
+	});
+
+	test("the button Section offers them: shown, its menu, a marker set", function() {
+		h.add(wiki, {title: "Draft of 'Golem'", "draft.of": "Golem", tags: "Creature", text: "x"});
+		var condition = wiki.getTiddler("$:/plugins/tiddlyrpg-core/editor/toolbar/section").fields.condition;
+		assert.equal(f(condition, {targetTiddler: "Draft of 'Golem'"}), "Draft of 'Golem'");
+		var menu = h.render(wiki, "text/plain", "{{||$:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown}}", {targetTiddler: "Draft of 'Golem'"});
+		assert.match(menu, /Aktivität<<activity>>Fähigkeit<<ability>>/);
+		assert.doesNotMatch(menu, /effect|action>/);
+		var r = editor.apply(wiki, {text: "Der Golem stampft.", selStart: 3, selEnd: 3, tags: ["Creature"], fields: {}}, {kind: "section", op: "insert", section: "activity", name: "Stampfen"});
+		assert.equal(r.text, "<<activity \"Stampfen\">> Der Golem stampft.");
+		assert.equal(editor.apply(wiki, {text: "X.", selStart: 1, selEnd: 1, tags: ["Creature"], fields: {}}, {kind: "section", op: "insert", section: "effect", name: "A"}).error, "Editor/Error/Nothing", "no kind of the other ruleset");
+		wiki.deleteTiddler("Draft of 'Golem'");
 	});
 });

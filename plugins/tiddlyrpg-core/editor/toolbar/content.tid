@@ -5,8 +5,8 @@ created: 20261022171123189
 description: <<trpg.t Editor/Content/Hint>>
 dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/content-dropdown
 icon: $:/core/images/import-button
-list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/term
-modified: 20261022171353860
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/section
+modified: 20261026100136136
 tags: $:/tags/EditorToolbar
 title: $:/plugins/tiddlyrpg-core/editor/toolbar/content
 type: text/vnd.tiddlywiki

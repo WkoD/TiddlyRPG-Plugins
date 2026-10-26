@@ -1,7 +1,10 @@
 created: 20261009183000000
-modified: 20261022150206856
+modified: 20261026100136136
 title: $:/tiddlyrpg/language/de-DE/
 
+Rules/Ability/ability: Fähigkeit
+Rules/Ability/activity: Aktivität
+Rules/Ability/activity/Heading: Aktivitäten
 Rules/Damage/Fillers: Schaden
 Rules/Damage/Join: plus
 Rules/Damage/Joiners: plus, und
@@ -12,6 +15,7 @@ Rules/Damage/fire: Feuer
 Rules/Damage/fire/Phrase: Feuerschaden
 Rules/Damage/persistent: anhaltender
 Rules/Damage/splash: Spritz-
+Rules/Domain/Abilities: Fähigkeiten
 Rules/Domain/Bulk: Traglast
 Rules/Domain/Conditions: Zustände
 Rules/Domain/Damage: Schaden

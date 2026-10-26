@@ -304,3 +304,76 @@ test.describe("fixes of hints on the text", function() {
 		assert.equal(editor.spotEmptied(wiki, "T.\n\n<<spot \"Mill\">>\n\nGrinds.\n\n<<spot \"Gate\">>\n", ["Location"], 4), "T.\n\n<<spot \"Mill\">>\n\n<<spot \"Gate\">>\n");
 	});
 });
+
+test.describe("sections of the ruleset (fixture 5e-mini: effect, curse, trait, action, legendary with an intro)", function() {
+	function section(marked, op, kind, name, tags) {
+		return apply(marked, {kind: "section", op: op, section: kind, name: name}, tags || ["Item"]);
+	}
+	// The record of the first section of <kind> in the model of <text>
+	function record(text, kind, tags) {
+		var model = $tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/sections.js").readText(wiki, text, tags);
+		return model.records.filter(function(r) { return r.kind === kind; })[0];
+	}
+	test("the short form before the text of the paragraph, a space after it; before a list on a line of its own; behind the last paragraph at the cursor", function() {
+		assert.equal(section("Eine Axt.\n\nStirbt| ein Gegner.", "insert", "effect", "Säure").text, "Eine Axt.\n\n<<effect \"Säure\">> Stirbt ein Gegner.");
+		assert.equal(section("Text.\n\n* a|\n* b", "insert", "effect", "Säure").text, "Text.\n\n<<effect \"Säure\">>\n\n* a\n* b");
+		var r = section("Text.\n\n|", "insert", "trait", "Rudel");
+		assert.equal(r.text, "Text.\n\n<<trait \"Rudel\">> ");
+		assert.equal(r.selStart, r.text.length);
+	});
+	test("a selection: the block form around the paragraphs it touches", function() {
+		assert.equal(section("Vor.\n\n|A.\n\nB.|", "insert", "effect", "Geist").text, "Vor.\n\n<$effect name=\"Geist\">\n\nA.\n\nB.\n\n</$effect>");
+	});
+	test("a name is needed but for a kind with an intro; a kind the ruleset does not have changes nothing", function() {
+		assert.deepEqual(plain(section("A|.", "insert", "effect", " ")), {error: "Editor/Error/NoName"});
+		assert.equal(section("A|.", "insert", "legendary", "").text, "<<legendary>> A.");
+		assert.deepEqual(plain(section("A|.", "insert", "bonus-action", "X")), {error: "Editor/Error/Nothing"});
+		assert.deepEqual(plain(section("A|.", "insert", "date", "X")), {error: "Editor/Error/Nothing"});
+	});
+	test("by the markers that start the paragraph: behind a lock, before a quest, the text behind a date or a spot a paragraph of its own", function() {
+		var locked = section("<<secret>> Geheim|er Text.", "insert", "effect", "Falle").text;
+		assert.equal(locked, "<<secret>> <<effect \"Falle\">> Geheimer Text.");
+		assert.equal(record(locked, "effect", ["Item"]).locks.length, 1, "the lock locks it");
+		var dated = section("Offen.\n\n<<date>> Offener| Teil.", "insert", "effect", "Falle", ["Event"]).text;
+		assert.equal(dated, "Offen.\n\n<<date>>\n\n<<effect \"Falle\">> Offener Teil.");
+		assert.equal(record(dated, "effect", ["Event"]).parent, record(dated, "date", ["Event"]).id, "it stands in the dated section");
+		var both = section("<<secret>><<date>><<secret \"Bran\">> Te|xt.", "insert", "effect", "Falle", ["Event"]).text;
+		assert.equal(both, "<<secret>><<date>><<secret \"Bran\">>\n\n<<effect \"Falle\">> Text.", "the locks of the date stay at it");
+		var quest = section("<<date>>\n\n<<quest \"Spur\">>Te|xt.", "insert", "effect", "Falle", ["Event"]).text;
+		assert.equal(quest, "<<date>>\n\n<<effect \"Falle\">> <<quest \"Spur\">>Text.");
+		assert.ok(record(quest, "effect", ["Event"]).counts);
+		assert.equal(section("<<date>> <<quest \"Spur\">>Te|xt.", "insert", "effect", "Falle", ["Event"]).text, "<<date>>\n\n<<effect \"Falle\">> <<quest \"Spur\">>Text.");
+		assert.equal(section("<<spot \"Krypta\">> Ein|e Gruft.", "insert", "trait", "Kalt", ["Location"]).text, "<<spot \"Krypta\">>\n\n<<trait \"Kalt\">> Eine Gruft.");
+	});
+	test("probe: the marker of the paragraph or the block around the cursor, with its kind and name - not a later paragraph of a short section", function() {
+		assert.deepEqual(plain(probe("<<effect \"Säure\">> Te|xt.", "section", ["Item"])), {kind: "section", form: "short", selection: false, params: {name: "Säure"}, section: "effect"});
+		var block = probe("<$trait name=\"Rudel\">\n\nTe|xt.\n\n</$trait>", "section", ["Item"]);
+		assert.deepEqual([block.form, block.section, block.params.name], ["block", "trait", "Rudel"]);
+		assert.equal(probe("<<date>>\n\n<<effect \"A\">> Te|xt.", "section", ["Event"]).section, "effect");
+		assert.equal(probe("Te|xt.", "section", ["Item"]).form, "");
+		var later = "<<effect \"A\">> Erster.\n\nZwei|ter.";
+		assert.equal(probe(later, "section", ["Item"]).form, "");
+		assert.equal(section(later, "insert", "effect", "B").text, "<<effect \"A\">> Erster.\n\n<<effect \"B\">> Zweiter.");
+	});
+	test("change: another name, none only for a kind with an intro", function() {
+		assert.equal(section("<<effect \"A\">> Te|xt.", "change", "", "B").text, "<<effect \"B\">> Text.");
+		assert.equal(section("<$effect name=\"A\">\n\nX|.\n\n</$effect>", "change", "", "B").text, "<$effect name=\"B\">\n\nX.\n\n</$effect>");
+		assert.deepEqual(plain(section("<<effect \"A\">> Te|xt.", "change", "", "")), {error: "Editor/Error/NoName"});
+		assert.equal(section("<<legendary \"A\">> Te|xt.", "change", "", "").text, "<<legendary>> Text.");
+		assert.deepEqual(plain(section("Te|xt.", "change", "", "B")), {error: "Editor/Error/Nothing"});
+	});
+	test("retype: another kind, name and form stay - a block with its closing tag", function() {
+		assert.equal(section("<<effect \"A\">> Te|xt.", "retype", "trait", "").text, "<<trait \"A\">> Text.");
+		assert.equal(section("<$effect name=\"A\">\n\nX|.\n\n</$effect>", "retype", "curse", "").text, "<$curse name=\"A\">\n\nX.\n\n</$curse>");
+		assert.deepEqual(plain(section("Te|xt.", "retype", "trait", "")), {error: "Editor/Error/Nothing"});
+	});
+	test("remove: the marker and the space after it, a line of its own with its blank lines, a block keeps what it holds", function() {
+		assert.equal(section("Vor.\n\n<<effect \"A\">> Te|xt.", "remove").text, "Vor.\n\nText.");
+		assert.equal(section("<<effect \"A\">>\n\n* a|\n* b", "remove").text, "* a\n* b");
+		assert.equal(section("<$effect name=\"A\">\n\nX|.\n\n</$effect>", "remove").text, "X.");
+		assert.deepEqual(plain(section("Te|xt.", "remove")), {error: "Editor/Error/Nothing"});
+	});
+	test("a name with quotes", function() {
+		assert.equal(section("A|.", "insert", "effect", "Er sagt \"Halt\"").text, "<<effect 'Er sagt \"Halt\"'>> A.");
+	});
+});

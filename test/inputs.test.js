@@ -29,6 +29,11 @@ var CASES = [
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", content: "Sw"}, shows: /Sword/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/sublocation-dropdown", variables: {targetTiddler: "Baile"},
 		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Baile", name: "Mühle"}},
+	// the name of a section after the kind chosen (test.before), and of the section at the cursor
+	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown", variables: {targetTiddler: "Spurensuche"},
+		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche", name: "Säure"}},
+	{source: "$:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown", variables: {targetTiddler: "Raksha-Axt"},
+		type: {title: "$:/temp/tiddlyrpg-core/editor/input/Raksha-Axt", name: "Hass"}},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/date", variables: {currentTiddler: "Draft of 'Neu'", currentField: "date"},
 		type: {title: "Draft of 'Neu'", date: "1351-07-30"}, shows: /1:/},
 	{source: "$:/plugins/tiddlyrpg-core/editor/fields/images", variables: {currentTiddler: "Draft of 'Neu'", currentField: "map"},
@@ -58,6 +63,10 @@ test.before(function() {
 		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/content/index", type: "application/json", text: JSON.stringify({packages: [{name: "P", language: "en-GB",
 			entries: [{id: "a", title: "Sword", type: "Item", fields: {}}, {id: "b", title: "Shield", type: "Item", fields: {}}]}]})});
 		h.add(wiki, {title: "$:/state/tiddlyrpg-core/content", type: "Item"});
+		// The button Section: a kind chosen in the menu; a section at the cursor (its probe)
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/editor/input/Spurensuche/section", text: "effect"});
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/editor/probe/Raksha-Axt", type: "application/json",
+			text: JSON.stringify({kind: "section", form: "short", selection: false, params: {name: "Säure"}, section: "effect"})});
 	});
 });
 

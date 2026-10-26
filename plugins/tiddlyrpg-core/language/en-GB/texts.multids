@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025200520196
+modified: 20261026100136136
 title: $:/tiddlyrpg/language/en-GB/
 
 Calendar/Calculator: Calculator
@@ -127,6 +127,16 @@ Editor/Secret/DM: DM only
 Editor/Secret/Hint: Lock for player characters or the DM only
 Editor/Secret/Insert: New lock
 Editor/Secret/Where: Before the marker of the section, else around the paragraph
+Editor/Section/At: $kind$ "$name$"
+Editor/Section/AtIntro: $kind$ (introduction)
+Editor/Section/Back: Other kind
+Editor/Section/Caption: Section
+Editor/Section/Hint: Section of a kind of the ruleset at the start of the paragraph or around the selection
+Editor/Section/Insert: New section
+Editor/Section/Intro: Without a name: the introduction of the kind
+Editor/Section/Kind: Kind
+Editor/Section/Name: Name
+Editor/Section/Where: At the start of the paragraph; holds the text up to the next marker
 Editor/Spot/At: Spot "$name$"
 Editor/Spot/Caption: Spot
 Editor/Spot/Hint: Spot: <<spot>> before the paragraph or <$spot> around the selection

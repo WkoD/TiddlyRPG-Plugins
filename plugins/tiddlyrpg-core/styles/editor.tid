@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261025154251797
+modified: 20261026100136136
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/editor
 type: text/vnd.tiddlywiki
@@ -14,6 +14,9 @@ type: text/vnd.tiddlywiki
                .trpg-warn yellow (a new name, a name written almost alike); .trpg-neutral grey
      do        .trpg-do - filled in the accent colour (primary of the palette); .trpg-do-2 outlined
      take out  .trpg-pill-x - × at a pill; .trpg-remove - red text in a red outline
+     menu      .trpg-editor-menu - a row per entry across the dropdown, filled in the accent colour
+               while hovered, as the menus of the core; the entry there (.trpg-current) checked and
+               no button (the button Section, editor/toolbar/section)
    The core colours every button in the editor toolbar (.tc-editor-toolbar button), also those in
    its dropdowns, so the rules for the dropdowns name the toolbar.
    Text - labels, hints, readings, the names on pills - is --trpg-ink: black with a light palette,
@@ -159,6 +162,51 @@ button.trpg-remove:hover,
 .tc-drop-down .trpg-editor-dropdown button.trpg-remove:hover {
 	background: var(--trpg-remove);
 	color: var(--trpg-on-accent);
+}
+
+/* Menu: a row per entry across the whole dropdown (its padding taken back), the check in a column
+   of its own, the call at the right */
+.trpg-editor-menu {
+	display: flex;
+	flex-direction: column;
+	margin: 0 -0.7em;
+}
+.trpg-editor-menu-item,
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-editor-menu-item,
+.tc-drop-down .trpg-editor-dropdown button.trpg-editor-menu-item {
+	display: flex;
+	align-items: baseline;
+	gap: 0.4em;
+	width: 100%;
+	padding: 0.25em 0.7em;
+	text-align: left;
+	color: var(--trpg-ink);
+}
+.tc-editor-toolbar .trpg-editor-dropdown button.trpg-editor-menu-item:hover,
+.tc-drop-down .trpg-editor-dropdown button.trpg-editor-menu-item:hover {
+	background: var(--trpg-accent);
+	color: var(--trpg-on-accent);
+	fill: var(--trpg-on-accent);
+}
+.trpg-editor-menu-item.trpg-current {
+	font-weight: bold;
+}
+.trpg-editor-menu-check {
+	flex: none;
+	width: 1em;
+	fill: currentColor;
+}
+.trpg-editor-menu-check svg {
+	width: 1em;
+	height: 1em;
+	vertical-align: -0.1em;
+}
+.trpg-editor-menu-item code {
+	margin-left: auto;
+	padding-left: 1em;
+	background: none;
+	border: none;
+	color: inherit;
 }
 
 /* Choose: pills in the colour of the type */

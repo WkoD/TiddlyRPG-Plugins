@@ -1,0 +1,107 @@
+created: 20261026100136136
+modified: 20261026100136136
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown
+type: text/vnd.tiddlywiki
+
+<!-- Dropdown of the button Section (editor/toolbar/section): the kinds of sections of the ruleset
+     (trpgsectionkinds, in the order of their domain) as a menu. Without a section of such a kind at
+     the cursor: first the kind (kept in $:/temp/tiddlyrpg-core/editor/input/<draft>/section, apart
+     from the input, so the name keeps its focus), then its name; Insert sets <<kind "Name">> at the
+     start of the paragraph or <$kind> around the selection (modules/editor.js). A kind with an intro
+     may go without a name. At such a section - its marker in the paragraph at the cursor, or a block
+     around it: another kind from the menu (the one there checked), another name, remove it. -->
+\procedure trpg.sectionmenu(actions,current)
+\whitespace trim
+<div class="trpg-editor-menu">
+<$list filter="[trpgsectionkinds[]]" variable="trpg-menu-kind">
+<%if [<trpg-menu-kind>match<current>] %>
+<div class="trpg-editor-menu-item trpg-current">
+<span class="trpg-editor-menu-check">{{$:/core/images/done-button}}</span>
+<span><$text text={{{ [<trpg-menu-kind>trpgsectionlabel[]sentencecase[]] }}}/></span>
+<code><$text text={{{ [<trpg-menu-kind>addprefix[<<]addsuffix[>>]] }}}/></code>
+</div>
+<%else%>
+<$button class="tc-btn-invisible trpg-editor-menu-item" actions=<<actions>>>
+<span class="trpg-editor-menu-check"/>
+<span><$text text={{{ [<trpg-menu-kind>trpgsectionlabel[]sentencecase[]] }}}/></span>
+<code><$text text={{{ [<trpg-menu-kind>addprefix[<<]addsuffix[>>]] }}}/></code>
+</$button>
+<%endif%>
+</$list>
+</div>
+\end
+
+\procedure trpg.sectioninsert()
+\whitespace trim
+<$let trpg-name={{{ [<trpg-input>get[name]trim[]] }}}
+	trpg-intro={{{ [trpgsectionkinds[intro]match<trpg-kind>] }}}>
+<%if [<trpg-intro>!is[blank]] %>
+<div class="trpg-editor-hint"><$text text={{{ [[Editor/Section/Intro]trpgtranslate[]] }}}/></div>
+<%endif%>
+<div class="trpg-editor-actions">
+<span class="trpg-editor-hint"><$text text={{{ [<trpg-probe>jsonget[selection]match[true]then[Editor/Where/Around]else[Editor/Section/Where]trpgtranslate[]] }}}/></span>
+<$button class="trpg-do" disabled={{{ [<trpg-name>!is[blank]then[no]] ~[<trpg-intro>!is[blank]then[no]] ~[[yes]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="section" op="insert" section=<<trpg-kind>> name=<<trpg-name>>/>
+<$action-deletetiddler $tiddler=<<trpg-choice>>/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Insert]trpgtranslate[]] }}}/>
+</$button>
+</div>
+</$let>
+\end
+
+\procedure trpg.sectionchange()
+\whitespace trim
+<$let trpg-name={{{ [<trpg-input>get[name]trim[]] }}}
+	trpg-intro={{{ [trpgsectionkinds[intro]match<trpg-at-kind>] }}}>
+<div class="trpg-editor-actions">
+<$button class="tc-btn-invisible trpg-remove">
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="section" op="remove"/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Remove]trpgtranslate[]] }}}/>
+</$button>
+<$button class="trpg-do" disabled={{{ [<trpg-name>match<trpg-at-name>then[yes]] ~[<trpg-name>!is[blank]then[no]] ~[<trpg-intro>!is[blank]then[no]] ~[[yes]] }}}>
+<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="section" op="change" name=<<trpg-name>>/>
+<$action-deletetiddler $tiddler=<<dropdown-state>>/>
+<$text text={{{ [[Editor/Change]trpgtranslate[]] }}}/>
+</$button>
+</div>
+</$let>
+\end
+
+\whitespace trim
+<$let trpg-input=<<trpg.editor-input>>
+	trpg-choice={{{ [<trpg-input>addsuffix[/section]] }}}
+	trpg-form=<<trpg.editor-form>>
+	trpg-probe=<<trpg.editor-probe>>
+	trpg-at-kind={{{ [<trpg-probe>jsonget[section]] }}}
+	trpg-at-name={{{ [<trpg-probe>jsonget[params],[name]] }}}
+	trpg-at-label={{{ [<trpg-at-kind>trpgsectionlabel[]sentencecase[]] }}}>
+<div class="trpg-editor-dropdown">
+<%if [<trpg-form>is[blank]] %>
+<$let trpg-kind={{{ [<trpg-choice>get[text]] }}}>
+<%if [<trpg-kind>is[blank]] %>
+<div class="trpg-editor-head"><$text text={{{ [[Editor/Section/Insert]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.sectionmenu" actions="""<$action-setfield $tiddler=<<trpg-choice>> text=<<trpg-menu-kind>>/>"""/>
+<%else%>
+<div class="trpg-editor-head"><$text text={{{ [<trpg-kind>trpgsectionlabel[]sentencecase[]] }}}/></div>
+<div class="trpg-editor-menu">
+<$button class="tc-btn-invisible trpg-editor-menu-item">
+<$action-deletetiddler $tiddler=<<trpg-choice>>/>
+<span class="trpg-editor-menu-check">‹</span>
+<span><$text text={{{ [[Editor/Section/Back]trpgtranslate[]] }}}/></span>
+</$button>
+</div>
+<div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Section/Name]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> field="name" tag="input" class="trpg-editor-input"/></div>
+<$transclude $variable="trpg.sectioninsert"/>
+<%endif%>
+</$let>
+<%else%>
+<div class="trpg-editor-head"><$text text={{{ [<trpg-at-name>is[blank]then[Editor/Section/AtIntro]else[Editor/Section/At]trpgtranslate[]search-replace[$kind$],<trpg-at-label>search-replace[$name$],<trpg-at-name>] }}}/></div>
+<div class="trpg-editor-label"><$text text={{{ [[Editor/Section/Kind]trpgtranslate[]] }}}/></div>
+<$transclude $variable="trpg.sectionmenu" current=<<trpg-at-kind>> actions="""<$action-sendmessage $message="tm-edit-text-operation" $param="trpg-edit" kind="section" op="retype" section=<<trpg-menu-kind>>/><$action-deletetiddler $tiddler=<<dropdown-state>>/>"""/>
+<div class="trpg-editor-row"><span class="trpg-editor-label"><$text text={{{ [[Editor/Section/Name]trpgtranslate[]] }}}/></span><$edit-text tiddler=<<trpg-input>> field="name" tag="input" class="trpg-editor-input"/></div>
+<$transclude $variable="trpg.sectionchange"/>
+<%endif%>
+</div>
+</$let>

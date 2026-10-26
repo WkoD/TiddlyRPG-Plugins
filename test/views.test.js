@@ -508,6 +508,19 @@ test.describe("sweep", function() {
 		wiki.deleteTiddler("$:/state/popup/tag");
 		out.push({where: "spots of the locations", text: h.render(wiki, "text/plain", "<$list filter=\"[all[tiddlers]tag[Location]]\" variable=\"place\"><$list filter=\"[<place>spots[]]\"><<currentTiddler>>|</$list></$list>")});
 		out.push({where: "player characters", text: seen(h.render(wiki, "text/html", "<$transclude $variable=\"trpg.charpills\" tiddler=\"$:/temp/sweep\" field=\"names\"/>"))});
+		// The dropdown of the button Section (editor/toolbar/section): the menu of the kinds of the
+		// ruleset, the name of the kind chosen, a section at the cursor
+		var section = function() {
+			return seen(h.render(wiki, "text/html", "{{||$:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown}}", {targetTiddler: "Draft of 'Sweep'"}));
+		};
+		out.push({where: "section menu", text: section()});
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/editor/input/Draft of 'Sweep'/section", text: "effect"});
+		out.push({where: "section name", text: section()});
+		h.add(wiki, {title: "$:/temp/tiddlyrpg-core/editor/probe/Draft of 'Sweep'", type: "application/json",
+			text: JSON.stringify({kind: "section", form: "short", selection: false, params: {name: "Sweep"}, section: "effect"})});
+		out.push({where: "section at the cursor", text: section()});
+		wiki.deleteTiddler("$:/temp/tiddlyrpg-core/editor/input/Draft of 'Sweep'/section");
+		wiki.deleteTiddler("$:/temp/tiddlyrpg-core/editor/probe/Draft of 'Sweep'");
 		return out;
 	}
 

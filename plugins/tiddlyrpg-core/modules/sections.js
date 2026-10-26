@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/sections.js
 type: application/javascript
 module-type: library
 created: 20261007170000000
-modified: 20261025211407212
+modified: 20261026100136136
 
 The sections of a body - the one place of these rules. Used by modules/dates.js (dated
 sections), modules/spots.js (spots), the widgets trpg-body, trpg-section and the block widgets
@@ -363,6 +363,7 @@ exports.heading = function(wiki,kind) {
 
 // The label of a kind: Section/Kind/<kind> of the core, the key of a kind of the ruleset
 exports.kindLabel = function(wiki,kind) {
+	use(wiki);
 	var def = kindDef(kind);
 	return def && def.domain ? language.lookupRules(wiki,def.domain,def.label) || kind : language.t(wiki,"Section/Kind/" + kind);
 };

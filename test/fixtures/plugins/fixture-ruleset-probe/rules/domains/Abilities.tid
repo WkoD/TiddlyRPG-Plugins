@@ -1,0 +1,16 @@
+created: 20261026100136136
+modified: 20261026100136136
+tags: $:/tags/tiddlyrpg/RulesDomain
+title: $:/tiddlyrpg/rules/domain/Abilities
+type: application/json
+
+{
+    "domain": "Abilities",
+    "type": "section",
+    "keys": "Rules/Ability/",
+    "entries": [
+        {"id": "activity", "heading": true},
+        {"id": "ability"}
+    ],
+    "example": "activity"
+}

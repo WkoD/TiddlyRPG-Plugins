@@ -1,0 +1,15 @@
+actions: <$action-sendmessage $message="tm-trpg-probe" kind="section"/>
+button-classes: trpg-toolbar-button
+caption: <<trpg.t Editor/Section/Caption>>
+condition: [<targetTiddler>trpgwikitext[]] :filter[trpgsectionkinds[]]
+created: 20261026100136136
+description: <<trpg.t Editor/Section/Hint>>
+dropdown: $:/plugins/tiddlyrpg-core/editor/toolbar/section-dropdown
+icon: $:/plugins/tiddlyrpg-core/editor/icons/section
+list-after: $:/plugins/tiddlyrpg-core/editor/toolbar/term
+modified: 20261026100136136
+shortcuts: ((trpg-section))
+tags: $:/tags/EditorToolbar
+title: $:/plugins/tiddlyrpg-core/editor/toolbar/section
+type: text/vnd.tiddlywiki
+

@@ -306,7 +306,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     without conversion (durations) with plural labels
   - `ruleset-generic` - `fixture-ruleset-probe` (in the style of Pathfinder 2E) as active ruleset:
     values, qualifiers, another tokens domain, fields of its own (a group, a header line, a
-    formula of its own) - without code changes
+    formula of its own), kinds of sections of its own in the button Section of the editor -
+    without code changes
   - `fields` - the values of fields by format (`rules.value()`, `modules/labels.js`): number,
     boolean, dice of a domain, unit with words and its domain, label, labels (a list, entries
     with a value, main entries with their properties and their tag, a property without parent or
@@ -666,7 +667,7 @@ the tiddler title:
   `Edge/<type>/<hub>` for an edge from a tiddler of that hub),
   `texts` (template texts).
 - **Editor** (`editor/*`): the toolbar buttons `editor/toolbar/<name>` with their dropdowns
-  `editor/toolbar/<name>-dropdown`, the icon `editor/icons/spot`, the text operations
+  `editor/toolbar/<name>-dropdown`, the icons `editor/icons/spot` and `editor/icons/section`, the text operations
   `editor/operation.js`, the form `editor/form` with the field editors `editor/fields/*`, the
   config of the picker `editor/picker` - see "Editor".
 - **Index/hub tiddlers** (Person, Location, Organisation, Deity, Player, Artifact, Item,
@@ -957,7 +958,14 @@ tests reach it without a browser; the wikitext only asks and passes values.
   `complete` -> `failed` -> open and never removes the marker. A date keeps the field `date` in
   step (n-th marker = n-th section, explicit numbers count on). "Make a sub-location" saves
   the new tiddler at once with the text, images and lock of the spot and keeps the marker; a
-  title another tiddler has in any case is refused (`editor.taken`, files would clash). An entry
+  title another tiddler has in any case is refused (`editor.taken`, files would clash). The
+  button "Section" sets the kinds of the ruleset (`trpgsectionkinds`, kind `section` of the probe
+  and of `apply()`, the kind in `section`): a menu of the kinds, then the name (the kind chosen in
+  `$:/temp/tiddlyrpg-core/editor/input/<draft>/section`, apart from the input, so the name keeps
+  its focus; each probe clears it); the short form before the text of the paragraph - behind a
+  lock, before a quest marker, behind a date or a spot the text a paragraph of its own (in the same
+  paragraph it would not count); a name needed but for a kind with an intro; at a marker another
+  kind (`retype`), another name, remove. An entry
   of a content package chosen in a relation, the row "Possessions" or the button "Content" is
   taken (saved) at once as well (`tm-trpg-content-take` with `draft`). A tiddler
   saved at once is noted for the draft (`form.noteCreated`,
@@ -998,7 +1006,8 @@ tests reach it without a browser; the wikitext only asks and passes values.
 - **Controls** (`editor/procedures`, `styles/editor`): choose - pills in the colour of the type,
   outlined when not chosen, yellow for a new name or one written almost alike; do - one button
   in the accent colour at the right; take out - × at a pill, "Remove" as a red outlined button
-  at the left. Text in `--trpg-ink` (black, or the foreground of a dark palette). The picker
+  at the left; menu - a row per entry across the dropdown, filled in the accent colour while
+  hovered, the entry there checked and no button (`trpg-editor-menu`). Text in `--trpg-ink` (black, or the foreground of a dark palette). The picker
   (`trpg.picker`) is `keyboard-driven-input` with the config `editor/picker`; its list shows
   while the input has the focus and runs its actions on `mousedown`.
 - **Focus**: anything that reads what an input holds is a procedure transcluded after the
@@ -1015,7 +1024,7 @@ tests reach it without a browser; the wikitext only asks and passes values.
   of the rules in it, values from a base or without a relation - also the way in the browser:
   the actions of the templates against the listeners of `startup/editor-messages.js` and
   `startup/content.js`, the route as a stub -, symmetric, fixes, a created
-  tiddler undone on cancelling, notifications), `editor-ui.test.js` (buttons, dropdowns, "+", rumour), `inputs.test.js` (focus of
+  tiddler undone on cancelling, notifications), `editor-ui.test.js` (buttons, dropdowns - the menu of the button Section -, "+", rumour), `inputs.test.js` (focus of
   every new input).
 
 ## Unknown macros
@@ -1438,7 +1447,8 @@ examples: `README.md` ("Sections in the text", "Secrets in the text").
   (`fieldLock()`: as `secret-fields` locks the field - a curse with `cursed`); it counts in
   `visible()` and `lockOf()` like a lock of its own. Problems: no name, an empty lock field
   (hint); in the data an id of the core or of another widget, a lock field the rules do not
-  define (`domainProblems()`, rule `plugins/domains`).
+  define (`domainProblems()`, rule `plugins/domains`). The button "Section" of the editor sets
+  them (see "Editor").
 - One walk over the parse tree per tiddler (`read()`, cached) gives the records (kind, form,
   key = start offset of marker or block, parent, locks, text range), the links and `<<spotlink>>`
   calls with their innermost section, and the problems. `group()` splits one level into

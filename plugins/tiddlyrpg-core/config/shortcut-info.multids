@@ -1,5 +1,5 @@
 created: 20261016184211000
-modified: 20261016184211000
+modified: 20261026100136136
 title: $:/config/ShortcutInfo/
 
 trpg-date: <<trpg.t Editor/Date/Hint>>
@@ -11,3 +11,4 @@ trpg-spot: <<trpg.t Editor/Spot/Hint>>
 trpg-spotlink: <<trpg.t Editor/Spotlink/Hint>>
 trpg-sublocation: <<trpg.t Editor/Sublocation/Hint>>
 trpg-term: <<trpg.t Editor/Term/Hint>>
+trpg-section: <<trpg.t Editor/Section/Hint>>

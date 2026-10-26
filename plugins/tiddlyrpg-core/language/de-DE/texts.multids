@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261025200520158
+modified: 20261026100136136
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -127,6 +127,16 @@ Editor/Secret/DM: Nur DM
 Editor/Secret/Hint: Sperre für Spielerfiguren oder nur den DM
 Editor/Secret/Insert: Neue Sperre
 Editor/Secret/Where: Vor den Marker des Abschnitts, sonst um den Absatz
+Editor/Section/At: $kind$ „$name$“
+Editor/Section/AtIntro: $kind$ (Einleitung)
+Editor/Section/Back: Andere Art
+Editor/Section/Caption: Abschnitt
+Editor/Section/Hint: Abschnitt einer Art des Regelwerks an den Anfang des Absatzes oder um die Markierung
+Editor/Section/Insert: Neuer Abschnitt
+Editor/Section/Intro: Ohne Namen: die Einleitung der Art
+Editor/Section/Kind: Art
+Editor/Section/Name: Name
+Editor/Section/Where: An den Anfang des Absatzes; umfasst den Text bis zum nächsten Marker
 Editor/Spot/At: Spot „$name$“
 Editor/Spot/Caption: Spot
 Editor/Spot/Hint: Spot: <<spot>> vor den Absatz oder <$spot> um die Markierung
