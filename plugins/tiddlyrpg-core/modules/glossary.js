@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/glossary.js
 type: application/javascript
 module-type: library
 created: 20261025124110539
-modified: 20261026132300929
+modified: 20261103173828774
 
 What explains a term or a named section: the links of <<term>>, of the values of the rules and of
 the name of a section (functions.tid, filters/categories.js, filters/fields.js) - the one place of
@@ -45,11 +45,12 @@ function content() {
 	return require("$:/plugins/tiddlyrpg-core/modules/content.js");
 }
 
-// {id: title} of the tiddlers tagged Glossary and the entries of the packages (global cache)
+// {id: title} of the tiddlers tagged Glossary (with the included entries of the packages) and
+// the entries of the packages not taken (global cache)
 function index(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-glossary",function() {
 		var out = Object.create(null);
-		$tw.utils.each(wiki.filterTiddlers("[all[tiddlers]tag[Glossary]!is[draft]has[term]]"),function(title) {
+		$tw.utils.each(wiki.filterTiddlers("[all[tiddlers+included]tag[Glossary]!is[draft]has[term]]"),function(title) {
 			$tw.utils.each(($tw.utils.parseStringArray(wiki.getTiddler(title).fields.term) || []),function(id) {
 				out[id.toLowerCase()] = out[id.toLowerCase()] || title;
 			});
@@ -111,8 +112,9 @@ var headings = exports.headings = function(text) {
 The names of the NAMED entries (global cache): {sections: {name: [hit]}, columns: {name: [hit]}},
 names in lower case; a hit {name, title, anchor, record} - name as written, record the id of the
 section it stands in
-(-1: none; null: a package entry, never locked). From the tiddlers of the wiki and the entries
-of the packages not taken (their index carries names, modules/content-server.js).
+(-1: none; null: a package entry, never locked). From the tiddlers of the wiki with the included
+entries of the packages, and the entries not taken (their index carries names,
+modules/content-server.js).
 */
 function names(wiki) {
 	return wiki.getGlobalCache("tiddlyrpg-rule-names",function() {
@@ -123,7 +125,7 @@ function names(wiki) {
 			hit.name = name;
 			(group[key] = group[key] || []).push(hit);
 		};
-		$tw.utils.each(wiki.filterTiddlers("[all[tiddlers]!is[draft]!is[system]]"),function(title) {
+		$tw.utils.each(wiki.filterTiddlers("[all[tiddlers+included]!is[draft]!is[system]]"),function(title) {
 			var tiddler = wiki.getTiddler(title);
 			if(!NAMED.some(function(tag) { return tiddler.hasTag(tag); })) {
 				return;

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/rules.js
 type: application/javascript
 module-type: library
 created: 20261009183000000
-modified: 20261026143641254
+modified: 20261103173828774
 
 Rules engine: the macros <<unit>>, <<dice>>, <<damage>>, <<term>> and <<rule>> (functions.tid,
 operators in filters/rules.js) show rules terms in the display language of their domain
@@ -986,11 +986,12 @@ exports.value = function(wiki,spec,text) {
 	}
 };
 
-// The candidates of a field of the format titles: its filter, and the offers of the packages of a
+// The candidates of a field of the format titles: its filter over the tiddlers and the included
+// entries of the packages (content.withIncluded()), and the offers of the packages of a
 // type the filter names as a tag
 var candidates = exports.candidates = function(wiki,spec) {
 	var filter = spec.titles || "",
-		out = filter ? wiki.filterTiddlers(filter) : [],
+		out = filter ? wiki.filterTiddlers(filter,null,require("$:/plugins/tiddlyrpg-core/modules/content.js").withIncluded(wiki)) : [],
 		tags = require("$:/plugins/tiddlyrpg-core/modules/relations.js").tagsOf(filter);
 	$tw.utils.each(require("$:/plugins/tiddlyrpg-core/modules/content.js").offers(wiki),function(o) {
 		if(tags.indexOf(o.type) !== -1 && out.indexOf(o.title) === -1) {

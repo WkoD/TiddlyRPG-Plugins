@@ -1,5 +1,5 @@
 created: 20261024161412996
-modified: 20261025205716209
+modified: 20261103173828774
 tags: $:/tags/Stylesheet
 title: $:/plugins/tiddlyrpg-core/styles/hubs
 type: text/vnd.tiddlywiki
@@ -8,8 +8,7 @@ type: text/vnd.tiddlywiki
 <!-- The type hubs (trpg.hub, class trpg-hub from config/class-hub) and Campaign in the colour of
      their field color, as the tiddlers of a type (styles/border): a frame, a light tint inside,
      the colour as --trpg-type for the rules of the tiddler; the title in a dark shade of it
-     (55 %, like the labels of the block of values, styles/fields), the number of the entries
-     behind it as a pill (templates/title-hub), a strong rule below title and tags
+     (55 %, like the labels of the block of values, styles/fields), a strong rule below title and tags
      (viewtemplates/hub-rule). The lists (trpg.hub.list) in columns, a group or a letter never
      split; the headings of the groups and letters in small capitals over a line that fades out.
      The hubs below a hub (trpg.hub.page) above its list as bars in the same columns, each in its
@@ -30,17 +29,6 @@ background-color: color-mix(in srgb, var(--trpg-hub) 9%, <<colour tiddler-backgr
 }
 .tc-tiddler-frame.trpg-hub .tc-tiddler-title .tc-title {
 color: var(--trpg-hub-ink);
-}
-.trpg-hub-count {
-margin-left: 0.5em;
-padding: 0 0.55em;
-border: 1px solid var(--trpg-hub);
-border-radius: 1em;
-background: color-mix(in srgb, var(--trpg-hub) 18%, <<colour tiddler-background>>);
-color: var(--trpg-hub-ink);
-font-size: 0.45em;
-font-weight: normal;
-vertical-align: middle;
 }
 .trpg-hub-rule {
 border-top: 3px solid var(--trpg-hub);

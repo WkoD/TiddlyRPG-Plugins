@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/inverse.js
 type: application/javascript
 module-type: library
 created: 20261022171029770
-modified: 20261023175042957
+modified: 20261103173828774
 
 The way back of a relation in the form of its target: a relation whose config has
 tiddlyrpg-inverse: yes (owner) offers a row in the form of a tiddler it may name (a person: "give
@@ -16,7 +16,8 @@ the offers of the content packages of those types - one chosen is taken at once.
 
   FIELD                       the prefix of the field on the draft
   relations(wiki,title)       the relations with a way back in the form of <title>
-  sources(wiki,name)          the titles that may carry <name>, with the offers of the packages
+  sources(wiki,name)          the titles that may carry <name> (the included entries of the
+                              packages too), with the offers of the packages
   apply(wiki,fields)          writes the chosen ones of a tiddler being saved: {fields (without
                               the fields FIELD*), changed (the titles written)}
 
@@ -50,12 +51,12 @@ exports.relations = function(wiki,title) {
 
 exports.sources = function(wiki,name) {
 	var filter = config(wiki,name)["tiddlyrpg-sources"] || "",
-		out = wiki.filterTiddlers(filter).filter(function(title) {
+		content = require("$:/plugins/tiddlyrpg-core/modules/content.js"),
+		out = wiki.filterTiddlers(filter,null,content.withIncluded(wiki)).filter(function(title) {
 			var tiddler = wiki.getTiddler(title);
 			return !(tiddler && tiddler.isDraft());
 		}),
-		tags = relations.tagsOf(filter),
-		content = require("$:/plugins/tiddlyrpg-core/modules/content.js");
+		tags = relations.tagsOf(filter);
 	content.offers(wiki).forEach(function(o) {
 		if(tags.indexOf(o.type) !== -1 && out.indexOf(o.title) === -1) {
 			out.push(o.title);

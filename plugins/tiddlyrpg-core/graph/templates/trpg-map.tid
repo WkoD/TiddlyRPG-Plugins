@@ -1,6 +1,6 @@
 caption: TiddlyRPG map (map image as background, spots placed by hand)
 created: 20261006064449000
-modified: 20261025193626559
+modified: 20261103173828774
 title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 
 \whitespace trim
@@ -41,12 +41,12 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
      leads them is left out. Each is a pin (graph/map-pin.js): a dot at the position, the name in
      a pill below it - filled for a tiddler, white and dashed for a spot without a tiddler of its
      own. A double click on such a spot scrolls to its text below the map, on any other node it
-     opens the tiddler; hovering shows the text. No edges: where a place lies, the map shows.
+     opens the tiddler. No edges: where a place lies, the map shows.
      Quests: the open quests and rumours whose newest marker leads to this map
      (trpg.mapquests, questpins) as pills in gold (a rumour dashed and striped, trpgRumour), with an edge to each node they lead
      to; one that leads only to the location as a whole stands below the map (a grid slot, or
-     its saved position). Hovering shows what the newest marker holds, a double click opens the
-     quest or rumour.
+     its saved position). A quest is a pin too (trpgPin="quest": the pill without the dot, of the
+     same size whatever the zoom, like the places); a double click opens the quest or rumour.
      Only the kinds switched on above the map (trpg.kindshown, state
      $:/state/tiddlyrpg-core/map-filter/<title>; a spot without a tiddler counts as a location).
      $:/state/tiddlyrpg-core/map-edit/<title> = yes: nodes can be moved; dropping one saves its
@@ -62,32 +62,11 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 <!-- tw5-graph hands a node event to every enclosing $properties as well: open only real
      tiddlers, not the dots of spots (their own action jumps to their text) -->
 <$properties $for=nodes actions="<$list filter='[<nodeTiddler>is[tiddler]] [<nodeTiddler>is[shadow]] [<nodeTiddler>questmarked[]] +[first[]]' variable='trpg-open'><$action-navigate $to=<<trpg-open>>/></$list>">
-<$properties.popup $enabled="yes">
-<$fill $name="tooltip">
-<%if [<nodeTiddler>prefix<trpg-loc>removeprefix<trpg-loc>prefix[#]] %>
-<$let trpg-name={{{ [<nodeTiddler>removeprefix<trpg-loc>removeprefix[#]] }}} trpg-spot-media="no">
-<$trpg-body $tiddler=<<trpg-loc>> $mode="block" $only="spot" $name=<<trpg-name>> $marker="no"/>
-</$let>
-<%elseif [<nodeTiddler>questmarked[]] %>
-<$trpg-body $tiddler={{{ [<nodeTiddler>questlast[]questmark:event[]] }}} $mode="block" $quest={{{ [<nodeTiddler>questlast[]questmark:key[]] }}}/>
-<%else%>
-<$transclude $tiddler=<<nodeTiddler>> $mode="block"/>
-<%endif%>
-</$fill>
 <$properties physics=yes shape=box trpgPill="yes">
 
 <$slot $name=ts-raw $depth=4 />
 
-<$properties $filter="[tag[Location]]"            color={{Location!!color}}>
-<$properties $filter="[tag[Deity]]"           color={{Deity!!color}}>
-<$properties $filter="[tag[Person]]"         color={{Person!!color}}>
-<$properties $filter="[tag[Player]]"        color={{Player!!color}}>
-<$properties $filter="[tag[Organisation]]"   color={{Organisation!!color}}>
-<$properties $filter="[tag[Creature]]"   color={{Creature!!color}}>
-<$properties $filter="[tag[Spell]]"   color={{Spell!!color}}>
-<$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
-<$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
-<$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
+<$transclude $variable="trpg.graphnodes">
 
 <!-- fixed: the locations lying in it, the spots -->
 <$properties fixed={{{ [<trpg-edit>match[yes]then[no]else[yes]] }}} free={{{ [<trpg-edit>match[yes]then<trpg.save>] }}} trpgPin="tiddler">
@@ -122,27 +101,17 @@ title: $:/plugins/tiddlyrpg-core/graph/templates/trpg-map
 	trpg-rumour={{{ [<trpg-quest>questreal[]then[no]else[yes]] }}}
 	trpg-pins={{{ [<trpg-quest>questpins<trpg-loc>] -[<trpg-loc>] +[format:titlelist[]join[ ]] }}}>
 <%if [enlist<trpg-pins>] %>
-<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> trpgRumour=<<trpg-rumour>> />
+<$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> trpgRumour=<<trpg-rumour>> trpgPin="quest" />
 <$list filter="[enlist<trpg-pins>]" variable="toTiddler"><$edge $from=<<trpg-quest>> $to=<<toTiddler>> color=<<trpg-colour>> /></$list>
 <%else%>
-<$transclude $variable="trpg.fixed" id=<<trpg-quest>>><$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> trpgRumour=<<trpg-rumour>> /></$transclude>
+<$transclude $variable="trpg.fixed" id=<<trpg-quest>>><$node $tiddler=<<trpg-quest>> label=<<trpg-quest>> color=<<trpg-colour>> trpgRumour=<<trpg-rumour>> trpgPin="quest" /></$transclude>
 <%endif%>
 </$let>
 </$list>
 <%endif%>
 
+</$transclude>
 </$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties>
-</$properties.popup>
 </$properties>
 </$graph>
 </$let>

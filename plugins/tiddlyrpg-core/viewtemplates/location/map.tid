@@ -1,5 +1,5 @@
 created: 20261006064449000
-modified: 20261015180520000
+modified: 20261103173828774
 title: $:/plugins/tiddlyrpg-core/viewtemplates/location/map
 type: text/vnd.tiddlywiki
 
@@ -13,13 +13,15 @@ type: text/vnd.tiddlywiki
      ($:/state/tiddlyrpg-core/map-edit/<title>; not in the published copy). The states are
      temporary and not saved with the location. -->
 \whitespace trim
-\function trpg.mapkinds(loc) [<loc>sublocations:all[location]] [<loc>spottargets[]] :filter[trpg.visible[]] +[relationkind[]] [<loc>spots[]limit[1]then[location]] [trpg.mapquests<loc>limit[1]then[quest]]
+\function trpg.mapnodes(loc) [<loc>sublocations:all[location]] [<loc>spottargets[]] :filter[trpg.visible[]]
+\function trpg.mapkinds(loc) [trpg.mapnodes<loc>relationkind[]] [<loc>spots[]limit[1]then[location]] [trpg.mapquests<loc>limit[1]then[quest]]
 
 <$let trpg-relay=<<qualify "trpg-map-relay">>
 	trpg-edit-state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-edit/]] }}}
 	trpg-kinds={{{ [trpg.mapkinds<currentTiddler>format:titlelist[]join[ ]] }}}
+	trpg-titles={{{ [trpg.mapnodes<currentTiddler>format:titlelist[]join[ ]] }}}
 	currentNode=<<currentTiddler>>>
-<$transclude $variable="trpg.kindswitches" kinds=<<trpg-kinds>> state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-filter/]] }}}/>
+<$transclude $variable="trpg.kindswitches" kinds=<<trpg-kinds>> state={{{ [<currentTiddler>addprefix[$:/state/tiddlyrpg-core/map-filter/]] }}} titles=<<trpg-titles>>/>
 <div class="trpg-map-buttons">
 <$messagerelay to=<<trpg-relay>>>
 <$button class="tc-btn-invisible trpg-map-button" message="trpg-map-fit"><$text text={{{ [[Map/Fit]trpgtranslate[]] }}}/></$button>

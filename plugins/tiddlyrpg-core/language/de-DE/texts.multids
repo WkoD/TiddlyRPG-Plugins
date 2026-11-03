@@ -1,5 +1,5 @@
 created: 20261001095424000
-modified: 20261026132300929
+modified: 20261103173828774
 title: $:/tiddlyrpg/language/de-DE/
 
 Calendar/Calculator: Rechner
@@ -383,5 +383,6 @@ Content/Hub/Search: Titel durchsuchen
 Content/Hub/Count: Einträge: $1$
 Content/Hub/Page: Seite $1$ von $2$
 Content/Hub/Taken: im Wiki
+Content/Hub/Included: eingebunden
 Content/Search: In den Inhaltspaketen:
 Content/Editor/None: Kein Eintrag dieses Titels

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content.js
 type: application/javascript
 module-type: library
 created: 20261022165648795
-modified: 20261025201715204
+modified: 20261103173828774
 
 Content packages in the browser: the entries of the packages of the active ruleset (loaded by
 startup/content.js from the route server/content-route.js into the temp tiddler INDEX) as offers
@@ -16,10 +16,20 @@ core) of the type of the entry means the entry is taken; of another type, the en
 (Creature)" beside the person Balor); if that is taken too, there is no offer. A title that names
 a tiddler the view does not see counts the same - nothing tells it.
 
+An entry the wiki names is included as a shadow tiddler of the plugin PLUGIN
+(modules/content-include.js): it counts as taken, entries() marks it included.
+
   INDEX                      the temp tiddler of the index ({ruleset, packages})
+  PLUGIN                     the plugin of the included entries
+  included(wiki)             the titles of the included entries without an own version (a
+                             tiddler of the title) - in the published copy too, without index
+  isIncluded(wiki,title)     whether <title> is one of them
+  withIncluded(wiki)         the tiddlers of the wiki and the included entries, as the source of
+                             a filter (wiki.makeTiddlerIterator())
   packages(wiki)             the packages of the index
-  entries(wiki)              every entry: [{id, title, type, package, entry, taken}] - title the
-                             one it is taken under, or the one it was taken under (taken)
+  entries(wiki)              every entry: [{id, title, type, package, entry, taken, included}] -
+                             title the one it is taken under, or the one it was taken under
+                             (taken); included: taken as an included entry without own version
   offers(wiki)               every entry not taken: [{id, title, type, package, entry}]
   entryOf(wiki,id)           one of entries(), or null
   offer(wiki,id)             one offer, or null
@@ -49,7 +59,25 @@ var types = require("$:/plugins/tiddlyrpg-core/modules/types.js"),
 	currency = require("$:/plugins/tiddlyrpg-core/modules/currency.js");
 
 var INDEX = exports.INDEX = "$:/temp/tiddlyrpg-core/content/index",
+	PLUGIN = exports.PLUGIN = "$:/plugins/tiddlyrpg/content-packages",
 	LANGUAGE = "$:/tiddlyrpg/language/";
+
+var included = exports.included = function(wiki) {
+	return wiki.getGlobalCache("tiddlyrpg-content-included",function() {
+		var info = wiki.getPluginInfo(PLUGIN) || wiki.getTiddlerData(PLUGIN,{});
+		return Object.keys((info && info.tiddlers) || {}).filter(function(title) {
+			return title.indexOf("$:/") !== 0 && !wiki.tiddlerExists(title) && wiki.getShadowSource(title) === PLUGIN;
+		});
+	});
+};
+
+exports.isIncluded = function(wiki,title) {
+	return included(wiki).indexOf(title) !== -1;
+};
+
+exports.withIncluded = function(wiki) {
+	return wiki.makeTiddlerIterator(wiki.allTitles().concat(included(wiki)));
+};
 
 var packages = exports.packages = function(wiki) {
 	return wiki.getCacheForTiddler(INDEX,"tiddlyrpg-content",function() {
@@ -120,7 +148,8 @@ var entries = exports.entries = function(wiki) {
 				}
 				seen[key] = true;
 				var title = titleOf(wiki,pkg,entry);
-				out.push({id: key, title: title || takenTitle(wiki,pkg,entry), type: entry.type, package: pkg, entry: entry, taken: !title});
+				var as = title || takenTitle(wiki,pkg,entry);
+				out.push({id: key, title: as, type: entry.type, package: pkg, entry: entry, taken: !title, included: !title && exports.isIncluded(wiki,as)});
 			});
 		});
 		return out;

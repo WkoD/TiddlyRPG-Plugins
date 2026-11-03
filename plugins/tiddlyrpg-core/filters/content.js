@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/content.js
 type: application/javascript
 module-type: filteroperator
 created: 20261022165648795
-modified: 20261026075818584
+modified: 20261103173828774
 
 The offers of the content packages (modules/content.js) for the templates:
 
@@ -16,8 +16,12 @@ The offers of the content packages (modules/content.js) for the templates:
 [<title>trpgwikilink[]]            "[[<title>]]" (a filter cannot write "]]")
 [<field>relationcontent[]]         the titles of the offers a relation field may name: their type
                                    one of the tags its tiddlyrpg-targets names (the pickers)
+[<title>trpgincluded[]]            the input titles that are included entries without an own
+                                   version (content.included(); the class trpg-included of a
+                                   tag pill, functions)
 [<id>trpgcontentoffer[title]]      a property of each entry: title (taken or to take), type,
-                                   package (its name), language, taken ("yes"), summary (its
+                                   package (its name), language, taken ("yes"), included ("yes":
+                                   taken as an included entry without own version), summary (its
                                    header line by the schema of its type); nothing for an offer
                                    that is no more (operand empty: the id if it is an offer)
 
@@ -91,6 +95,13 @@ exports.relationcontent = function(source,operator,options) {
 	});
 };
 
+exports.trpgincluded = function(source,operator,options) {
+	var titles = content.included(options.wiki);
+	return each(source,function(title) {
+		return titles.indexOf(title) !== -1 ? [title] : [];
+	});
+};
+
 exports.trpgcontentids = function(source,operator,options) {
 	return content.offers(options.wiki).map(function(o) { return o.id; });
 };
@@ -111,6 +122,7 @@ exports.trpgcontentoffer = function(source,operator,options) {
 			case "package": return [e.package.name];
 			case "language": return [e.package.language];
 			case "taken": return e.taken ? ["yes"] : [];
+			case "included": return e.included ? ["yes"] : [];
 			case "summary":
 				var text = fields.summary(wiki,e.entry.fields || {},fields.forTypes(wiki,[e.type])).text;
 				return text ? [text] : [];

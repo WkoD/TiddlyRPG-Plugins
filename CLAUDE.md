@@ -247,8 +247,8 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     every type hub lists exactly its `trpghubentries` (a template of several hubs); `trpg.link`
     and `trpg.pill` (type colour, rumour gold with class `trpg-pill-rumour`, dead striped, spot dashed, a text behind); the
     hubs in their colour (`styles/hubs`, class `trpg-hub`, the rule, not `Index`; `Campaign`
-    and `Index` grey), the list sorted by the display name with a letter per group, the number
-    in the heading and in `Index` in the public view and the view of the DM, `Campaign` with
+    and `Index` grey), the list sorted by the display name with a letter per group, the heading
+    without a number, the number in `Index` in the public view and the view of the DM, `Campaign` with
     the list of the hubs below its first heading
   - `tag-pill` - the tag pill defined again in `functions` instead of an override of
     `$:/core/macros/tag`: its translated name and colours wherever the core renders it, the
@@ -272,7 +272,10 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     with its spots, the places within as plain nodes), the map (pins, spots, positions, editing,
     image and fit, a hidden tab waits), the view
     template `trpg-graph` (its switches, no tag left over as text); the map view outside `$:/graph/`, the fit of the map image
-    (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`)
+    (`graph/map-fit.js`, with a mock of vis-network), the pins of the map (`graph/map-pin.js`, the
+    quests as pins); every template through `trpg.graphnodes` (the colours on the map too, no
+    popup); the name of a switch by the one category of its nodes (`kindcategory`) in a view, the
+    relations block with a locked note and on the map
   - `plugin-types` - the plugin types `ruleset` and `setting` against the fixture plugins: the
     active plugin unpacked, the other not, the default without config (none created), switching
     and `none` at runtime (the switch is asynchronous, the tests wait), the shadow tiddlers
@@ -332,6 +335,13 @@ npm run test-lang   # only test/lang/: language packs and translation mechanics
     the fields to take (with the tag of the package), what an entry names that the wiki lacks, the offer on a missing tiddler,
     the preview, the hub Content (types, filters, search, pages, taken as link), nothing without
     a package
+  - `content-include` - the entries a wiki names, included at the start (a wiki folder of its own
+    with a package, `h.boot(folder)`): transitively through relations, a tree, a link, `<<term>>`,
+    `<<rule>>` and a value of the rules, "Title (Type)", nothing else of the package, the fields
+    without dates, the wiki as before (no index, the ruleset with its switcher, nothing written),
+    the same entries after the boot; found like tiddlers (candidates, hubs, search, glossary), no
+    missing relation, the italics of links, tag pills and graph nodes, an own version, the hub
+    Content; the sweep has one only a locked tiddler names (`h.include`)
   - `fields-schema` - the fields of the rules (`modules/fields.js`): schemas per type, merged
     with those of the wiki, labels, derived values (modifier, average, total, lookup, band - the
     level of a player character by its XP from a table domain -, sum over the entries of a list,
@@ -497,6 +507,18 @@ the tiddler title:
   `editor.js`, `form.js`, `fixes.js`, `symmetric.js` (see "Editor"), `notice.js` (the notifications
   of the editor: each shown from a slot of its own, so two in a row keep their texts).
 - **Check modules** (`checks/*`, `module-type: trpg-check`): one file per theme, see "Checks".
+- **Included entries** (Node at the start, the page carries them): `modules/content-include.js`
+  (its header: what names an entry, where it counts like a tiddler, the italics) collects what
+  the tiddlers of the wiki name of the packages in `<wiki>/node_modules`, transitively, and
+  installs it as the shadow tiddlers of the plugin `$:/plugins/tiddlyrpg/content-packages`
+  (`content.PLUGIN`) with a stylesheet of their links; `startup/content-include.js` runs it before
+  `startup` (before the syncer: the plugin is never written into `tiddlers/`; the ruleset and the
+  setting unpacked for the round and unregistered again). `content.included()`,
+  `content.withIncluded()` (the source of the filters of candidates), `filters/included.js`
+  (`allfilteroperator`: `[all[included]]`), `trpgincluded` (filters/content.js). A tiddler of
+  the title is an own version and wins; the checks read the tiddlers only. A new list of
+  entries of a type reads `[all[tiddlers+included]...]` or a filter on `content.withIncluded()`,
+  or `getTiddlersWithTag` (shadows included) - not `[tag[...]]` alone.
 - **Content packages** (Node only): `modules/content-server.js` finds the packages in
   `<wiki>/node_modules` (`package.json` -> `"tiddlyrpg": {"content": [...]}`, their manifests
   and entry files: module header), `server/content-route.js` (`module-type: route`) serves
@@ -559,7 +581,7 @@ the tiddler title:
   `maptabs`, `imagelist`: images and maps as entries `{id, label, path}`, see "Locations";
   `imagefolder`: the folder of a type),
   `content.js` (`trpgcontentready`, `trpgcontentfor`, `trpgcontentids`, `trpgcontentsearch`,
-  `trpgwikilink`, `relationcontent`, `trpgcontentoffer`; for the hub `Content`
+  `trpgwikilink`, `relationcontent`, `trpgincluded`, `trpgcontentoffer`; for the hub `Content`
   `trpgcontenttypes`, `trpgcontentlist`, `trpgcontentfilters`, `trpgcontentvalues`; see
   "Content packages"),
   `fields.js` (`trpgfieldsummary`, `trpgfieldsections`, `trpgfieldlines`, `trpgfieldsection`,
@@ -569,8 +591,9 @@ the tiddler title:
   `trpgfieldinput`, `trpgfieldchoices`, `trpgfieldchoice`, `trpgfieldchosen`,
   `trpgfieldtoggle`, `trpglockon`, `trpglocktoggle`: the form; see "Rules engine"),
   `relations.js` (`relationtargets`, `relationsources`, `relationlabel`, `relationaxis`,
-  `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, `relationtree`,
-  `relationfield`, `relationgroups`, `relationgroup`, see "Relations"),
+  `relationsymmetric`, `relationtypes`, `relationneighbours`, `relationkind`, `kindcategory`, `relationtree`,
+  `relationfield`, `relationgroups`, `relationgroup`, see "Relations"), `included.js` (`allfilteroperator`:
+  `[all[included]]`, see "Included entries"),
   `quests.js` (`questnames`, `questreal`, `queststatus`, `questmarks`, `questlast`,
   `questplayers`, `questlinks`, `questmarked`, `questmentions`, `questevents`, `questlinkat`,
   `questpins`, `questroutes`, `questsabout`, `questmark`, see "Quests"),
@@ -589,6 +612,8 @@ the tiddler title:
   `startup/editor-messages.js`, `startup/editor-states.js`: see "Editor". `startup/plugin-types.js`: the switchers of the
   plugin types `ruleset` and `setting` (see "Plugin types ruleset and setting"). `startup/sections.js`:
   the procedures and block widgets of the kinds of sections of the ruleset (see "Sections").
+  `startup/content-include.js`: the entries of the content packages the wiki names (see
+  "Included entries").
 - **Licenses**: `ui/controlpanel-license` (ControlPanel -> License, `$:/tags/ControlPanel`)
   and `config/licenses` (`$:/config/tiddlyrpg/licenses`), see "Readme and license of a plugin";
   `files/tiddlywiki.files` loads `README.md` and `LICENSE` of the repo as the tabs.
@@ -650,14 +675,16 @@ the tiddler title:
   `view` (bar of the view, page control, cards of the `Player` hub; wikitext for the colour of
   `Player`), `hubs` (the hubs and `Campaign` in their colour, their lists, the list of the hubs
   of `Index`; see "Index/hub tiddlers"), `content` (the offer of a missing tiddler, the hub
-  `Content`, a hit of a package in the search and in a picker; static CSS), `rules` (the tables
+  `Content`, a hit of a package in the search and in a picker; static CSS), `links` (a missing
+  link in italics in the weight of the text and a dark grey, a tag pill of an included entry in
+  italics; wikitext), `rules` (the tables
   of the hubs `Ruleset` and `CampaignSetting` and of the rules language, the choice of ruleset
   and setting, the converter of `Currency`, the highlight of the rules macros; static CSS) and
   `editor` (the controls of the editor, see "Editor").
   **Templates** `templates/body-locked`, `templates/body-sections` (body of
   a tiddler with sections through `trpg-body`; a location without its spots),
   `templates/quest-body`, `templates/quest-card`, `templates/quest-list` (see "Quests"),
-  `templates/title-translated`, `templates/title-hub`, `templates/title-preview` (the heading
+  `templates/title-translated`, `templates/title-preview` (the heading
   of the preview of a package entry, see "Content packages"),
   `templates/subtitle`, `templates/tags` and `templates/tag` (tag area and tag pill, see
   "Views").
@@ -665,7 +692,7 @@ the tiddler title:
   `trpg-secret-tiddler` for a locked tiddler the view sees), `class-rumour` (class
   `trpg-rumour-tiddler` for the page of a rumour the view sees: dashed and striped in gold, styles/quest),
   `class-pinned`, `class-readonly`, `class-rules-highlight` with `rules-highlight`,
-  `class-view`, `class-hub`, `title-translated`, `title-hub`, `subtitle`, `view-tags` - see
+  `class-view`, `class-hub`, `title-translated`, `subtitle`, `view-tags` - see
   below; `dm-published`
   (`$:/config/tiddlyrpg/view/dm-published`, default `no`) and `sidebar-tabs` (hides the core
   sidebar tabs, see "Views"); for the editor `form/<type>`, `form-fields-hidden`,
@@ -704,11 +731,10 @@ the tiddler title:
     `config/class-hub` gives its frame and the one of `Campaign` the class `trpg-hub`;
     `styles/hubs` sets `--trpg-hub` per title and frames, tints and colours the title from it
     (the frame comes from the title, not from a tag: a hub is tagged `Index` only);
-    `viewtemplates/hub-rule` draws the rule below the tags (not on `Campaign`);
-    `config/title-hub` puts the number of the entries behind the title
-    (`templates/title-hub`; not on `Quest`, `Player`, `Event`, which show their own numbers or
-    none).
-  - **What a hub lists** - one source for its list, the number in its title and in `Index`:
+    `viewtemplates/hub-rule` draws the rule below the tags (not on `Campaign`). The heading
+    carries no number (decided 2026-11-03): the numbers stand in the bar of the hubs below it and
+    in `Index`.
+  - **What a hub lists** - one source for its list, the numbers in its bar and in `Index`:
     `trpg.hub.entries` (`trpghubentries` with the lock): the filter in the field
     `tiddlyrpg-entries` (`Item`: the three base types; `Information`: what it lists, the hubs
     `Calendar` ... only while they have something to show; `Quest`: the open quests and
@@ -746,8 +772,9 @@ the tiddler title:
   `graph/map-fit.js` (`module-type: vis-property`, graph property `trpgMapFit`),
   `graph/map-pin.js` (`vis-property`, node property `trpgPin`),
   `graph/pill.js` (`vis-property`, node properties `trpgPill` and `trpgDead`: a node like a tag pill - its colour
-  as the border, light inside, the label in the font colour of the graph; set by all three graph
-  templates) and
+  as the border, light inside, the label in the font colour of the graph; set by all graph
+  templates), `graph/included.js` (`vis-property`, node property `trpgIncluded`: the label of an
+  included entry in italics) and
   `graph/map-fit-message.js` (`vis-message`, `trpg-map-fit`). The thin view definitions
   (`$:/graph/Default`/`Cosmogram`/`Atlas`/`Items`) live in each wiki on purpose, not here.
 
@@ -1623,8 +1650,6 @@ More cascade entries instead of core overrides:
   the span `trpg-rule` around what `unit`, `dice`, `damage` and `term` show (`functions`) dotted.
 - `config/title-translated` (`$:/tags/ViewTemplateTitleFilter`, before `default`): tiddlers whose
   display name differs from the title get the heading `templates/title-translated`.
-- `config/title-hub` (`$:/tags/ViewTemplateTitleFilter`, before `title-translated`): a type hub
-  with a list gets `templates/title-hub`, the translated name and the number of its entries.
 - `config/class-hub` (`$:/tags/ClassFilters/TiddlerTemplate`): class `trpg-hub` for a type hub
   and `Campaign` (`styles/hubs`).
 - `config/subtitle` (`$:/tags/ViewTemplateSubtitleFilter`, before `default`): every tiddler gets
@@ -1635,6 +1660,19 @@ Palette colours in static CSS through the core variables `--tpc-<palette entry>`
 generated by `$:/core/stylesheets/custom-properties`; the release note wrongly says
 `--tp-color-*`). Create such stylesheets as `type: text/css` - in wikitext `--` would become a
 dash.
+
+## Graphs behave alike
+
+All graphs - the ego graph (`trpg-ego`), the views of the sidebar (`trpg-graph`), the graph of a
+quest (`trpg-quest`) and the map of a location (`trpg-map`) - behave as alike as they can; they
+differ only where their function asks for it, and the header of the template says why (the map:
+fixed positions, pins that keep their size on screen - places, spots and quests alike -, the
+image; the graph of a quest: the thick border of the quest; on the map a spot without a tiddler
+opens nothing). The look of a node lives once, in `trpg.graphnodes` (`functions`): the colour of
+its type, the dead striped, an included entry in italics - every template draws its nodes inside
+it, none keeps a copy (`test/graph.test.js`). The switches by kind follow one rule wherever they
+stand (`trpg.kindswitches` with the visible nodes as `titles`). A change of one template checks the
+others. No graph has a hover popup (decided 2026-11-03).
 
 ## Graph configuration - what lives where
 
@@ -1700,7 +1738,7 @@ Current list:
 | File | Overrides | Plugin | Why no hook is enough |
 |---|---|---|---|
 | `tiddlyrpg-core/$__core_ui_PageTemplate_story.tid` | `$:/core/ui/PageTemplate/story` | `tiddlyrpg-core` | `handleCloseAllTiddlersEvent` in core JS (`navigator.js`) empties `$:/StoryList` without a hook. The only way the `Campaign` hub (tag `$:/tags/Pinned`) survives it: the story river filter itself shows it independently of `$:/StoryList`. |
-| `tiddlyrpg-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `tiddlyrpg-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`trpgtitlesearch`) and keeps only what the view sees (`trpg.visible`), the second searches with `trpgsearch` (only the text the view sees), both keep only the kinds switched on above the list (`kindselected` on `$:/state/tiddlyrpg-core/search-kinds`, procedure `trpg.kindswitches`; none chosen is all), hits use `search/item` (translated name); last a group of the offers of the content packages whose title holds the search (`trpgcontentsearch`, with preview and take; only with a package). |
+| `tiddlyrpg-core/$__core_ui_DefaultSearchResultList.tid` | `$:/core/ui/DefaultSearchResultList` | `tiddlyrpg-core` | A second list tagged `$:/tags/SearchResults` would add a second tab with the same caption ("List"/"Liste") next to the core one, which cannot be hidden. Changes: the first filter also matches hubs by their translated name (`trpgtitlesearch`) and keeps only what the view sees (`trpg.visible`), the second searches with `trpgsearch` (only the text the view sees), both keep only the kinds switched on above the list (`kindselected` on `$:/state/tiddlyrpg-core/search-kinds`, procedure `trpg.kindswitches`; none chosen is all), both read `[all[tiddlers+included]...]` (the included entries of the content packages too); hits use `search/item` (translated name); last a group of the offers of the content packages whose title holds the search (`trpgcontentsearch`, with preview and take; only with a package). |
 | `tiddlyrpg-core/$__plugins_flibbles_graph_macros_edges.typed.tid` | `$:/plugins/flibbles/graph/macros/edges.typed` (tw5-graph) | `tiddlyrpg-core` | Edge labels come from the JSON edge type config, read by `$properties $tiddler=...` inside `$edges.typed` - nearest wins, so nothing outside can translate them, and `$nodes.neighbors` creates its edges through its own call. Changes (field and function branch alike): the targets come from `relationtargets` (`modules/relations.js`: `tiddlyrpg-exclude` and included types; function filters run there too), with the types of the call passed as `trpgTypes`; an outer `$properties $for=edges` with the style of the axis of the type; an inner `$properties $for=edges label=...` from `relationlabel` (`Edge/<type>`); for a type whose config has `tiddlyrpg-symmetric: yes`, an edge whose other end points back gets an id made of the ordered pair and the type - both ends give the same id, tw5-graph keeps one object per id - and `arrows="to from"`. Known limit: the merged edge of a symmetric type has either end as `from`, so an edge action that reads `fromTiddler` (the `delete` of `$editable`, unused here) would only touch one end. Needs `"plugin-priority": "2"` in `plugin.info`: with equal priority the plugin `flibbles/graph` would win (titles sorted alphabetically). |
 
 | `tiddlyrpg-core/$__config_flibbles_graph_edges_functions_links.tid` | `$:/config/flibbles/graph/edges/functions/links` (tw5-graph) | `tiddlyrpg-core` | The edge type config of tw5-graph has no colour and no `tiddlyrpg-symmetric`; an edge type config is found by name only. Changes: `color` grey, `tiddlyrpg-symmetric: yes` (mutual links as one edge), filter `[visiblelinks[]]` instead of `[links[]]` (the core link index knows no lock: a link that stands only in a section the view does not see draws no edge, see "Sections"); label as in the original. |
@@ -1721,7 +1759,8 @@ bring the core macros back there; none exists (core 5.4.1, tw5-graph, relink, th
 Changes against the core:
 
 - `tag-pill-inner` (a copy of the core macro): the translated name
-  (`<$text text={{{ [<__tag__>trpgtitle[]] }}}/>`); the colours as variables `pillColour` (the
+  (`<$text text={{{ [<__tag__>trpgtitle[]] }}}/>`); the class `trpg-included` for an included
+  entry without an own version (`trpgincluded`, italics in `styles/links`); the colours as variables `pillColour` (the
   colour of the tag, else `tag-background` of the palette), `pillBase` (background of the
   palette), `pillText` (its foreground) instead of `contrastcolour`; for a dead tag
   (`trpg.dead`) the variable `pillStripes` from `tag-pill-stripes`.

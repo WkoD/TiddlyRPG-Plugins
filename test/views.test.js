@@ -412,6 +412,9 @@ test.describe("sweep", function() {
 			// A locked active player character: the hub Player, its cards, the pills of the player characters
 			{title: "Fr9 Brief", tags: "Information Frigg Secret", text: "Fr9 letter."},
 			{title: "Qx7 Held", tags: "Player Secret", player: "Qx7held", image: "Qx7held.jpg", text: "Qx7 hero."},
+			// An entry of a content package included only because a locked tiddler names it
+			// (modules/content-include.js, INCLUDED below): its page tells nothing of who names it
+			{title: "Qx7 Späher", tags: "Person Secret", creature: "[[Sweep Paketwolf]]", text: "Qx7 scout."},
 			{title: "$:/graph/Sweep", type: "application/json", text: "{}",
 				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: "[!is[system]]", "edges.functions": "links"}
 		],
@@ -419,15 +422,18 @@ test.describe("sweep", function() {
 			{relations: "list", events: "list"},
 			{relations: "graph", events: "timeline"}
 		],
-		DEFAULTS = TABS[0];
+		DEFAULTS = TABS[0],
+		INCLUDED = {"Sweep Paketwolf": {title: "Sweep Paketwolf", tags: ["Creature"], text: "A wolf of a package."}};
 
 	test.before(function() {
 		// With a date of change, so the tab Recent of the sidebar lists them
 		fixtures.forEach(function(fields) { h.add(wiki, Object.assign({modified: "20261020000000000"}, fields)); });
+		h.include(wiki, INCLUDED);
 	});
 
 	test.after(function() {
 		fixtures.forEach(function(fields) { wiki.deleteTiddler(fields.title); });
+		h.include(wiki, {});
 		setTabs(DEFAULTS);
 	});
 

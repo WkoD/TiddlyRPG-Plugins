@@ -1,5 +1,5 @@
 created: 20260930204000000
-modified: 20261026143641254
+modified: 20261103173828774
 tags: $:/tags/Global
 title: $:/plugins/tiddlyrpg-core/functions
 type: text/vnd.tiddlywiki
@@ -33,8 +33,8 @@ type: text/vnd.tiddlywiki
 \function trpg.hub() [tag[Index]has[color]!match[Index]]
 
 <!-- The entries of a type hub the active view sees (filters/hubs.js trpghubentries: the field
-     tiddlyrpg-entries, a category, else the tag); their number is in the title of the hub
-     (templates/title-hub) and in the list of the hub Index. -->
+     tiddlyrpg-entries, a category, else the tag); their number is in the list of the hub Index
+     and in the bar above the list of a hub. -->
 \function trpg.hub.entries(hub) [<hub>trpghubentries[]] :filter[trpg.visible[]]
 
 <!-- The page of a type hub with a list (Person, Item, Information, a category, Artifact, ...;
@@ -118,7 +118,9 @@ type: text/vnd.tiddlywiki
      - players, persons (with deities), organisations, locations, items (with artifacts and
      materials), quests (with rumours) - in the colour of its hub, split at 45° with the colour of
      the second kind where a switch holds two kinds of a colour of their own, labelled
-     Relations/Kind/<hub> then, else with the plural of the hub; all on at first, a click switches
+     Relations/Kind/<hub> then, else with the plural of the hub - with <titles> (a title list of
+     what the switches stand for, the view sees) the plural of the one category every title of
+     the kind has, if there is one (kindcategory: "Folks" on the Atlas); all on at first, a click switches
      a kind off and on again: the kinds switched off are in the field list of <state> (not
      saved). trpg.kindshown<state> keeps the input titles whose kind is on.
      mode="select" (the search, $:/core/ui/DefaultSearchResultList): the field list holds the kinds
@@ -131,7 +133,7 @@ type: text/vnd.tiddlywiki
      <loc> (questpins, modules/quests.js) -->
 \function trpg.mapquests(loc) [questnames[]] :filter[queststatus[]match[open]] :filter[questpins<loc>]
 
-\procedure trpg.kindswitch(hub,second,kinds,state,mode)
+\procedure trpg.kindswitch(hub,second,kinds,state,mode,titles)
 \whitespace trim
 <$let trpg-kind={{{ [<hub>lowercase[]] }}}>
 <%if [enlist<kinds>match<trpg-kind>] %>
@@ -141,21 +143,74 @@ type: text/vnd.tiddlywiki
 	style={{{ [<hub>get[color]addprefix[--trpg-kind:]] [<second>!is[blank]addprefix[--trpg-kind2:]] +[join[;]] }}}
 	aria-pressed={{{ [<trpg-on>match[yes]then[true]else[false]] }}}
 	actions="<$action-listops $tiddler=<<state>> $field='list' $subfilter='+[toggle<trpg-kind>]'/>">
-<$text text={{{ [<hub>addprefix[Relations/Kind/]trpgtranslate[]] :filter[!prefix[Relations/Kind/]] ~[trpg.plural<hub>] }}}/>
+<$text text={{{ [enlist<titles>kindcategory<trpg-kind>addprefix[Plural/]trpgtranslate[]] ~[<hub>addprefix[Relations/Kind/]trpgtranslate[]] :filter[!prefix[Relations/Kind/]] ~[trpg.plural<hub>] }}}/>
 </$button>
 </$let>
 <%endif%>
 </$let>
 \end
 
+<!-- The look of the nodes of every graph template (graph/templates/trpg-ego, trpg-graph, trpg-quest,
+     trpg-map) around what it draws (its children, the slot ts-raw): the colour of the type by
+     its tag (the field color of the hub), the dead and dissolved striped grey and that colour
+     (trpgDead, graph/pill.js) - the innermost, so it wins -, an entry of a content package
+     included without an own version in italics (trpgIncluded, graph/included.js). One place, so
+     that the graphs look alike (CLAUDE.md, "Graphs behave alike"). -->
+\procedure trpg.graphnodes()
+\whitespace trim
+<$properties $filter="[tag[Event]]" color={{Event!!color}}>
+<$properties $filter="[tag[Deity]]" color={{Deity!!color}}>
+<$properties $filter="[tag[Location]]" color={{Location!!color}}>
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]]" color={{Item!!color}}>
+<$properties $filter="[tag[Person]]" color={{Person!!color}}>
+<$properties $filter="[tag[Player]]" color={{Player!!color}}>
+<$properties $filter="[tag[Organisation]]" color={{Organisation!!color}}>
+<$properties $filter="[tag[Creature]]" color={{Creature!!color}}>
+<$properties $filter="[tag[Folk]]" color={{Folk!!color}}>
+<$properties $filter="[tag[Class]]" color={{Class!!color}}>
+<$properties $filter="[tag[Trait]]" color={{Trait!!color}}>
+<$properties $filter="[tag[Feat]]" color={{Feat!!color}}>
+<$properties $filter="[tag[Language]]" color={{Language!!color}}>
+<$properties $filter="[tag[Glossary]]" color={{Glossary!!color}}>
+<$properties $filter="[tag[Spell]]" color={{Spell!!color}}>
+<$properties $filter="[tag[Person]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Player]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Organisation]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Creature]trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[tag[Artifact]] [tag[Item]] [tag[Material]] +[trpg.dead[]]" trpgDead="yes">
+<$properties $filter="[trpgincluded[]]" trpgIncluded="yes">
+<$slot $name="ts-raw"/>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+</$properties>
+\end
+
 \function trpg.kindhubs() [enlist[Player Person Organisation Location Item Creature Information Spell Quest]]
 
-\procedure trpg.kindswitches(kinds,state,mode,hubs)
+\procedure trpg.kindswitches(kinds,state,mode,hubs,titles)
 \whitespace trim
 <%if [enlist<kinds>!match[other]] %>
 <div class="trpg-kind-switches">
 <$list filter="[enlist<hubs>] ~[trpg.kindhubs[]]" variable="trpg-hub">
-<$transclude $variable="trpg.kindswitch" hub=<<trpg-hub>> kinds=<<kinds>> state=<<state>> mode=<<mode>>
+<$transclude $variable="trpg.kindswitch" hub=<<trpg-hub>> kinds=<<kinds>> state=<<state>> mode=<<mode>> titles=<<titles>>
 	second={{{ [<trpg-hub>match[Person]then{Deity!!color}] [<trpg-hub>match[Quest]then[var(--trpg-rumour)]] }}}/>
 </$list>
 </div>
@@ -495,7 +550,8 @@ type: text/vnd.tiddlywiki
      palette - with the text in the foreground colour of the palette, for readability in light
      and dark palettes alike. A tag without a colour takes tag-background of the palette. A tag
      that is deceased or destroyed (trpg.dead) is striped at 45° inside - grey and its colour,
-     both at 18 % -, like its tiddler (styles/border).
+     both at 18 % -, like its tiddler (styles/border). An entry of a content package included
+     without an own version (trpgincluded) has the class trpg-included: italics (styles/links).
      tag-pill-styles is also called by the tag picker ($:/core/ui/TagPickerTagTemplate) with the
      variables of the picker (backgroundColor, colourA, colourB, fallbackTarget), so its colours
      come from the variables of tag-pill-inner first, then from those of the picker. The picker
@@ -520,7 +576,7 @@ background-image:repeating-linear-gradient(45deg, color-mix(in srgb, $(pillText)
 <$set name="pillStripes" filter="[<__tag__>trpg.dead[]]" value=<<tag-pill-stripes>> emptyValue="">
 <$element-tag$
 	$element-attributes$
-	class="tc-tag-label tc-btn-invisible"
+	class={{{ [[tc-tag-label tc-btn-invisible]] [<__tag__>trpgincluded[]then[trpg-included]] +[join[ ]] }}}
 	style=<<tag-pill-styles>>
 >
 	<<__actions__>>

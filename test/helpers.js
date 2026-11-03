@@ -17,11 +17,12 @@ require("../scripts/plugin-path")([exports.fixturePlugins]);
 
 var $tw;
 
-// Boots the wiki with the fixtures; resolves with $tw
-exports.boot = function() {
+// Boots the wiki with the fixtures; resolves with $tw. <folder> (optional): a wiki folder of its own
+// instead of editions/test (a test that needs its tiddlers/ or node_modules at the start)
+exports.boot = function(folder) {
 	return new Promise(function(resolve) {
 		$tw = require("tiddlywiki").TiddlyWiki();
-		$tw.boot.argv = [path.join(root, "editions", "test")];
+		$tw.boot.argv = [folder || path.join(root, "editions", "test")];
 		$tw.boot.boot(function() {
 			fixtures($tw.wiki);
 			resolve($tw);
@@ -64,6 +65,12 @@ function fixtures(wiki) {
 		wiki.addTiddler(new $tw.Tiddler(fields));
 	});
 }
+
+// Includes <tiddlers> ({<title>: fields}) as entries of a content package, as the start of a wiki
+// does (modules/content-include.js); {} takes them out again
+exports.include = function(wiki, tiddlers) {
+	$tw.modules.execute("$:/plugins/tiddlyrpg-core/modules/content-include.js").install(wiki, tiddlers);
+};
 
 exports.setLanguage = function(wiki, code) {
 	wiki.addTiddler(new $tw.Tiddler({title: "$:/language", text: "$:/languages/" + code}));

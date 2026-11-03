@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/editor.js
 type: application/javascript
 module-type: filteroperator
 created: 20261016184211000
-modified: 20261026132300929
+modified: 20261103173828774
 
 Filters of the editor: the buttons of the toolbar (editor/toolbar), the form (editor/form), the
 picker (editor/procedures) and the kinds of the search.
@@ -68,7 +68,8 @@ var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
 	fields = require("$:/plugins/tiddlyrpg-core/modules/fields.js"),
 	sections = require("$:/plugins/tiddlyrpg-core/modules/sections.js"),
 	form = require("$:/plugins/tiddlyrpg-core/modules/form.js"),
-	editor = require("$:/plugins/tiddlyrpg-core/modules/editor.js");
+	editor = require("$:/plugins/tiddlyrpg-core/modules/editor.js"),
+	content = require("$:/plugins/tiddlyrpg-core/modules/content.js");
 
 function each(source,fn) {
 	var results = [];
@@ -233,8 +234,8 @@ exports.relationcandidates = function(source,operator,options) {
 		all = relations.types(wiki);
 	return each(source,function(field,results) {
 		var type = all[field],
-			filter = type && type.candidates ? type.candidates : "[all[tiddlers]!is[system]!is[draft]] :filter[trpgtypes[]]";
-		$tw.utils.each(wiki.filterTiddlers(filter),function(title) {
+			filter = type && type.candidates ? type.candidates : "[all[tiddlers+included]!is[system]!is[draft]] :filter[trpgtypes[]]";
+		$tw.utils.each(wiki.filterTiddlers(filter,null,content.withIncluded(wiki)),function(title) {
 			var tiddler = wiki.getTiddler(title);
 			if(results.indexOf(title) === -1 && !(tiddler && tiddler.isDraft())) {
 				results.push(title);

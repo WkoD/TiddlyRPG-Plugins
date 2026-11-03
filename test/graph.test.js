@@ -209,6 +209,8 @@ test("map: open quests as pills with edges to the nodes their newest marker lead
 		assert.ok(!graph.nodes["Q Fertig"], "complete: not on the map");
 		assert.ok(all.indexOf("Q Gilde -> Guild") !== -1 && all.indexOf("Q Brunnen -> Town#Old Well") !== -1, all.join());
 		assert.equal(graph.nodes["Q Stadt"].trpgUnplaced, "yes", "about the town as a whole: below the map");
+		assert.equal(graph.nodes["Q Gilde"].trpgPin, "quest", "a pin like the places, the same size at any zoom");
+		assert.equal(graph.nodes["Q Stadt"].trpgPin, "quest");
 		assert.ok(all.every(function(edge) { return edge.indexOf("Q Stadt") === -1; }));
 		assert.ok(!h.inView(wiki, "public", function() { return map("Town"); }).nodes["Q Geheim"], "a locked marker leads nowhere");
 		withTiddlers([{title: "$:/state/tiddlyrpg-core/map-filter/Town", list: "quest"}], function() {
@@ -651,6 +653,111 @@ test("links: their own edge in grey, mutual links as one edge with two arrows", 
 			graph.edges.filter(function(edge) { return edge.props.label === "references"; }).forEach(function(edge) {
 				assert.equal(edge.props.color, "#999999");
 			});
+		});
+	});
+});
+
+test("the graphs alike: every template draws its nodes through trpg.graphnodes, none keeps a copy", function() {
+	["trpg-ego", "trpg-graph", "trpg-quest", "trpg-map"].forEach(function(name) {
+		var text = wiki.getTiddlerText("$:/plugins/tiddlyrpg-core/graph/templates/" + name);
+		assert.ok(text.indexOf("<$transclude $variable=\"trpg.graphnodes\">") !== -1, name);
+		assert.equal(text.indexOf("$properties $filter=\"[tag["), -1, name + ": no colour by tag of its own");
+		assert.equal(text.indexOf("trpgDead=\"yes\""), -1, name + ": no dead of its own");
+	});
+	assert.equal(wiki.getTiddlerText("$:/plugins/tiddlyrpg-core/graph/templates/trpg-map").indexOf("properties.popup"), -1, "no hover popup");
+});
+
+test("map: a joined tiddler of any type in the colour of its type, the dead striped, like the ego graph", function() {
+	withTiddlers([
+		{title: "Kiste", tags: "Item", text: "A box."},
+		{title: "Zwergenvolk", tags: "Information Folk", text: "A folk."},
+		{title: "Altes Lager", tags: "Location", text: "A store.\n\n<<spot \"Kiste\">>\n\nThe box.\n\n<<spot \"Zwergenvolk\">>\n\nThe folk."},
+		{title: "Kaputt", tags: "Item", date: "./1350-07", text: "Broken."},
+		{title: "Ruine", tags: "Location", text: "Ruins.\n\n<<spot \"Kaputt\">>\n\nWhat is left."}
+	], function() {
+		var graph = map("Altes Lager");
+		assert.equal(graph.nodes.Kiste.color, colour("Item"));
+		assert.equal(graph.nodes.Zwergenvolk.color, colour("Folk"));
+		assert.equal(map("Ruine").nodes.Kaputt.trpgDead, "yes");
+	});
+});
+
+test("map pin of a quest: the pill alone, no dot, the same size at any zoom; a rumour dashed and striped", function() {
+	var pin = tw.modules.execute("$:/plugins/tiddlyrpg-core/graph/map-pin.js"),
+		scale = 1,
+		adapter = {vis: {getScale: function() { return scale; }}, trpgPillBase: "#ffffff", trpgPillText: "#333333"},
+		changes = {nodes: {q: {trpgPin: "quest"}, r: {trpgPin: "quest", trpgRumour: "yes"}, i: {trpgPin: "tiddler", trpgIncluded: "yes"}}};
+	pin.process.call(adapter, {}, changes);
+	var arcs = 0,
+		dashes = [],
+		filled = [],
+		fonts = [],
+		ctx = {font: "12px arial", measureText: function() { return {width: parseFloat(this.font.replace(/^italic /, "")) * 4}; }, beginPath: function() {}, arc: function() { arcs++; }, stroke: function() {},
+			moveTo: function() {}, lineTo: function() {}, arcTo: function() {}, closePath: function() {}, save: function() {}, restore: function() {}, clip: function() {},
+			fill: function() { filled.push(this.fillStyle); }, fillRect: function() { filled.push(this.fillStyle); }, fillText: function() { fonts.push(this.font); },
+			setLineDash: function(d) { dashes.push(Array.from(d).length); }},
+		args = function(label) { return {ctx: ctx, x: 0, y: 0, style: {color: "#fff5cc", borderColor: "#d4a017"}, label: label, state: {}}; };
+	var near = changes.nodes.q.ctxRenderer(args("Q Gilde"));
+	scale = 2;
+	var far = changes.nodes.q.ctxRenderer(args("Q Gilde"));
+	assert.ok(Math.abs(near.nodeDimensions.width / far.nodeDimensions.width - 2) < 1e-9, "zoomed in twice: half the size on the map");
+	assert.ok(Math.abs(near.nodeDimensions.height / far.nodeDimensions.height - 2) < 1e-9);
+	far.drawNode();
+	assert.equal(arcs, 0, "no dot");
+	assert.deepEqual(dashes, [0, 0], "a quest: a solid border");
+	dashes = [];
+	filled = [];
+	changes.nodes.r.ctxRenderer(args("Gerücht")).drawNode();
+	assert.ok(dashes.indexOf(2) !== -1, "a rumour: dashed");
+	assert.ok(filled.indexOf("#ffffff") !== -1, "striped with the background: " + filled.join());
+	fonts = [];
+	changes.nodes.i.ctxRenderer(args("Longsword")).drawNode();
+	assert.match(fonts[0], /^italic /, "an included entry in italics");
+});
+
+test("the switch of a kind: the plural of the one category of its nodes, else the kind", function() {
+	withTiddlers([
+		{title: "Zwerge", tags: "Information Folk", location: "Kingdom", text: "A folk."},
+		{title: "Elfen", tags: "Information Folk", location: "Kingdom", text: "A folk."},
+		{title: "Krieger", tags: "Information Class", text: "A class."},
+		{title: "Lose Notiz", tags: "Information", text: "No category."}
+	], function() {
+		var folks = Array.from(h.filter(wiki, "[[Plural/Folk]trpgtranslate[]]"))[0],
+			information = Array.from(h.filter(wiki, "[[Plural/Information]trpgtranslate[]]"))[0];
+		// (h.graph puts the stand-in of <$graph> in place, which a view rendered as text needs too)
+		assert.ok(ego("Kingdom").nodes.Zwerge, "the folks that live in the place are its neighbours");
+		assert.deepEqual(f("[[Zwerge]] [[Elfen]] [[Town]] +[kindcategory[information]]"), ["Folk"]);
+		assert.deepEqual(f("[[Zwerge]] [[Krieger]] +[kindcategory[information]]"), [], "two categories");
+		assert.deepEqual(f("[[Zwerge]] [[Lose Notiz]] +[kindcategory[information]]"), [], "one without");
+		assert.deepEqual(f("[[Zwerge]] +[kindcategory[location]]"), [], "no title of the kind");
+		var view = function(filter) {
+			return withTiddlers([{title: "$:/graph/Test", type: "application/json", text: "{}",
+				template: "$:/plugins/tiddlyrpg-core/graph/templates/trpg-graph", filter: filter}], function() {
+				return h.render(wiki, "text/plain", "<$graph.view $tiddler=\"$:/graph/Test\"/>");
+			});
+		};
+		assert.ok(view("[[Zwerge]] [[Elfen]] [[Town]]").indexOf(folks) !== -1, "a graph view of folks");
+		var mixed = view("[[Zwerge]] [[Krieger]] [[Town]]");
+		assert.equal(mixed.indexOf(folks), -1, mixed);
+		assert.ok(mixed.indexOf(information) !== -1, mixed);
+		// The relations block of a place (ego graph and list): the folks that live there
+		// The text of the switch of the kind information above the block
+		var block = function() {
+			var html = h.view(wiki, "Kingdom");
+			return (html.match(/class="[^"]*trpg-kind-information[^"]*"[^>]*>([^<]*)</) || [])[1];
+		};
+		assert.equal(block(), folks);
+		withTiddlers([{title: "Geheime Notiz", tags: "Information Secret", location: "Kingdom", text: "Locked."}], function() {
+			assert.equal(block(), information, "the view of the DM sees the note too");
+			assert.equal(h.inView(wiki, "public", block), folks, "the public view sees only the folks");
+		});
+		// The map of a place: its spots joined to the folks - the switches as the map view template
+		// calls them, with its functions (the graph below them needs a browser)
+		withTiddlers([{title: "Talburg", tags: "Location", text: "A town.\n\n<<spot \"Zwerge\">>\n\nThe dwarves.\n\n<<spot \"Elfen\">>\n\nThe elves."}], function() {
+			assert.deepEqual(nodes(map("Talburg")), ["Elfen", "Zwerge"]);
+			var html = h.render(wiki, "text/html", "\\import $:/plugins/tiddlyrpg-core/viewtemplates/location/map\n" +
+				"<$transclude $variable=\"trpg.kindswitches\" kinds={{{ [trpg.mapkinds[Talburg]format:titlelist[]join[ ]] }}} state=\"$:/temp/x\" titles={{{ [trpg.mapnodes[Talburg]format:titlelist[]join[ ]] }}}/>");
+			assert.equal((html.match(/class="[^"]*trpg-kind-information[^"]*"[^>]*>([^<]*)</) || [])[1], folks, html);
 		});
 	});
 });

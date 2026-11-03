@@ -70,8 +70,7 @@ A tour for the DM and the players. The sections after it hold the details.
   "Player characters, views and secrets").
   `Information` also leads to `Calendar`, `Currency`, `Ruleset`, `CampaignSetting` and `Content`
   while they have something to show. The type of a tiddler is its tag, and its colour is the colour of
-  that hub. A hub shows in its colour too: frame and title, the number of its entries behind the
-  title, its list in columns with a heading per first letter, sorted by the names as they read
+  that hub. A hub shows in its colour too: frame and title, its list in columns with a heading per first letter, sorted by the names as they read
   in the wiki language (an umlaut with its letter). Above the list stand the hubs below it in the same
   columns, sorted by name, each with the number of its entries: `Artifact`, `Material` and the categories on `Item`, the
   categories on `Information` and on any other hub. Such a hub lists only its own entries, the
@@ -249,7 +248,7 @@ trait, feat or entry of the glossary: a named section (`<<feature "Rage">>`), a 
 first row of one of its tables ("Rage Damage"), or the entry itself (`<<rule "Breath Weapon">>`).
 It shows the name as written, dotted, as a link that opens the entry at that place. Name the entry
 (`entry:`, in a formula `'Name|Entry'`): a name another entry brings later stays clear. An entry
-of a content package not taken counts too (on the Node server). A name only a locked tiddler or
+of a content package not taken counts too (on the Node server), an included one everywhere. A name only a locked tiddler or
 section has shows as text, without link and without a message; renaming the entry rewrites
 `entry:` (Relink), not a name inside a formula. The button "Rules" of the editor offers the names
 with their entry.
@@ -368,8 +367,29 @@ the person Balor). What a taken entry names in `base` or `spells` and the wiki l
 in the message - nothing comes by itself. A relation may name an entry not taken: that is no
 missing tiddler (`relations/missing`), also for `npm run check`.
 
-**The text** stays in the language of the package. Without a package, in the published copy and
-for who may not write, nothing of this shows.
+**Included entries:** what the wiki names of a package becomes part of the wiki without being
+taken - as the shadow tiddlers of the plugin `$:/plugins/tiddlyrpg/content-packages`, built at
+every start (`npm start`, `npm run build`, `npm run check`) and saved into the page, so the
+published copy has them too. A name counts in a relation (`base`, `spells`, `classes`, `folk`
+...), a tree, a tag, a link or a transclusion, `<<term>>` and a value of the rules (the entry of
+the glossary), `<<rule>>`, the name of a section, a spot - and so on in what an included entry
+names, until nothing comes. Nothing else of the package. An included entry is found like a
+tiddler of the wiki - hubs, search, graphs, the pickers -, its links, tag pills and graph
+nodes in italics (a missing tiddler is in italics too, but in the weight of the text and dark
+grey). The checks leave it out.
+
+- **Change it:** edit it - the own version is a tiddler of the wiki and wins; deleting it brings
+  the entry back. The hub `Content` shows an included entry as "included".
+- **Lock it:** an included entry is shown to everyone, even when only a locked tiddler names it
+  (a creature a secret person is). Its own page names nobody the view does not see. To lock
+  the entry itself, make an own version with the tag `Secret`.
+- **During a session** on the server, an entry named anew stays an offer (a missing link with
+  the box "Take") until the next start; one no longer named stays included until then.
+- **Switch it off:** ControlPanel -> Plugins -> "Content packages" (the plugin can be disabled
+  like any other).
+
+**The text** stays in the language of the package. Without a package nothing of this shows; in
+the published copy and for who may not write only the included entries.
 
 ## Player characters, views and secrets
 
@@ -643,7 +663,9 @@ relation list show the way back by themselves.
 - **Switches on top of graph and list:** one per kind they show (players, people with deities,
   organisations, locations, items, quests with rumours), in the colour of the kind - split at
   45° where a switch holds two colours; all on at first, a click leaves that kind out of the
-  graph and the list of this tiddler (not saved). The tiddler itself always stays.
+  graph and the list of this tiddler (not saved). The tiddler itself always stays. When all the
+  entries of a kind the view sees belong to one category, its switch takes the name of the
+  category ("Folks" where only folks show); the same on the map and in the graph views.
 - **The list** shows every relation as a small heading with the number of its entries, the
   entries as pills in the colour of their type (like the tag pills and the nodes of the
   graph), the deceased and destroyed striped. Each tiddler keeps its own choice of graph or
@@ -727,9 +749,9 @@ location gives a hint for the editor.
 - The map (also of a location without a map image, spots or places within) shows a graph: the
   spots and the places within at fixed positions, each a dot with its name in a pill below it
   (filled for a tiddler, white and dashed for a spot without a tiddler of its own); they keep
-  their size on screen when zooming. Hovering shows the text of a spot, a double click scrolls
-  to it. The open quests and rumours whose newest marker leads to a place of the map stand on
-  it as pills in gold (a rumour dashed and striped), with an edge to those places (a person or organisation it
+  their size on screen when zooming. A double click on a spot scrolls to its text. The open
+  quests and rumours whose newest marker leads to a place of the map stand on it as pills in gold
+  (a rumour dashed and striped) that keep their size like the places, with an edge to those places (a person or organisation it
   mentions leads to where it is); those about the location as a whole stand below the map.
   Above the map the same switches by kind as on the relations block (locations,
   organisations, quests, ... - whatever the map shows), all on at first; below them the

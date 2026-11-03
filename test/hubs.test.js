@@ -22,8 +22,8 @@ test.describe("de-DE", function() {
 		h.setLanguage(wiki, "de-DE");
 	});
 
-	test("hub heading translated, the number of its entries behind it", function() {
-		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">Ort<span class="trpg-hub-count">\d+<\/span><\/h2>/);
+	test("hub heading translated, no number behind it", function() {
+		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">Ort<\/h2>/);
 	});
 
 	test("Campaign hub heading translated", function() {
@@ -108,8 +108,10 @@ test.describe("en-GB", function() {
 		assert.ok(index.indexOf("Deities") !== -1 && index.indexOf("Quests") !== -1, index);
 	});
 
-	test("en hub heading: the name and the number", function() {
-		assert.match(h.view(wiki, "Location"), /<h2 class="tc-title">Location<span class="trpg-hub-count">\d+<\/span><\/h2>/);
+	test("en hub heading: the name alone", function() {
+		var view = h.view(wiki, "Location");
+		assert.match(view, /<h2 class="tc-title">\s*Location\s*<\/h2>/);
+		assert.equal(view.indexOf("trpg-hub-count"), -1, view);
 	});
 });
 
@@ -211,7 +213,7 @@ test.describe("trpg.link", function() {
 		assert.match(css, /\.tc-tagged-Spell \{\s*border: 2px solid #9b59d0;\s*--trpg-type: #9b59d0;\s*\}/);
 		assert.match(css, /\.tc-tiddler-frame\.tc-tagged-Creature:not\(\.trpg-dead\) \{\s*background-color: color-mix\(in srgb, #2aa198 9%/);
 		assert.match(css, /\.tc-tiddler-frame hr \{\s*border: none;\s*height: 2px;\s*background: linear-gradient\(to right, var\(--trpg-type, /);
-		assert.match(h.view(wiki, "Spell"), /<h2 class="tc-title">Zauber<span class="trpg-hub-count">\d+<\/span><\/h2>/);
+		assert.match(h.view(wiki, "Spell"), /<h2 class="tc-title">Zauber<\/h2>/);
 		assert.match(h.render(wiki, "text/html", "{{Index}}"), />Kreaturen</);
 	});
 });
@@ -242,9 +244,9 @@ test.describe("hubs in their colour: frame, list, number", function() {
 		return h.render(wiki, "text/plain", "<$text text={{{ " + filter + " }}}/>");
 	}
 
-	// The number in the heading of a hub
+	// The number of the entries in the list of a hub
 	function count(title) {
-		return Number((h.view(wiki, title).match(/<span class="trpg-hub-count">(\d+)<\/span>/) || [])[1]);
+		return listed(title).length;
 	}
 
 
@@ -330,7 +332,7 @@ test.describe("hubs in their colour: frame, list, number", function() {
 		assert.ok(filled >= 4, filled);
 	});
 
-	test("Index: each hub with the number in its heading; Quest the open quests, Player the active characters", function() {
+	test("Index: each hub with the number of its list; Quest the open quests, Player the active characters", function() {
 		var index = h.view(wiki, "Index"),
 			number = function(name) { return Number((index.match(new RegExp(">" + name + "</span><span class=\"trpg-hub-index-n\">(\\d+)<")) || [])[1]); };
 		assert.equal(number("Personen"), count("Person"));

@@ -3,11 +3,10 @@ title: $:/plugins/tiddlyrpg-core/filters/hubs.js
 type: application/javascript
 module-type: filteroperator
 created: 20261024161412996
-modified: 20261025190620688
+modified: 20261103173828774
 
 The entries of the type hubs and their order (the page of a hub, functions trpg.hub.page and
-trpg.hub.list, the number in the title of a hub, templates/title-hub, and the list of the hub
-Index):
+trpg.hub.list, and the list of the hub Index with the numbers):
 
 [<hub>trpghubentries[]]     what each input hub lists, before the lock and without drafts: the
                             filter in its field tiddlyrpg-entries (Item, Information, Quest);
@@ -28,7 +27,8 @@ Index):
 "use strict";
 
 var language = require("$:/plugins/tiddlyrpg-core/modules/language.js"),
-	categories = require("$:/plugins/tiddlyrpg-core/modules/categories.js");
+	categories = require("$:/plugins/tiddlyrpg-core/modules/categories.js"),
+	content = require("$:/plugins/tiddlyrpg-core/modules/content.js");
 
 exports.trpghubentries = function(source,operator,options) {
 	var wiki = options.wiki,
@@ -42,7 +42,7 @@ exports.trpghubentries = function(source,operator,options) {
 		var own = tiddler && tiddler.fields["tiddlyrpg-entries"],
 			bases = categories.basesOf(wiki,hub);
 		if(own) {
-			$tw.utils.each(wiki.filterTiddlers(own,options.widget),add);
+			$tw.utils.each(wiki.filterTiddlers(own,options.widget,content.withIncluded(wiki)),add);
 		} else if(bases.length) {
 			$tw.utils.each(wiki.filterTiddlers("[all[shadows+tiddlers]tag[" + hub + "]]"),function(title) {
 				var entry = wiki.getTiddler(title);

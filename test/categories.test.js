@@ -183,7 +183,7 @@ test.describe("hubs", function() {
 		assert.ok(h.inOrder(hub, ["Nichny", "Yuan-Ti"]), hub);
 		assert.ok(["Völker", "Kalender"].every(function(s) { return hub.indexOf(s) === -1; }), hub);
 		assert.equal(bar("Folk"), "");
-		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">Volk<span class="trpg-hub-count">2<\/span><\/h2>/);
+		assert.match(h.view(wiki, "Folk"), /<h2 class="tc-title">Volk<\/h2>/);
 	});
 
 	test("the bar: a category only with an entry the view sees, the number of what it sees", function() {

@@ -1,8 +1,0 @@
-created: 20261024161412996
-list-before: $:/plugins/tiddlyrpg-core/config/title-translated
-modified: 20261024161412996
-tags: $:/tags/ViewTemplateTitleFilter
-title: $:/plugins/tiddlyrpg-core/config/title-hub
-type: text/vnd.tiddlywiki
-
-[<currentTiddler>trpg.hub[]] -[[Quest]] -[[Player]] -[[Event]] +[then[$:/plugins/tiddlyrpg-core/templates/title-hub]]

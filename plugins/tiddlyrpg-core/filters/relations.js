@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/filters/relations.js
 type: application/javascript
 module-type: filteroperator
 created: 20261008062202000
-modified: 20261025195950178
+modified: 20261103173828774
 
 Filters over the relation rules (modules/relations.js). <selected> is a title list of the
 relation types in play (a graph view may draw only some); empty or missing: all.
@@ -37,13 +37,19 @@ relation types in play (a graph view may draw only some); empty or missing: all.
                                                 other (modules/relations.js kindOf)
 [<titles>relationkind[events]]                  the same, events as a kind of their own (the
                                                 kinds of the search)
+[<titles>kindcategory[<kind>]]                  the one category (modules/categories.js) every
+                                                input title of that kind has, else nothing - a
+                                                title of the kind without a category or with
+                                                two, or another category, gives nothing (the
+                                                name of a switch by kind: "Folks")
 
 \*/
 
 "use strict";
 
 var relations = require("$:/plugins/tiddlyrpg-core/modules/relations.js"),
-	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js");
+	visibility = require("$:/plugins/tiddlyrpg-core/modules/visibility.js"),
+	categories = require("$:/plugins/tiddlyrpg-core/modules/categories.js");
 
 function selection(operator,index) {
 	return $tw.utils.parseStringArray((operator.operands || [])[index] || "") || [];
@@ -135,6 +141,27 @@ exports.relationkind = function(source,operator,options) {
 		results.push(relations.kindOf(wiki,title,events));
 	});
 	return results;
+};
+
+exports.kindcategory = function(source,operator,options) {
+	var wiki = options.wiki,
+		kind = operator.operand,
+		found = null,
+		one = true;
+	source(function(tiddler,title) {
+		if(!one || relations.kindOf(wiki,title) !== kind) {
+			return;
+		}
+		var own = ((wiki.getTiddler(title) || {fields: {}}).fields.tags || []).filter(function(tag) {
+			return categories.isCategory(wiki,tag);
+		});
+		if(own.length !== 1 || (found && found !== own[0])) {
+			one = false;
+		} else {
+			found = own[0];
+		}
+	});
+	return one && found ? [found] : [];
 };
 
 exports.relationsymmetric = function(source,operator,options) {

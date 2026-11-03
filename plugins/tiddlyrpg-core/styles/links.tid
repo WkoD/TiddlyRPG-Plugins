@@ -1,0 +1,21 @@
+created: 20261103173828774
+modified: 20261103173828774
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/links
+type: text/vnd.tiddlywiki
+
+\rules only macrocallinline
+/* A missing tiddler: italics in the weight of the text and a dark grey of the palette. The core
+   shows it in italics in the weight of a link - that is what an entry of a content package the
+   wiki includes takes now (the stylesheet of the plugin $:/plugins/tiddlyrpg/content-packages,
+   modules/content-include.js), so the two do not look alike. */
+a.tc-tiddlylink-missing {
+	font-style: italic;
+	font-weight: 400;
+	color: color-mix(in srgb, <<colour foreground>> 80%, <<colour background>>);
+}
+
+/* A tag pill of an included entry without an own version (tag-pill-inner, functions) */
+.tc-tag-label.trpg-included {
+	font-style: italic;
+}

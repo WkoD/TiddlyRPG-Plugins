@@ -1,7 +1,7 @@
 caption: <<trpg.title Information>>
 color: #7c7c7c
 created: 20200804121707247
-modified: 20261025190711947
+modified: 20261103173828774
 tags: Index
 tiddlyrpg-entries: [all[shadows+tiddlers]tag[Information]] -[{$:/config/tiddlyrpg/calendar}is[blank]then[Calendar]] -[{$:/config/tiddlyrpg/currency}is[blank]then[Currency]] -[trpgplugin[ruleset]count[]match[0]then[Ruleset]] -[trpgplugin[setting]count[]match[0]then[CampaignSetting]] -[trpg.content[]count[]match[0]then[Content]]
 title: Information
@@ -9,6 +9,5 @@ type: text/vnd.tiddlywiki
 
 <!-- The tiddlers tagged Information; the hubs Calendar, Currency, Ruleset, CampaignSetting and
      Content only when there is a calendar, a currency, an active ruleset, an active campaign
-     setting or a content package (field tiddlyrpg-entries, also the number in the title,
-     templates/title-hub); above them the categories of Information (trpg.hub.page). -->
+     setting or a content package (field tiddlyrpg-entries, also the number in Index); above them the categories of Information (trpg.hub.page). -->
 <<trpg.hub.page>>
