@@ -18,8 +18,8 @@ persons, locations, organisations, events and items, relations with their graphs
 with a timeline, maps of locations, views for the DM and the players with secrets, and language
 packs (en-GB, de-DE). Its engines for calendar, currency, rules terms and the values of the rules
 read their data from data plugins of the types `ruleset` and `setting` (see "Rulesets and
-campaign settings"); content packages of a ruleset bring items, spells and creatures to take
-into the wiki.
+campaign settings"); content packages of a ruleset bring the entries of a rulebook, and what the
+wiki names of them becomes part of it.
 <!-- /wiki -->
 
 ## Third-party plugins
@@ -112,9 +112,9 @@ A tour for the DM and the players. The sections after it hold the details.
 - Values of the rules - the damage of a weapon, the level of a spell, the hit points of a
   creature: the form offers the fields the ruleset defines for the type, the tiddler shows them
   as a block like a stat block (see "Values of the rules").
-- From a content package of the ruleset (such as the SRD 5.1 of `TiddlyRPG-DnD`): items, spells
-  and creatures taken into the wiki one by one, where they become ordinary tiddlers (see
-  "Content packages").
+- From a content package of the ruleset (such as the SRD 5.1 of `TiddlyRPG-DnD`): items,
+  spells, creatures, classes, folks and the other entries of a rulebook - what the wiki names is
+  included, taking one makes it an ordinary tiddler to change (see "Content packages").
 - Secrets: the tag `Secret` for a whole tiddler, `<<secret>>` and `<$secret>` for part of a
   text (see "Player characters, views and secrets").
 - Below the title stand errors and hints; `npm run check` reports them for the whole wiki (see
@@ -341,11 +341,12 @@ rest are reported (see "Checks", `fields/...`).
 
 ## Content packages
 
-A ruleset may come with content - the items, spells and creatures of a rulebook - in an npm
-package beside the wiki (in `node_modules`, its `package.json` naming its manifests under
-`"tiddlyrpg": {"content": [...]}`; format in the header of `modules/content-server.js`). The
-entries are no tiddlers: the wiki offers them, and the DM takes one at a time. A taken entry is
-an ordinary tiddler of the wiki - its type and tags, its values, its text, the price in the coins
+A ruleset may come with content - the items, spells, creatures, classes, folks, traits,
+languages, feats and the glossary of a rulebook - in an npm package beside the wiki (in
+`node_modules`, its `package.json` naming its manifests under `"tiddlyrpg": {"content": [...]}`;
+format in the header of `modules/content-server.js`). The entries are no tiddlers of the wiki:
+what the wiki names is included (see "Included entries" below), the rest the wiki offers, and
+the DM takes an entry to change it. A taken entry is an ordinary tiddler of the wiki - its type and tags, its values, its text, the price in the coins
 of the setting, `source`, and the tag of its package (e.g. `SRD 5.1 English`). Nothing stays
 linked to the package.
 
@@ -799,7 +800,8 @@ every hub (`tiddlyrpg-bases: Person` and `{{ || Person }}`: nobles, the clergy).
 releases before 2.2.0, `$:/tags/tiddlyrpg/ItemKind`, still makes a category of the items.
 
 **Price:** `price: 50 cr` or `price: 3 cr 5 sh` - numbers with coins of the currency (see
-"Currency"), shown as written with the coin labels of the language shown ("50 Kr" in German).
+"Currency"), shown with the coin labels of the language shown and its numbers grouped like the
+converter ("50 Kr", "12.000 Kr" in German).
 Without a currency a price is a plain number (`price: 50`). A price that does not fit gets a hint
 below the title. A **range** is two prices with a dash or "to" between them (`price: 50-100 cr`,
 `50 to 100 cr`, German `bis`; the coin behind the upper bound counts for both, `5 sh - 2 cr` works

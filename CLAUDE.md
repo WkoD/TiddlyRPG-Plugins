@@ -1824,11 +1824,12 @@ its `CLAUDE.md`.)
 5. `npm run smoke`, `npm test`.
 6. Commit and push; once the CI run is green, **tag == version** and create the release:
    ```bash
-   git tag 2.0.0 && git push origin master 2.0.0
-   gh release create 2.0.0 --generate-notes
+   git tag 2.2.0 && git push origin master 2.2.0
+   gh release create 2.2.0 -F notes.md
    ```
-   Breaking format changes (e.g. renamed relation fields) belong in the release notes explicitly -
+   The notes are written before the tag and come from a file (`-F`), not from
+   `--generate-notes`. Breaking format changes (e.g. renamed relation fields) belong in the release notes explicitly -
    consumer wikis otherwise silently lose graph edges. A new language belongs there too (the wikis
    list the supported languages in their README).
-7. Consumers (TiddlyRPG repo family) raise their pin themselves (e.g. `#2.0.0` -> `#2.1.0`), run
+7. Consumers (TiddlyRPG repo family) raise their pin themselves (e.g. `#2.2.0` -> `#2.3.0`), run
    `npm install` and bump their own `package.json` `version`.
