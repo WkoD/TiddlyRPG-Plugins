@@ -174,14 +174,15 @@ or the first by title, is active. The other plugins of the type are switched off
 a reload. ControlPanel -> Plugins lists them in the tabs "Rulesets" and "Campaign settings".
 
 **Building another one** needs no code: a folder plugin with `plugin-type`, the dependency on
-`$:/plugins/tiddlyrpg-core` and the core version it needs (`"tiddlyrpg-core-version": ">=2.1.0"`).
+`$:/plugins/tiddlyrpg-core` and the core version it needs (`"tiddlyrpg-core-version": ">=2.2.0"`).
 Its terms go into rules domains - JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesDomain` -
 and language keys `$:/tiddlyrpg/language/<code>/...`. The domain types (`unit`, `label`, `tokens`,
 `damage`, `section`, `table`, `calendar`, `currency`) and their data formats are described in the header of
 `modules/rules.js`; its fields go into JSON data tiddlers tagged `$:/tags/tiddlyrpg/RulesFields`
 (one tiddler of definitions, one schema per type: header of `modules/fields.js`). The fixture
-plugins in `test/fixtures/plugins/` are examples. `scripts/check-wiki.js` reports a plugin whose
-core version is not met.
+plugins in `test/fixtures/plugins/` are small examples; the repo `TiddlyRPG-DnD` holds a whole
+one - the ruleset of D&D 5e with its fields, sections and tables, and the content package of the
+SRD 5.1. `scripts/check-wiki.js` reports a plugin whose core version is not met.
 
 **Terms of the campaign:** a wiki adds terms to a domain of the ruleset without changing it - a
 domain tiddler of its own with `"extends": true`, the `domain` it extends and its `entries`, plus
@@ -376,7 +377,11 @@ the glossary), `<<rule>>`, the name of a section, a spot - and so on in what an 
 names, until nothing comes. Nothing else of the package. An included entry is found like a
 tiddler of the wiki - hubs, search, graphs, the pickers -, its links, tag pills and graph
 nodes in italics (a missing tiddler is in italics too, but in the weight of the text and dark
-grey). The checks leave it out.
+grey; a tag pill of an included entry has the class `trpg-included`). The checks leave it out.
+
+- **In own filters:** an included entry is a shadow tiddler, and `[tag[Spell]]` of TiddlyWiki
+  sees no shadow tiddler. A list or graph view of the wiki starts its runs with
+  `[all[tiddlers+included]tag[Spell]]`; `[all[included]]` gives the included entries alone.
 
 - **Change it:** edit it - the own version is a tiddler of the wiki and wins; deleting it brings
   the entry back. The hub `Content` shows an included entry as "included".
@@ -864,9 +869,10 @@ trait, class, feat or entry of the glossary of that title (`<<trait "Pack Tactic
 way round, `<<rule "Rage" entry:"Barbarian">>` links to a section or table heading inside such an
 entry. An entry the view does not see gets no link.
 
-- The hub `Information` lists each category under a heading of its own, the hub of the category
-  only its entries. The category alone, without `Information`, gets a message below the title
-  with the fix. The ego graph draws the entries in the grey of `Information`.
+- The hub `Information` lists all its entries from A to Z; the bar above the list leads to the
+  hub of each category, which lists only its entries. The category alone, without
+  `Information`, gets a message below the title with the fix. The ego graph draws the entries in
+  the grey of `Information`.
 - A lock hides the entry or the figure (`Secret`), not the membership alone: a secret subclass of
   an open figure is a subclass tagged `Secret`. A locked entry takes what belongs to it along on
   the card; a message that would name it is left out.

@@ -3,7 +3,7 @@ title: $:/plugins/tiddlyrpg-core/modules/content-server.js
 type: application/javascript
 module-type: library
 created: 20261022165310491
-modified: 20261026132300929
+modified: 20261103204306633
 
 Content packages on the server (the route server/content-route.js; Node only): entries of a
 ruleset - items, spells, creatures - as data a DM takes into the wiki one by one. They are no
@@ -18,7 +18,7 @@ A manifest:
     "language": "en-GB",                     the language of its texts and titles
     "tag": "SRD 5.1 English",                optional: a tag every taken entry gets, so the
                                              tiddlers that came from it show it
-    "tiddlyrpg-core-version": ">=2.1.0",
+    "tiddlyrpg-core-version": ">=2.2.0",
     "source": "...",                         what goes into the field source of a taken entry
     "files": ["items.json", ...]             beside the manifest
   }
