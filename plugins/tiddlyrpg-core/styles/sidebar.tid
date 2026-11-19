@@ -1,0 +1,20 @@
+created: 20261119111546475
+modified: 20261119111546475
+tags: $:/tags/Stylesheet
+title: $:/plugins/tiddlyrpg-core/styles/sidebar
+type: text/vnd.tiddlywiki
+
+\rules only html
+/* The sidebar on a narrow screen (below the sidebar breakpoint of the theme), where it stands above
+   the story river. The core widget $scrollable gives it inline overflow: auto and
+   -webkit-overflow-scrolling: touch. Safari on iOS makes such a scroll container a stacking context
+   of its own, and the story river after it (position: relative) then paints over everything that
+   reaches out of the sidebar - the dropdown of the search ends at the lower edge of the sidebar,
+   behind the first tiddler. Here the sidebar has no height of its own and never scrolls, so it
+   needs neither. Above the breakpoint the sidebar is fixed and scrolls; nothing changes there. */
+@media (max-width: <$text text={{{ [{$:/themes/tiddlywiki/vanilla/metrics/sidebarbreakpoint}removesuffix[px]subtract[1]addsuffix[px]] ~[{$:/themes/tiddlywiki/vanilla/metrics/sidebarbreakpoint}] }}}/>) {
+	.tc-sidebar-scrollable {
+		overflow: visible !important;
+		-webkit-overflow-scrolling: auto !important;
+	}
+}

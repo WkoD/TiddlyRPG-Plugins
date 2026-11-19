@@ -661,7 +661,10 @@ the tiddler title:
 - **Styles** (`styles/*`): `border` (border per type and a light tint inside, 9 % of its colour; generated from the hubs, the dead keep their grey; the colour as `--trpg-type` on the frame, which colours every rule in the tiddler as a line fading out), `item` (book
   rules, images and maps of `trpg.images` scaled to the width), `fields` (the block of values:
   rules above and below and between sections, header line, labels; static CSS, the colour of
-  the type from `--trpg-type`), `dead`, `pinned`, `readonly`, `timeline`, `event` (event head,
+  the type from `--trpg-type`), `dead`, `pinned`, `readonly`, `sidebar` (below the sidebar
+  breakpoint the sidebar without the overflow of `$scrollable`: on iOS that made it a stacking
+  context, and the story river covered the search dropdown; wikitext for the breakpoint),
+  `timeline`, `event` (event head,
   heading of a dated section, location pills), `location` (the pill of `trpg.pill`, the path,
   spot pills, spots, map buttons, the tab "Quests and rumours", the relation list: group
   headings, the tree with its arrow and line; static CSS, `type: text/css`), `path` (the font

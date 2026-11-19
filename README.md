@@ -37,7 +37,7 @@ The wiki's `package.json` pins the bundle **and** the graph stack by release tag
 ```json
 "devDependencies": {
   "tiddlywiki": "5.4.1",
-  "tiddlyrpg-plugins": "git+https://github.com/WkoD/TiddlyRPG-Plugins.git#2.2.0",
+  "tiddlyrpg-plugins": "git+https://github.com/WkoD/TiddlyRPG-Plugins.git#2.2.1",
   "tw5-graph": "git+https://github.com/flibbles/tw5-graph.git#v1.7.1",
   "tw5-vis-network": "git+https://github.com/flibbles/tw5-vis-network.git#v10.6.3",
   "tw5-relink": "git+https://github.com/flibbles/tw5-relink.git#v2.6.1"
